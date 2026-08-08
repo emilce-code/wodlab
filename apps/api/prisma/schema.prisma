@@ -28,6 +28,7 @@ model User {
   email          String          @unique
   passwordHash   String
   athleteProfile AthleteProfile?
+  workoutsCreated Workout[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -37,6 +38,7 @@ model AthleteProfile {
   userId              String     @unique
   displayName         String
   preferredWeightUnit WeightUnit @default(KG)
+  workoutResults WorkoutResult[]
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,6 +62,7 @@ model Movement {
   categoryId       String
   category         MovementCategory          @relation(fields: [categoryId], references: [id])
   measurementTypes MovementMeasurementType[]
+  workoutMovements WorkoutMovement[]
   isFoundational   Boolean                   @default(false)
   official         Boolean                   @default(true)
   baseMovementId   String?
@@ -87,4 +90,102 @@ model MovementMeasurementType {
   movement        Movement        @relation(fields: [movementId], references: [id], onDelete: Cascade)
   measurementType MeasurementType @relation(fields: [measurementTypeId], references: [id], onDelete: Cascade)
   @@id([movementId, measurementTypeId])
+}
+
+model WorkoutType {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  name        String
+  description String?
+  sortOrder   Int     @default(0)
+  defaultResultTypeId String?
+  defaultResultType   ResultType? @relation( fields: [defaultResultTypeId], references: [id])
+  workouts Workout[]
+  sections WorkoutSection[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ResultType {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  name        String
+  description String?
+  sortOrder   Int     @default(0)
+  workoutTypes WorkoutType[]
+  results      WorkoutResult[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Workout {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?
+  typeId          String
+  type            WorkoutType      @relation(fields: [typeId], references: [id])
+  createdByUserId String
+  createdByUser   User             @relation(fields: [createdByUserId], references: [id])
+  isBenchmark     Boolean          @default(false)
+  sections        WorkoutSection[]
+  results         WorkoutResult[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model WorkoutSection {
+  id              String            @id @default(cuid())
+  workoutId       String
+  workout         Workout           @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  typeId          String
+  type            WorkoutType       @relation(fields: [typeId], references: [id])
+  order           Int
+  rounds          Int?
+  durationSeconds Int?
+  restSeconds     Int?
+  notes           String?
+  repScheme       Int[]
+  movements       WorkoutMovement[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  @@unique([workoutId, order])
+}
+
+model WorkoutMovement {
+  id              String         @id @default(cuid())
+  sectionId       String
+  section         WorkoutSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  movementId      String
+  movement        Movement       @relation(fields: [movementId], references: [id])
+  order           Int
+  reps            Int?
+  weight          Decimal?
+  weightUnit      WeightUnit?
+  distance        Int?
+  calories        Int?
+  durationSeconds Int?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  @@unique([sectionId, order])
+}
+
+model WorkoutResult {
+  id               String         @id @default(cuid())
+  workoutId        String
+  workout          Workout        @relation(fields: [workoutId], references: [id])
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id])
+  resultTypeId     String
+  resultType       ResultType     @relation(fields: [resultTypeId], references: [id])
+  performedAt      DateTime
+  timeSeconds      Int?
+  rounds           Int?
+  reps             Int?
+  load             Decimal?
+  weightUnit       WeightUnit?
+  isRx             Boolean        @default(false)
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }

@@ -29,6 +29,13 @@ export default async function DashboardPage() {
         Movement Library
       </Link>
 
+      <Link
+        href="/workouts"
+        className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+      >
+        Workout Library
+      </Link>
+
       <div className="mt-6 space-y-2">
         <p>Email: {user.email}</p>
 

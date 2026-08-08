@@ -516,6 +516,81 @@ const movements = [
   },
 ] as const;
 
+const workoutTypes = [
+  {
+    key: 'FOR_TIME',
+    name: 'For Time',
+    description: 'Complete the prescribed work as quickly as possible.',
+    sortOrder: 1,
+  },
+  {
+    key: 'AMRAP',
+    name: 'AMRAP',
+    description:
+      'Complete as many rounds or repetitions as possible within a time limit.',
+    sortOrder: 2,
+  },
+  {
+    key: 'EMOM',
+    name: 'EMOM',
+    description: 'Perform prescribed work at the start of each minute.',
+    sortOrder: 3,
+  },
+  {
+    key: 'STRENGTH',
+    name: 'Strength',
+    description:
+      'Strength-focused work organized around sets, repetitions, and load.',
+    sortOrder: 4,
+  },
+  {
+    key: 'INTERVAL',
+    name: 'Interval',
+    description: 'Repeated work and recovery periods.',
+    sortOrder: 5,
+  },
+  {
+    key: 'MAX_REPS',
+    name: 'Max Reps',
+    description: 'Perform the maximum number of repetitions.',
+    sortOrder: 6,
+  },
+  {
+    key: 'CUSTOM',
+    name: 'Custom',
+    description:
+      'A workout that does not fit another standard workout format.',
+    sortOrder: 7,
+  },
+];
+
+const resultTypes = [
+  {
+    key: 'TIME',
+    name: 'Time',
+    description: 'Result measured by elapsed completion time.',
+    sortOrder: 1,
+  },
+  {
+    key: 'ROUNDS_REPS',
+    name: 'Rounds + Reps',
+    description: 'Result measured by completed rounds and additional repetitions.',
+    sortOrder: 2,
+  },
+  {
+    key: 'LOAD',
+    name: 'Load',
+    description: 'Result measured by weight lifted.',
+    sortOrder: 3,
+  },
+  {
+    key: 'REPS',
+    name: 'Repetitions',
+    description: 'Result measured by total repetitions completed.',
+    sortOrder: 4,
+  },
+];
+
 function buildMovementSearchText(
     name: string,
     aliases: readonly string[],
@@ -549,6 +624,62 @@ async function main() {
   }
 
   console.log('Measurement types seeded.');
+
+  for (const workoutType of workoutTypes) {
+    await prisma.workoutType.upsert({
+      where: {
+        key: workoutType.key,
+      },
+      update: workoutType,
+      create: workoutType,
+    });
+  }
+
+  console.log('Workout types seeded.');
+
+  for (const resultType of resultTypes) {
+    await prisma.resultType.upsert({
+      where: {
+        key: resultType.key,
+      },
+      update: resultType,
+      create: resultType,
+    });
+  }
+
+  console.log('Result types seeded.');
+
+  const workoutTypeResultTypeMap: Record<string, string> = {
+    FOR_TIME: 'TIME',
+    AMRAP: 'ROUNDS_REPS',
+    STRENGTH: 'LOAD',
+    MAX_REPS: 'REPS',
+  };
+
+  for (const [workoutTypeKey, resultTypeKey] of Object.entries(
+    workoutTypeResultTypeMap,
+  )) {
+    const resultType = await prisma.resultType.findUnique({
+      where: {
+        key: resultTypeKey,
+      },
+    });
+
+    if (!resultType) {
+      throw new Error(
+        `Result type "${resultTypeKey}" was not found while seeding workout types.`,
+      );
+    }
+
+    await prisma.workoutType.update({
+      where: {
+        key: workoutTypeKey,
+      },
+      data: {
+        defaultResultTypeId: resultType.id,
+      },
+    });
+  }
 
   for (const movement of movements) {
     await prisma.movement.upsert({
