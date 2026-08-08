@@ -17,3 +17,28 @@ model SystemCheck {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
 }
+
+enum WeightUnit {
+  KG
+  LB
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  athleteProfile AthleteProfile?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model AthleteProfile {
+  id                  String     @id @default(cuid())
+  userId              String     @unique
+  displayName         String
+  preferredWeightUnit WeightUnit @default(KG)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
