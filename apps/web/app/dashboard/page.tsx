@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { LogoutButton } from './logout-button';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -20,6 +21,13 @@ export default async function DashboardPage() {
       <p className="mt-6">
         Welcome, {user.athleteProfile?.displayName ?? user.email}
       </p>
+      
+      <Link
+        href="/movements"
+        className="mt-6 inline-block rounded border px-4 py-2"
+      >
+        Movement Library
+      </Link>
 
       <div className="mt-6 space-y-2">
         <p>Email: {user.email}</p>

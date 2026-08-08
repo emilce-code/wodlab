@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { authenticatedApiFetch } from './api';
 
 export type CurrentUser = {
   id: string;
@@ -13,28 +13,10 @@ export type CurrentUser = {
 };
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('wodlab_access_token')?.value;
-
-  if (!token) {
-    return null;
-  }
-
-  const apiUrl = process.env.API_URL;
-
-  if (!apiUrl) {
-    throw new Error('API_URL is not configured');
-  }
-
   try {
-    const response = await fetch(`${apiUrl}/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      cache: 'no-store',
-    });
+    const response = await authenticatedApiFetch('/me');
 
-    if (!response.ok) {
+    if (!response?.ok) {
       return null;
     }
 

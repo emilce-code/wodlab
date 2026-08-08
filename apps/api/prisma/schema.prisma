@@ -37,8 +37,54 @@ model AthleteProfile {
   userId              String     @unique
   displayName         String
   preferredWeightUnit WeightUnit @default(KG)
-
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model MovementCategory {
+  id          String     @id @default(cuid())
+  key         String     @unique
+  name        String
+  description String?
+  sortOrder   Int        @default(0)
+  movements   Movement[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Movement {
+  id               String                    @id @default(cuid())
+  name             String                    @unique
+  searchText       String                    @default("")
+  categoryId       String
+  category         MovementCategory          @relation(fields: [categoryId], references: [id])
+  measurementTypes MovementMeasurementType[]
+  isFoundational   Boolean                   @default(false)
+  official         Boolean                   @default(true)
+  baseMovementId   String?
+  baseMovement     Movement?                 @relation("MovementVariants", fields: [baseMovementId], references: [id])
+  variants         Movement[]                @relation("MovementVariants")
+  aliases          String[]
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+}
+
+model MeasurementType {
+  id          String                    @id @default(cuid())
+  key         String                    @unique
+  name        String
+  description String?
+  sortOrder   Int                       @default(0)
+  movements   MovementMeasurementType[]
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+}
+
+model MovementMeasurementType {
+  movementId        String
+  measurementTypeId String
+  movement        Movement        @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  measurementType MeasurementType @relation(fields: [measurementTypeId], references: [id], onDelete: Cascade)
+  @@id([movementId, measurementTypeId])
 }
