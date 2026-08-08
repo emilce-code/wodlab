@@ -1,5 +1,6 @@
 type HealthResponse = {
   status: string;
+  database: string;
 };
 
 async function getApiHealth(): Promise<HealthResponse | null> {
@@ -29,17 +30,29 @@ async function getApiHealth(): Promise<HealthResponse | null> {
 export default async function Home() {
   const health = await getApiHealth();
 
-  const isConnected = health?.status === 'ok';
+  const isApiConnected = health?.status === 'ok';
+  const isDatabaseConnected = health?.database === 'connected';
 
   return (
     <main className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <h1 className="text-4xl font-bold">WODLab</h1>
 
-        <p className="mt-4">
-          API status:{' '}
-          <strong>{isConnected ? 'Connected' : 'Disconnected'}</strong>
-        </p>
+        <div className="mt-4 space-y-2">
+          <p>
+            API status:{' '}
+            <strong>
+              {isApiConnected ? 'Connected' : 'Disconnected'}
+            </strong>
+          </p>
+
+          <p>
+            Database status:{' '}
+            <strong>
+              {isDatabaseConnected ? 'Connected' : 'Disconnected'}
+            </strong>
+          </p>
+        </div>
       </div>
     </main>
   );

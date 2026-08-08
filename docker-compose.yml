@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: wodlab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wodlab
+      POSTGRES_PASSWORD: wodlab
+      POSTGRES_DB: wodlab
+    ports:
+      - "5432:5432"
+    volumes:
+      - wodlab_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  wodlab_postgres_data:

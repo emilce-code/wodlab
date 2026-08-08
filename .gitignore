@@ -22,3 +22,7 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+.env
+.env.*
+!.env.example
