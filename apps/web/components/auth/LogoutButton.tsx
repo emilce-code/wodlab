@@ -1,7 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+
+import {
+  useRouter,
+} from '@/i18n/navigation';
 
 type Props = {
   className?: string;
@@ -12,8 +15,13 @@ export default function LogoutButton({
   className = '',
   children = 'Log out',
 }: Props) {
-  const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router =
+    useRouter();
+
+  const [
+    isLoggingOut,
+    setIsLoggingOut,
+  ] = useState(false);
 
   async function handleLogout() {
     if (isLoggingOut) {
@@ -23,15 +31,24 @@ export default function LogoutButton({
     setIsLoggingOut(true);
 
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
+      const response =
+        await fetch(
+          '/api/auth/logout',
+          {
+            method: 'POST',
+          },
+        );
 
       if (!response.ok) {
-        throw new Error('Unable to log out');
+        throw new Error(
+          'Unable to log out',
+        );
       }
 
-      router.replace('/login');
+      router.replace(
+        '/login',
+      );
+
       router.refresh();
     } catch {
       setIsLoggingOut(false);
@@ -45,7 +62,9 @@ export default function LogoutButton({
       disabled={isLoggingOut}
       className={className}
     >
-      {isLoggingOut ? 'Logging out...' : children}
+      {isLoggingOut
+        ? 'Logging out...'
+        : children}
     </button>
   );
 }

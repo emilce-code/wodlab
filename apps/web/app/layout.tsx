@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import {
+  Geist,
+  Geist_Mono,
+} from 'next/font/google';
 
 import { BRAND } from '@/lib/brand';
 
@@ -20,7 +23,9 @@ export const metadata: Metadata = {
     default: BRAND.name,
     template: `%s | ${BRAND.name}`,
   },
+
   description: BRAND.description,
+
   applicationName: BRAND.name,
 
   manifest: '/manifest.webmanifest',
@@ -33,10 +38,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: LayoutProps<'/'>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
-      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body>{children}</body>

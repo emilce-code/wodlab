@@ -1,82 +1,112 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import Wordmark from '@/components/brand/Wordmark';
+import { useTranslations } from 'next-intl';
+
 import LogoutButton from '@/components/auth/LogoutButton';
+import Wordmark from '@/components/brand/Wordmark';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import {
+  Link,
+  usePathname,
+} from '@/i18n/navigation';
 
 const navigation = [
   {
-    name: 'Today',
+    key: 'today',
     href: '/dashboard',
     icon: '⌂',
   },
   {
-    name: 'Workouts',
+    key: 'workouts',
     href: '/workouts',
     icon: '◫',
   },
   {
-    name: 'History',
+    key: 'history',
     href: '/history',
     icon: '↶',
   },
   {
-    name: 'Progress',
+    key: 'progress',
     href: '/progress',
     icon: '↗',
   },
-];
+] as const;
 
 const secondaryNavigation = [
   {
-    name: 'Movements',
+    key: 'movements',
     href: '/movements',
     icon: '⊞',
   },
-];
+] as const;
 
 type Props = {
   user: {
     email: string;
+
     athleteProfile?: {
-      displayName?: string | null;
+      displayName?:
+        | string
+        | null;
     } | null;
   };
 };
 
-export default function Sidebar({ user }: Props) {
-  const pathname = usePathname();
+export default function Sidebar({
+  user,
+}: Props) {
+  const t =
+    useTranslations(
+      'navigation',
+    );
 
-  const [accountMenuOpen, setAccountMenuOpen] =
-    useState(false);
+  const pathname =
+    usePathname();
+
+  const [
+    accountMenuOpen,
+    setAccountMenuOpen,
+  ] = useState(false);
 
   const displayName =
-    user.athleteProfile?.displayName ?? user.email;
+    user.athleteProfile
+      ?.displayName ??
+    user.email;
 
-  const initials = displayName
-    .split(' ')
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const initials =
+    displayName
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
 
-  function isActive(href: string) {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard';
+  function isActive(
+    href: string,
+  ) {
+    if (
+      href === '/dashboard'
+    ) {
+      return (
+        pathname === '/dashboard'
+      );
     }
 
-    return pathname.startsWith(href);
+    return pathname.startsWith(
+      href,
+    );
   }
 
-  function renderNavigationItem(item: {
-    name: string;
-    href: string;
-    icon: string;
-  }) {
-    const active = isActive(item.href);
+  function renderNavigationItem(
+    item:
+      | (typeof navigation)[number]
+      | (typeof secondaryNavigation)[number],
+  ) {
+    const active =
+      isActive(item.href);
 
     return (
       <Link
@@ -85,6 +115,7 @@ export default function Sidebar({ user }: Props) {
         className={[
           'flex items-center gap-3 rounded-lg px-3 py-2.5',
           'text-sm font-medium transition-colors',
+
           active
             ? 'bg-accent/10 text-accent'
             : 'text-muted hover:bg-surface-elevated hover:text-foreground',
@@ -94,7 +125,7 @@ export default function Sidebar({ user }: Props) {
           {item.icon}
         </span>
 
-        {item.name}
+        {t(item.key)}
       </Link>
     );
   }
@@ -109,7 +140,9 @@ export default function Sidebar({ user }: Props) {
 
       <nav className="flex-1 px-4">
         <div className="space-y-1">
-          {navigation.map(renderNavigationItem)}
+          {navigation.map(
+            renderNavigationItem,
+          )}
         </div>
 
         <div className="my-5 border-t border-border" />
@@ -121,21 +154,29 @@ export default function Sidebar({ user }: Props) {
         </div>
       </nav>
 
+      <div className="px-4 pb-3">
+        <LanguageSwitcher />
+      </div>
+
       <div className="relative border-t border-border p-4">
         {accountMenuOpen && (
           <div className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-xl">
             <Link
               href="/account"
-              onClick={() => setAccountMenuOpen(false)}
+              onClick={() =>
+                setAccountMenuOpen(
+                  false,
+                )
+              }
               className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-foreground"
             >
-              Account
+              {t('account')}
             </Link>
 
             <div className="my-1 border-t border-border" />
 
             <LogoutButton className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50">
-              Log out
+              {t('logout')}
             </LogoutButton>
           </div>
         )}
@@ -144,10 +185,13 @@ export default function Sidebar({ user }: Props) {
           type="button"
           onClick={() =>
             setAccountMenuOpen(
-              (current) => !current,
+              (current) =>
+                !current,
             )
           }
-          aria-expanded={accountMenuOpen}
+          aria-expanded={
+            accountMenuOpen
+          }
           className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-surface-elevated"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent text-xs font-bold text-accent">
@@ -168,6 +212,7 @@ export default function Sidebar({ user }: Props) {
             aria-hidden="true"
             className={[
               'text-xs text-muted transition-transform',
+
               accountMenuOpen
                 ? 'rotate-180'
                 : '',

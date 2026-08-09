@@ -1,0 +1,396 @@
+{
+  "common": {
+    "workouts": "Workouts",
+    "history": "History",
+    "progress": "Progress",
+    "account": "Account",
+    "login": "Log in",
+    "logout": "Log out",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "all": "All",
+    "rx": "Rx",
+    "scaled": "Scaled",
+    "language": "Language"
+  },
+  "navigation": {
+    "today": "Today",
+    "workouts": "Workouts",
+    "history": "History",
+    "progress": "Progress",
+    "movements": "Movements",
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "auth": {
+    "shell": {
+      "eyebrow": "Train · Log · Track",
+      "titleLine1": "Every workout",
+      "titleLine2": "tells a story.",
+      "description": "Build consistency, track your progress and see what your training is really doing."
+    },
+    "login": {
+      "eyebrow": "Welcome back",
+      "title": "Sign in to WODLY",
+      "description": "Continue tracking your workouts and progress.",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "error": "Unable to sign in.",
+      "connectionError": "Unable to sign in. Please try again.",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create an account"
+    },
+    "register": {
+      "eyebrow": "Join WODLY",
+      "title": "Create your account",
+      "description": "Start logging your training and tracking your progress.",
+      "name": "Name",
+      "namePlaceholder": "How should we call you?",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Enter your password again",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "nameTooShort": "Display name must be at least 2 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "error": "Unable to create account.",
+      "connectionError": "Unable to create account. Please try again.",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Today",
+    "greeting": "Good evening, {name}.",
+    "readyToTrain": "Ready to train?",
+    "todaysWorkout": "Today's workout",
+    "forTime": "For Time",
+    "benchmark": "Benchmark",
+    "startWorkout": "Start Workout",
+    "recentActivity": "Recent activity",
+    "viewAllHistory": "View all history",
+    "thisMonth": "This month",
+    "workouts": "Workouts",
+    "prs": "PRs",
+    "volume": "Volume",
+    "reps": "reps"
+  },
+  "workouts": {
+    "library": {
+      "eyebrow": "Library",
+      "title": "Workouts",
+      "description": "Find your next challenge or build your own workout.",
+      "createWorkout": "Create Workout",
+      "searchLabel": "Search workouts or movements",
+      "searchPlaceholder": "Search workouts or movements...",
+      "all": "All",
+      "benchmark": "Benchmark",
+      "workoutCount": "{count, plural, =0 {0 workouts} =1 {1 workout} other {# workouts}}",
+      "emptyTitle": "No workouts found",
+      "emptyDescription": "Try changing your search or filters.",
+      "moreMovements": "+{count} more",
+      "viewWorkout": "View workout"
+    },
+    "create": {
+      "backToLibrary": "Workout Library",
+      "title": "Create Workout",
+      "description": "Build a workout by adding sections and movements.",
+      "optional": "(optional)",
+      "details": {
+        "eyebrow": "Workout",
+        "title": "Workout details",
+        "description": "Define the overall workout before adding its sections.",
+        "name": "Workout name",
+        "namePlaceholder": "Example: Fran",
+        "workoutDescription": "Description",
+        "descriptionPlaceholder": "Describe the workout...",
+        "type": "Workout type",
+        "selectType": "Select workout type",
+        "benchmark": "Benchmark workout",
+        "benchmarkDescription": "Mark this workout as a benchmark for tracking repeated attempts."
+      },
+      "sections": {
+        "eyebrow": "Structure",
+        "title": "Workout sections",
+        "description": "Add the blocks that make up this workout.",
+        "add": "Add section"
+      },
+      "reviewBeforeSaving": "Review your sections and movements before saving.",
+      "create": "Create workout",
+      "creating": "Creating workout...",
+      "validation": {
+        "nameRequired": "Workout name is required.",
+        "typeRequired": "Workout type is required.",
+        "sectionRequired": "Add at least one workout section.",
+        "sectionTypeRequired": "Section {section}: select a section type.",
+        "movementRequired": "Section {section}: add at least one movement.",
+        "movementSelectionRequired": "Section {section}, movement {movement}: select a movement.",
+        "invalidRepScheme": "Section {section}: rep scheme must contain positive numbers separated by hyphens, for example 21-15-9.",
+        "createError": "Unable to create workout."
+      },
+      "sectionBuilder": {
+        "section": "Section {number}",
+        "configureSection": "Configure section",
+        "remove": "Remove",
+        "sectionType": "Section type",
+        "selectSectionType": "Select section type",
+        "sets": "Sets",
+        "rounds": "Rounds",
+        "duration": "Duration",
+        "minutes": "minutes",
+        "rest": "Rest",
+        "seconds": "seconds",
+        "repScheme": "Rep scheme",
+        "repSchemeHelp": "Enter reps separated by hyphens, for example 21-15-9.",
+        "movements": "Movements",
+        "movementsDescription": "Add the movements included in this section.",
+        "addMovement": "Add movement",
+        "noMovements": "No movements yet",
+        "noMovementsDescription": "Add the first movement for this section.",
+        "movementNumber": "Movement {number}",
+        "notes": "Notes",
+        "optional": "(optional)",
+        "notesPlaceholder": "Add instructions or notes for this section..."
+      },
+      "movementBuilder": {
+        "movement": "Movement",
+        "change": "Change",
+        "remove": "Remove",
+        "searchLabel": "Search movements",
+        "searchPlaceholder": "Search movements...",
+        "searching": "Searching...",
+        "searchError": "Unable to search movements.",
+        "noResults": "No movements found.",
+        "prescription": "Prescription",
+        "reps": "Reps",
+        "weight": "Weight",
+        "unit": "Unit",
+        "selectUnit": "Select unit",
+        "distance": "Distance",
+        "calories": "Calories",
+        "duration": "Duration",
+        "secondsShort": "sec",
+        "notes": "Movement notes",
+        "optional": "(optional)",
+        "notesPlaceholder": "Scaling, target pace, technique cue..."
+      }
+    },
+    "detail": {
+      "backToWorkouts": "Workouts",
+      "benchmark": "Benchmark",
+      "scaled": "Scaled",
+      "section": "Section {number}",
+      "roundCount": "{count, plural, =1 {1 round} other {# rounds}}",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+      "rest": "Rest",
+      "performance": {
+        "eyebrow": "Your performance",
+        "title": "Track your progress",
+        "resultCount": "{count, plural, =1 {1 result recorded} other {# results recorded}}",
+        "personalBest": "Personal best",
+        "lastResult": "Last result",
+        "noResults": "No results recorded yet.",
+        "startWorkout": "Start Workout",
+        "liveTrackingLater": "Live workout tracking is coming later."
+      },
+      "history": {
+        "eyebrow": "History",
+        "title": "Previous results",
+        "emptyTitle": "No results yet",
+        "emptyDescription": "Your previous attempts and personal bests will appear here after you start logging workout results."
+      }
+    },
+    "logResult": {
+      "eyebrow": "Log result",
+      "description": "Record your performance for this workout.",
+      "minutes": "Minutes",
+      "seconds": "Seconds",
+      "rounds": "Rounds",
+      "extraReps": "Extra reps",
+      "reps": "Reps",
+      "load": "Load",
+      "unit": "Unit",
+      "performedAt": "Performed at",
+      "date": "Date",
+      "time": "Time",
+      "selectDate": "Select date",
+      "selectTime": "Select time",
+      "chooseDate": "Choose date",
+      "chooseTime": "Choose time",
+      "performedAtHelp": "Defaults to now. Change it only when logging a previous workout.",
+      "rxDescription": "Completed as prescribed.",
+      "notes": "Notes",
+      "optional": "(optional)",
+      "notesPlaceholder": "How did it feel? Scaling, pacing, anything worth remembering...",
+      "save": "Save result",
+      "saving": "Saving result...",
+      "validation": {
+        "timeRequired": "Enter a workout time.",
+        "invalidSeconds": "Seconds must be between 0 and 59.",
+        "roundsOrRepsRequired": "Enter rounds or reps.",
+        "repsRequired": "Enter the number of reps.",
+        "loadRequired": "Enter the load.",
+        "performedAtRequired": "Select when the workout was performed.",
+        "saveError": "Unable to save result.",
+        "connectionError": "Unable to save result. Please try again."
+      }
+    }
+  },
+  "workoutTypes": {
+    "for_time": "For Time",
+    "amrap": "AMRAP",
+    "emom": "EMOM",
+    "strength": "Strength",
+    "interval": "Interval",
+    "max_reps": "Max Reps",
+    "custom": "Custom"
+  },
+  "resultTypes": {
+    "time": "Time",
+    "rounds_reps": "Rounds + Reps",
+    "reps": "Reps",
+    "load": "Load"
+  },
+  "history": {
+    "eyebrow": "History",
+    "title": "Your training history",
+    "description": "Review and filter your previous workout results.",
+    "benchmark": "Benchmark",
+    "scaled": "Scaled",
+    "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+    "empty": {
+      "title": "No workout history yet",
+      "description": "Your logged workout results will appear here.",
+      "browseWorkouts": "Browse workouts"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Workout name...",
+      "workoutType": "Workout type",
+      "allWorkoutTypes": "All types",
+      "resultType": "Result type",
+      "allResultTypes": "All results",
+      "prescription": "Prescription",
+      "rxAndScaled": "Rx + Scaled",
+      "rxOnly": "Rx only",
+      "scaledOnly": "Scaled only",
+      "showing": "Showing {filtered} of {total} results",
+      "clear": "Clear filters"
+    },
+    "noMatches": {
+      "title": "No matching results",
+      "description": "Try changing or clearing your filters."
+    }
+  },
+  "progress": {
+    "eyebrow": "Progress",
+    "title": "See how you're evolving",
+    "description": "Track personal bests, repeated attempts, and performance trends across your workouts.",
+    "benchmark": "Benchmark",
+    "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+    "attemptCount": "{count, plural, =1 {1 attempt} other {# attempts}}",
+    "firstResult": "First result",
+    "personalBest": "Personal best",
+    "latest": "Latest",
+    "empty": {
+      "title": "No progress data yet",
+      "description": "Log workout results and WODLY will start tracking your progress.",
+      "browseWorkouts": "Browse workouts"
+    },
+    "summary": {
+      "resultsLogged": "Results logged",
+      "workoutsTracked": "Workouts tracked",
+      "rxRate": "Rx rate",
+      "rxBreakdown": "{rx} Rx · {scaled} Scaled",
+      "benchmarksTracked": "Benchmarks tracked"
+    },
+    "workouts": {
+      "eyebrow": "Workout progress",
+      "title": "Your tracked workouts",
+      "description": "Compare your first result with your personal best and see how your performance changes over time."
+    },
+    "improvement": {
+      "label": "Improvement",
+      "faster": "{value} faster",
+      "slower": "{value} slower",
+      "noChange": "No change",
+      "noImprovement": "No improvement",
+      "repsGain": "+{count, plural, =1 {1 rep} other {# reps}}",
+      "repsLoss": "-{count, plural, =1 {1 rep} other {# reps}}",
+      "roundsGain": "+{count, plural, =1 {1 round} other {# rounds}}"
+    },
+    "trend": {
+      "title": "Performance trend",
+      "description": "Results in chronological order."
+    },
+    "chart": {
+      "ariaLabel": "Workout performance trend",
+      "notEnoughData": "Not enough data to chart.",
+      "logAnotherResult": "Log another result to see your trend.",
+      "lowerIsBetter": "Lower is better.",
+      "higherIsBetter": "Higher is better.",
+      "noAttempts": "No attempts available.",
+      "scaled": "Scaled",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+      "roundsRepsExplanation": "Attempts are shown exactly as rounds + extra reps rather than converted into an artificial numeric score."
+    }
+  },
+  "movements": {
+    "eyebrow": "Reference",
+    "title": "Movements",
+    "description": "Explore the movement library used to build your workouts.",
+    "searchLabel": "Search movements or aliases",
+    "searchPlaceholder": "Search movements or aliases...",
+    "searching": "Searching...",
+    "searchError": "Unable to search movements.",
+    "movementCount": "{count, plural, =0 {0 movements} =1 {1 movement} other {# movements}}",
+    "emptyTitle": "No movements found",
+    "emptyDescription": "Try searching by movement name or alias.",
+    "foundational": "Foundational"
+  },
+  "measurementTypes": {
+    "reps": "Reps",
+    "weight": "Weight",
+    "distance": "Distance",
+    "calories": "Calories",
+    "duration": "Duration"
+  },
+  "movementCategories": {
+    "weightlifting": "Weightlifting",
+    "gymnastics": "Gymnastics",
+    "monostructural": "Monostructural",
+    "cardio": "Cardio",
+    "bodyweight": "Bodyweight",
+    "core": "Core",
+    "mobility": "Mobility",
+    "other": "Other"
+  },
+  "account": {
+    "eyebrow": "Account",
+    "title": "Your profile",
+    "description": "Manage your athlete profile and account preferences.",
+    "weightUnit": {
+      "title": "Preferred weight unit",
+      "description": "Used for workout loads and performance tracking."
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose the language used throughout WODLY."
+    },
+    "session": {
+      "eyebrow": "Session",
+      "title": "Sign out",
+      "description": "Sign out of WODLY on this device.",
+      "logout": "Log out"
+    }
+  }
+}

@@ -1,0 +1,396 @@
+{
+  "common": {
+    "workouts": "Treinos",
+    "history": "Histórico",
+    "progress": "Progresso",
+    "account": "Conta",
+    "login": "Entrar",
+    "logout": "Sair",
+    "register": "Criar conta",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "search": "Buscar",
+    "all": "Todos",
+    "rx": "Rx",
+    "scaled": "Adaptado",
+    "language": "Idioma"
+  },
+  "navigation": {
+    "today": "Hoje",
+    "workouts": "Treinos",
+    "history": "Histórico",
+    "progress": "Progresso",
+    "movements": "Movimentos",
+    "account": "Conta",
+    "logout": "Sair"
+  },
+  "auth": {
+    "shell": {
+      "eyebrow": "Treine · Registre · Evolua",
+      "titleLine1": "Cada treino",
+      "titleLine2": "conta uma história.",
+      "description": "Crie consistência, acompanhe seu progresso e veja o que seu treino realmente está fazendo por você."
+    },
+    "login": {
+      "eyebrow": "Bem-vindo de volta",
+      "title": "Entre no WODLY",
+      "description": "Continue registrando seus treinos e acompanhando seu progresso.",
+      "email": "E-mail",
+      "emailPlaceholder": "voce@exemplo.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Digite sua senha",
+      "submit": "Entrar",
+      "submitting": "Entrando...",
+      "error": "Não foi possível entrar.",
+      "connectionError": "Não foi possível entrar. Tente novamente.",
+      "noAccount": "Ainda não tem uma conta?",
+      "createAccount": "Criar uma conta"
+    },
+    "register": {
+      "eyebrow": "Junte-se ao WODLY",
+      "title": "Crie sua conta",
+      "description": "Comece a registrar seus treinos e acompanhar seu progresso.",
+      "name": "Nome",
+      "namePlaceholder": "Como devemos chamar você?",
+      "email": "E-mail",
+      "emailPlaceholder": "voce@exemplo.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Crie uma senha",
+      "confirmPassword": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Digite sua senha novamente",
+      "submit": "Criar conta",
+      "submitting": "Criando conta...",
+      "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+      "passwordMismatch": "As senhas não coincidem.",
+      "error": "Não foi possível criar a conta.",
+      "connectionError": "Não foi possível criar a conta. Tente novamente.",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Hoje",
+    "greeting": "Boa tarde, {name}.",
+    "readyToTrain": "Pronto para treinar?",
+    "todaysWorkout": "Treino de hoje",
+    "forTime": "Por tempo",
+    "benchmark": "Benchmark",
+    "startWorkout": "Começar treino",
+    "recentActivity": "Atividade recente",
+    "viewAllHistory": "Ver todo o histórico",
+    "thisMonth": "Este mês",
+    "workouts": "Treinos",
+    "prs": "PRs",
+    "volume": "Volume",
+    "reps": "reps"
+  },
+  "workouts": {
+    "library": {
+      "eyebrow": "Biblioteca",
+      "title": "Treinos",
+      "description": "Encontre seu próximo desafio ou crie seu próprio treino.",
+      "createWorkout": "Criar treino",
+      "searchLabel": "Buscar treinos ou movimentos",
+      "searchPlaceholder": "Buscar treinos ou movimentos...",
+      "all": "Todos",
+      "benchmark": "Benchmark",
+      "workoutCount": "{count, plural, =0 {0 treinos} =1 {1 treino} other {# treinos}}",
+      "emptyTitle": "Nenhum treino encontrado",
+      "emptyDescription": "Tente alterar a busca ou os filtros.",
+      "moreMovements": "+{count} a mais",
+      "viewWorkout": "Ver treino"
+    },
+    "create": {
+      "backToLibrary": "Biblioteca de treinos",
+      "title": "Criar treino",
+      "description": "Monte um treino adicionando seções e movimentos.",
+      "optional": "(opcional)",
+      "details": {
+        "eyebrow": "Treino",
+        "title": "Detalhes do treino",
+        "description": "Defina o treino geral antes de adicionar suas seções.",
+        "name": "Nome do treino",
+        "namePlaceholder": "Exemplo: Fran",
+        "workoutDescription": "Descrição",
+        "descriptionPlaceholder": "Descreva o treino...",
+        "type": "Tipo de treino",
+        "selectType": "Selecione o tipo de treino",
+        "benchmark": "Treino benchmark",
+        "benchmarkDescription": "Marque este treino como benchmark para acompanhar suas tentativas ao longo do tempo."
+      },
+      "sections": {
+        "eyebrow": "Estrutura",
+        "title": "Seções do treino",
+        "description": "Adicione os blocos que compõem este treino.",
+        "add": "Adicionar seção"
+      },
+      "reviewBeforeSaving": "Revise as seções e os movimentos antes de salvar.",
+      "create": "Criar treino",
+      "creating": "Criando treino...",
+      "validation": {
+        "nameRequired": "O nome do treino é obrigatório.",
+        "typeRequired": "O tipo de treino é obrigatório.",
+        "sectionRequired": "Adicione pelo menos uma seção.",
+        "sectionTypeRequired": "Seção {section}: selecione um tipo de seção.",
+        "movementRequired": "Seção {section}: adicione pelo menos um movimento.",
+        "movementSelectionRequired": "Seção {section}, movimento {movement}: selecione um movimento.",
+        "invalidRepScheme": "Seção {section}: o esquema de repetições deve conter números positivos separados por hífens, por exemplo 21-15-9.",
+        "createError": "Não foi possível criar o treino."
+      },
+      "sectionBuilder": {
+        "section": "Seção {number}",
+        "configureSection": "Configurar seção",
+        "remove": "Remover",
+        "sectionType": "Tipo de seção",
+        "selectSectionType": "Selecione o tipo de seção",
+        "sets": "Séries",
+        "rounds": "Rounds",
+        "duration": "Duração",
+        "minutes": "minutos",
+        "rest": "Descanso",
+        "seconds": "segundos",
+        "repScheme": "Esquema de repetições",
+        "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+        "movements": "Movimentos",
+        "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
+        "addMovement": "Adicionar movimento",
+        "noMovements": "Ainda não há movimentos",
+        "noMovementsDescription": "Adicione o primeiro movimento desta seção.",
+        "movementNumber": "Movimento {number}",
+        "notes": "Observações",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Adicione instruções ou observações para esta seção..."
+      },
+      "movementBuilder": {
+        "movement": "Movimento",
+        "change": "Alterar",
+        "remove": "Remover",
+        "searchLabel": "Buscar movimentos",
+        "searchPlaceholder": "Buscar movimentos...",
+        "searching": "Buscando...",
+        "searchError": "Não foi possível buscar os movimentos.",
+        "noResults": "Nenhum movimento encontrado.",
+        "prescription": "Prescrição",
+        "reps": "Repetições",
+        "weight": "Peso",
+        "unit": "Unidade",
+        "selectUnit": "Selecione uma unidade",
+        "distance": "Distância",
+        "calories": "Calorias",
+        "duration": "Duração",
+        "secondsShort": "seg",
+        "notes": "Observações do movimento",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Adaptação, ritmo alvo, dica técnica..."
+      }
+    },
+    "detail": {
+      "backToWorkouts": "Treinos",
+      "benchmark": "Benchmark",
+      "scaled": "Adaptado",
+      "section": "Seção {number}",
+      "roundCount": "{count, plural, =1 {1 round} other {# rounds}}",
+      "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+      "rest": "Descanso",
+      "performance": {
+        "eyebrow": "Seu desempenho",
+        "title": "Acompanhe seu progresso",
+        "resultCount": "{count, plural, =1 {1 resultado registrado} other {# resultados registrados}}",
+        "personalBest": "Melhor marca pessoal",
+        "lastResult": "Último resultado",
+        "noResults": "Ainda não há resultados registrados.",
+        "startWorkout": "Começar treino",
+        "liveTrackingLater": "O acompanhamento de treino ao vivo estará disponível mais adiante."
+      },
+      "history": {
+        "eyebrow": "Histórico",
+        "title": "Resultados anteriores",
+        "emptyTitle": "Ainda não há resultados",
+        "emptyDescription": "Suas tentativas anteriores e melhores marcas aparecerão aqui quando você começar a registrar resultados."
+      }
+    },
+    "logResult": {
+      "eyebrow": "Registrar resultado",
+      "description": "Registre seu desempenho neste treino.",
+      "minutes": "Minutos",
+      "seconds": "Segundos",
+      "rounds": "Rounds",
+      "extraReps": "Repetições extras",
+      "reps": "Repetições",
+      "load": "Carga",
+      "unit": "Unidade",
+      "performedAt": "Realizado em",
+      "date": "Data",
+      "time": "Hora",
+      "selectDate": "Selecionar data",
+      "selectTime": "Selecionar hora",
+      "chooseDate": "Escolher data",
+      "chooseTime": "Escolher hora",
+      "performedAtHelp": "A data e a hora atuais são preenchidas automaticamente. Altere apenas ao registrar um treino anterior.",
+      "rxDescription": "Concluído conforme prescrito.",
+      "notes": "Observações",
+      "optional": "(opcional)",
+      "notesPlaceholder": "Como foi? Adaptação, ritmo ou qualquer detalhe que queira lembrar...",
+      "save": "Salvar resultado",
+      "saving": "Salvando resultado...",
+      "validation": {
+        "timeRequired": "Informe o tempo do treino.",
+        "invalidSeconds": "Os segundos devem estar entre 0 e 59.",
+        "roundsOrRepsRequired": "Informe rounds ou repetições.",
+        "repsRequired": "Informe a quantidade de repetições.",
+        "loadRequired": "Informe a carga.",
+        "performedAtRequired": "Selecione quando o treino foi realizado.",
+        "saveError": "Não foi possível salvar o resultado.",
+        "connectionError": "Não foi possível salvar o resultado. Tente novamente."
+      }
+    }
+  },
+  "workoutTypes": {
+    "for_time": "Por tempo",
+    "amrap": "AMRAP",
+    "emom": "EMOM",
+    "strength": "Força",
+    "interval": "Intervalos",
+    "max_reps": "Máximo de repetições",
+    "custom": "Personalizado"
+  },
+  "resultTypes": {
+    "time": "Tempo",
+    "rounds_reps": "Rounds + Repetições",
+    "reps": "Repetições",
+    "load": "Carga"
+  },
+  "history": {
+    "eyebrow": "Histórico",
+    "title": "Seu histórico de treinos",
+    "description": "Revise e filtre os resultados dos seus treinos anteriores.",
+    "benchmark": "Benchmark",
+    "scaled": "Adaptado",
+    "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+    "empty": {
+      "title": "Ainda não há histórico de treinos",
+      "description": "Os resultados dos seus treinos aparecerão aqui.",
+      "browseWorkouts": "Ver treinos"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome do treino...",
+      "workoutType": "Tipo de treino",
+      "allWorkoutTypes": "Todos os tipos",
+      "resultType": "Tipo de resultado",
+      "allResultTypes": "Todos os resultados",
+      "prescription": "Modalidade",
+      "rxAndScaled": "Rx + Adaptado",
+      "rxOnly": "Somente Rx",
+      "scaledOnly": "Somente adaptado",
+      "showing": "Exibindo {filtered} de {total} resultados",
+      "clear": "Limpar filtros"
+    },
+    "noMatches": {
+      "title": "Nenhum resultado encontrado",
+      "description": "Tente alterar ou limpar os filtros."
+    }
+  },
+  "progress": {
+    "eyebrow": "Progresso",
+    "title": "Veja como você está evoluindo",
+    "description": "Acompanhe suas melhores marcas, tentativas repetidas e tendências de desempenho nos seus treinos.",
+    "benchmark": "Benchmark",
+    "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+    "attemptCount": "{count, plural, =1 {1 tentativa} other {# tentativas}}",
+    "firstResult": "Primeiro resultado",
+    "personalBest": "Melhor marca pessoal",
+    "latest": "Mais recente",
+    "empty": {
+      "title": "Ainda não há dados de progresso",
+      "description": "Registre resultados de treinos e o WODLY começará a acompanhar seu progresso.",
+      "browseWorkouts": "Ver treinos"
+    },
+    "summary": {
+      "resultsLogged": "Resultados registrados",
+      "workoutsTracked": "Treinos acompanhados",
+      "rxRate": "Taxa de Rx",
+      "rxBreakdown": "{rx} Rx · {scaled} Adaptado",
+      "benchmarksTracked": "Benchmarks acompanhados"
+    },
+    "workouts": {
+      "eyebrow": "Progresso por treino",
+      "title": "Seus treinos acompanhados",
+      "description": "Compare seu primeiro resultado com sua melhor marca pessoal e veja como seu desempenho muda ao longo do tempo."
+    },
+    "improvement": {
+      "label": "Evolução",
+      "faster": "{value} mais rápido",
+      "slower": "{value} mais lento",
+      "noChange": "Sem alteração",
+      "noImprovement": "Sem evolução",
+      "repsGain": "+{count, plural, =1 {1 repetição} other {# repetições}}",
+      "repsLoss": "-{count, plural, =1 {1 repetição} other {# repetições}}",
+      "roundsGain": "+{count, plural, =1 {1 round} other {# rounds}}"
+    },
+    "trend": {
+      "title": "Tendência de desempenho",
+      "description": "Resultados em ordem cronológica."
+    },
+    "chart": {
+      "ariaLabel": "Tendência de desempenho do treino",
+      "notEnoughData": "Não há dados suficientes para exibir um gráfico.",
+      "logAnotherResult": "Registre outro resultado para ver sua tendência.",
+      "lowerIsBetter": "Menor é melhor.",
+      "higherIsBetter": "Maior é melhor.",
+      "noAttempts": "Nenhuma tentativa disponível.",
+      "scaled": "Adaptado",
+      "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+      "roundsRepsExplanation": "As tentativas são exibidas exatamente como rounds + repetições extras, sem convertê-las em uma pontuação numérica artificial."
+    }
+  },
+  "movements": {
+    "eyebrow": "Referência",
+    "title": "Movimentos",
+    "description": "Explore a biblioteca de movimentos usada para montar seus treinos.",
+    "searchLabel": "Buscar movimentos ou aliases",
+    "searchPlaceholder": "Buscar movimentos ou aliases...",
+    "searching": "Buscando...",
+    "searchError": "Não foi possível buscar os movimentos.",
+    "movementCount": "{count, plural, =0 {0 movimentos} =1 {1 movimento} other {# movimentos}}",
+    "emptyTitle": "Nenhum movimento encontrado",
+    "emptyDescription": "Tente buscar pelo nome do movimento ou alias.",
+    "foundational": "Fundamental"
+  },
+  "measurementTypes": {
+    "reps": "Repetições",
+    "weight": "Peso",
+    "distance": "Distância",
+    "calories": "Calorias",
+    "duration": "Duração"
+  },
+  "movementCategories": {
+    "weightlifting": "Levantamento de peso",
+    "gymnastics": "Ginástica",
+    "monostructural": "Monoestrutural",
+    "cardio": "Cardio",
+    "bodyweight": "Peso corporal",
+    "core": "Core",
+    "mobility": "Mobilidade",
+    "other": "Outros"
+  },
+  "account": {
+    "eyebrow": "Conta",
+    "title": "Seu perfil",
+    "description": "Gerencie seu perfil de atleta e as preferências da sua conta.",
+    "weightUnit": {
+      "title": "Unidade de peso preferida",
+      "description": "Usada para cargas de treino e acompanhamento de desempenho."
+    },
+    "language": {
+      "title": "Idioma",
+      "description": "Escolha o idioma usado em todo o WODLY."
+    },
+    "session": {
+      "eyebrow": "Sessão",
+      "title": "Sair",
+      "description": "Saia do WODLY neste dispositivo.",
+      "logout": "Sair"
+    }
+  }
+}
