@@ -46,6 +46,11 @@ export default function WorkoutCard({
       'workouts.library',
     );
 
+  const typeT =
+    useTranslations(
+      'workoutTypes',
+    );
+
   const firstSection =
     workout.sections[0];
 
@@ -62,6 +67,18 @@ export default function WorkoutCard({
       ),
     );
 
+  function getWorkoutTypeName() {
+    const key =
+      workout.type.key
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll('-', '_');
+
+    return typeT.has(key)
+      ? typeT(key)
+      : workout.type.name;
+  }
+
   return (
     <Link
       href={`/workouts/${workout.id}`}
@@ -70,7 +87,7 @@ export default function WorkoutCard({
       <Card className="flex h-full flex-col p-6 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-accent/40">
         <div className="flex items-start justify-between gap-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-            {workout.type.name}
+            {getWorkoutTypeName()}
           </p>
 
           {workout.isBenchmark && (

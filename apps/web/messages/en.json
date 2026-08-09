@@ -392,5 +392,55 @@
       "description": "Sign out of WODLY on this device.",
       "logout": "Log out"
     }
+  },
+  "landing": {
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "hero": {
+      "eyebrow": "Train · Log · Track",
+      "titleLine1": "Your training.",
+      "titleLine2": "Your progress.",
+      "titleLine3": "All in one place.",
+      "description": "Build workouts, log results, track personal records and see how your training evolves over time.",
+      "startTraining": "Start training"
+    },
+    "workoutPreview": {
+      "forTime": "For Time",
+      "benchmark": "Benchmark",
+      "personalBest": "Personal best"
+    },
+    "features": {
+      "build": {
+        "title": "Build workouts",
+        "description": "Create For Time, AMRAP, strength, interval and custom workouts with real movement data."
+      },
+      "log": {
+        "title": "Log performance",
+        "description": "Capture time, rounds, reps, loads and notes without losing the structure of the workout."
+      },
+      "progress": {
+        "title": "Track progress",
+        "description": "Follow your history, personal records and performance over time."
+      }
+    },
+    "training": {
+      "eyebrow": "Built for training",
+      "titleLine1": "Less spreadsheet.",
+      "titleLine2": "More training.",
+      "description": "WODLY keeps workout structure, movement data, results and progress connected so you can spend less time organizing and more time training."
+    },
+    "stats": {
+      "workoutsThisMonth": "Workouts this month",
+      "personalRecords": "Personal records",
+      "trainingStreak": "Training streak",
+      "days": "{count, plural, =1 {1 day} other {# days}}"
+    },
+    "cta": {
+      "eyebrow": "Ready?",
+      "title": "Start tracking the work you're already doing.",
+      "description": "Create your account and start building your training history.",
+      "createAccount": "Create your WODLY account"
+    },
+    "footer": "Train. Log. Track."
   }
 }

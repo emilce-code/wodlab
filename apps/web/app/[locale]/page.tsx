@@ -1,10 +1,17 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+
 import LogoMark from '@/components/brand/LogoMark';
 import Wordmark from '@/components/brand/Wordmark';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import { Link } from '@/i18n/navigation';
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const t =
+    await getTranslations(
+      'landing',
+    );
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
@@ -22,14 +29,14 @@ export default function LandingPage() {
               href="/login"
               className="rounded-lg px-3 py-2 text-sm font-semibold text-muted transition hover:text-foreground"
             >
-              Sign in
+              {t('signIn')}
             </Link>
 
             <Link
               href="/register"
               className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
             >
-              Get started
+              {t('getStarted')}
             </Link>
           </div>
         </div>
@@ -49,23 +56,21 @@ export default function LandingPage() {
         <div className="relative mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-10 lg:py-32">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">
-              Train · Log · Track
+              {t('hero.eyebrow')}
             </p>
 
             <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.98] tracking-tight sm:text-6xl lg:text-7xl">
-              Your training.
+              {t('hero.titleLine1')}
               <br />
-              Your progress.
+              {t('hero.titleLine2')}
               <br />
               <span className="text-accent">
-                All in one place.
+                {t('hero.titleLine3')}
               </span>
             </h1>
 
             <p className="mt-7 max-w-2xl text-lg leading-8 text-muted">
-              Build workouts, log results, track personal
-              records and see how your training evolves over
-              time.
+              {t('hero.description')}
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -73,14 +78,14 @@ export default function LandingPage() {
                 href="/register"
                 className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
               >
-                Start training →
+                {t('hero.startTraining')} →
               </Link>
 
               <Link
                 href="/login"
                 className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-elevated"
               >
-                Sign in
+                {t('signIn')}
               </Link>
             </div>
           </div>
@@ -90,11 +95,13 @@ export default function LandingPage() {
               <div className="p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                    For Time
+                    {t('workoutPreview.forTime')}
                   </p>
 
                   <Badge>
-                    Benchmark
+                    {t(
+                      'workoutPreview.benchmark',
+                    )}
                   </Badge>
                 </div>
 
@@ -119,7 +126,9 @@ export default function LandingPage() {
 
                 <div className="mt-8 rounded-xl border border-accent/20 bg-accent/5 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-                    Personal best
+                    {t(
+                      'workoutPreview.personalBest',
+                    )}
                   </p>
 
                   <p className="mt-2 text-3xl font-black">
@@ -141,20 +150,32 @@ export default function LandingPage() {
           <div className="grid gap-10 md:grid-cols-3">
             <Feature
               number="01"
-              title="Build workouts"
-              description="Create For Time, AMRAP, strength, interval and custom workouts with real movement data."
+              title={t(
+                'features.build.title',
+              )}
+              description={t(
+                'features.build.description',
+              )}
             />
 
             <Feature
               number="02"
-              title="Log performance"
-              description="Capture time, rounds, reps, loads and notes without losing the structure of the workout."
+              title={t(
+                'features.log.title',
+              )}
+              description={t(
+                'features.log.description',
+              )}
             />
 
             <Feature
               number="03"
-              title="Track progress"
-              description="Follow your history, personal records and performance over time."
+              title={t(
+                'features.progress.title',
+              )}
+              description={t(
+                'features.progress.description',
+              )}
             />
           </div>
         </div>
@@ -164,36 +185,47 @@ export default function LandingPage() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              Built for training
+              {t('training.eyebrow')}
             </p>
 
             <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
-              Less spreadsheet.
+              {t('training.titleLine1')}
               <br />
-              More training.
+              {t('training.titleLine2')}
             </h2>
 
             <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-              WODLY keeps workout structure, movement data,
-              results and progress connected so you can spend
-              less time organizing and more time training.
+              {t('training.description')}
             </p>
           </div>
 
           <Card className="p-6 sm:p-8">
             <div className="space-y-5">
               <StatRow
-                label="Workouts this month"
+                label={t(
+                  'stats.workoutsThisMonth',
+                )}
                 value="12"
               />
+
               <StatRow
-                label="Personal records"
+                label={t(
+                  'stats.personalRecords',
+                )}
                 value="4"
                 accent
               />
+
               <StatRow
-                label="Training streak"
-                value="8 days"
+                label={t(
+                  'stats.trainingStreak',
+                )}
+                value={t(
+                  'stats.days',
+                  {
+                    count: 8,
+                  },
+                )}
               />
             </div>
           </Card>
@@ -203,23 +235,22 @@ export default function LandingPage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-5 py-20 text-center sm:px-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Ready?
+            {t('cta.eyebrow')}
           </p>
 
           <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
-            Start tracking the work you&apos;re already doing.
+            {t('cta.title')}
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-muted">
-            Create your account and start building your
-            training history.
+            {t('cta.description')}
           </p>
 
           <Link
             href="/register"
             className="mt-8 inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
           >
-            Create your WODLY account →
+            {t('cta.createAccount')} →
           </Link>
         </div>
       </section>
@@ -229,7 +260,7 @@ export default function LandingPage() {
           <Wordmark className="text-sm" />
 
           <p>
-            Train. Log. Track.
+            {t('footer')}
           </p>
         </div>
       </footer>
@@ -303,7 +334,9 @@ function StatRow({
       <span
         className={[
           'text-2xl font-black',
-          accent ? 'text-accent' : '',
+          accent
+            ? 'text-accent'
+            : '',
         ].join(' ')}
       >
         {value}

@@ -392,5 +392,55 @@
       "description": "Cierra tu sesión de WODLY en este dispositivo.",
       "logout": "Cerrar sesión"
     }
+  },
+  "landing": {
+    "signIn": "Iniciar sesión",
+    "getStarted": "Comenzar",
+    "hero": {
+      "eyebrow": "Entrena · Registra · Progresa",
+      "titleLine1": "Tu entrenamiento.",
+      "titleLine2": "Tu progreso.",
+      "titleLine3": "Todo en un solo lugar.",
+      "description": "Crea entrenamientos, registra resultados, sigue tus mejores marcas y descubre cómo evoluciona tu rendimiento con el tiempo.",
+      "startTraining": "Comenzar a entrenar"
+    },
+    "workoutPreview": {
+      "forTime": "Por tiempo",
+      "benchmark": "Benchmark",
+      "personalBest": "Mejor marca personal"
+    },
+    "features": {
+      "build": {
+        "title": "Crea entrenamientos",
+        "description": "Crea entrenamientos por tiempo, AMRAP, fuerza, intervalos y personalizados con datos reales de movimientos."
+      },
+      "log": {
+        "title": "Registra tu rendimiento",
+        "description": "Registra tiempo, rondas, repeticiones, cargas y notas sin perder la estructura del entrenamiento."
+      },
+      "progress": {
+        "title": "Sigue tu progreso",
+        "description": "Consulta tu historial, mejores marcas y rendimiento a lo largo del tiempo."
+      }
+    },
+    "training": {
+      "eyebrow": "Creado para entrenar",
+      "titleLine1": "Menos planillas.",
+      "titleLine2": "Más entrenamiento.",
+      "description": "WODLY mantiene conectados la estructura de tus entrenamientos, los movimientos, los resultados y tu progreso para que dediques menos tiempo a organizar y más a entrenar."
+    },
+    "stats": {
+      "workoutsThisMonth": "Entrenamientos este mes",
+      "personalRecords": "Mejores marcas personales",
+      "trainingStreak": "Racha de entrenamiento",
+      "days": "{count, plural, =1 {1 día} other {# días}}"
+    },
+    "cta": {
+      "eyebrow": "¿Listo?",
+      "title": "Empieza a registrar el trabajo que ya estás haciendo.",
+      "description": "Crea tu cuenta y comienza a construir tu historial de entrenamiento.",
+      "createAccount": "Crear mi cuenta de WODLY"
+    },
+    "footer": "Entrena. Registra. Progresa."
   }
 }
