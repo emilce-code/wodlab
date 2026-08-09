@@ -1,5 +1,6 @@
 import Link from 'next/link';
-
+import LogoMark from '@/components/brand/LogoMark';
+import Wordmark from '@/components/brand/Wordmark';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 
@@ -10,9 +11,10 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
           <Link
             href="/"
-            className="text-xl font-black tracking-tight"
+            className="flex items-center gap-2"
           >
-            WOD<span className="text-accent">LAB</span>
+            <LogoMark />
+            <Wordmark />
           </Link>
 
           <div className="flex items-center gap-3">
@@ -172,7 +174,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-              WODLab keeps workout structure, movement data,
+              WODLY keeps workout structure, movement data,
               results and progress connected so you can spend
               less time organizing and more time training.
             </p>
@@ -217,16 +219,14 @@ export default function LandingPage() {
             href="/register"
             className="mt-8 inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
           >
-            Create your WODLab account →
+            Create your WODLY account →
           </Link>
         </div>
       </section>
 
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
-          <p>
-            WOD<span className="text-accent">LAB</span>
-          </p>
+          <Wordmark className="text-sm" />
 
           <p>
             Train. Log. Track.

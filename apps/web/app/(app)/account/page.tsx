@@ -83,7 +83,7 @@ export default async function AccountPage() {
         </h2>
 
         <p className="mt-2 text-sm text-muted">
-          Sign out of WODLab on this device.
+          Sign out of WODLY on this device.
         </p>
 
         <div className="mt-5">

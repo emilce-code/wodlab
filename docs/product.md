@@ -1,8 +1,8 @@
-# WODLab Product Definition
+# WODLY Product Definition
 
 ## Overview
 
-WODLab is a CrossFit performance tracking application for athletes who want to
+WODLY is a CrossFit performance tracking application for athletes who want to
 record workouts, track progress, and understand their performance over time.
 
 The first version is web-first.
@@ -22,7 +22,7 @@ CrossFit athletes often track workouts across:
 This makes it difficult to maintain structured workout history and understand
 progress across movements and benchmark workouts.
 
-WODLab provides a structured system for recording workouts and results while
+WODLY provides a structured system for recording workouts and results while
 building useful performance history.
 
 ## Primary user
@@ -33,7 +33,7 @@ The MVP does not depend on the athlete belonging to a gym or having a coach.
 
 ## Core value proposition
 
-WODLab helps an athlete answer:
+WODLY helps an athlete answer:
 
 - What workouts have I completed?
 - What score did I get last time?
@@ -197,7 +197,7 @@ These features are not part of the initial MVP.
 
 ## Product principle
 
-WODLab should be useful even without AI.
+WODLY should be useful even without AI.
 
 AI or advanced analytics should improve an already useful product rather than
 being required for the core experience.

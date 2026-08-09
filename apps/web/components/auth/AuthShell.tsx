@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import Wordmark from '@/components/brand/Wordmark';
+import { BRAND } from '@/lib/brand';
 
 type Props = {
   children: ReactNode;
@@ -23,9 +25,7 @@ export default function AuthShell({ children }: Props) {
 
           {/* Logo */}
           <div className="relative z-10">
-            <span className="text-xl font-black tracking-tight">
-              WOD<span className="text-accent">LAB</span>
-            </span>
+            <Wordmark />
           </div>
 
           {/* Main message */}
@@ -52,8 +52,8 @@ export default function AuthShell({ children }: Props) {
             </div>
           </div>
 
-          <p className="relative z-10 text-xs text-muted">
-            WODLab
+          <p className="relative z-10 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {BRAND.tagline}
           </p>
         </section>
 
@@ -62,9 +62,7 @@ export default function AuthShell({ children }: Props) {
           <div className="w-full max-w-md">
             {/* Mobile logo */}
             <div className="mb-10 lg:hidden">
-              <span className="text-xl font-black tracking-tight">
-                WOD<span className="text-accent">LAB</span>
-              </span>
+              <Wordmark />
             </div>
 
             {children}

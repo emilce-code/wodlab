@@ -1,8 +1,8 @@
-# WODLab Initial Data Model
+# WODLY Initial Data Model
 
 ## Overview
 
-This document describes the initial WODLab domain model.
+This document describes the initial WODLY domain model.
 
 The model is intentionally small and will evolve as features are implemented.
 
@@ -12,7 +12,7 @@ Workout Definition != Workout Performance != Personal Record
 
 ## User
 
-Represents an authenticated WODLab account.
+Represents an authenticated WODLY account.
 
 Fields:
 

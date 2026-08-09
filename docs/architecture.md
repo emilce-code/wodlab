@@ -1,8 +1,8 @@
-# WODLab Architecture
+# WODLY Architecture
 
 ## Overview
 
-WODLab uses a web-first, API-first modular monolith architecture.
+WODLY uses a web-first, API-first modular monolith architecture.
 
 The initial architecture is:
 

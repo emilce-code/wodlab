@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-
+import Wordmark from '@/components/brand/Wordmark';
 import LogoutButton from '@/components/auth/LogoutButton';
 
 const navigation = [
@@ -102,11 +102,8 @@ export default function Sidebar({ user }: Props) {
   return (
     <aside className="hidden h-screen w-64 shrink-0 border-r border-border bg-surface lg:flex lg:flex-col">
       <div className="px-6 py-7">
-        <Link
-          href="/dashboard"
-          className="text-xl font-black tracking-tight"
-        >
-          WOD<span className="text-accent">LAB</span>
+        <Link href="/dashboard">
+          <Wordmark />
         </Link>
       </div>
 

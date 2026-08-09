@@ -1,6 +1,6 @@
-# WODLab Project Instructions
+# WODLY Project Instructions
 
-WODLab is a web-first CrossFit performance tracking application designed to
+WODLY is a web-first CrossFit performance tracking application designed to
 support a future mobile application.
 
 The developer is building this project to learn and demonstrate full-stack
@@ -62,7 +62,7 @@ needed by a real feature.
 
 ## Architecture principles
 
-WODLab follows an API-first modular monolith architecture.
+WODLY follows an API-first modular monolith architecture.
 
 The web application consumes the NestJS API.
 

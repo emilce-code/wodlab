@@ -103,7 +103,7 @@ export default function RegisterPage() {
       <div>
         <header>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Join WODLab
+            Join WODLY
           </p>
 
           <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">

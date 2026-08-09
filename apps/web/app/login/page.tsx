@@ -62,7 +62,7 @@ export default function LoginPage() {
           </p>
 
           <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-            Sign in to WODLab
+            Sign in to WODLY
           </h1>
 
           <p className="mt-3 text-sm leading-6 text-muted">
