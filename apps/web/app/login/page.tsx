@@ -1,18 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
-type ApiErrorResponse = {
-  message?: string | string[];
-};
+import AuthShell from '@/components/auth/AuthShell';
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,85 +28,128 @@ export default function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           password,
         }),
       });
 
-      const data = (await response.json()) as ApiErrorResponse;
+      const data = await response.json();
 
       if (!response.ok) {
         const message = Array.isArray(data.message)
           ? data.message.join(', ')
           : data.message;
 
-        setError(message ?? 'Unable to log in');
+        setError(message ?? 'Unable to sign in.');
         return;
       }
 
-      router.push('/dashboard');
+      router.replace('/dashboard');
       router.refresh();
     } catch {
-      setError('Unable to connect to the server');
+      setError('Unable to sign in. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold">Log in to WODLab</h1>
+    <AuthShell>
+      <div>
+        <header>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            Welcome back
+          </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+            Sign in to WODLab
+          </h1>
+
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Continue tracking your workouts and progress.
+          </p>
+        </header>
+
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 space-y-5"
+        >
           <div>
-            <label htmlFor="email" className="block font-medium">
+            <label
+              htmlFor="email"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Email
             </label>
 
             <input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
+              required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 w-full rounded border px-3 py-2"
-              required
+              placeholder="you@example.com"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block font-medium">
-              Password
-            </label>
+            <div className="mb-1.5 flex items-center justify-between gap-4">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium"
+              >
+                Password
+              </label>
+            </div>
 
             <input
               id="password"
+              name="password"
               type="password"
+              autoComplete="current-password"
+              required
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="mt-1 w-full rounded border px-3 py-2"
-              required
+              placeholder="Enter your password"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
           </div>
+
+          {error && (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3"
+            >
+              <p className="text-sm text-red-500">
+                {error}
+              </p>
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded bg-black px-4 py-2 text-white disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isSubmitting ? 'Logging in...' : 'Log in'}
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
         </form>
 
-        <p className="mt-6 text-sm">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-semibold underline">
-            Create one
-          </Link>
-        </p>
+        <div className="mt-8 border-t border-border pt-6">
+          <p className="text-center text-sm text-muted">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/register"
+              className="font-semibold text-foreground transition hover:text-accent"
+            >
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
-    </main>
+    </AuthShell>
   );
 }

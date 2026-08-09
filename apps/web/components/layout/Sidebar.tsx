@@ -2,6 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+
+import LogoutButton from '@/components/auth/LogoutButton';
 
 const navigation = [
   {
@@ -46,8 +49,19 @@ type Props = {
 export default function Sidebar({ user }: Props) {
   const pathname = usePathname();
 
+  const [accountMenuOpen, setAccountMenuOpen] =
+    useState(false);
+
   const displayName =
     user.athleteProfile?.displayName ?? user.email;
+
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   function isActive(href: string) {
     if (href === '/dashboard') {
@@ -104,33 +118,66 @@ export default function Sidebar({ user }: Props) {
         <div className="my-5 border-t border-border" />
 
         <div className="space-y-1">
-          {secondaryNavigation.map(renderNavigationItem)}
+          {secondaryNavigation.map(
+            renderNavigationItem,
+          )}
         </div>
       </nav>
 
-      <div className="border-t border-border p-4">
+      <div className="relative border-t border-border p-4">
+        {accountMenuOpen && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-xl">
+            <Link
+              href="/account"
+              onClick={() => setAccountMenuOpen(false)}
+              className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-foreground"
+            >
+              Account
+            </Link>
+
+            <div className="my-1 border-t border-border" />
+
+            <LogoutButton className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50">
+              Log out
+            </LogoutButton>
+          </div>
+        )}
+
         <button
           type="button"
+          onClick={() =>
+            setAccountMenuOpen(
+              (current) => !current,
+            )
+          }
+          aria-expanded={accountMenuOpen}
           className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-surface-elevated"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent text-xs font-bold text-accent">
-            {displayName
-              .split(' ')
-              .map((part) => part[0])
-              .join('')
-              .slice(0, 2)
-              .toUpperCase()}
+            {initials}
           </div>
 
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">
               {displayName}
             </p>
 
             <p className="truncate text-xs text-muted">
-              View profile
+              {user.email}
             </p>
           </div>
+
+          <span
+            aria-hidden="true"
+            className={[
+              'text-xs text-muted transition-transform',
+              accountMenuOpen
+                ? 'rotate-180'
+                : '',
+            ].join(' ')}
+          >
+            ↑
+          </span>
         </button>
       </div>
     </aside>

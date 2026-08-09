@@ -15,14 +15,14 @@ const navigation = [
     icon: '◫',
   },
   {
-    name: 'History',
-    href: '/history',
-    icon: '↶',
-  },
-  {
     name: 'Progress',
     href: '/progress',
     icon: '↗',
+  },
+  {
+    name: 'Account',
+    href: '/account',
+    icon: '○',
   },
 ];
 
