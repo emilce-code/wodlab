@@ -1,8 +1,5 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-
 import { authenticatedApiFetch } from '@/lib/api';
-import { getCurrentUser } from '@/lib/auth';
 import WorkoutForm from './components/WorkoutForm';
 
 export type WorkoutType = {
@@ -22,11 +19,6 @@ async function getWorkoutTypes(): Promise<WorkoutType[]> {
 }
 
 export default async function NewWorkoutPage() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect('/login');
-  }
 
   const workoutTypes = await getWorkoutTypes();
 
