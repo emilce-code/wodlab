@@ -194,6 +194,219 @@ export class WorkoutsService {
     );
   }
 
+  async findResultProgress(
+    userId: string,
+  ) {
+    const athleteProfile =
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+    if (!athleteProfile) {
+      throw new NotFoundException(
+        'Athlete profile not found',
+      );
+    }
+
+    const results =
+      await this.prisma.workoutResult.findMany({
+        where: {
+          athleteProfileId:
+            athleteProfile.id,
+        },
+
+        orderBy: {
+          performedAt: 'desc',
+        },
+
+        include: {
+          resultType: {
+            select: {
+              key: true,
+              name: true,
+            },
+          },
+
+          workout: {
+            select: {
+              id: true,
+              name: true,
+              isBenchmark: true,
+
+              type: {
+                select: {
+                  key: true,
+                  name: true,
+
+                  defaultResultType: {
+                    select: {
+                      key: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+    const mappedResults =
+      results.map((result) =>
+        this.mapWorkoutResult(result),
+      );
+
+    const groupedResults =
+      new Map<string, any[]>();
+
+    for (const result of mappedResults) {
+      const workoutId =
+        result.workout.id;
+
+      const current =
+        groupedResults.get(workoutId) ??
+        [];
+
+      current.push(result);
+
+      groupedResults.set(
+        workoutId,
+        current,
+      );
+    }
+
+    const workouts =
+      Array.from(
+        groupedResults.values(),
+      ).map((workoutResults) => {
+        const latestResult =
+          workoutResults[0];
+
+        const oldestResult =
+          workoutResults[
+            workoutResults.length - 1
+          ];
+
+        const resultType =
+          latestResult.workout.type
+            .defaultResultType ??
+          latestResult.resultType;
+
+        const personalBest =
+          this.getPersonalBest(
+            workoutResults,
+            resultType.key,
+          );
+
+        return {
+          workout: {
+            id:
+              latestResult.workout.id,
+
+            name:
+              latestResult.workout.name,
+
+            isBenchmark:
+              latestResult.workout
+                .isBenchmark,
+
+            type: {
+              key:
+                latestResult.workout.type
+                  .key,
+
+              name:
+                latestResult.workout.type
+                  .name,
+            },
+          },
+
+          resultType: {
+            key:
+              resultType.key,
+
+            name:
+              resultType.name,
+          },
+
+          attemptCount:
+            workoutResults.length,
+
+          personalBest,
+
+          latestResult,
+
+          firstResult:
+            oldestResult,
+
+          history:
+            [...workoutResults]
+              .sort(
+                (a, b) =>
+                  new Date(
+                    a.performedAt,
+                  ).getTime() -
+                  new Date(
+                    b.performedAt,
+                  ).getTime(),
+              ),
+        };
+      });
+
+    workouts.sort(
+      (a, b) =>
+        new Date(
+          b.latestResult.performedAt,
+        ).getTime() -
+        new Date(
+          a.latestResult.performedAt,
+        ).getTime(),
+    );
+
+    const totalResults =
+      mappedResults.length;
+
+    const rxResults =
+      mappedResults.filter(
+        (result) => result.isRx,
+      ).length;
+
+    const benchmarkWorkouts =
+      workouts.filter(
+        (item) =>
+          item.workout.isBenchmark,
+      ).length;
+
+    return {
+      summary: {
+        totalResults,
+
+        uniqueWorkouts:
+          workouts.length,
+
+        rxResults,
+
+        scaledResults:
+          totalResults - rxResults,
+
+        rxRate:
+          totalResults > 0
+            ? Math.round(
+                (rxResults /
+                  totalResults) *
+                  100,
+              )
+            : 0,
+
+        benchmarkWorkouts,
+      },
+
+      workouts,
+    };
+  }
+
   async findResults(
     userId: string,
     workoutId: string,
@@ -310,6 +523,7 @@ export class WorkoutsService {
           data: {
             name: dto.name,
             description: dto.description,
+
             isBenchmark:
               dto.isBenchmark ?? false,
 
@@ -326,67 +540,74 @@ export class WorkoutsService {
             },
 
             sections: {
-              create: dto.sections.map(
-                (section) => ({
-                  order: section.order,
-                  rounds: section.rounds,
+              create:
+                dto.sections.map(
+                  (section) => ({
+                    order:
+                      section.order,
 
-                  durationSeconds:
-                    section.durationSeconds,
+                    rounds:
+                      section.rounds,
 
-                  restSeconds:
-                    section.restSeconds,
+                    durationSeconds:
+                      section.durationSeconds,
 
-                  repScheme:
-                    section.repScheme ?? [],
+                    restSeconds:
+                      section.restSeconds,
 
-                  notes:
-                    section.notes,
+                    repScheme:
+                      section.repScheme ??
+                      [],
 
-                  type: {
-                    connect: {
-                      key: section.typeKey,
+                    notes:
+                      section.notes,
+
+                    type: {
+                      connect: {
+                        key:
+                          section.typeKey,
+                      },
                     },
-                  },
 
-                  movements: {
-                    create:
-                      section.movements.map(
-                        (movement) => ({
-                          order:
-                            movement.order,
+                    movements: {
+                      create:
+                        section.movements.map(
+                          (movement) => ({
+                            order:
+                              movement.order,
 
-                          reps:
-                            movement.reps,
+                            reps:
+                              movement.reps,
 
-                          weight:
-                            movement.weight,
+                            weight:
+                              movement.weight,
 
-                          weightUnit:
-                            movement.weightUnit,
+                            weightUnit:
+                              movement.weightUnit,
 
-                          distance:
-                            movement.distance,
+                            distance:
+                              movement.distance,
 
-                          calories:
-                            movement.calories,
+                            calories:
+                              movement.calories,
 
-                          durationSeconds:
-                            movement.durationSeconds,
+                            durationSeconds:
+                              movement.durationSeconds,
 
-                          notes:
-                            movement.notes,
+                            notes:
+                              movement.notes,
 
-                          movement: {
-                            connect: {
-                              id: movement.movementId,
+                            movement: {
+                              connect: {
+                                id:
+                                  movement.movementId,
+                              },
                             },
-                          },
-                        }),
-                      ),
-                  },
-                }),
-              ),
+                          }),
+                        ),
+                    },
+                  }),
+                ),
             },
           },
 
@@ -460,6 +681,7 @@ export class WorkoutsService {
       await this.prisma.workoutResult.findMany({
         where: {
           workoutId,
+
           athleteProfileId:
             athleteProfile.id,
         },
@@ -581,7 +803,9 @@ export class WorkoutsService {
 
           performedAt:
             dto.performedAt
-              ? new Date(dto.performedAt)
+              ? new Date(
+                  dto.performedAt,
+                )
               : new Date(),
 
           timeSeconds:
@@ -651,7 +875,8 @@ export class WorkoutsService {
           workout.type.name,
 
         defaultResultType:
-          workout.type.defaultResultType
+          workout.type
+            .defaultResultType
             ? {
                 key:
                   workout.type
@@ -671,7 +896,8 @@ export class WorkoutsService {
           workout.createdByUser.id,
 
         email:
-          workout.createdByUser.email,
+          workout.createdByUser
+            .email,
       },
 
       sections:
@@ -706,7 +932,8 @@ export class WorkoutsService {
                 section.type.name,
 
               defaultResultType:
-                section.type.defaultResultType
+                section.type
+                  .defaultResultType
                   ? {
                       key:
                         section.type
@@ -734,7 +961,8 @@ export class WorkoutsService {
                     item.reps,
 
                   weight:
-                    item.weight !== null
+                    item.weight !==
+                    null
                       ? Number(
                           item.weight,
                         )
@@ -789,7 +1017,8 @@ export class WorkoutsService {
 
       case 'ROUNDS_REPS': {
         if (
-          dto.rounds === undefined &&
+          dto.rounds ===
+            undefined &&
           dto.reps === undefined
         ) {
           throw new BadRequestException(
@@ -913,7 +1142,8 @@ export class WorkoutsService {
           [...validResults]
             .filter(
               (result) =>
-                result.reps !== null,
+                result.reps !==
+                null,
             )
             .sort(
               (a, b) =>
@@ -928,7 +1158,8 @@ export class WorkoutsService {
           [...validResults]
             .filter(
               (result) =>
-                result.load !== null,
+                result.load !==
+                null,
             )
             .sort(
               (a, b) =>
@@ -950,6 +1181,7 @@ export class WorkoutsService {
   private normalizeLoadToKg(
     result: {
       load: number | null;
+
       weightUnit:
         | 'KG'
         | 'LB'

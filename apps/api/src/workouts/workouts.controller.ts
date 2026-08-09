@@ -48,6 +48,15 @@ export class WorkoutsController {
     );
   }
 
+  @Get('results/progress')
+  findResultProgress(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.workoutsService.findResultProgress(
+      request.user.userId,
+    );
+  }
+
   // Collection routes
   @Get()
   findAll() {
