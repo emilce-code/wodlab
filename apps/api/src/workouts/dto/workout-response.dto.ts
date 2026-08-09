@@ -1,6 +1,11 @@
 export class WorkoutTypeResponseDto {
   key: string;
   name: string;
+
+  defaultResultType: {
+    key: string;
+    name: string;
+  } | null;
 }
 
 export class WorkoutMovementResponseDto {

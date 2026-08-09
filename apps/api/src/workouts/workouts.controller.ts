@@ -15,6 +15,7 @@ import {
 } from '../auth/jwt-auth.guard';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { WorkoutsService } from './workouts.service';
+import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 
 type AuthenticatedRequest = Request & {
   user: AuthenticatedUser;
@@ -50,6 +51,41 @@ export class WorkoutsController {
     return this.workoutsService.create(
       request.user.userId,
       dto,
+    );
+  }
+
+  @Post(':id/results')
+  createResult(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: CreateWorkoutResultDto,
+  ) {
+    return this.workoutsService.createResult(
+      request.user.userId,
+      id,
+      dto,
+    );
+  }
+
+  @Get(':id/results/summary')
+  findResultSummary(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.workoutsService.findResultSummary(
+      request.user.userId,
+      id,
+    );
+  }
+
+  @Get(':id/results')
+  findResults(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.workoutsService.findResults(
+      request.user.userId,
+      id,
     );
   }
 
