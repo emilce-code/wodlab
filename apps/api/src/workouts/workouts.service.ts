@@ -137,18 +137,73 @@ export class WorkoutsService {
     return this.mapWorkout(workout);
   }
 
+  async findResultHistory(
+    userId: string,
+  ) {
+    const athleteProfile =
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+    if (!athleteProfile) {
+      throw new NotFoundException(
+        'Athlete profile not found',
+      );
+    }
+
+    const results =
+      await this.prisma.workoutResult.findMany({
+        where: {
+          athleteProfileId:
+            athleteProfile.id,
+        },
+
+        orderBy: {
+          performedAt: 'desc',
+        },
+
+        include: {
+          resultType: {
+            select: {
+              key: true,
+              name: true,
+            },
+          },
+
+          workout: {
+            select: {
+              id: true,
+              name: true,
+              isBenchmark: true,
+
+              type: {
+                select: {
+                  key: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+    return results.map((result) =>
+      this.mapWorkoutResult(result),
+    );
+  }
+
   async findResults(
     userId: string,
     workoutId: string,
   ) {
     const athleteProfile =
-      await this.prisma.athleteProfile.findUnique(
-        {
-          where: {
-            userId,
-          },
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
         },
-      );
+      });
 
     if (!athleteProfile) {
       throw new NotFoundException(
@@ -233,7 +288,9 @@ export class WorkoutsService {
             );
           }
 
-          for (const movement of section.movements) {
+          for (
+            const movement of section.movements
+          ) {
             const existingMovement =
               await tx.movement.findUnique({
                 where: {
@@ -273,13 +330,18 @@ export class WorkoutsService {
                 (section) => ({
                   order: section.order,
                   rounds: section.rounds,
+
                   durationSeconds:
                     section.durationSeconds,
+
                   restSeconds:
                     section.restSeconds,
+
                   repScheme:
                     section.repScheme ?? [],
-                  notes: section.notes,
+
+                  notes:
+                    section.notes,
 
                   type: {
                     connect: {
@@ -361,13 +423,11 @@ export class WorkoutsService {
     workoutId: string,
   ) {
     const athleteProfile =
-      await this.prisma.athleteProfile.findUnique(
-        {
-          where: {
-            userId,
-          },
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
         },
-      );
+      });
 
     if (!athleteProfile) {
       throw new NotFoundException(
@@ -436,8 +496,10 @@ export class WorkoutsService {
 
     return {
       personalBest,
+
       lastResult:
         mappedResults[0] ?? null,
+
       totalResults:
         mappedResults.length,
     };
@@ -449,13 +511,11 @@ export class WorkoutsService {
     dto: CreateWorkoutResultDto,
   ) {
     const athleteProfile =
-      await this.prisma.athleteProfile.findUnique(
-        {
-          where: {
-            userId,
-          },
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
         },
-      );
+      });
 
     if (!athleteProfile) {
       throw new NotFoundException(
@@ -521,9 +581,7 @@ export class WorkoutsService {
 
           performedAt:
             dto.performedAt
-              ? new Date(
-                  dto.performedAt,
-                )
+              ? new Date(dto.performedAt)
               : new Date(),
 
           timeSeconds:
@@ -567,24 +625,33 @@ export class WorkoutsService {
     workout: any,
   ): WorkoutResponseDto {
     return {
-      id: workout.id,
-      name: workout.name,
+      id:
+        workout.id,
+
+      name:
+        workout.name,
+
       description:
         workout.description,
+
       isBenchmark:
         workout.isBenchmark,
+
       createdAt:
         workout.createdAt,
+
       updatedAt:
         workout.updatedAt,
 
       type: {
-        key: workout.type.key,
-        name: workout.type.name,
+        key:
+          workout.type.key,
+
+        name:
+          workout.type.name,
 
         defaultResultType:
-          workout.type
-            .defaultResultType
+          workout.type.defaultResultType
             ? {
                 key:
                   workout.type
@@ -604,8 +671,7 @@ export class WorkoutsService {
           workout.createdByUser.id,
 
         email:
-          workout.createdByUser
-            .email,
+          workout.createdByUser.email,
       },
 
       sections:
@@ -640,8 +706,7 @@ export class WorkoutsService {
                 section.type.name,
 
               defaultResultType:
-                section.type
-                  .defaultResultType
+                section.type.defaultResultType
                   ? {
                       key:
                         section.type
@@ -669,8 +734,7 @@ export class WorkoutsService {
                     item.reps,
 
                   weight:
-                    item.weight !==
-                    null
+                    item.weight !== null
                       ? Number(
                           item.weight,
                         )
@@ -693,12 +757,10 @@ export class WorkoutsService {
 
                   movement: {
                     id:
-                      item.movement
-                        .id,
+                      item.movement.id,
 
                     name:
-                      item.movement
-                        .name,
+                      item.movement.name,
                   },
                 }),
               ),
@@ -727,8 +789,7 @@ export class WorkoutsService {
 
       case 'ROUNDS_REPS': {
         if (
-          dto.rounds ===
-            undefined &&
+          dto.rounds === undefined &&
           dto.reps === undefined
         ) {
           throw new BadRequestException(
@@ -852,8 +913,7 @@ export class WorkoutsService {
           [...validResults]
             .filter(
               (result) =>
-                result.reps !==
-                null,
+                result.reps !== null,
             )
             .sort(
               (a, b) =>
@@ -868,8 +928,7 @@ export class WorkoutsService {
           [...validResults]
             .filter(
               (result) =>
-                result.load !==
-                null,
+                result.load !== null,
             )
             .sort(
               (a, b) =>
@@ -897,7 +956,9 @@ export class WorkoutsService {
         | null;
     },
   ) {
-    if (result.load === null) {
+    if (
+      result.load === null
+    ) {
       return 0;
     }
 

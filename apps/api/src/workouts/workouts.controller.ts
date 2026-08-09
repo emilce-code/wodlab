@@ -14,8 +14,8 @@ import {
   JwtAuthGuard,
 } from '../auth/jwt-auth.guard';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
-import { WorkoutsService } from './workouts.service';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
+import { WorkoutsService } from './workouts.service';
 
 type AuthenticatedRequest = Request & {
   user: AuthenticatedUser;
@@ -24,7 +24,9 @@ type AuthenticatedRequest = Request & {
 @Controller('workouts')
 @UseGuards(JwtAuthGuard)
 export class WorkoutsController {
-  constructor(private readonly workoutsService: WorkoutsService) {}
+  constructor(
+    private readonly workoutsService: WorkoutsService,
+  ) {}
 
   // Static routes FIRST
   @Get('types')
@@ -37,7 +39,16 @@ export class WorkoutsController {
     return this.workoutsService.findResultTypes();
   }
 
-  // Collection route
+  @Get('results/history')
+  findResultHistory(
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.workoutsService.findResultHistory(
+      request.user.userId,
+    );
+  }
+
+  // Collection routes
   @Get()
   findAll() {
     return this.workoutsService.findAll();
@@ -54,6 +65,7 @@ export class WorkoutsController {
     );
   }
 
+  // Workout result routes
   @Post(':id/results')
   createResult(
     @Req() request: AuthenticatedRequest,
@@ -91,7 +103,9 @@ export class WorkoutsController {
 
   // Dynamic route LAST
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(
+    @Param('id') id: string,
+  ) {
     return this.workoutsService.findOne(id);
   }
 }
