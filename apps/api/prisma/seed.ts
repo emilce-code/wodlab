@@ -591,6 +591,42 @@ const resultTypes = [
   },
 ];
 
+const workoutLevels = [
+  {
+    key: 'RX',
+    name: 'RX',
+    description: 'Prescribed workout as written.',
+    sortOrder: 10,
+  },
+  {
+    key: 'INTERMEDIATE',
+    name: 'Intermediate',
+    description: 'Scaled for intermediate athletes.',
+    sortOrder: 20,
+  },
+  {
+    key: 'BEGINNER',
+    name: 'Beginner',
+    description: 'Scaled for beginner athletes.',
+    sortOrder: 30,
+  },
+];
+
+const prescriptionCategories = [
+  {
+    key: 'MEN',
+    name: 'Men',
+    description: 'Men prescribed values.',
+    sortOrder: 10,
+  },
+  {
+    key: 'WOMEN',
+    name: 'Women',
+    description: 'Women prescribed values.',
+    sortOrder: 20,
+  },
+];
+
 function buildMovementSearchText(
     name: string,
     aliases: readonly string[],
@@ -648,6 +684,38 @@ async function main() {
   }
 
   console.log('Result types seeded.');
+
+  for (const level of workoutLevels) {
+    await prisma.workoutLevel.upsert({
+      where: {
+        key: level.key,
+      },
+      update: {
+        name: level.name,
+        description: level.description,
+        sortOrder: level.sortOrder,
+      },
+      create: level,
+    });
+  }
+
+  console.log('Workout levels seeded.');
+
+  for (const category of prescriptionCategories) {
+    await prisma.prescriptionCategory.upsert({
+      where: {
+        key: category.key,
+      },
+      update: {
+        name: category.name,
+        description: category.description,
+        sortOrder: category.sortOrder,
+      },
+      create: category,
+    });
+  }
+
+  console.log('Prescription categories seeded.');
 
   const workoutTypeResultTypeMap: Record<string, string> = {
     FOR_TIME: 'TIME',

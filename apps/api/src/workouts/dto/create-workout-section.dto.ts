@@ -7,6 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
 import { CreateWorkoutMovementDto } from './create-workout-movement.dto';
 
 export class CreateWorkoutSectionDto {

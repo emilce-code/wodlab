@@ -1,5 +1,4 @@
 import {
-  IsDateString,
   IsEnum,
   IsInt,
   IsNumber,
@@ -10,41 +9,38 @@ import {
 
 import { WeightUnit } from '../../../generated/prisma/enums';
 
-export class CreateWorkoutResultDto {
+export class CreateWorkoutPrescriptionDto {
   @IsString()
-  workoutVariantId: string;
-
-  @IsOptional()
-  @IsString()
-  prescriptionCategoryKey?: string;
-
-  @IsOptional()
-  @IsDateString()
-  performedAt?: string;
+  categoryKey: string;
 
   @IsOptional()
   @IsInt()
-  @Min(0)
-  timeSeconds?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  rounds?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
+  @Min(1)
   reps?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  load?: number;
+  weight?: number;
 
   @IsOptional()
   @IsEnum(WeightUnit)
   weightUnit?: WeightUnit;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  distance?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  calories?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  durationSeconds?: number;
 
   @IsOptional()
   @IsString()

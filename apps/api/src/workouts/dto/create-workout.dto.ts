@@ -7,7 +7,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateWorkoutSectionDto } from './create-workout-section.dto';
+
+import { CreateWorkoutVariantDto } from './create-workout-variant.dto';
 
 export class CreateWorkoutDto {
   @IsString()
@@ -27,6 +28,6 @@ export class CreateWorkoutDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateWorkoutSectionDto)
-  sections: CreateWorkoutSectionDto[];
+  @Type(() => CreateWorkoutVariantDto)
+  variants: CreateWorkoutVariantDto[];
 }

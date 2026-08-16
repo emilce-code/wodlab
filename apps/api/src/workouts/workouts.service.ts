@@ -28,32 +28,83 @@ const workoutInclude = {
     },
   },
 
-  sections: {
+  variants: {
     orderBy: {
-      order: 'asc' as const,
+      level: {
+        sortOrder: 'asc' as const,
+      },
     },
 
     include: {
-      type: {
-        include: {
-          defaultResultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
-        },
-      },
+      level: true,
 
-      movements: {
+      sections: {
         orderBy: {
           order: 'asc' as const,
         },
 
         include: {
-          movement: true,
+          type: {
+            include: {
+              defaultResultType: {
+                select: {
+                  key: true,
+                  name: true,
+                },
+              },
+            },
+          },
+
+          movements: {
+            orderBy: {
+              order: 'asc' as const,
+            },
+
+            include: {
+              movement: true,
+
+              prescriptions: {
+                orderBy: {
+                  prescriptionCategory: {
+                    sortOrder: 'asc' as const,
+                  },
+                },
+
+                include: {
+                  prescriptionCategory: true,
+                },
+              },
+            },
+          },
         },
       },
+    },
+  },
+};
+
+const resultInclude = {
+  resultType: {
+    select: {
+      key: true,
+      name: true,
+    },
+  },
+
+  workoutVariant: {
+    include: {
+      level: {
+        select: {
+          key: true,
+          name: true,
+        },
+      },
+    },
+  },
+
+  prescriptionCategory: {
+    select: {
+      key: true,
+      name: true,
     },
   },
 };
@@ -87,6 +138,34 @@ export class WorkoutsService {
 
   findResultTypes() {
     return this.prisma.resultType.findMany({
+      orderBy: {
+        sortOrder: 'asc',
+      },
+
+      select: {
+        key: true,
+        name: true,
+        description: true,
+      },
+    });
+  }
+
+  findWorkoutLevels() {
+    return this.prisma.workoutLevel.findMany({
+      orderBy: {
+        sortOrder: 'asc',
+      },
+
+      select: {
+        key: true,
+        name: true,
+        description: true,
+      },
+    });
+  }
+
+  findPrescriptionCategories() {
+    return this.prisma.prescriptionCategory.findMany({
       orderBy: {
         sortOrder: 'asc',
       },
@@ -165,12 +244,7 @@ export class WorkoutsService {
         },
 
         include: {
-          resultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
+          ...resultInclude,
 
           workout: {
             select: {
@@ -222,12 +296,7 @@ export class WorkoutsService {
         },
 
         include: {
-          resultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
+          ...resultInclude,
 
           workout: {
             select: {
@@ -453,14 +522,7 @@ export class WorkoutsService {
           performedAt: 'desc',
         },
 
-        include: {
-          resultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
-        },
+        include: resultInclude,
       });
 
     return results.map((result) =>
@@ -487,34 +549,72 @@ export class WorkoutsService {
           );
         }
 
-        for (const section of dto.sections) {
-          const sectionType =
-            await tx.workoutType.findUnique({
+        if (dto.variants.length === 0) {
+          throw new BadRequestException(
+            'At least one workout variant is required',
+          );
+        }
+
+        for (const variant of dto.variants) {
+          const level =
+            await tx.workoutLevel.findUnique({
               where: {
-                key: section.typeKey,
+                key: variant.levelKey,
               },
             });
 
-          if (!sectionType) {
+          if (!level) {
             throw new NotFoundException(
-              `Workout section type "${section.typeKey}" not found`,
+              `Workout level "${variant.levelKey}" not found`,
             );
           }
 
-          for (
-            const movement of section.movements
-          ) {
-            const existingMovement =
-              await tx.movement.findUnique({
+          for (const section of variant.sections) {
+            const sectionType =
+              await tx.workoutType.findUnique({
                 where: {
-                  id: movement.movementId,
+                  key: section.typeKey,
                 },
               });
 
-            if (!existingMovement) {
+            if (!sectionType) {
               throw new NotFoundException(
-                `Movement "${movement.movementId}" not found`,
+                `Workout section type "${section.typeKey}" not found`,
               );
+            }
+
+            for (const movement of section.movements) {
+              const existingMovement =
+                await tx.movement.findUnique({
+                  where: {
+                    id: movement.movementId,
+                  },
+                });
+
+              if (!existingMovement) {
+                throw new NotFoundException(
+                  `Movement "${movement.movementId}" not found`,
+                );
+              }
+
+              for (
+                const prescription of
+                movement.prescriptions ?? []
+              ) {
+                const category =
+                  await tx.prescriptionCategory.findUnique({
+                    where: {
+                      key:
+                        prescription.categoryKey,
+                    },
+                  });
+
+                if (!category) {
+                  throw new NotFoundException(
+                    `Prescription category "${prescription.categoryKey}" not found`,
+                  );
+                }
+              }
             }
           }
         }
@@ -539,69 +639,131 @@ export class WorkoutsService {
               },
             },
 
-            sections: {
+            variants: {
               create:
-                dto.sections.map(
-                  (section) => ({
-                    order:
-                      section.order,
-
-                    rounds:
-                      section.rounds,
-
-                    durationSeconds:
-                      section.durationSeconds,
-
-                    restSeconds:
-                      section.restSeconds,
-
-                    repScheme:
-                      section.repScheme ??
-                      [],
+                dto.variants.map(
+                  (variant) => ({
+                    name:
+                      variant.name,
 
                     notes:
-                      section.notes,
+                      variant.notes,
 
-                    type: {
+                    level: {
                       connect: {
                         key:
-                          section.typeKey,
+                          variant.levelKey,
                       },
                     },
 
-                    movements: {
+                    sections: {
                       create:
-                        section.movements.map(
-                          (movement) => ({
+                        variant.sections.map(
+                          (section) => ({
                             order:
-                              movement.order,
+                              section.order,
 
-                            reps:
-                              movement.reps,
-
-                            weight:
-                              movement.weight,
-
-                            weightUnit:
-                              movement.weightUnit,
-
-                            distance:
-                              movement.distance,
-
-                            calories:
-                              movement.calories,
+                            rounds:
+                              section.rounds,
 
                             durationSeconds:
-                              movement.durationSeconds,
+                              section.durationSeconds,
+
+                            restSeconds:
+                              section.restSeconds,
+
+                            repScheme:
+                              section.repScheme ??
+                              [],
 
                             notes:
-                              movement.notes,
+                              section.notes,
 
-                            movement: {
+                            type: {
                               connect: {
-                                id:
-                                  movement.movementId,
+                                key:
+                                  section.typeKey,
                               },
+                            },
+
+                            movements: {
+                              create:
+                                section.movements.map(
+                                  (movement) => ({
+                                    order:
+                                      movement.order,
+
+                                    reps:
+                                      movement.reps,
+
+                                    weight:
+                                      movement.weight,
+
+                                    weightUnit:
+                                      movement.weightUnit,
+
+                                    distance:
+                                      movement.distance,
+
+                                    calories:
+                                      movement.calories,
+
+                                    durationSeconds:
+                                      movement.durationSeconds,
+
+                                    notes:
+                                      movement.notes,
+
+                                    movement: {
+                                      connect: {
+                                        id:
+                                          movement.movementId,
+                                      },
+                                    },
+
+                                    prescriptions: {
+                                      create:
+                                        (
+                                          movement.prescriptions ??
+                                          []
+                                        ).map(
+                                          (
+                                            prescription,
+                                          ) => ({
+                                            reps:
+                                              prescription.reps,
+
+                                            weight:
+                                              prescription.weight,
+
+                                            weightUnit:
+                                              prescription.weightUnit,
+
+                                            distance:
+                                              prescription.distance,
+
+                                            calories:
+                                              prescription.calories,
+
+                                            durationSeconds:
+                                              prescription.durationSeconds,
+
+                                            notes:
+                                              prescription.notes,
+
+                                            prescriptionCategory:
+                                              {
+                                                connect:
+                                                  {
+                                                    key:
+                                                      prescription.categoryKey,
+                                                  },
+                                              },
+                                          }),
+                                        ),
+                                    },
+                                  }),
+                                ),
                             },
                           }),
                         ),
@@ -611,29 +773,7 @@ export class WorkoutsService {
             },
           },
 
-          include: {
-            type: true,
-
-            sections: {
-              orderBy: {
-                order: 'asc',
-              },
-
-              include: {
-                type: true,
-
-                movements: {
-                  orderBy: {
-                    order: 'asc',
-                  },
-
-                  include: {
-                    movement: true,
-                  },
-                },
-              },
-            },
-          },
+          include: workoutInclude,
         });
       },
     );
@@ -690,14 +830,7 @@ export class WorkoutsService {
           performedAt: 'desc',
         },
 
-        include: {
-          resultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
-        },
+        include: resultInclude,
       });
 
     const mappedResults =
@@ -766,6 +899,43 @@ export class WorkoutsService {
       );
     }
 
+    const workoutVariant =
+      await this.prisma.workoutVariant.findFirst({
+        where: {
+          id: dto.workoutVariantId,
+          workoutId,
+        },
+
+        include: {
+          level: true,
+        },
+      });
+
+    if (!workoutVariant) {
+      throw new NotFoundException(
+        'Workout variant not found for this workout',
+      );
+    }
+
+    const prescriptionCategory =
+      dto.prescriptionCategoryKey
+        ? await this.prisma.prescriptionCategory.findUnique({
+            where: {
+              key:
+                dto.prescriptionCategoryKey,
+            },
+          })
+        : null;
+
+    if (
+      dto.prescriptionCategoryKey &&
+      !prescriptionCategory
+    ) {
+      throw new NotFoundException(
+        `Prescription category "${dto.prescriptionCategoryKey}" not found`,
+      );
+    }
+
     const resultType =
       workout.type.defaultResultType;
 
@@ -788,6 +958,23 @@ export class WorkoutsService {
               id: workout.id,
             },
           },
+
+          workoutVariant: {
+            connect: {
+              id: workoutVariant.id,
+            },
+          },
+
+          ...(prescriptionCategory
+            ? {
+                prescriptionCategory: {
+                  connect: {
+                    id:
+                      prescriptionCategory.id,
+                  },
+                },
+              }
+            : {}),
 
           athleteProfile: {
             connect: {
@@ -823,21 +1010,11 @@ export class WorkoutsService {
           weightUnit:
             dto.weightUnit,
 
-          isRx:
-            dto.isRx ?? false,
-
           notes:
             dto.notes,
         },
 
-        include: {
-          resultType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
-        },
+        include: resultInclude,
       });
 
     return this.mapWorkoutResult(
@@ -900,101 +1077,171 @@ export class WorkoutsService {
             .email,
       },
 
-      sections:
-        workout.sections.map(
-          (section: any) => ({
+      variants:
+        workout.variants.map(
+          (variant: any) => ({
             id:
-              section.id,
+              variant.id,
 
-            order:
-              section.order,
-
-            rounds:
-              section.rounds,
-
-            durationSeconds:
-              section.durationSeconds,
-
-            restSeconds:
-              section.restSeconds,
-
-            repScheme:
-              section.repScheme,
+            name:
+              variant.name,
 
             notes:
-              section.notes,
+              variant.notes,
 
-            type: {
+            level: {
               key:
-                section.type.key,
+                variant.level.key,
 
               name:
-                section.type.name,
-
-              defaultResultType:
-                section.type
-                  .defaultResultType
-                  ? {
-                      key:
-                        section.type
-                          .defaultResultType
-                          .key,
-
-                      name:
-                        section.type
-                          .defaultResultType
-                          .name,
-                    }
-                  : null,
+                variant.level.name,
             },
 
-            movements:
-              section.movements.map(
-                (item: any) => ({
+            sections:
+              variant.sections.map(
+                (section: any) => ({
                   id:
-                    item.id,
+                    section.id,
 
                   order:
-                    item.order,
+                    section.order,
 
-                  reps:
-                    item.reps,
-
-                  weight:
-                    item.weight !==
-                    null
-                      ? Number(
-                          item.weight,
-                        )
-                      : null,
-
-                  weightUnit:
-                    item.weightUnit,
-
-                  distance:
-                    item.distance,
-
-                  calories:
-                    item.calories,
+                  rounds:
+                    section.rounds,
 
                   durationSeconds:
-                    item.durationSeconds,
+                    section.durationSeconds,
+
+                  restSeconds:
+                    section.restSeconds,
+
+                  repScheme:
+                    section.repScheme,
 
                   notes:
-                    item.notes,
+                    section.notes,
 
-                  movement: {
-                    id:
-                      item.movement.id,
+                  type: {
+                    key:
+                      section.type.key,
 
                     name:
-                      item.movement.name,
+                      section.type.name,
+
+                    defaultResultType:
+                      section.type
+                        .defaultResultType
+                        ? {
+                            key:
+                              section.type
+                                .defaultResultType
+                                .key,
+
+                            name:
+                              section.type
+                                .defaultResultType
+                                .name,
+                          }
+                        : null,
                   },
+
+                  movements:
+                    section.movements.map(
+                      (item: any) => ({
+                        id:
+                          item.id,
+
+                        order:
+                          item.order,
+
+                        reps:
+                          item.reps,
+
+                        weight:
+                          item.weight !==
+                          null
+                            ? Number(
+                                item.weight,
+                              )
+                            : null,
+
+                        weightUnit:
+                          item.weightUnit,
+
+                        distance:
+                          item.distance,
+
+                        calories:
+                          item.calories,
+
+                        durationSeconds:
+                          item.durationSeconds,
+
+                        notes:
+                          item.notes,
+
+                        movement: {
+                          id:
+                            item.movement.id,
+
+                          name:
+                            item.movement.name,
+                        },
+
+                        prescriptions:
+                          item.prescriptions.map(
+                            (
+                              prescription: any,
+                            ) => ({
+                              id:
+                                prescription.id,
+
+                              category: {
+                                key:
+                                  prescription
+                                    .prescriptionCategory
+                                    .key,
+
+                                name:
+                                  prescription
+                                    .prescriptionCategory
+                                    .name,
+                              },
+
+                              reps:
+                                prescription.reps,
+
+                              weight:
+                                prescription.weight !==
+                                null
+                                  ? Number(
+                                      prescription.weight,
+                                    )
+                                  : null,
+
+                              weightUnit:
+                                prescription.weightUnit,
+
+                              distance:
+                                prescription.distance,
+
+                              calories:
+                                prescription.calories,
+
+                              durationSeconds:
+                                prescription.durationSeconds,
+
+                              notes:
+                                prescription.notes,
+                            }),
+                          ),
+                      }),
+                    ),
                 }),
               ),
           }),
         ),
-    };
+    } as WorkoutResponseDto;
   }
 
   private validateResultForType(
@@ -1070,6 +1317,40 @@ export class WorkoutsService {
   private mapWorkoutResult(
     result: any,
   ) {
+    const workoutVariant =
+      result.workoutVariant
+        ? {
+            id:
+              result.workoutVariant.id,
+
+            name:
+              result.workoutVariant.name,
+
+            level: {
+              key:
+                result.workoutVariant.level
+                  .key,
+
+              name:
+                result.workoutVariant.level
+                  .name,
+            },
+          }
+        : null;
+
+    const prescriptionCategory =
+      result.prescriptionCategory
+        ? {
+            key:
+              result.prescriptionCategory
+                .key,
+
+            name:
+              result.prescriptionCategory
+                .name,
+          }
+        : null;
+
     return {
       ...result,
 
@@ -1077,6 +1358,16 @@ export class WorkoutsService {
         result.load !== null
           ? Number(result.load)
           : null,
+
+      workoutVariant,
+
+      prescriptionCategory,
+
+      // Transitional compatibility for existing history/progress UI.
+      // Once the web app uses workoutVariant.level directly, this can be removed.
+      isRx:
+        workoutVariant?.level.key ===
+        'RX',
     };
   }
 

@@ -1,10 +1,17 @@
 import {
+  IsArray,
+  IsEnum,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+
+import { WeightUnit } from '../../../generated/prisma/enums';
+import { CreateWorkoutPrescriptionDto } from './create-workout-prescription.dto';
 
 export class CreateWorkoutMovementDto {
   @IsString()
@@ -25,8 +32,8 @@ export class CreateWorkoutMovementDto {
   weight?: number;
 
   @IsOptional()
-  @IsString()
-  weightUnit?: 'KG' | 'LB';
+  @IsEnum(WeightUnit)
+  weightUnit?: WeightUnit;
 
   @IsOptional()
   @IsInt()
@@ -46,4 +53,10 @@ export class CreateWorkoutMovementDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateWorkoutPrescriptionDto)
+  prescriptions?: CreateWorkoutPrescriptionDto[];
 }
