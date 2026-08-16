@@ -1,26 +1,57 @@
-import {
-  GoneException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import type { LoginDto } from './dto/login.dto';
-import type { RegisterDto } from './dto/register.dto';
+import { PrismaService } from '../prisma/prisma.service';
+
+type ProvisionAuth0UserInput = {
+  auth0UserId: string;
+  email: string;
+  displayName: string;
+};
 
 @Injectable()
 export class AuthService {
-  register(
-    _dto: RegisterDto,
-  ) {
-    throw new GoneException(
-      'Password registration is no longer supported. Use Google Sign-In.',
-    );
-  }
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {}
 
-  login(
-    _dto: LoginDto,
+  async provisionAuth0User(
+    input: ProvisionAuth0UserInput,
   ) {
-    throw new GoneException(
-      'Password login is no longer supported. Use Google Sign-In.',
-    );
+    const existingUser =
+      await this.prisma.user.findUnique({
+        where: {
+          auth0UserId:
+            input.auth0UserId,
+        },
+
+        include: {
+          athleteProfile: true,
+        },
+      });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    return this.prisma.user.create({
+      data: {
+        auth0UserId:
+          input.auth0UserId,
+
+        email:
+          input.email,
+
+        athleteProfile: {
+          create: {
+            displayName:
+              input.displayName,
+          },
+        },
+      },
+
+      include: {
+        athleteProfile: true,
+      },
+    });
   }
 }

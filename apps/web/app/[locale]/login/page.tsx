@@ -1,106 +1,45 @@
-'use client';
-
-import {
-  FormEvent,
-  useState,
-} from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 import AuthShell from '@/components/auth/AuthShell';
-import {
-  Link,
-  useRouter,
-} from '@/i18n/navigation';
 
-export default function LoginPage() {
+type LoginPageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+export default async function LoginPage({
+  params,
+}: LoginPageProps) {
+  const { locale } = await params;
+
   const t =
-    useTranslations('auth.login');
+    await getTranslations({
+      locale,
+      namespace: 'auth.login',
+    });
 
-  const router =
-    useRouter();
+  const audience =
+    process.env.AUTH0_AUDIENCE;
 
-  const [email, setEmail] =
-    useState('');
-
-  const [
-    password,
-    setPassword,
-  ] = useState('');
-
-  const [error, setError] =
-    useState<string | null>(
-      null,
+  if (!audience) {
+    throw new Error(
+      'AUTH0_AUDIENCE is not configured',
     );
-
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false);
-
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
-
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const response =
-        await fetch(
-          '/api/auth/login',
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json',
-            },
-
-            body:
-              JSON.stringify({
-                email:
-                  email.trim(),
-
-                password,
-              }),
-          },
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-        const message =
-          Array.isArray(
-            data.message,
-          )
-            ? data.message.join(
-                ', ',
-              )
-            : data.message;
-
-        setError(
-          message ??
-            t('error'),
-        );
-
-        return;
-      }
-
-      router.replace(
-        '/dashboard',
-      );
-
-      router.refresh();
-    } catch {
-      setError(
-        t('connectionError'),
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
   }
+
+  const returnTo =
+    `/${locale}/dashboard`;
+
+  const authLoginUrl =
+    '/auth/login' +
+    `?connection=google-oauth2` +
+    `&audience=${encodeURIComponent(
+      audience,
+    )}` +
+    `&returnTo=${encodeURIComponent(
+      returnTo,
+    )}`;
 
   return (
     <AuthShell>
@@ -119,101 +58,50 @@ export default function LoginPage() {
           </p>
         </header>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-5"
-        >
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t('email')}
-            </label>
-
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value,
-                )
-              }
-              placeholder={t(
-                'emailPlaceholder',
-              )}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t('password')}
-            </label>
-
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) =>
-                setPassword(
-                  event.target.value,
-                )
-              }
-              placeholder={t(
-                'passwordPlaceholder',
-              )}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-            />
-          </div>
-
-          {error && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3"
-            >
-              <p className="text-sm text-red-500">
-                {error}
-              </p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={
-              isSubmitting
-            }
-            className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+        <div className="mt-8">
+          <a
+            href={authLoginUrl}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-elevated"
           >
-            {isSubmitting
-              ? t('submitting')
-              : t('submit')}
-          </button>
-        </form>
+            <GoogleIcon />
 
-        <div className="mt-8 border-t border-border pt-6">
-          <p className="text-center text-sm text-muted">
-            {t('noAccount')}{' '}
-
-            <Link
-              href="/register"
-              className="font-semibold text-foreground transition hover:text-accent"
-            >
-              {t('createAccount')}
-            </Link>
-          </p>
+            {t('submit')}
+          </a>
         </div>
       </div>
     </AuthShell>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-5 w-5"
+    >
+      <path
+        fill="currentColor"
+        d="M21.35 12.2c0-.74-.07-1.45-.19-2.14H12v4.05h5.24a4.48 4.48 0 0 1-1.94 2.94v2.62h3.14c1.84-1.69 2.91-4.19 2.91-7.47Z"
+      />
+
+      <path
+        fill="currentColor"
+        opacity=".8"
+        d="M12 21.7c2.62 0 4.82-.87 6.43-2.36l-3.14-2.62c-.87.58-1.98.93-3.29.93-2.53 0-4.67-1.71-5.44-4.01H3.32v2.7A9.71 9.71 0 0 0 12 21.7Z"
+      />
+
+      <path
+        fill="currentColor"
+        opacity=".6"
+        d="M6.56 13.64A5.83 5.83 0 0 1 6.25 12c0-.57.1-1.12.31-1.64v-2.7H3.32A9.7 9.7 0 0 0 2.3 12c0 1.56.37 3.04 1.02 4.34l3.24-2.7Z"
+      />
+
+      <path
+        fill="currentColor"
+        opacity=".9"
+        d="M12 6.35c1.43 0 2.71.49 3.72 1.45l2.79-2.79A9.35 9.35 0 0 0 12 2.3a9.71 9.71 0 0 0-8.68 5.36l3.24 2.7c.77-2.3 2.91-4.01 5.44-4.01Z"
+      />
+    </svg>
   );
 }
