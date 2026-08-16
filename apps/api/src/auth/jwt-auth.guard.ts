@@ -4,50 +4,71 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { Auth0AuthGuard } from './auth0-auth.guard';
+import type { Auth0AuthenticatedRequest } from './auth0-auth.guard';
 
 export type AuthenticatedUser = {
   userId: string;
   email: string;
 };
 
-type AuthenticatedRequest = Request & {
-  user?: AuthenticatedUser;
-};
+type AuthenticatedRequest =
+  Auth0AuthenticatedRequest &
+    Request & {
+      user?: AuthenticatedUser;
+    };
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+export class JwtAuthGuard
+  implements CanActivate
+{
+  constructor(
+    private readonly auth0AuthGuard: Auth0AuthGuard,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const token = this.extractToken(request);
+  async canActivate(
+    context: ExecutionContext,
+  ): Promise<boolean> {
+    await this.auth0AuthGuard.canActivate(
+      context,
+    );
 
-    if (!token) {
-      throw new UnauthorizedException();
+    const request =
+      context
+        .switchToHttp()
+        .getRequest<AuthenticatedRequest>();
+
+    const auth0UserId =
+      request.auth0User?.sub;
+
+    if (!auth0UserId) {
+      throw new UnauthorizedException(
+        'Authenticated user subject is missing',
+      );
     }
 
-    try {
-      const payload = await this.jwtService.verifyAsync<{
-        sub: string;
-        email: string;
-      }>(token);
+    const user =
+      await this.prisma.user.findUnique({
+        where: {
+          auth0UserId,
+        },
+      });
 
-      request.user = {
-        userId: payload.sub,
-        email: payload.email,
-      };
-
-      return true;
-    } catch {
-      throw new UnauthorizedException();
+    if (!user) {
+      throw new UnauthorizedException(
+        'WODLY user has not been provisioned',
+      );
     }
-  }
 
-  private extractToken(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    request.user = {
+      userId: user.id,
+      email: user.email,
+    };
 
-    return type === 'Bearer' ? token : undefined;
+    return true;
   }
 }
