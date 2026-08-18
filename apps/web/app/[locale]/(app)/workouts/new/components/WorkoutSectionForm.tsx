@@ -46,6 +46,7 @@ function createEmptyMovement(): WorkoutMovementFormState {
     calories: '',
     durationSeconds: '',
     notes: '',
+    prescriptions: [],
   };
 }
 

@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-
+import { Link } from '@/i18n/navigation';
 import AuthShell from '@/components/auth/AuthShell';
 
 type LoginPageProps = {
@@ -67,6 +67,18 @@ export default async function LoginPage({
 
             {t('submit')}
           </a>
+        </div>
+        <div className="mt-6 text-center text-sm text-muted">
+          <span>
+            {t('noAccount')}{' '}
+          </span>
+
+          <Link
+            href="/register"
+            className="font-semibold text-accent transition hover:text-accent-strong"
+          >
+            {t('createAccount')}
+          </Link>
         </div>
       </div>
     </AuthShell>
