@@ -110,6 +110,16 @@ export class WorkoutsController {
     );
   }
 
+  @Get('levels')
+  findWorkoutLevels() {
+    return this.workoutsService.findWorkoutLevels();
+  }
+
+  @Get('prescription-categories')
+  findPrescriptionCategories() {
+    return this.workoutsService.findPrescriptionCategories();
+  }
+
   // Dynamic route LAST
   @Get(':id')
   findOne(

@@ -22,10 +22,8 @@ export type MovementOption = {
   }[];
 };
 
-export type WorkoutMovementFormState = {
-  id: string;
-  movementId: string;
-  movementName: string;
+export type WorkoutMovementPrescriptionFormState = {
+  categoryKey: string;
   reps: string;
   weight: string;
   weightUnit: 'KG' | 'LB' | '';
@@ -33,6 +31,22 @@ export type WorkoutMovementFormState = {
   calories: string;
   durationSeconds: string;
   notes: string;
+};
+
+export type WorkoutMovementFormState = {
+  id: string;
+  movementId: string;
+  movementName: string;
+
+  reps: string;
+  weight: string;
+  weightUnit: 'KG' | 'LB' | '';
+  distance: string;
+  calories: string;
+  durationSeconds: string;
+  notes: string;
+
+  prescriptions: WorkoutMovementPrescriptionFormState[];
 };
 
 type Props = {

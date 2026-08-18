@@ -11,6 +11,12 @@ export type WorkoutType = {
   description: string | null;
 };
 
+export type WorkoutLevel = {
+  key: string;
+  name: string;
+  description: string | null;
+};
+
 async function getWorkoutTypes(): Promise<
   WorkoutType[]
 > {
@@ -26,14 +32,34 @@ async function getWorkoutTypes(): Promise<
   return (await response.json()) as WorkoutType[];
 }
 
+async function getWorkoutLevels(): Promise<
+  WorkoutLevel[]
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/workouts/levels',
+    );
+
+  if (!response?.ok) {
+    return [];
+  }
+
+  return (await response.json()) as WorkoutLevel[];
+}
+
 export default async function NewWorkoutPage() {
   const t =
     await getTranslations(
       'workouts.create',
     );
 
-  const workoutTypes =
-    await getWorkoutTypes();
+  const [
+    workoutTypes,
+    workoutLevels,
+  ] = await Promise.all([
+    getWorkoutTypes(),
+    getWorkoutLevels(),
+  ]);
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-8 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
@@ -61,6 +87,9 @@ export default async function NewWorkoutPage() {
           <WorkoutForm
             workoutTypes={
               workoutTypes
+            }
+            workoutLevels={
+              workoutLevels
             }
           />
         </div>

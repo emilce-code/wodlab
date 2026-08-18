@@ -182,6 +182,30 @@
         "notes": "Movement notes",
         "optional": "(optional)",
         "notesPlaceholder": "Scaling, target pace, technique cue..."
+      },
+      "variants": {
+        "eyebrow": "Workout variations",
+        "title": "Variations",
+        "description": "Define the workout for each experience level.",
+        "add": "Add variation",
+        "variant": "Variation {number}",
+        "configure": "Configure variation",
+        "remove": "Remove",
+        "level": "Experience level",
+        "selectLevel": "Select a level",
+        "name": "Variation name",
+        "namePlaceholder": "Optional custom name",
+        "notes": "Notes",
+        "notesPlaceholder": "Describe how this variation differs",
+        "optional": "Optional",
+        "sections": "Workout sections",
+        "sectionsDescription": "Configure the sections for this variation.",
+        "addSection": "Add section",
+        "validation": {
+          "variantRequired": "At least one workout variation is required.",
+          "levelRequired": "Select a level for variation {variant}.",
+          "duplicateLevel": "Each workout variation must use a different level."
+        }
       }
     },
     "detail": {

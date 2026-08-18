@@ -182,6 +182,30 @@
         "notes": "Notas del movimiento",
         "optional": "(opcional)",
         "notesPlaceholder": "Escalado, ritmo objetivo, indicación técnica..."
+      },
+      "variants": {
+        "eyebrow": "Variaciones del entrenamiento",
+        "title": "Variaciones",
+        "description": "Define el entrenamiento para cada nivel de experiencia.",
+        "add": "Agregar variación",
+        "variant": "Variación {number}",
+        "configure": "Configurar variación",
+        "remove": "Eliminar",
+        "level": "Nivel de experiencia",
+        "selectLevel": "Selecciona un nivel",
+        "name": "Nombre de la variación",
+        "namePlaceholder": "Nombre personalizado opcional",
+        "notes": "Notas",
+        "notesPlaceholder": "Describe cómo difiere esta variación",
+        "optional": "Opcional",
+        "sections": "Secciones del entrenamiento",
+        "sectionsDescription": "Configura las secciones de esta variación.",
+        "addSection": "Agregar sección",
+        "validation": {
+          "variantRequired": "Se requiere al menos una variación del entrenamiento.",
+          "levelRequired": "Selecciona un nivel para la variación {variant}.",
+          "duplicateLevel": "Cada variación debe usar un nivel diferente."
+        }
       }
     },
     "detail": {

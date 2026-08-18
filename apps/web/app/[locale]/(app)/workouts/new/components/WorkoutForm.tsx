@@ -8,13 +8,22 @@ import { useTranslations } from 'next-intl';
 
 import { useRouter } from '@/i18n/navigation';
 
-import type { WorkoutType } from '../page';
-import WorkoutSectionForm, {
+import type {
+  WorkoutLevel,
+  WorkoutType,
+} from '../page';
+
+import type {
   WorkoutSectionFormState,
 } from './WorkoutSectionForm';
 
+import WorkoutVariantForm, {
+  WorkoutVariantFormState,
+} from './WorkoutVariantForm';
+
 type Props = {
   workoutTypes: WorkoutType[];
+  workoutLevels: WorkoutLevel[];
 };
 
 function createEmptySection(): WorkoutSectionFormState {
@@ -27,6 +36,20 @@ function createEmptySection(): WorkoutSectionFormState {
     repScheme: '',
     notes: '',
     movements: [],
+  };
+}
+
+function createEmptyVariant(
+  levelKey = '',
+): WorkoutVariantFormState {
+  return {
+    id: crypto.randomUUID(),
+    levelKey,
+    name: '',
+    notes: '',
+    sections: [
+      createEmptySection(),
+    ],
   };
 }
 
@@ -61,6 +84,7 @@ function parseRepScheme(
 
 export default function WorkoutForm({
   workoutTypes,
+  workoutLevels,
 }: Props) {
   const t =
     useTranslations(
@@ -83,8 +107,10 @@ export default function WorkoutForm({
     setDescription,
   ] = useState('');
 
-  const [typeKey, setTypeKey] =
-    useState('');
+  const [
+    typeKey,
+    setTypeKey,
+  ] = useState('');
 
   const [
     isBenchmark,
@@ -92,10 +118,10 @@ export default function WorkoutForm({
   ] = useState(false);
 
   const [
-    sections,
-    setSections,
+    variants,
+    setVariants,
   ] = useState<
-    WorkoutSectionFormState[]
+    WorkoutVariantFormState[]
   >([]);
 
   const [
@@ -109,10 +135,19 @@ export default function WorkoutForm({
     );
 
   useEffect(() => {
-    setSections([
-      createEmptySection(),
+    const defaultLevel =
+      workoutLevels.find(
+        (level) =>
+          level.key === 'RX',
+      ) ??
+      workoutLevels[0];
+
+    setVariants([
+      createEmptyVariant(
+        defaultLevel?.key ?? '',
+      ),
     ]);
-  }, []);
+  }, [workoutLevels]);
 
   function getWorkoutTypeName(
     type: WorkoutType,
@@ -125,17 +160,35 @@ export default function WorkoutForm({
       : type.name;
   }
 
-  function addSection() {
-    setSections((current) => [
+  function addVariant() {
+    const usedLevelKeys =
+      variants
+        .map(
+          (variant) =>
+            variant.levelKey,
+        )
+        .filter(Boolean);
+
+    const nextLevel =
+      workoutLevels.find(
+        (level) =>
+          !usedLevelKeys.includes(
+            level.key,
+          ),
+      );
+
+    setVariants((current) => [
       ...current,
-      createEmptySection(),
+      createEmptyVariant(
+        nextLevel?.key ?? '',
+      ),
     ]);
   }
 
-  function removeSection(
+  function removeVariant(
     id: string,
   ) {
-    setSections((current) => {
+    setVariants((current) => {
       if (
         current.length === 1
       ) {
@@ -143,21 +196,21 @@ export default function WorkoutForm({
       }
 
       return current.filter(
-        (section) =>
-          section.id !== id,
+        (variant) =>
+          variant.id !== id,
       );
     });
   }
 
-  function updateSection(
+  function updateVariant(
     id: string,
-    updatedSection: WorkoutSectionFormState,
+    updatedVariant: WorkoutVariantFormState,
   ) {
-    setSections((current) =>
-      current.map((section) =>
-        section.id === id
-          ? updatedSection
-          : section,
+    setVariants((current) =>
+      current.map((variant) =>
+        variant.id === id
+          ? updatedVariant
+          : variant,
       ),
     );
   }
@@ -178,109 +231,161 @@ export default function WorkoutForm({
     }
 
     if (
-      sections.length === 0
+      variants.length === 0
     ) {
       return t(
-        'validation.sectionRequired',
+        'variants.validation.variantRequired',
       );
     }
 
-    for (
-      let sectionIndex = 0;
-      sectionIndex <
-      sections.length;
-      sectionIndex++
-    ) {
-      const section =
-        sections[sectionIndex];
+    const usedLevels =
+      new Set<string>();
 
-      if (!section.typeKey) {
+    for (
+      let variantIndex = 0;
+      variantIndex <
+      variants.length;
+      variantIndex++
+    ) {
+      const variant =
+        variants[
+          variantIndex
+        ];
+
+      if (!variant.levelKey) {
         return t(
-          'validation.sectionTypeRequired',
+          'variants.validation.levelRequired',
           {
-            section:
-              sectionIndex + 1,
+            variant:
+              variantIndex + 1,
           },
         );
       }
 
       if (
-        section.movements
+        usedLevels.has(
+          variant.levelKey,
+        )
+      ) {
+        return t(
+          'variants.validation.duplicateLevel',
+        );
+      }
+
+      usedLevels.add(
+        variant.levelKey,
+      );
+
+      if (
+        variant.sections
           .length === 0
       ) {
         return t(
-          'validation.movementRequired',
-          {
-            section:
-              sectionIndex + 1,
-          },
+          'validation.sectionRequired',
         );
       }
 
       for (
-        let movementIndex = 0;
-        movementIndex <
-        section.movements.length;
-        movementIndex++
+        let sectionIndex = 0;
+        sectionIndex <
+        variant.sections.length;
+        sectionIndex++
       ) {
-        const movement =
-          section.movements[
-            movementIndex
+        const section =
+          variant.sections[
+            sectionIndex
           ];
 
-        if (
-          !movement.movementId
-        ) {
+        if (!section.typeKey) {
           return t(
-            'validation.movementSelectionRequired',
+            'validation.sectionTypeRequired',
             {
               section:
-                sectionIndex +
-                1,
-              movement:
-                movementIndex +
-                1,
+                sectionIndex + 1,
             },
           );
         }
-      }
 
-      if (
-        section.repScheme.trim()
-      ) {
-        const parts =
-          section.repScheme
-            .split('-')
-            .map((part) =>
-              part.trim(),
-            );
-
-        const valid =
-          parts.every((part) => {
-            if (!part) {
-              return false;
-            }
-
-            const value =
-              Number(part);
-
-            return (
-              Number.isInteger(
-                value,
-              ) &&
-              value > 0
-            );
-          });
-
-        if (!valid) {
+        if (
+          section.movements
+            .length === 0
+        ) {
           return t(
-            'validation.invalidRepScheme',
+            'validation.movementRequired',
             {
               section:
-                sectionIndex +
-                1,
+                sectionIndex + 1,
             },
           );
+        }
+
+        for (
+          let movementIndex = 0;
+          movementIndex <
+          section.movements.length;
+          movementIndex++
+        ) {
+          const movement =
+            section.movements[
+              movementIndex
+            ];
+
+          if (
+            !movement.movementId
+          ) {
+            return t(
+              'validation.movementSelectionRequired',
+              {
+                section:
+                  sectionIndex +
+                  1,
+                movement:
+                  movementIndex +
+                  1,
+              },
+            );
+          }
+        }
+
+        if (
+          section.repScheme.trim()
+        ) {
+          const parts =
+            section.repScheme
+              .split('-')
+              .map((part) =>
+                part.trim(),
+              );
+
+          const valid =
+            parts.every(
+              (part) => {
+                if (!part) {
+                  return false;
+                }
+
+                const value =
+                  Number(part);
+
+                return (
+                  Number.isInteger(
+                    value,
+                  ) &&
+                  value > 0
+                );
+              },
+            );
+
+          if (!valid) {
+            return t(
+              'validation.invalidRepScheme',
+              {
+                section:
+                  sectionIndex +
+                  1,
+              },
+            );
+          }
         }
       }
     }
@@ -319,90 +424,108 @@ export default function WorkoutForm({
         typeKey,
         isBenchmark,
 
-        sections: sections.map(
-          (
-            section,
-            sectionIndex,
-          ) => ({
-            typeKey:
-              section.typeKey,
+        variants:
+          variants.map(
+            (variant) => ({
+              levelKey:
+                variant.levelKey,
 
-            order:
-              sectionIndex + 1,
+              name:
+                variant.name.trim() ||
+                undefined,
 
-            rounds:
-              optionalNumber(
-                section.rounds,
-              ),
+              notes:
+                variant.notes.trim() ||
+                undefined,
 
-            durationSeconds:
-              optionalNumber(
-                section.durationSeconds,
-              ),
+              sections:
+                variant.sections.map(
+                  (
+                    section,
+                    sectionIndex,
+                  ) => ({
+                    typeKey:
+                      section.typeKey,
 
-            restSeconds:
-              optionalNumber(
-                section.restSeconds,
-              ),
+                    order:
+                      sectionIndex +
+                      1,
 
-            repScheme:
-              parseRepScheme(
-                section.repScheme,
-              ),
+                    rounds:
+                      optionalNumber(
+                        section.rounds,
+                      ),
 
-            notes:
-              section.notes.trim() ||
-              undefined,
+                    durationSeconds:
+                      optionalNumber(
+                        section.durationSeconds,
+                      ),
 
-            movements:
-              section.movements.map(
-                (
-                  movement,
-                  movementIndex,
-                ) => ({
-                  movementId:
-                    movement.movementId,
+                    restSeconds:
+                      optionalNumber(
+                        section.restSeconds,
+                      ),
 
-                  order:
-                    movementIndex +
-                    1,
+                    repScheme:
+                      parseRepScheme(
+                        section.repScheme,
+                      ),
 
-                  reps:
-                    optionalNumber(
-                      movement.reps,
-                    ),
+                    notes:
+                      section.notes.trim() ||
+                      undefined,
 
-                  weight:
-                    optionalNumber(
-                      movement.weight,
-                    ),
+                    movements:
+                      section.movements.map(
+                        (
+                          movement,
+                          movementIndex,
+                        ) => ({
+                          movementId:
+                            movement.movementId,
 
-                  weightUnit:
-                    movement.weightUnit ||
-                    undefined,
+                          order:
+                            movementIndex +
+                            1,
 
-                  distance:
-                    optionalNumber(
-                      movement.distance,
-                    ),
+                          reps:
+                            optionalNumber(
+                              movement.reps,
+                            ),
 
-                  calories:
-                    optionalNumber(
-                      movement.calories,
-                    ),
+                          weight:
+                            optionalNumber(
+                              movement.weight,
+                            ),
 
-                  durationSeconds:
-                    optionalNumber(
-                      movement.durationSeconds,
-                    ),
+                          weightUnit:
+                            movement.weightUnit ||
+                            undefined,
 
-                  notes:
-                    movement.notes.trim() ||
-                    undefined,
-                }),
-              ),
-          }),
-        ),
+                          distance:
+                            optionalNumber(
+                              movement.distance,
+                            ),
+
+                          calories:
+                            optionalNumber(
+                              movement.calories,
+                            ),
+
+                          durationSeconds:
+                            optionalNumber(
+                              movement.durationSeconds,
+                            ),
+
+                          notes:
+                            movement.notes.trim() ||
+                            undefined,
+                        }),
+                      ),
+                  }),
+                ),
+            }),
+          ),
       };
 
       const response =
@@ -461,6 +584,20 @@ export default function WorkoutForm({
       setIsSubmitting(false);
     }
   }
+
+  const usedLevelKeys =
+    variants
+      .map(
+        (variant) =>
+          variant.levelKey,
+      )
+      .filter(Boolean);
+
+  const canAddVariant =
+    workoutLevels.length ===
+      0 ||
+    usedLevelKeys.length <
+      workoutLevels.length;
 
   return (
     <form
@@ -644,19 +781,19 @@ export default function WorkoutForm({
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
               {t(
-                'sections.eyebrow',
+                'variants.eyebrow',
               )}
             </p>
 
             <h2 className="mt-1 text-xl font-bold">
               {t(
-                'sections.title',
+                'variants.title',
               )}
             </h2>
 
             <p className="mt-1 text-sm text-muted">
               {t(
-                'sections.description',
+                'variants.description',
               )}
             </p>
           </div>
@@ -664,51 +801,60 @@ export default function WorkoutForm({
           <button
             type="button"
             onClick={
-              addSection
+              addVariant
             }
-            className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated"
+            disabled={
+              !canAddVariant
+            }
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
           >
             +{' '}
             {t(
-              'sections.add',
+              'variants.add',
             )}
           </button>
         </div>
 
         <div className="mt-5 space-y-5">
-          {sections.map(
+          {variants.map(
             (
-              section,
+              variant,
               index,
             ) => (
-              <WorkoutSectionForm
+              <WorkoutVariantForm
                 key={
-                  section.id
+                  variant.id
                 }
-                section={
-                  section
+                variant={
+                  variant
                 }
-                sectionNumber={
+                variantNumber={
                   index + 1
                 }
                 workoutTypes={
                   workoutTypes
                 }
+                workoutLevels={
+                  workoutLevels
+                }
+                usedLevelKeys={
+                  usedLevelKeys
+                }
                 canRemove={
-                  sections.length >
+                  variants.length >
                   1
                 }
                 onChange={(
-                  updatedSection,
+                  updatedVariant,
                 ) =>
-                  updateSection(
-                    section.id,
-                    updatedSection,
+                  updateVariant(
+                    variant.id,
+                    updatedVariant,
                   )
                 }
                 onRemove={() =>
-                  removeSection(
-                    section.id,
+                  removeVariant(
+                    variant.id,
                   )
                 }
               />
