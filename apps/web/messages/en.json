@@ -340,17 +340,38 @@
     "latest": "Latest",
     "empty": {
       "title": "No progress data yet",
-      "description": "Log workout results and WODLY will start tracking your progress.",
-      "browseWorkouts": "Browse workouts"
+      "description": "Log workout or movement results and WODLY will start tracking your progress.",
+      "browseWorkouts": "Browse workouts",
+      "browseMovements": "Browse movements"
     },
     "summary": {
       "resultsLogged": "Results logged",
+      "workoutResults": "Workout results",
       "workoutsTracked": "Workouts tracked",
+      "movementResults": "Movement results",
+      "movementsTracked": "Movements tracked",
+      "personalRecords": "Movement PRs",
       "rxRate": "Rx rate",
       "rxBreakdown": "{rx} Rx · {scaled} Scaled",
       "benchmarksTracked": "Benchmarks tracked",
       "rxResults": "RX results",
       "levelBreakdown": "Results by level"
+    },
+    "movements": {
+      "eyebrow": "Movement progress",
+      "title": "Your movement progress",
+      "description": "Track personal records and performance trends across individual movements.",
+      "emptyTitle": "No movement progress yet",
+      "emptyDescription": "Log a movement result to start tracking personal records and trends.",
+      "browse": "Browse movements"
+    },
+    "movementChart": {
+      "ariaLabel": "Movement performance trend",
+      "notEnoughData": "Not enough data to chart.",
+      "logAnotherResult": "Log another result to see your trend.",
+      "lowerIsBetter": "Lower is better.",
+      "higherIsBetter": "Higher is better.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
     },
     "workouts": {
       "eyebrow": "Workout progress",

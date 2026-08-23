@@ -5,9 +5,16 @@ import {
 
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
-import { authenticatedApiFetch } from '@/lib/api';
+import {
+  Link,
+} from '@/i18n/navigation';
+import {
+  authenticatedApiFetch,
+} from '@/lib/api';
 
+import MovementTrendChart, {
+  type MovementTrendResult,
+} from './components/MovementTrendChart';
 import WorkoutTrendChart, {
   type TrendResult,
 } from './components/WorkoutTrendChart';
@@ -54,17 +61,19 @@ type WorkoutProgressTrack = {
     ProgressResult[];
 };
 
-type ProgressResponse = {
+type WorkoutProgressResponse = {
   summary: {
     totalResults: number;
     uniqueWorkouts: number;
     rxResults: number;
     rxRate: number;
+
     levelBreakdown: {
       key: string;
       name: string;
       count: number;
     }[];
+
     benchmarkWorkouts: number;
   };
 
@@ -72,7 +81,64 @@ type ProgressResponse = {
     WorkoutProgressTrack[];
 };
 
-async function getProgress(): Promise<ProgressResponse> {
+type MovementProgressResult =
+  MovementTrendResult & {
+    measurementType: {
+      key: string;
+      name: string;
+    };
+  };
+
+type MovementProgressTrack = {
+  movement: {
+    id: string;
+    name: string;
+
+    category: {
+      key: string;
+      name: string;
+    };
+  };
+
+  measurementType: {
+    key: string;
+    name: string;
+  };
+
+  reps:
+    | number
+    | null;
+
+  attemptCount: number;
+
+  personalBest:
+    | MovementProgressResult
+    | null;
+
+  latestResult:
+    MovementProgressResult;
+
+  firstResult:
+    MovementProgressResult;
+
+  history:
+    MovementProgressResult[];
+};
+
+type MovementProgressResponse = {
+  summary: {
+    totalResults: number;
+    uniqueMovements: number;
+    personalRecords: number;
+  };
+
+  tracks:
+    MovementProgressTrack[];
+};
+
+async function getWorkoutProgress(): Promise<
+  WorkoutProgressResponse
+> {
   const response =
     await authenticatedApiFetch(
       '/workouts/results/progress',
@@ -93,14 +159,43 @@ async function getProgress(): Promise<ProgressResponse> {
     };
   }
 
-  return (await response.json()) as ProgressResponse;
+  return (
+    await response.json()
+  ) as WorkoutProgressResponse;
+}
+
+async function getMovementProgress(): Promise<
+  MovementProgressResponse
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/movements/results/progress',
+    );
+
+  if (!response?.ok) {
+    return {
+      summary: {
+        totalResults: 0,
+        uniqueMovements: 0,
+        personalRecords: 0,
+      },
+
+      tracks: [],
+    };
+  }
+
+  return (
+    await response.json()
+  ) as MovementProgressResponse;
 }
 
 function formatDuration(
   seconds: number,
 ) {
   const minutes =
-    Math.floor(seconds / 60);
+    Math.floor(
+      seconds / 60,
+    );
 
   const remainingSeconds =
     seconds % 60;
@@ -115,31 +210,51 @@ function formatDuration(
 }
 
 export default async function ProgressPage() {
-  const t =
-    await getTranslations(
+  const [
+    t,
+    typeT,
+    resultTypeT,
+    measurementT,
+    categoryT,
+    locale,
+    workoutProgress,
+    movementProgress,
+  ] = await Promise.all([
+    getTranslations(
       'progress',
-    );
-
-  const typeT =
-    await getTranslations(
+    ),
+    getTranslations(
       'workoutTypes',
-    );
-
-  const resultTypeT =
-    await getTranslations(
+    ),
+    getTranslations(
       'resultTypes',
-    );
+    ),
+    getTranslations(
+      'measurementTypes',
+    ),
+    getTranslations(
+      'movementCategories',
+    ),
+    getLocale(),
+    getWorkoutProgress(),
+    getMovementProgress(),
+  ]);
 
-  const locale =
-    await getLocale();
+  const workoutSummary =
+    workoutProgress.summary;
 
-  const progress =
-    await getProgress();
+  const workoutTracks =
+    workoutProgress.tracks;
 
-  const {
-    summary,
-    tracks,
-  } = progress;
+  const movementSummary =
+    movementProgress.summary;
+
+  const movementTracks =
+    movementProgress.tracks;
+
+  const totalResults =
+    workoutSummary.totalResults +
+    movementSummary.totalResults;
 
   function getWorkoutTypeName(
     key: string,
@@ -173,7 +288,54 @@ export default async function ProgressPage() {
       : fallback;
   }
 
-  function formatResult(
+  function getMeasurementName(
+    key: string,
+    fallback: string,
+  ) {
+    const translationKey =
+      key.toLowerCase();
+
+    return measurementT.has(
+      translationKey,
+    )
+      ? measurementT(
+          translationKey,
+        )
+      : fallback;
+  }
+
+  function getCategoryName(
+    key: string,
+    fallback: string,
+  ) {
+    const translationKey =
+      key.toLowerCase();
+
+    return categoryT.has(
+      translationKey,
+    )
+      ? categoryT(
+          translationKey,
+        )
+      : fallback;
+  }
+
+  function formatDate(
+    value: string,
+  ) {
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      },
+    ).format(
+      new Date(value),
+    );
+  }
+
+  function formatWorkoutResult(
     result:
       | ProgressResult
       | null,
@@ -195,19 +357,28 @@ export default async function ProgressPage() {
 
       case 'ROUNDS_REPS':
         return `${
-          result.rounds ?? 0
-        } + ${result.reps ?? 0}`;
+          result.rounds ??
+          0
+        } + ${
+          result.reps ??
+          0
+        }`;
 
       case 'REPS':
-        return result.reps !== null
-          ? t('repsValue', {
-              count:
-                result.reps,
-            })
+        return result.reps !==
+          null
+          ? t(
+              'repsValue',
+              {
+                count:
+                  result.reps,
+              },
+            )
           : '—';
 
       case 'LOAD':
-        return result.load !== null
+        return result.load !==
+          null
           ? `${result.load} ${
               result.weightUnit ??
               ''
@@ -219,24 +390,65 @@ export default async function ProgressPage() {
     }
   }
 
-  function formatDate(
-    value: string,
+  function formatMovementResult(
+    result:
+      | MovementProgressResult
+      | null,
   ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(new Date(value));
+    if (!result) {
+      return '—';
+    }
+
+    switch (
+      result.measurementType.key
+    ) {
+      case 'WEIGHT':
+        return `${result.load ?? '—'} ${
+          result.weightUnit ??
+          ''
+        }`.trim();
+
+      case 'REPS':
+        return t(
+          'repsValue',
+          {
+            count:
+              result.reps ??
+              0,
+          },
+        );
+
+      case 'DISTANCE':
+        return `${
+          result.distance ??
+          0
+        } m`;
+
+      case 'DURATION':
+        return result.durationSeconds !==
+          null
+          ? formatDuration(
+              result.durationSeconds,
+            )
+          : '—';
+
+      case 'CALORIES':
+        return `${
+          result.calories ??
+          0
+        } cal`;
+
+      default:
+        return '—';
+    }
   }
 
-  function getImprovement(
+  function getWorkoutImprovement(
     workout: WorkoutProgressTrack,
   ) {
     if (
-      workout.attemptCount < 2
+      workout.attemptCount <
+      2
     ) {
       return null;
     }
@@ -260,36 +472,32 @@ export default async function ProgressPage() {
             null ||
           best.timeSeconds ===
             null ||
-          first.timeSeconds === 0
+          first.timeSeconds ===
+            0
         ) {
           return null;
         }
 
-        const secondsImproved =
+        const difference =
           first.timeSeconds -
           best.timeSeconds;
 
-        const percentage =
-          (secondsImproved /
-            first.timeSeconds) *
-          100;
-
         return {
           improved:
-            secondsImproved > 0,
+            difference > 0,
 
           label:
-            secondsImproved > 0
+            difference > 0
               ? t(
                   'improvement.faster',
                   {
                     value:
                       formatDuration(
-                        secondsImproved,
+                        difference,
                       ),
                   },
                 )
-              : secondsImproved ===
+              : difference ===
                   0
                 ? t(
                     'improvement.noChange',
@@ -300,7 +508,7 @@ export default async function ProgressPage() {
                       value:
                         formatDuration(
                           Math.abs(
-                            secondsImproved,
+                            difference,
                           ),
                         ),
                     },
@@ -308,14 +516,17 @@ export default async function ProgressPage() {
 
           percentage:
             Math.abs(
-              percentage,
+              (difference /
+                first.timeSeconds) *
+                100,
             ),
         };
       }
 
       case 'REPS': {
         if (
-          first.reps === null ||
+          first.reps ===
+            null ||
           best.reps === null
         ) {
           return null;
@@ -338,7 +549,8 @@ export default async function ProgressPage() {
                       difference,
                   },
                 )
-              : difference === 0
+              : difference ===
+                  0
                 ? t(
                     'improvement.noChange',
                   )
@@ -363,156 +575,6 @@ export default async function ProgressPage() {
         };
       }
 
-      case 'LOAD': {
-        if (
-          first.load === null ||
-          best.load === null
-        ) {
-          return null;
-        }
-
-        const firstKg =
-          first.weightUnit ===
-          'LB'
-            ? first.load *
-              0.45359237
-            : first.load;
-
-        const bestKg =
-          best.weightUnit ===
-          'LB'
-            ? best.load *
-              0.45359237
-            : best.load;
-
-        const differenceKg =
-          bestKg - firstKg;
-
-        const displayDifference =
-          best.weightUnit ===
-          'LB'
-            ? differenceKg /
-              0.45359237
-            : differenceKg;
-
-        const unit =
-          best.weightUnit ??
-          'KG';
-
-        return {
-          improved:
-            differenceKg > 0,
-
-          label:
-            differenceKg > 0
-              ? `+${displayDifference.toFixed(
-                  1,
-                )} ${unit}`
-              : differenceKg ===
-                  0
-                ? t(
-                    'improvement.noChange',
-                  )
-                : `${displayDifference.toFixed(
-                    1,
-                  )} ${unit}`,
-
-          percentage:
-            firstKg > 0
-              ? Math.abs(
-                  (differenceKg /
-                    firstKg) *
-                    100,
-                )
-              : null,
-        };
-      }
-
-      case 'ROUNDS_REPS': {
-        const firstRounds =
-          first.rounds ?? 0;
-
-        const firstReps =
-          first.reps ?? 0;
-
-        const bestRounds =
-          best.rounds ?? 0;
-
-        const bestReps =
-          best.reps ?? 0;
-
-        if (
-          bestRounds >
-          firstRounds
-        ) {
-          const difference =
-            bestRounds -
-            firstRounds;
-
-          return {
-            improved: true,
-
-            label: t(
-              'improvement.roundsGain',
-              {
-                count:
-                  difference,
-              },
-            ),
-
-            percentage: null,
-          };
-        }
-
-        if (
-          bestRounds ===
-          firstRounds
-        ) {
-          const difference =
-            bestReps -
-            firstReps;
-
-          return {
-            improved:
-              difference > 0,
-
-            label:
-              difference > 0
-                ? t(
-                    'improvement.repsGain',
-                    {
-                      count:
-                        difference,
-                    },
-                  )
-                : difference ===
-                    0
-                  ? t(
-                      'improvement.noChange',
-                    )
-                  : t(
-                      'improvement.repsLoss',
-                      {
-                        count:
-                          Math.abs(
-                            difference,
-                          ),
-                      },
-                    ),
-
-            percentage: null,
-          };
-        }
-
-        return {
-          improved: false,
-          label: t(
-            'improvement.noImprovement',
-          ),
-          percentage: null,
-        };
-      }
-
       default:
         return null;
     }
@@ -530,11 +592,13 @@ export default async function ProgressPage() {
         </h1>
 
         <p className="mt-4 max-w-2xl text-muted">
-          {t('description')}
+          {t(
+            'description',
+          )}
         </p>
       </header>
 
-      {summary.totalResults ===
+      {totalResults ===
       0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-border px-6 py-14 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent">
@@ -553,28 +617,39 @@ export default async function ProgressPage() {
             )}
           </p>
 
-          <Link
-            href="/workouts"
-            className="mt-5 inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
-          >
-            {t(
-              'empty.browseWorkouts',
-            )}
-          </Link>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/workouts"
+              className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+            >
+              {t(
+                'empty.browseWorkouts',
+              )}
+            </Link>
+
+            <Link
+              href="/movements"
+              className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40"
+            >
+              {t(
+                'empty.browseMovements',
+              )}
+            </Link>
+          </div>
         </div>
       ) : (
         <>
-          <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {t(
-                  'summary.resultsLogged',
+                  'summary.workoutResults',
                 )}
               </p>
 
               <p className="mt-3 text-3xl font-black">
                 {
-                  summary.totalResults
+                  workoutSummary.totalResults
                 }
               </p>
             </Card>
@@ -588,7 +663,7 @@ export default async function ProgressPage() {
 
               <p className="mt-3 text-3xl font-black">
                 {
-                  summary.uniqueWorkouts
+                  workoutSummary.uniqueWorkouts
                 }
               </p>
             </Card>
@@ -596,27 +671,42 @@ export default async function ProgressPage() {
             <Card className="p-5">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {t(
-                  'summary.rxRate',
+                  'summary.movementResults',
                 )}
               </p>
 
-              <div className="mt-3 flex items-baseline gap-1">
-                <p className="text-3xl font-black text-accent">
-                  {
-                    summary.rxRate
-                  }
-                </p>
+              <p className="mt-3 text-3xl font-black">
+                {
+                  movementSummary.totalResults
+                }
+              </p>
+            </Card>
 
-                <span className="font-bold text-accent">
-                  %
-                </span>
-              </div>
-
-              <p className="mt-1 text-xs text-muted">
-                {summary.rxResults}{' '}
+            <Card className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {t(
-                  'summary.rxResults',
+                  'summary.movementsTracked',
                 )}
+              </p>
+
+              <p className="mt-3 text-3xl font-black">
+                {
+                  movementSummary.uniqueMovements
+                }
+              </p>
+            </Card>
+
+            <Card className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                {t(
+                  'summary.personalRecords',
+                )}
+              </p>
+
+              <p className="mt-3 text-3xl font-black text-accent">
+                {
+                  movementSummary.personalRecords
+                }
               </p>
             </Card>
 
@@ -629,13 +719,14 @@ export default async function ProgressPage() {
 
               <p className="mt-3 text-3xl font-black">
                 {
-                  summary.benchmarkWorkouts
+                  workoutSummary.benchmarkWorkouts
                 }
               </p>
             </Card>
           </section>
 
-          {summary.levelBreakdown.length > 0 && (
+          {workoutSummary.levelBreakdown.length >
+            0 && (
             <section className="mt-5">
               <Card className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
@@ -645,7 +736,7 @@ export default async function ProgressPage() {
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {summary.levelBreakdown.map(
+                  {workoutSummary.levelBreakdown.map(
                     (level) => (
                       <Badge
                         key={
@@ -658,8 +749,13 @@ export default async function ProgressPage() {
                             : undefined
                         }
                       >
-                        {level.name}:{' '}
-                        {level.count}
+                        {
+                          level.name
+                        }
+                        :{' '}
+                        {
+                          level.count
+                        }
                       </Badge>
                     ),
                   )}
@@ -672,81 +768,95 @@ export default async function ProgressPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                 {t(
-                  'workouts.eyebrow',
+                  'movements.eyebrow',
                 )}
               </p>
 
               <h2 className="mt-2 text-2xl font-bold">
                 {t(
-                  'workouts.title',
+                  'movements.title',
                 )}
               </h2>
 
               <p className="mt-2 text-sm text-muted">
                 {t(
-                  'workouts.description',
+                  'movements.description',
                 )}
               </p>
             </div>
 
-            <div className="mt-6 space-y-5">
-              {tracks.map(
-                (track) => {
-                  const improvement =
-                    getImprovement(
-                      track,
-                    );
+            {movementTracks.length ===
+            0 ? (
+              <Card className="mt-6 p-6">
+                <p className="font-semibold">
+                  {t(
+                    'movements.emptyTitle',
+                  )}
+                </p>
 
-                  return (
+                <p className="mt-2 text-sm text-muted">
+                  {t(
+                    'movements.emptyDescription',
+                  )}
+                </p>
+
+                <Link
+                  href="/movements"
+                  className="mt-4 inline-flex text-sm font-semibold text-accent hover:underline"
+                >
+                  {t(
+                    'movements.browse',
+                  )}
+                </Link>
+              </Card>
+            ) : (
+              <div className="mt-6 space-y-5">
+                {movementTracks.map(
+                  (track) => (
                     <Card
-                      key={`${track.workout.id}:${track.level.key}`}
+                      key={[
+                        track.movement.id,
+                        track.measurementType.key,
+                        track.reps ??
+                          'none',
+                      ].join(
+                        ':',
+                      )}
                       className="overflow-hidden"
                     >
                       <div className="p-5 sm:p-6">
-                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <Link
-                                href={`/workouts/${track.workout.id}`}
+                                href={`/movements/${track.movement.id}`}
                                 className="text-lg font-bold transition hover:text-accent"
                               >
                                 {
-                                  track
-                                    .workout
-                                    .name
+                                  track.movement.name
                                 }
                               </Link>
 
-                              {track
-                                .workout
-                                .isBenchmark && (
-                                <Badge>
-                                  {t(
-                                    'benchmark',
-                                  )}
+                              {track.reps !==
+                                null && (
+                                <Badge variant="accent">
+                                  {
+                                    track.reps
+                                  }
+                                  RM
                                 </Badge>
                               )}
                             </div>
 
                             <p className="mt-1 text-sm text-muted">
-                              {getWorkoutTypeName(
-                                track
-                                  .workout
-                                  .type
-                                  .key,
-                                track
-                                  .workout
-                                  .type
-                                  .name,
+                              {getCategoryName(
+                                track.movement.category.key,
+                                track.movement.category.name,
                               )}
                               {' · '}
-                              {getResultTypeName(
-                                track
-                                  .resultType
-                                  .key,
-                                track
-                                  .resultType
-                                  .name,
+                              {getMeasurementName(
+                                track.measurementType.key,
+                                track.measurementType.name,
                               )}
                             </p>
 
@@ -760,49 +870,6 @@ export default async function ProgressPage() {
                               )}
                             </p>
                           </div>
-
-                          {improvement && (
-                            <div className="sm:text-right">
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                                {t(
-                                  'improvement.label',
-                                )}
-                              </p>
-
-                              <p
-                                className={[
-                                  'mt-1 text-lg font-black',
-                                  improvement.improved
-                                    ? 'text-accent'
-                                    : '',
-                                ].join(
-                                  ' ',
-                                )}
-                              >
-                                {
-                                  improvement.label
-                                }
-                              </p>
-
-                              {improvement.percentage !==
-                                null &&
-                                improvement.percentage >
-                                  0 && (
-                                  <p className="mt-0.5 text-xs text-muted">
-                                    {improvement.percentage.toLocaleString(
-                                      locale,
-                                      {
-                                        minimumFractionDigits:
-                                          1,
-                                        maximumFractionDigits:
-                                          1,
-                                      },
-                                    )}
-                                    %
-                                  </p>
-                                )}
-                            </div>
-                          )}
                         </div>
 
                         <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
@@ -814,16 +881,14 @@ export default async function ProgressPage() {
                             </p>
 
                             <p className="mt-2 text-xl font-bold">
-                              {formatResult(
+                              {formatMovementResult(
                                 track.firstResult,
                               )}
                             </p>
 
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
-                                track
-                                  .firstResult
-                                  .performedAt,
+                                track.firstResult.performedAt,
                               )}
                             </p>
                           </div>
@@ -836,7 +901,7 @@ export default async function ProgressPage() {
                             </p>
 
                             <p className="mt-2 text-xl font-black text-accent">
-                              {formatResult(
+                              {formatMovementResult(
                                 track.personalBest,
                               )}
                             </p>
@@ -844,9 +909,7 @@ export default async function ProgressPage() {
                             {track.personalBest && (
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
-                                  track
-                                    .personalBest
-                                    .performedAt,
+                                  track.personalBest.performedAt,
                                 )}
                               </p>
                             )}
@@ -860,16 +923,14 @@ export default async function ProgressPage() {
                             </p>
 
                             <p className="mt-2 text-xl font-bold">
-                              {formatResult(
+                              {formatMovementResult(
                                 track.latestResult,
                               )}
                             </p>
 
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
-                                track
-                                  .latestResult
-                                  .performedAt,
+                                track.latestResult.performedAt,
                               )}
                             </p>
                           </div>
@@ -890,9 +951,12 @@ export default async function ProgressPage() {
                             </p>
                           </div>
 
-                          <WorkoutTrendChart
-                            resultType={
-                              track.resultType
+                          <MovementTrendChart
+                            measurementType={
+                              track.measurementType
+                            }
+                            reps={
+                              track.reps
                             }
                             history={
                               track.history
@@ -901,11 +965,246 @@ export default async function ProgressPage() {
                         </div>
                       </div>
                     </Card>
-                  );
-                },
-              )}
-            </div>
+                  ),
+                )}
+              </div>
+            )}
           </section>
+
+          {workoutTracks.length >
+            0 && (
+            <section className="mt-12">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  {t(
+                    'workouts.eyebrow',
+                  )}
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold">
+                  {t(
+                    'workouts.title',
+                  )}
+                </h2>
+
+                <p className="mt-2 text-sm text-muted">
+                  {t(
+                    'workouts.description',
+                  )}
+                </p>
+              </div>
+
+              <div className="mt-6 space-y-5">
+                {workoutTracks.map(
+                  (track) => {
+                    const improvement =
+                      getWorkoutImprovement(
+                        track,
+                      );
+
+                    return (
+                      <Card
+                        key={`${track.workout.id}:${track.level.key}`}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-5 sm:p-6">
+                          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Link
+                                  href={`/workouts/${track.workout.id}`}
+                                  className="text-lg font-bold transition hover:text-accent"
+                                >
+                                  {
+                                    track.workout.name
+                                  }
+                                </Link>
+
+                                {track.workout.isBenchmark && (
+                                  <Badge>
+                                    {t(
+                                      'benchmark',
+                                    )}
+                                  </Badge>
+                                )}
+
+                                <Badge
+                                  variant={
+                                    track.level.key ===
+                                    'RX'
+                                      ? 'accent'
+                                      : undefined
+                                  }
+                                >
+                                  {
+                                    track.level.name
+                                  }
+                                </Badge>
+                              </div>
+
+                              <p className="mt-1 text-sm text-muted">
+                                {getWorkoutTypeName(
+                                  track.workout.type.key,
+                                  track.workout.type.name,
+                                )}
+                                {' · '}
+                                {getResultTypeName(
+                                  track.resultType.key,
+                                  track.resultType.name,
+                                )}
+                              </p>
+
+                              <p className="mt-2 text-xs text-muted">
+                                {t(
+                                  'attemptCount',
+                                  {
+                                    count:
+                                      track.attemptCount,
+                                  },
+                                )}
+                              </p>
+                            </div>
+
+                            {improvement && (
+                              <div className="sm:text-right">
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                                  {t(
+                                    'improvement.label',
+                                  )}
+                                </p>
+
+                                <p
+                                  className={[
+                                    'mt-1 text-lg font-black',
+                                    improvement.improved
+                                      ? 'text-accent'
+                                      : '',
+                                  ].join(
+                                    ' ',
+                                  )}
+                                >
+                                  {
+                                    improvement.label
+                                  }
+                                </p>
+
+                                {improvement.percentage !==
+                                  null &&
+                                  improvement.percentage >
+                                    0 && (
+                                  <p className="mt-0.5 text-xs text-muted">
+                                    {improvement.percentage.toLocaleString(
+                                      locale,
+                                      {
+                                        minimumFractionDigits:
+                                          1,
+                                        maximumFractionDigits:
+                                          1,
+                                      },
+                                    )}
+                                    %
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t(
+                                  'firstResult',
+                                )}
+                              </p>
+
+                              <p className="mt-2 text-xl font-bold">
+                                {formatWorkoutResult(
+                                  track.firstResult,
+                                )}
+                              </p>
+
+                              <p className="mt-1 text-xs text-muted">
+                                {formatDate(
+                                  track.firstResult.performedAt,
+                                )}
+                              </p>
+                            </div>
+
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t(
+                                  'personalBest',
+                                )}
+                              </p>
+
+                              <p className="mt-2 text-xl font-black text-accent">
+                                {formatWorkoutResult(
+                                  track.personalBest,
+                                )}
+                              </p>
+
+                              {track.personalBest && (
+                                <p className="mt-1 text-xs text-muted">
+                                  {formatDate(
+                                    track.personalBest.performedAt,
+                                  )}
+                                </p>
+                              )}
+                            </div>
+
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t(
+                                  'latest',
+                                )}
+                              </p>
+
+                              <p className="mt-2 text-xl font-bold">
+                                {formatWorkoutResult(
+                                  track.latestResult,
+                                )}
+                              </p>
+
+                              <p className="mt-1 text-xs text-muted">
+                                {formatDate(
+                                  track.latestResult.performedAt,
+                                )}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-6 border-t border-border pt-6">
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                                {t(
+                                  'trend.title',
+                                )}
+                              </p>
+
+                              <p className="mt-1 text-sm text-muted">
+                                {t(
+                                  'trend.description',
+                                )}
+                              </p>
+                            </div>
+
+                            <WorkoutTrendChart
+                              resultType={
+                                track.resultType
+                              }
+                              history={
+                                track.history
+                              }
+                            />
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  },
+                )}
+              </div>
+            </section>
+          )}
         </>
       )}
     </div>

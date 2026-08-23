@@ -85,7 +85,9 @@ export class MovementsService {
 
     return movements.map(
       (movement) =>
-        this.mapMovement(movement),
+        this.mapMovement(
+          movement,
+        ),
     );
   }
 
@@ -152,6 +154,285 @@ export class MovementsService {
     });
   }
 
+  async findProgress(
+    userId: string,
+  ) {
+    const athleteProfile =
+      await this.getAthleteProfile(
+        userId,
+      );
+
+    const results =
+      await this.prisma.movementResult.findMany({
+        where: {
+          athleteProfileId:
+            athleteProfile.id,
+        },
+
+        include: {
+          movement: {
+            select: {
+              id: true,
+              name: true,
+
+              category: {
+                select: {
+                  key: true,
+                  name: true,
+                },
+              },
+            },
+          },
+
+          measurementType: {
+            select: {
+              key: true,
+              name: true,
+            },
+          },
+        },
+
+        orderBy: [
+          {
+            performedAt: 'asc',
+          },
+
+          {
+            createdAt: 'asc',
+          },
+        ],
+      });
+
+    if (
+      results.length === 0
+    ) {
+      return {
+        summary: {
+          totalResults: 0,
+          uniqueMovements: 0,
+          personalRecords: 0,
+        },
+
+        tracks: [],
+      };
+    }
+
+    const trackMap =
+      new Map<
+        string,
+        {
+          movement: {
+            id: string;
+            name: string;
+
+            category: {
+              key: string;
+              name: string;
+            };
+          };
+
+          measurementType: {
+            key: string;
+            name: string;
+          };
+
+          reps:
+            | number
+            | null;
+
+          history:
+            typeof results;
+        }
+      >();
+
+    for (const result of results) {
+      const reps =
+        result
+          .measurementType
+          .key ===
+        'WEIGHT'
+          ? result.reps
+          : null;
+
+      if (
+        result
+          .measurementType
+          .key ===
+          'WEIGHT' &&
+        reps === null
+      ) {
+        continue;
+      }
+
+      const trackKey =
+        [
+          result.movementId,
+          result.measurementTypeId,
+          reps ?? 'none',
+        ].join(':');
+
+      const existing =
+        trackMap.get(
+          trackKey,
+        );
+
+      if (existing) {
+        existing.history.push(
+          result,
+        );
+
+        continue;
+      }
+
+      trackMap.set(
+        trackKey,
+        {
+          movement:
+            result.movement,
+
+          measurementType:
+            result.measurementType,
+
+          reps,
+
+          history: [
+            result,
+          ],
+        },
+      );
+    }
+
+    const tracks =
+      Array.from(
+        trackMap.values(),
+      )
+        .map(
+          (track) => {
+            const firstResult =
+              track.history[0];
+
+            const latestResult =
+              track.history[
+                track.history.length -
+                  1
+              ];
+
+            let personalBest:
+              | (typeof track.history)[number]
+              | null = null;
+
+            if (
+              track
+                .measurementType
+                .key ===
+              'WEIGHT'
+            ) {
+              personalBest =
+                track.history.reduce(
+                  (
+                    best,
+                    candidate,
+                  ) => {
+                    if (!best) {
+                      return candidate;
+                    }
+
+                    const bestLoad =
+                      this.getLoadInKg(
+                        best.load,
+                        best.weightUnit,
+                      );
+
+                    const candidateLoad =
+                      this.getLoadInKg(
+                        candidate.load,
+                        candidate.weightUnit,
+                      );
+
+                    return candidateLoad >
+                      bestLoad
+                      ? candidate
+                      : best;
+                  },
+                  null as
+                    | (typeof track.history)[number]
+                    | null,
+                );
+            } else {
+              personalBest =
+                this.getBestResult(
+                  track
+                    .measurementType
+                    .key,
+                  track.history,
+                );
+            }
+
+            return {
+              movement:
+                track.movement,
+
+              measurementType:
+                track.measurementType,
+
+              reps:
+                track.reps,
+
+              attemptCount:
+                track.history.length,
+
+              personalBest,
+
+              latestResult,
+
+              firstResult,
+
+              history:
+                track.history,
+            };
+          },
+        )
+        .sort(
+          (a, b) =>
+            new Date(
+              b.latestResult
+                .performedAt,
+            ).getTime() -
+            new Date(
+              a.latestResult
+                .performedAt,
+            ).getTime(),
+        );
+
+    const uniqueMovements =
+      new Set(
+        results.map(
+          (result) =>
+            result.movementId,
+        ),
+      ).size;
+
+    const personalRecords =
+      tracks.filter(
+        (track) =>
+          track.personalBest !==
+          null,
+      ).length;
+
+    return {
+      summary: {
+        totalResults:
+          results.length,
+
+        uniqueMovements,
+
+        personalRecords,
+      },
+
+      tracks,
+    };
+  }
+
   async createResult(
     movementId: string,
     userId: string,
@@ -171,7 +452,8 @@ export class MovementsService {
         include: {
           measurementTypes: {
             include: {
-              measurementType: true,
+              measurementType:
+                true,
             },
           },
         },
@@ -294,11 +576,13 @@ export class MovementsService {
 
       orderBy: [
         {
-          performedAt: 'desc',
+          performedAt:
+            'desc',
         },
 
         {
-          createdAt: 'desc',
+          createdAt:
+            'desc',
         },
       ],
     });
@@ -322,12 +606,14 @@ export class MovementsService {
         include: {
           measurementTypes: {
             include: {
-              measurementType: true,
+              measurementType:
+                true,
             },
 
             orderBy: {
               measurementType: {
-                sortOrder: 'asc',
+                sortOrder:
+                  'asc',
               },
             },
           },
@@ -350,16 +636,19 @@ export class MovementsService {
         },
 
         include: {
-          measurementType: true,
+          measurementType:
+            true,
         },
 
         orderBy: [
           {
-            performedAt: 'desc',
+            performedAt:
+              'desc',
           },
 
           {
-            createdAt: 'desc',
+            createdAt:
+              'desc',
           },
         ],
       });
@@ -557,10 +846,12 @@ export class MovementsService {
 
       category: {
         key:
-          movement.category.key,
+          movement.category
+            .key,
 
         name:
-          movement.category.name,
+          movement.category
+            .name,
       },
 
       measurementTypes:
@@ -621,7 +912,8 @@ export class MovementsService {
     const movement =
       await this.prisma.movement.findUnique({
         where: {
-          id: movementId,
+          id:
+            movementId,
         },
 
         select: {

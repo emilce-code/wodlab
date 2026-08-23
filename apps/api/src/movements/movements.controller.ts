@@ -53,6 +53,17 @@ export class MovementsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('results/progress')
+  findProgress(
+    @Req()
+    request: AuthenticatedRequest,
+  ) {
+    return this.movementsService.findProgress(
+      request.user.userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(
     @Param('id')

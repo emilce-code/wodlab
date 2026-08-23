@@ -340,17 +340,38 @@
     "latest": "Mais recente",
     "empty": {
       "title": "Ainda não há dados de progresso",
-      "description": "Registre resultados de treinos e o WODLY começará a acompanhar seu progresso.",
-      "browseWorkouts": "Ver treinos"
+      "description": "Registre resultados de treinos ou movimentos e o WODLY começará a acompanhar seu progresso.",
+      "browseWorkouts": "Ver treinos",
+      "browseMovements": "Ver movimentos"
     },
     "summary": {
       "resultsLogged": "Resultados registrados",
+      "workoutResults": "Resultados de treinos",
       "workoutsTracked": "Treinos acompanhados",
-      "rxRate": "Taxa de Rx",
-      "rxBreakdown": "{rx} Rx · {scaled} Adaptado",
+      "movementResults": "Resultados de movimentos",
+      "movementsTracked": "Movimentos acompanhados",
+      "personalRecords": "PRs de movimentos",
+      "rxRate": "Taxa Rx",
+      "rxBreakdown": "{rx} Rx · {scaled} Escalado",
       "benchmarksTracked": "Benchmarks acompanhados",
       "rxResults": "resultados RX",
       "levelBreakdown": "Resultados por nível"
+    },
+    "movements": {
+      "eyebrow": "Progresso de movimentos",
+      "title": "Seu progresso por movimento",
+      "description": "Acompanhe recordes pessoais e tendências de desempenho em cada movimento.",
+      "emptyTitle": "Ainda não há progresso de movimentos",
+      "emptyDescription": "Registre um resultado de movimento para começar a acompanhar seus recordes e tendências.",
+      "browse": "Ver movimentos"
+    },
+    "movementChart": {
+      "ariaLabel": "Tendência de desempenho do movimento",
+      "notEnoughData": "Ainda não há dados suficientes para o gráfico.",
+      "logAnotherResult": "Registre outro resultado para ver sua evolução.",
+      "lowerIsBetter": "Um valor menor é melhor.",
+      "higherIsBetter": "Um valor maior é melhor.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
     },
     "workouts": {
       "eyebrow": "Progresso por treino",
