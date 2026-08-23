@@ -1053,6 +1053,21 @@ export class WorkoutsService {
               movements: {
                 select: {
                   id: true,
+                  movementId: true,
+
+                  movement: {
+                    select: {
+                      measurementTypes: {
+                        select: {
+                          measurementType: {
+                            select: {
+                              key: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -1122,13 +1137,15 @@ export class WorkoutsService {
       );
     }
 
-    const validWorkoutMovementIds =
-      new Set(
+    const workoutMovementMap =
+      new Map(
         workoutVariant.sections.flatMap(
           (section) =>
             section.movements.map(
-              (movement) =>
+              (movement) => [
                 movement.id,
+                movement,
+              ] as const,
             ),
         ),
       );
@@ -1138,7 +1155,7 @@ export class WorkoutsService {
       submittedMovements
     ) {
       if (
-        !validWorkoutMovementIds.has(
+        !workoutMovementMap.has(
           movement.workoutMovementId,
         )
       ) {
@@ -1264,6 +1281,113 @@ export class WorkoutsService {
                     : undefined,
               },
             });
+
+          const eligibleMovements =
+            submittedMovements.filter(
+              (movement) => {
+                if (
+                  movement.reps ===
+                    undefined ||
+                  movement.load ===
+                    undefined ||
+                  !movement.weightUnit
+                ) {
+                  return false;
+                }
+
+                const workoutMovement =
+                  workoutMovementMap.get(
+                    movement.workoutMovementId,
+                  );
+
+                if (!workoutMovement) {
+                  return false;
+                }
+
+                return workoutMovement
+                  .movement
+                  .measurementTypes
+                  .some(
+                    (item) =>
+                      item
+                        .measurementType
+                        .key ===
+                      'WEIGHT',
+                  );
+              },
+            );
+
+          if (
+            eligibleMovements.length >
+            0
+          ) {
+            const weightMeasurementType =
+              await tx.measurementType.findUnique({
+                where: {
+                  key: 'WEIGHT',
+                },
+
+                select: {
+                  id: true,
+                },
+              });
+
+            if (
+              !weightMeasurementType
+            ) {
+              throw new NotFoundException(
+                'WEIGHT measurement type not found',
+              );
+            }
+
+            await tx.movementResult.createMany({
+              data:
+                eligibleMovements.map(
+                  (movement) => {
+                    const workoutMovement =
+                      workoutMovementMap.get(
+                        movement.workoutMovementId,
+                      );
+
+                    if (
+                      !workoutMovement
+                    ) {
+                      throw new BadRequestException(
+                        `Workout movement "${movement.workoutMovementId}" could not be resolved`,
+                      );
+                    }
+
+                    return {
+                      movementId:
+                        workoutMovement.movementId,
+
+                      athleteProfileId:
+                        athleteProfile.id,
+
+                      measurementTypeId:
+                        weightMeasurementType.id,
+
+                      sourceWorkoutResultId:
+                        createdResult.id,
+
+                      performedAt,
+
+                      reps:
+                        movement.reps,
+
+                      load:
+                        movement.load,
+
+                      weightUnit:
+                        movement.weightUnit,
+
+                      notes:
+                        movement.notes,
+                    };
+                  },
+                ),
+            });
+          }
 
           return tx.workoutResult.findUniqueOrThrow({
             where: {
