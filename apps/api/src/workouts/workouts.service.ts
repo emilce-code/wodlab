@@ -107,6 +107,46 @@ const resultInclude = {
       name: true,
     },
   },
+
+  performedMovements: {
+    orderBy: [
+      {
+        workoutMovement: {
+          section: {
+            order: 'asc' as const,
+          },
+        },
+      },
+      {
+        workoutMovement: {
+          order: 'asc' as const,
+        },
+      },
+    ],
+
+    include: {
+      workoutMovement: {
+        select: {
+          id: true,
+          order: true,
+
+          section: {
+            select: {
+              id: true,
+              order: true,
+            },
+          },
+
+          movement: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 @Injectable()
@@ -1571,6 +1611,92 @@ export class WorkoutsService {
           }
         : null;
 
+    const performedMovements =
+      Array.isArray(
+        result.performedMovements,
+      )
+        ? result.performedMovements.map(
+            (
+              performedMovement: any,
+            ) => ({
+              id:
+                performedMovement.id,
+
+              workoutMovementId:
+                performedMovement.workoutMovementId,
+
+              reps:
+                performedMovement.reps,
+
+              load:
+                performedMovement.load !==
+                null
+                  ? Number(
+                      performedMovement.load,
+                    )
+                  : null,
+
+              weightUnit:
+                performedMovement.weightUnit,
+
+              distance:
+                performedMovement.distance,
+
+              calories:
+                performedMovement.calories,
+
+              durationSeconds:
+                performedMovement.durationSeconds,
+
+              notes:
+                performedMovement.notes,
+
+              workoutMovement:
+                performedMovement.workoutMovement
+                  ? {
+                      id:
+                        performedMovement
+                          .workoutMovement.id,
+
+                      order:
+                        performedMovement
+                          .workoutMovement.order,
+
+                      section: {
+                        id:
+                          performedMovement
+                            .workoutMovement
+                            .section.id,
+
+                        order:
+                          performedMovement
+                            .workoutMovement
+                            .section.order,
+                      },
+
+                      movement: {
+                        id:
+                          performedMovement
+                            .workoutMovement
+                            .movement.id,
+
+                        name:
+                          performedMovement
+                            .workoutMovement
+                            .movement.name,
+                      },
+                    }
+                  : null,
+
+              createdAt:
+                performedMovement.createdAt,
+
+              updatedAt:
+                performedMovement.updatedAt,
+            }),
+          )
+        : [];
+
     return {
       ...result,
 
@@ -1582,6 +1708,8 @@ export class WorkoutsService {
       workoutVariant,
 
       prescriptionCategory,
+
+      performedMovements,
     };
   }
 
