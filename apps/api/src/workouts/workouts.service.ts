@@ -1007,6 +1007,16 @@ export class WorkoutsService {
 
         include: {
           level: true,
+
+          sections: {
+            include: {
+              movements: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -1049,72 +1059,183 @@ export class WorkoutsService {
       dto,
     );
 
+    const submittedMovements =
+      dto.movements ?? [];
+
+    const submittedMovementIds =
+      submittedMovements.map(
+        (movement) =>
+          movement.workoutMovementId,
+      );
+
+    const uniqueMovementIds =
+      new Set(
+        submittedMovementIds,
+      );
+
+    if (
+      uniqueMovementIds.size !==
+      submittedMovementIds.length
+    ) {
+      throw new BadRequestException(
+        'A workout movement can only be submitted once per workout result',
+      );
+    }
+
+    const validWorkoutMovementIds =
+      new Set(
+        workoutVariant.sections.flatMap(
+          (section) =>
+            section.movements.map(
+              (movement) =>
+                movement.id,
+            ),
+        ),
+      );
+
+    for (
+      const movement of
+      submittedMovements
+    ) {
+      if (
+        !validWorkoutMovementIds.has(
+          movement.workoutMovementId,
+        )
+      ) {
+        throw new BadRequestException(
+          `Workout movement "${movement.workoutMovementId}" does not belong to the selected workout variant`,
+        );
+      }
+    }
+
+    const performedAt =
+      dto.performedAt
+        ? new Date(
+            dto.performedAt,
+          )
+        : new Date();
+
     const result =
-      await this.prisma.workoutResult.create({
-        data: {
-          workout: {
-            connect: {
-              id: workout.id,
-            },
-          },
-
-          workoutVariant: {
-            connect: {
-              id: workoutVariant.id,
-            },
-          },
-
-          ...(prescriptionCategory
-            ? {
-                prescriptionCategory: {
+      await this.prisma.$transaction(
+        async (tx) => {
+          const createdResult =
+            await tx.workoutResult.create({
+              data: {
+                workout: {
                   connect: {
-                    id:
-                      prescriptionCategory.id,
+                    id: workout.id,
                   },
                 },
-              }
-            : {}),
 
-          athleteProfile: {
-            connect: {
-              id: athleteProfile.id,
+                workoutVariant: {
+                  connect: {
+                    id:
+                      workoutVariant.id,
+                  },
+                },
+
+                ...(prescriptionCategory
+                  ? {
+                      prescriptionCategory:
+                        {
+                          connect: {
+                            id:
+                              prescriptionCategory.id,
+                          },
+                        },
+                    }
+                  : {}),
+
+                athleteProfile: {
+                  connect: {
+                    id:
+                      athleteProfile.id,
+                  },
+                },
+
+                resultType: {
+                  connect: {
+                    id:
+                      resultType.id,
+                  },
+                },
+
+                performedAt,
+
+                timeSeconds:
+                  dto.timeSeconds,
+
+                rounds:
+                  dto.rounds,
+
+                reps:
+                  dto.reps,
+
+                load:
+                  dto.load,
+
+                weightUnit:
+                  dto.weightUnit,
+
+                notes:
+                  dto.notes,
+
+                performedMovements:
+                  submittedMovements.length >
+                  0
+                    ? {
+                        create:
+                          submittedMovements.map(
+                            (
+                              movement,
+                            ) => ({
+                              workoutMovement:
+                                {
+                                  connect:
+                                    {
+                                      id:
+                                        movement.workoutMovementId,
+                                    },
+                                },
+
+                              reps:
+                                movement.reps,
+
+                              load:
+                                movement.load,
+
+                              weightUnit:
+                                movement.weightUnit,
+
+                              distance:
+                                movement.distance,
+
+                              calories:
+                                movement.calories,
+
+                              durationSeconds:
+                                movement.durationSeconds,
+
+                              notes:
+                                movement.notes,
+                            }),
+                          ),
+                      }
+                    : undefined,
+              },
+            });
+
+          return tx.workoutResult.findUniqueOrThrow({
+            where: {
+              id:
+                createdResult.id,
             },
-          },
 
-          resultType: {
-            connect: {
-              id: resultType.id,
-            },
-          },
-
-          performedAt:
-            dto.performedAt
-              ? new Date(
-                  dto.performedAt,
-                )
-              : new Date(),
-
-          timeSeconds:
-            dto.timeSeconds,
-
-          rounds:
-            dto.rounds,
-
-          reps:
-            dto.reps,
-
-          load:
-            dto.load,
-
-          weightUnit:
-            dto.weightUnit,
-
-          notes:
-            dto.notes,
+            include:
+              resultInclude,
+          });
         },
-
-        include: resultInclude,
-      });
+      );
 
     return this.mapWorkoutResult(
       result,
