@@ -14,6 +14,8 @@ import {
   authenticatedApiFetch,
 } from '@/lib/api';
 
+import TimeAwareGreeting from './components/TimeAwareGreeting';
+
 type WeightUnit =
   | 'KG'
   | 'LB'
@@ -22,6 +24,7 @@ type WeightUnit =
 type DashboardProfile = {
   displayName: string;
   email: string;
+
   preferredWeightUnit:
     | 'KG'
     | 'LB';
@@ -30,42 +33,53 @@ type DashboardProfile = {
 type DashboardResultValue =
   | {
       type: 'DURATION';
+
       value:
         | number
         | null;
     }
   | {
       type: 'ROUNDS_REPS';
+
       rounds:
         | number
         | null;
+
       reps:
         | number
         | null;
     }
   | {
       type: 'REPS';
+
       value:
         | number
         | null;
     }
   | {
       type: 'WEIGHT';
+
       value:
         | number
         | null;
+
       weightUnit:
         WeightUnit;
-      reps?: number | null;
+
+      reps?:
+        | number
+        | null;
     }
   | {
       type: 'DISTANCE';
+
       value:
         | number
         | null;
     }
   | {
       type: 'CALORIES';
+
       value:
         | number
         | null;
@@ -210,12 +224,15 @@ export default async function DashboardPage({
     getTranslations(
       'dashboard',
     ),
+
     getTranslations(
       'workoutTypes',
     ),
+
     getTranslations(
       'measurementTypes',
     ),
+
     getDashboard(),
   ]);
 
@@ -235,6 +252,10 @@ export default async function DashboardPage({
   const hasActivity =
     recentActivity.length >
     0;
+
+  const latestActivity =
+    recentActivity[0] ??
+    null;
 
   function formatDate(
     value: string,
@@ -359,15 +380,11 @@ export default async function DashboardPage({
           )}
         </p>
 
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-          {t(
-            'greeting',
-            {
-              name:
-                profile.displayName,
-            },
-          )}
-        </h1>
+        <TimeAwareGreeting
+          name={
+            profile.displayName
+          }
+        />
 
         <p className="mt-2 text-muted">
           {t(
@@ -516,43 +533,112 @@ export default async function DashboardPage({
             </div>
 
             <div className="border-t border-border bg-surface-elevated/40 p-6 lg:border-l lg:border-t-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t(
-                  'trainToday.quickLinks',
-                )}
-              </p>
-
-              <div className="mt-4 space-y-3">
-                <Link
-                  href="/history"
-                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
-                >
-                  <span>
+              {latestActivity ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                     {t(
-                      'trainToday.viewHistory',
+                      'trainToday.recentlyTrained',
                     )}
-                  </span>
+                  </p>
 
-                  <span>
-                    →
-                  </span>
-                </Link>
+                  <Link
+                    href={
+                      latestActivity.href
+                    }
+                    className="mt-4 block rounded-lg border border-border bg-background p-4 transition hover:border-accent/40"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate font-bold">
+                          {
+                            latestActivity.title
+                          }
+                        </p>
 
-                <Link
-                  href="/progress"
-                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
-                >
-                  <span>
+                        <p className="mt-1 text-sm text-muted">
+                          {getSubtitle(
+                            latestActivity,
+                          )}
+                        </p>
+                      </div>
+
+                      <span className="shrink-0 text-sm font-bold text-accent">
+                        {formatActivityResult(
+                          latestActivity.result,
+                        )}
+                      </span>
+                    </div>
+
+                    <p className="mt-3 text-xs text-muted">
+                      {formatDate(
+                        latestActivity.performedAt,
+                      )}
+                    </p>
+                  </Link>
+
+                  <div className="mt-4 flex gap-4">
+                    <Link
+                      href="/history"
+                      className="text-sm font-semibold text-muted transition hover:text-foreground"
+                    >
+                      {t(
+                        'trainToday.viewHistory',
+                      )}
+                      {' →'}
+                    </Link>
+
+                    <Link
+                      href="/progress"
+                      className="text-sm font-semibold text-muted transition hover:text-foreground"
+                    >
+                      {t(
+                        'trainToday.viewProgress',
+                      )}
+                      {' →'}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                     {t(
-                      'trainToday.viewProgress',
+                      'trainToday.quickLinks',
                     )}
-                  </span>
+                  </p>
 
-                  <span>
-                    →
-                  </span>
-                </Link>
-              </div>
+                  <div className="mt-4 space-y-3">
+                    <Link
+                      href="/history"
+                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
+                    >
+                      <span>
+                        {t(
+                          'trainToday.viewHistory',
+                        )}
+                      </span>
+
+                      <span>
+                        →
+                      </span>
+                    </Link>
+
+                    <Link
+                      href="/progress"
+                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
+                    >
+                      <span>
+                        {t(
+                          'trainToday.viewProgress',
+                        )}
+                      </span>
+
+                      <span>
+                        →
+                      </span>
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </Card>

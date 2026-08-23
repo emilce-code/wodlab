@@ -70,7 +70,12 @@
   },
   "dashboard": {
     "eyebrow": "Hoje",
-    "greeting": "Oi, {name}",
+    "greeting": {
+      "default": "Oi, {name}",
+      "morning": "Bom dia, {name}",
+      "afternoon": "Boa tarde, {name}",
+      "evening": "Boa noite, {name}"
+    },
     "readyToTrain": "Veja como está seu treino hoje.",
     "stats": {
       "workouts": "Treinos",
@@ -89,6 +94,7 @@
       "browseWorkouts": "Ver treinos",
       "browseMovements": "Ver movimentos",
       "quickLinks": "Acessos rápidos",
+      "recentlyTrained": "Treino recente",
       "viewHistory": "Ver histórico",
       "viewProgress": "Ver progresso"
     },
