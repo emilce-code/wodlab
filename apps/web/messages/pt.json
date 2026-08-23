@@ -386,7 +386,7 @@
   "movements": {
     "eyebrow": "Referência",
     "title": "Movimentos",
-    "description": "Explore a biblioteca de movimentos usada para montar seus treinos.",
+    "description": "Explore a biblioteca de movimentos usada para criar seus treinos.",
     "searchLabel": "Buscar movimentos ou aliases",
     "searchPlaceholder": "Buscar movimentos ou aliases...",
     "searching": "Buscando...",
@@ -394,7 +394,60 @@
     "movementCount": "{count, plural, =0 {0 movimentos} =1 {1 movimento} other {# movimentos}}",
     "emptyTitle": "Nenhum movimento encontrado",
     "emptyDescription": "Tente buscar pelo nome do movimento ou alias.",
-    "foundational": "Fundamental"
+    "foundational": "Fundamental",
+    "detail": {
+      "backToMovements": "Movimentos",
+      "foundational": "Fundamental",
+      "alsoKnownAs": "Também conhecido como",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+      "personalRecords": {
+        "eyebrow": "Recordes pessoais",
+        "title": "Suas melhores marcas",
+        "description": "Os recordes pessoais são calculados a partir dos resultados registrados para este movimento.",
+        "emptyTitle": "Ainda não há recordes pessoais",
+        "emptyDescription": "Registre seu primeiro resultado e o WODLY começará a acompanhar seus recordes pessoais."
+      },
+      "history": {
+        "eyebrow": "Histórico",
+        "title": "Resultados recentes",
+        "resultCount": "{count, plural, =1 {1 resultado} other {# resultados}}",
+        "emptyTitle": "Ainda não há resultados",
+        "emptyDescription": "O histórico deste movimento aparecerá aqui depois que você registrar seu primeiro resultado."
+      },
+      "logResult": {
+        "eyebrow": "Registrar resultado",
+        "title": "Registre uma marca",
+        "description": "Adicione um resultado para este movimento e mantenha seus recordes pessoais atualizados.",
+        "measurementType": "Tipo de resultado",
+        "reps": "Repetições",
+        "load": "Carga",
+        "weightUnit": "Unidade de peso",
+        "distanceMeters": "Distância (m)",
+        "minutes": "Minutos",
+        "seconds": "Segundos",
+        "calories": "Calorias",
+        "date": "Data",
+        "time": "Hora",
+        "notes": "Notas",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Notas de técnica, condições, como se sentiu...",
+        "save": "Salvar resultado",
+        "saving": "Salvando resultado...",
+        "saved": "Resultado salvo com sucesso.",
+        "validation": {
+          "measurementRequired": "Selecione um tipo de resultado.",
+          "repsRequired": "Informe o número de repetições.",
+          "loadRequired": "Informe a carga.",
+          "distanceRequired": "Informe a distância.",
+          "durationRequired": "Informe uma duração.",
+          "invalidSeconds": "Os segundos devem estar entre 0 e 59.",
+          "caloriesRequired": "Informe as calorias.",
+          "performedAtRequired": "Selecione quando o resultado foi realizado.",
+          "saveError": "Não foi possível salvar o resultado.",
+          "connectionError": "Não foi possível salvar o resultado. Tente novamente."
+        }
+      }
+    }
   },
   "measurementTypes": {
     "reps": "Repetições",

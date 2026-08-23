@@ -394,7 +394,60 @@
     "movementCount": "{count, plural, =0 {0 movements} =1 {1 movement} other {# movements}}",
     "emptyTitle": "No movements found",
     "emptyDescription": "Try searching by movement name or alias.",
-    "foundational": "Foundational"
+    "foundational": "Foundational",
+    "detail": {
+      "backToMovements": "Movements",
+      "foundational": "Foundational",
+      "alsoKnownAs": "Also known as",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+      "personalRecords": {
+        "eyebrow": "Personal records",
+        "title": "Your best performances",
+        "description": "Personal records are calculated from your logged movement results.",
+        "emptyTitle": "No personal records yet",
+        "emptyDescription": "Log your first result and WODLY will start tracking your personal records."
+      },
+      "history": {
+        "eyebrow": "History",
+        "title": "Recent results",
+        "resultCount": "{count, plural, =1 {1 result} other {# results}}",
+        "emptyTitle": "No results yet",
+        "emptyDescription": "Your movement history will appear here after you log your first result."
+      },
+      "logResult": {
+        "eyebrow": "Log result",
+        "title": "Record a performance",
+        "description": "Add a result for this movement and keep your personal records up to date.",
+        "measurementType": "Result type",
+        "reps": "Reps",
+        "load": "Load",
+        "weightUnit": "Weight unit",
+        "distanceMeters": "Distance (m)",
+        "minutes": "Minutes",
+        "seconds": "Seconds",
+        "calories": "Calories",
+        "date": "Date",
+        "time": "Time",
+        "notes": "Notes",
+        "optional": "(optional)",
+        "notesPlaceholder": "Technique notes, conditions, how it felt...",
+        "save": "Save result",
+        "saving": "Saving result...",
+        "saved": "Result saved successfully.",
+        "validation": {
+          "measurementRequired": "Select a result type.",
+          "repsRequired": "Enter the number of reps.",
+          "loadRequired": "Enter the load.",
+          "distanceRequired": "Enter the distance.",
+          "durationRequired": "Enter a duration.",
+          "invalidSeconds": "Seconds must be between 0 and 59.",
+          "caloriesRequired": "Enter the calories.",
+          "performedAtRequired": "Select when the result was performed.",
+          "saveError": "Unable to save result.",
+          "connectionError": "Unable to save result. Please try again."
+        }
+      }
+    }
   },
   "measurementTypes": {
     "reps": "Reps",

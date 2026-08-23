@@ -43,6 +43,7 @@ model AthleteProfile {
   preferredPrescriptionCategoryId String?
   preferredPrescriptionCategory   PrescriptionCategory? @relation("AthletePreferredPrescriptionCategory", fields: [preferredPrescriptionCategoryId], references: [id])
   workoutResults                  WorkoutResult[]
+  movementResults                 MovementResult[]
   user                            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                       DateTime              @default(now())
   updatedAt                       DateTime              @updatedAt
@@ -67,6 +68,7 @@ model Movement {
   category         MovementCategory          @relation(fields: [categoryId], references: [id])
   measurementTypes MovementMeasurementType[]
   workoutMovements WorkoutMovement[]
+  movementResults  MovementResult[]
   isFoundational   Boolean                   @default(false)
   official         Boolean                   @default(true)
   baseMovementId   String?
@@ -78,14 +80,15 @@ model Movement {
 }
 
 model MeasurementType {
-  id          String                    @id @default(cuid())
-  key         String                    @unique
-  name        String
-  description String?
-  sortOrder   Int                       @default(0)
-  movements   MovementMeasurementType[]
-  createdAt   DateTime                  @default(now())
-  updatedAt   DateTime                  @updatedAt
+  id              String                    @id @default(cuid())
+  key             String                    @unique
+  name            String
+  description     String?
+  sortOrder       Int                       @default(0)
+  movements       MovementMeasurementType[]
+  movementResults MovementResult[]
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
 }
 
 model MovementMeasurementType {
@@ -95,6 +98,34 @@ model MovementMeasurementType {
   measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id], onDelete: Cascade)
 
   @@id([movementId, measurementTypeId])
+}
+
+model MovementResult {
+  id String @id @default(cuid())
+
+  movementId String
+  movement   Movement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+
+  measurementTypeId String
+  measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id])
+
+  performedAt DateTime
+
+  reps            Int?
+  load            Decimal?
+  weightUnit      WeightUnit?
+  distance        Int?
+  durationSeconds Int?
+  calories        Int?
+  notes           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([athleteProfileId, movementId, measurementTypeId, performedAt])
 }
 
 model WorkoutType {
@@ -222,17 +253,19 @@ model WorkoutLevel {
 }
 
 model WorkoutVariant {
-  id        String           @id @default(cuid())
+  id        String       @id @default(cuid())
   workoutId String
-  workout   Workout          @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  workout   Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
   levelId   String
-  level     WorkoutLevel     @relation(fields: [levelId], references: [id])
+  level     WorkoutLevel @relation(fields: [levelId], references: [id])
   name      String?
   notes     String?
-  sections  WorkoutSection[]
-  results   WorkoutResult[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+
+  sections WorkoutSection[]
+  results  WorkoutResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([workoutId, levelId])
 }
