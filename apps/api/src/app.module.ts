@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { MovementsModule } from './movements/movements.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { TrainingModule } from './training/training.module';
 import { UsersModule } from './users/users.module';
 import { WorkoutsModule } from './workouts/workouts.module';
 
@@ -15,7 +16,6 @@ import { WorkoutsModule } from './workouts/workouts.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-
     PrismaModule,
     HealthModule,
     AuthModule,
@@ -23,6 +23,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
     AthleteProfilesModule,
     MovementsModule,
     WorkoutsModule,
+    TrainingModule,
   ],
 })
 export class AppModule {}

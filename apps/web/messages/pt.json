@@ -322,27 +322,44 @@
   "history": {
     "eyebrow": "Histórico",
     "title": "Seu histórico de treinos",
-    "description": "Revise e filtre os resultados dos seus treinos anteriores.",
+    "description": "Veja seus treinos e resultados de movimentos em uma única linha do tempo.",
     "benchmark": "Benchmark",
     "scaled": "Adaptado",
     "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+    "activity": {
+      "label": "Atividade",
+      "all": "Todas as atividades",
+      "workouts": "Treinos",
+      "movements": "Movimentos"
+    },
+    "labels": {
+      "workout": "Treino",
+      "movement": "Movimento",
+      "movementResults": "Resultados de movimentos",
+      "standaloneResult": "Resultado individual",
+      "benchmark": "Benchmark"
+    },
+    "dates": {
+      "today": "Hoje",
+      "yesterday": "Ontem"
+    },
     "empty": {
-      "title": "Ainda não há histórico de treinos",
-      "description": "Os resultados dos seus treinos aparecerão aqui.",
+      "title": "Ainda não há histórico de treino",
+      "description": "Seus treinos e resultados de movimentos aparecerão aqui.",
       "browseWorkouts": "Ver treinos"
     },
     "filters": {
       "search": "Buscar",
-      "searchPlaceholder": "Nome do treino...",
+      "searchPlaceholder": "Nome do treino ou movimento...",
       "workoutType": "Tipo de treino",
       "allWorkoutTypes": "Todos os tipos",
       "resultType": "Tipo de resultado",
       "allResultTypes": "Todos os resultados",
-      "prescription": "Modalidade",
+      "prescription": "Prescrição",
       "rxAndScaled": "Rx + Adaptado",
       "rxOnly": "Somente Rx",
       "scaledOnly": "Somente adaptado",
-      "showing": "Exibindo {filtered} de {total} resultados",
+      "showing": "Mostrando {filtered} de {total} registros",
       "clear": "Limpar filtros",
       "workoutLevel": "Nível do treino",
       "allWorkoutLevels": "Todos os níveis"
@@ -625,5 +642,14 @@
       "createAccount": "Criar minha conta WODLY"
     },
     "footer": "Treine. Registre. Evolua."
+  },
+  "labels": {
+    "workout": "Treino",
+    "movement": "Movimento",
+    "movementResults": "Resultados de movimentos",
+    "standaloneResult": "Resultado individual",
+    "benchmark": "Benchmark",
+    "showMore": "Mostrar mais {count}",
+    "showLess": "Mostrar menos"
   }
 }

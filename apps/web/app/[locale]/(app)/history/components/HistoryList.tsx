@@ -1,197 +1,231 @@
 'use client';
 
-import {
-  useMemo,
-  useState,
-} from 'react';
-import {
-  useLocale,
-  useTranslations,
-} from 'next-intl';
+import { useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { Link } from '@/i18n/navigation';
 
-export type WorkoutHistoryResult = {
-  id: string;
-  workoutId: string;
-  athleteProfileId: string;
-  resultTypeId: string;
+type WeightUnit = 'KG' | 'LB';
 
-  resultType: {
+type WorkoutHistoryMovement = {
+  id: string;
+  movement: {
+    id: string;
+    name: string;
+  };
+  measurementType: {
     key: string;
     name: string;
   };
+  reps: number | null;
+  load: number | null;
+  weightUnit: WeightUnit | null;
+  distance: number | null;
+  durationSeconds: number | null;
+  calories: number | null;
+  notes: string | null;
+};
+
+type GroupedWorkoutMovement = {
+  movement: {
+    id: string;
+    name: string;
+  };
+  results: WorkoutHistoryMovement[];
+};
+
+export type WorkoutTrainingHistoryItem = {
+  id: string;
+  type: 'WORKOUT';
+  performedAt: string;
 
   workout: {
     id: string;
     name: string;
     isBenchmark: boolean;
-
     type: {
       key: string;
       name: string;
     };
   };
 
-  performedAt: string;
-
-  timeSeconds: number | null;
-  rounds: number | null;
-  reps: number | null;
-  load: number | null;
-  weightUnit: 'KG' | 'LB' | null;
-
-  workoutVariant: {
+  variant: {
     id: string;
     name: string | null;
+  };
 
-    level: {
-      key: string;
-      name: string;
-    };
-  } | null;
+  level: {
+    key: string;
+    name: string;
+  };
 
   prescriptionCategory: {
     key: string;
     name: string;
   } | null;
 
-  notes: string | null;
+  result: {
+    type: {
+      key: string;
+      name: string;
+    };
+    timeSeconds: number | null;
+    rounds: number | null;
+    reps: number | null;
+    load: number | null;
+    weightUnit: WeightUnit | null;
+  };
 
-  createdAt: string;
-  updatedAt: string;
+  movements: WorkoutHistoryMovement[];
+  notes: string | null;
 };
+
+export type MovementTrainingHistoryItem = {
+  id: string;
+  type: 'MOVEMENT';
+  performedAt: string;
+
+  movement: {
+    id: string;
+    name: string;
+  };
+
+  measurementType: {
+    key: string;
+    name: string;
+  };
+
+  result: {
+    reps: number | null;
+    load: number | null;
+    weightUnit: WeightUnit | null;
+    distance: number | null;
+    durationSeconds: number | null;
+    calories: number | null;
+  };
+
+  notes: string | null;
+};
+
+export type TrainingHistoryItem =
+  | WorkoutTrainingHistoryItem
+  | MovementTrainingHistoryItem;
 
 type Props = {
-  results: WorkoutHistoryResult[];
+  results: TrainingHistoryItem[];
 };
 
-type LevelFilter = string;
+type EntryFilter = 'ALL' | 'WORKOUT' | 'MOVEMENT';
 
-function formatDuration(
-  seconds: number,
-) {
-  const minutes =
-    Math.floor(seconds / 60);
+type HistoryGroup = {
+  key: string;
+  date: Date;
+  items: TrainingHistoryItem[];
+};
 
-  const remainingSeconds =
-    seconds % 60;
+function formatDuration(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
 
-  if (minutes === 0) {
-    return `${remainingSeconds}s`;
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds
+      .toString()
+      .padStart(2, '0')}`;
   }
 
-  return `${minutes}:${remainingSeconds
-    .toString()
-    .padStart(2, '0')}`;
+  if (minutes > 0) {
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  return `${remainingSeconds}s`;
 }
 
-export default function HistoryList({
-  results,
-}: Props) {
-  const t =
-    useTranslations('history');
+function getDateKey(value: string) {
+  const date = new Date(value);
 
-  const typeT =
-    useTranslations(
-      'workoutTypes',
-    );
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
+}
 
-  const resultTypeT =
-    useTranslations(
-      'resultTypes',
-    );
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
 
-  const locale =
-    useLocale();
+function groupWorkoutMovements(
+  movements: WorkoutHistoryMovement[],
+): GroupedWorkoutMovement[] {
+  const groups = new Map<string, GroupedWorkoutMovement>();
 
-  const [search, setSearch] =
-    useState('');
+  for (const result of movements) {
+    const existing = groups.get(result.movement.id);
 
-  const [
-    workoutType,
-    setWorkoutType,
-  ] = useState('ALL');
+    if (existing) {
+      existing.results.push(result);
+      continue;
+    }
 
-  const [
-    resultType,
-    setResultType,
-  ] = useState('ALL');
+    groups.set(result.movement.id, {
+      movement: result.movement,
+      results: [result],
+    });
+  }
 
-  const [
-    levelFilter,
-    setLevelFilter,
-  ] = useState<LevelFilter>(
-    'ALL',
+  return Array.from(groups.values());
+}
+
+export default function HistoryList({ results }: Props) {
+  const t = useTranslations('history');
+  const typeT = useTranslations('workoutTypes');
+  const resultTypeT = useTranslations('resultTypes');
+  const locale = useLocale();
+
+  const [search, setSearch] = useState('');
+  const [entryFilter, setEntryFilter] = useState<EntryFilter>('ALL');
+  const [workoutType, setWorkoutType] = useState('ALL');
+  const [resultType, setResultType] = useState('ALL');
+  const [levelFilter, setLevelFilter] = useState('ALL');
+  const [expandedWorkoutIds, setExpandedWorkoutIds] = useState<Set<string>>(
+    new Set(),
   );
 
-  function getWorkoutTypeName(
-    key: string,
-    fallback: string,
-  ) {
-    const translationKey =
-      key.toLowerCase();
+  function getWorkoutTypeName(key: string, fallback: string) {
+    const translationKey = key.toLowerCase();
 
-    return typeT.has(
-      translationKey,
-    )
-      ? typeT(
-          translationKey,
-        )
+    return typeT.has(translationKey) ? typeT(translationKey) : fallback;
+  }
+
+  function getResultTypeName(key: string, fallback: string) {
+    const translationKey = key.toLowerCase();
+
+    return resultTypeT.has(translationKey)
+      ? resultTypeT(translationKey)
       : fallback;
   }
 
-  function getResultTypeName(
-    key: string,
-    fallback: string,
-  ) {
-    const translationKey =
-      key.toLowerCase();
-
-    return resultTypeT.has(
-      translationKey,
-    )
-      ? resultTypeT(
-          translationKey,
-        )
-      : fallback;
-  }
-
-  function formatResult(
-    result: WorkoutHistoryResult,
-  ) {
-    switch (
-      result.resultType.key
-    ) {
+  function formatWorkoutResult(result: WorkoutTrainingHistoryItem) {
+    switch (result.result.type.key) {
       case 'TIME':
-        return result.timeSeconds !==
-          null
-          ? formatDuration(
-              result.timeSeconds,
-            )
+        return result.result.timeSeconds !== null
+          ? formatDuration(result.result.timeSeconds)
           : '—';
 
       case 'ROUNDS_REPS':
-        return `${
-          result.rounds ?? 0
-        } + ${result.reps ?? 0}`;
+        return `${result.result.rounds ?? 0} + ${result.result.reps ?? 0}`;
 
       case 'REPS':
-        return result.reps !== null
-          ? t('repsValue', {
-              count:
-                result.reps,
-            })
+        return result.result.reps !== null
+          ? t('repsValue', { count: result.result.reps })
           : '—';
 
       case 'LOAD':
-        return result.load !== null
-          ? `${result.load} ${
-              result.weightUnit ??
-              ''
-            }`.trim()
+        return result.result.load !== null
+          ? `${result.result.load} ${result.result.weightUnit ?? ''}`.trim()
           : '—';
 
       default:
@@ -199,215 +233,255 @@ export default function HistoryList({
     }
   }
 
-  function formatDate(
-    value: string,
+  function formatMeasurement(
+    measurementTypeKey: string,
+    result: {
+      reps: number | null;
+      load: number | null;
+      weightUnit: WeightUnit | null;
+      distance: number | null;
+      durationSeconds: number | null;
+      calories: number | null;
+    },
   ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(new Date(value));
-  }
-
-  function formatTime(
-    value: string,
-  ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        hour: 'numeric',
-        minute: '2-digit',
-      },
-    ).format(new Date(value));
-  }
-
-  const workoutTypes =
-    useMemo(() => {
-      const types = new Map<
-        string,
-        string
-      >();
-
-      results.forEach(
-        (result) => {
-          types.set(
-            result.workout
-              .type.key,
-            result.workout
-              .type.name,
-          );
-        },
-      );
-
-      return Array.from(
-        types.entries(),
-      ).sort((a, b) =>
-        getWorkoutTypeName(
-          a[0],
-          a[1],
-        ).localeCompare(
-          getWorkoutTypeName(
-            b[0],
-            b[1],
-          ),
-          locale,
-        ),
-      );
-    }, [
-      results,
-      locale,
-    ]);
-
-  const resultTypes =
-    useMemo(() => {
-      const types = new Map<
-        string,
-        string
-      >();
-
-      results.forEach(
-        (result) => {
-          types.set(
-            result.resultType.key,
-            result.resultType.name,
-          );
-        },
-      );
-
-      return Array.from(
-        types.entries(),
-      ).sort((a, b) =>
-        getResultTypeName(
-          a[0],
-          a[1],
-        ).localeCompare(
-          getResultTypeName(
-            b[0],
-            b[1],
-          ),
-          locale,
-        ),
-      );
-    }, [
-      results,
-      locale,
-    ]);
-
-  const workoutLevels =
-    useMemo(() => {
-      const levels = new Map<
-        string,
-        string
-      >();
-
-      results.forEach(
-        (result) => {
-          if (
-            result.workoutVariant
-          ) {
-            levels.set(
-              result.workoutVariant
-                .level.key,
-              result.workoutVariant
-                .level.name,
-            );
-          }
-        },
-      );
-
-      return Array.from(
-        levels.entries(),
-      ).sort((a, b) => {
-        if (a[0] === 'RX') {
-          return -1;
+    switch (measurementTypeKey) {
+      case 'WEIGHT': {
+        if (result.load === null) {
+          return '—';
         }
 
-        if (b[0] === 'RX') {
-          return 1;
-        }
+        const load = `${result.load} ${result.weightUnit ?? ''}`.trim();
 
-        return a[1].localeCompare(
-          b[1],
-          locale,
+        return result.reps !== null
+          ? `${result.reps} × ${load}`
+          : load;
+      }
+
+      case 'REPS':
+        return result.reps !== null
+          ? t('repsValue', { count: result.reps })
+          : '—';
+
+      case 'DISTANCE':
+        return result.distance !== null ? `${result.distance} m` : '—';
+
+      case 'DURATION':
+        return result.durationSeconds !== null
+          ? formatDuration(result.durationSeconds)
+          : '—';
+
+      case 'CALORIES':
+        return result.calories !== null
+          ? `${result.calories} cal`
+          : '—';
+
+      default:
+        return '—';
+    }
+  }
+
+  function formatTime(value: string) {
+    return new Intl.DateTimeFormat(locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(value));
+  }
+
+  function formatGroupDate(date: Date) {
+    const today = startOfDay(new Date());
+    const groupDate = startOfDay(date);
+
+    const differenceInDays = Math.round(
+      (today.getTime() - groupDate.getTime()) / 86_400_000,
+    );
+
+    if (differenceInDays === 0) {
+      return t('dates.today');
+    }
+
+    if (differenceInDays === 1) {
+      return t('dates.yesterday');
+    }
+
+    return new Intl.DateTimeFormat(locale, {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+    }).format(date);
+  }
+
+  function toggleWorkout(workoutResultId: string) {
+    setExpandedWorkoutIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(workoutResultId)) {
+        next.delete(workoutResultId);
+      } else {
+        next.add(workoutResultId);
+      }
+
+      return next;
+    });
+  }
+
+  const workoutResults = useMemo(
+    () =>
+      results.filter(
+        (result): result is WorkoutTrainingHistoryItem =>
+          result.type === 'WORKOUT',
+      ),
+    [results],
+  );
+
+  const workoutTypes = useMemo(() => {
+    const types = new Map<string, string>();
+
+    workoutResults.forEach((result) => {
+      types.set(result.workout.type.key, result.workout.type.name);
+    });
+
+    return Array.from(types.entries()).sort((a, b) =>
+      getWorkoutTypeName(a[0], a[1]).localeCompare(
+        getWorkoutTypeName(b[0], b[1]),
+        locale,
+      ),
+    );
+  }, [workoutResults, locale]);
+
+  const resultTypes = useMemo(() => {
+    const types = new Map<string, string>();
+
+    workoutResults.forEach((result) => {
+      types.set(result.result.type.key, result.result.type.name);
+    });
+
+    return Array.from(types.entries()).sort((a, b) =>
+      getResultTypeName(a[0], a[1]).localeCompare(
+        getResultTypeName(b[0], b[1]),
+        locale,
+      ),
+    );
+  }, [workoutResults, locale]);
+
+  const workoutLevels = useMemo(() => {
+    const levels = new Map<string, string>();
+
+    workoutResults.forEach((result) => {
+      levels.set(result.level.key, result.level.name);
+    });
+
+    return Array.from(levels.entries()).sort((a, b) => {
+      if (a[0] === 'RX') {
+        return -1;
+      }
+
+      if (b[0] === 'RX') {
+        return 1;
+      }
+
+      return a[1].localeCompare(b[1], locale);
+    });
+  }, [workoutResults, locale]);
+
+  const filteredResults = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    return results.filter((result) => {
+      if (entryFilter !== 'ALL' && result.type !== entryFilter) {
+        return false;
+      }
+
+      const entryName =
+        result.type === 'WORKOUT'
+          ? result.workout.name
+          : result.movement.name;
+
+      if (
+        normalizedSearch &&
+        !entryName.toLowerCase().includes(normalizedSearch)
+      ) {
+        return false;
+      }
+
+      if (result.type === 'MOVEMENT') {
+        return (
+          workoutType === 'ALL' &&
+          resultType === 'ALL' &&
+          levelFilter === 'ALL'
         );
+      }
+
+      if (
+        workoutType !== 'ALL' &&
+        result.workout.type.key !== workoutType
+      ) {
+        return false;
+      }
+
+      if (
+        resultType !== 'ALL' &&
+        result.result.type.key !== resultType
+      ) {
+        return false;
+      }
+
+      if (levelFilter !== 'ALL' && result.level.key !== levelFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    results,
+    search,
+    entryFilter,
+    workoutType,
+    resultType,
+    levelFilter,
+  ]);
+
+  const groupedResults = useMemo(() => {
+    const groups = new Map<string, HistoryGroup>();
+
+    filteredResults.forEach((result) => {
+      const key = getDateKey(result.performedAt);
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.items.push(result);
+        return;
+      }
+
+      groups.set(key, {
+        key,
+        date: new Date(result.performedAt),
+        items: [result],
       });
-    }, [
-      results,
-      locale,
-    ]);
+    });
 
-  const filteredResults =
-    useMemo(() => {
-      const normalizedSearch =
-        search
-          .trim()
-          .toLowerCase();
-
-      return results.filter(
-        (result) => {
-          if (
-            normalizedSearch &&
-            !result.workout.name
-              .toLowerCase()
-              .includes(
-                normalizedSearch,
-              )
-          ) {
-            return false;
-          }
-
-          if (
-            workoutType !==
-              'ALL' &&
-            result.workout.type
-              .key !==
-              workoutType
-          ) {
-            return false;
-          }
-
-          if (
-            resultType !==
-              'ALL' &&
-            result.resultType
-              .key !==
-              resultType
-          ) {
-            return false;
-          }
-
-          if (
-            levelFilter !==
-              'ALL' &&
-            result.workoutVariant
-              ?.level.key !==
-              levelFilter
-          ) {
-            return false;
-          }
-
-          return true;
-        },
-      );
-    }, [
-      results,
-      search,
-      workoutType,
-      resultType,
-      levelFilter,
-    ]);
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        items: [...group.items].sort(
+          (a, b) =>
+            new Date(b.performedAt).getTime() -
+            new Date(a.performedAt).getTime(),
+        ),
+      }))
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [filteredResults]);
 
   const hasActiveFilters =
     search.trim() !== '' ||
+    entryFilter !== 'ALL' ||
     workoutType !== 'ALL' ||
     resultType !== 'ALL' ||
     levelFilter !== 'ALL';
 
   function clearFilters() {
     setSearch('');
+    setEntryFilter('ALL');
     setWorkoutType('ALL');
     setResultType('ALL');
     setLevelFilter('ALL');
@@ -425,18 +499,14 @@ export default function HistoryList({
         </p>
 
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-          {t(
-            'empty.description',
-          )}
+          {t('empty.description')}
         </p>
 
         <Link
           href="/workouts"
           className="mt-5 inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
         >
-          {t(
-            'empty.browseWorkouts',
-          )}
+          {t('empty.browseWorkouts')}
         </Link>
       </div>
     );
@@ -445,31 +515,45 @@ export default function HistoryList({
   return (
     <>
       <section className="mt-10 rounded-xl border border-border bg-surface p-4 sm:p-5">
-        <div className="grid gap-4 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <div>
             <label
               htmlFor="historySearch"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t(
-                'filters.search',
-              )}
+              {t('filters.search')}
             </label>
 
             <input
               id="historySearch"
               type="search"
               value={search}
-              onChange={(event) =>
-                setSearch(
-                  event.target.value,
-                )
-              }
-              placeholder={t(
-                'filters.searchPlaceholder',
-              )}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t('filters.searchPlaceholder')}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="entryType"
+              className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
+            >
+              {t('activity.label')}
+            </label>
+
+            <select
+              id="entryType"
+              value={entryFilter}
+              onChange={(event) =>
+                setEntryFilter(event.target.value as EntryFilter)
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+            >
+              <option value="ALL">{t('activity.all')}</option>
+              <option value="WORKOUT">{t('activity.workouts')}</option>
+              <option value="MOVEMENT">{t('activity.movements')}</option>
+            </select>
           </div>
 
           <div>
@@ -477,40 +561,24 @@ export default function HistoryList({
               htmlFor="workoutType"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t(
-                'filters.workoutType',
-              )}
+              {t('filters.workoutType')}
             </label>
 
             <select
               id="workoutType"
               value={workoutType}
-              onChange={(event) =>
-                setWorkoutType(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setWorkoutType(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
               <option value="ALL">
-                {t(
-                  'filters.allWorkoutTypes',
-                )}
+                {t('filters.allWorkoutTypes')}
               </option>
 
-              {workoutTypes.map(
-                ([key, name]) => (
-                  <option
-                    key={key}
-                    value={key}
-                  >
-                    {getWorkoutTypeName(
-                      key,
-                      name,
-                    )}
-                  </option>
-                ),
-              )}
+              {workoutTypes.map(([key, name]) => (
+                <option key={key} value={key}>
+                  {getWorkoutTypeName(key, name)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -519,40 +587,24 @@ export default function HistoryList({
               htmlFor="resultType"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t(
-                'filters.resultType',
-              )}
+              {t('filters.resultType')}
             </label>
 
             <select
               id="resultType"
               value={resultType}
-              onChange={(event) =>
-                setResultType(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setResultType(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
               <option value="ALL">
-                {t(
-                  'filters.allResultTypes',
-                )}
+                {t('filters.allResultTypes')}
               </option>
 
-              {resultTypes.map(
-                ([key, name]) => (
-                  <option
-                    key={key}
-                    value={key}
-                  >
-                    {getResultTypeName(
-                      key,
-                      name,
-                    )}
-                  </option>
-                ),
-              )}
+              {resultTypes.map(([key, name]) => (
+                <option key={key} value={key}>
+                  {getResultTypeName(key, name)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -561,83 +613,56 @@ export default function HistoryList({
               htmlFor="levelFilter"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t(
-                'filters.workoutLevel',
-              )}
+              {t('filters.workoutLevel')}
             </label>
 
             <select
               id="levelFilter"
               value={levelFilter}
-              onChange={(event) =>
-                setLevelFilter(
-                  event.target.value,
-                )
-              }
+              onChange={(event) => setLevelFilter(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
               <option value="ALL">
-                {t(
-                  'filters.allWorkoutLevels',
-                )}
+                {t('filters.allWorkoutLevels')}
               </option>
 
-              {workoutLevels.map(
-                ([key, name]) => (
-                  <option
-                    key={key}
-                    value={key}
-                  >
-                    {name}
-                  </option>
-                ),
-              )}
+              {workoutLevels.map(([key, name]) => (
+                <option key={key} value={key}>
+                  {name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
           <p className="text-sm text-muted">
-            {t(
-              'filters.showing',
-              {
-                filtered:
-                  filteredResults.length,
-                total:
-                  results.length,
-              },
-            )}
+            {t('filters.showing', {
+              filtered: filteredResults.length,
+              total: results.length,
+            })}
           </p>
 
           {hasActiveFilters && (
             <button
               type="button"
-              onClick={
-                clearFilters
-              }
+              onClick={clearFilters}
               className="text-sm font-semibold text-accent transition hover:text-accent-strong"
             >
-              {t(
-                'filters.clear',
-              )}
+              {t('filters.clear')}
             </button>
           )}
         </div>
       </section>
 
-      {filteredResults.length ===
-      0 ? (
+      {filteredResults.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-border px-6 py-12 text-center">
           <p className="font-semibold">
-            {t(
-              'noMatches.title',
-            )}
+            {t('noMatches.title')}
           </p>
 
           <p className="mt-2 text-sm text-muted">
-            {t(
-              'noMatches.description',
-            )}
+            {t('noMatches.description')}
           </p>
 
           <button
@@ -645,122 +670,282 @@ export default function HistoryList({
             onClick={clearFilters}
             className="mt-5 inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-semibold transition hover:border-accent/40"
           >
-            {t(
-              'filters.clear',
-            )}
+            {t('filters.clear')}
           </button>
         </div>
       ) : (
-        <div className="mt-6 space-y-4">
-          {filteredResults.map(
-            (result) => (
-              <Card
-                key={result.id}
-                className="overflow-hidden"
-              >
-                <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/workouts/${result.workout.id}`}
-                        className="truncate text-lg font-bold transition hover:text-accent"
+        <div className="mt-8 space-y-10">
+          {groupedResults.map((group) => (
+            <section key={group.key}>
+              <div className="mb-4 flex items-center gap-4">
+                <h2 className="shrink-0 text-sm font-black uppercase tracking-[0.14em] text-foreground">
+                  {formatGroupDate(group.date)}
+                </h2>
+
+                <div className="h-px flex-1 bg-border" />
+
+                <span className="shrink-0 text-xs font-medium text-muted">
+                  {group.items.length}
+                </span>
+              </div>
+
+              <div className="relative space-y-4 sm:pl-6">
+                <div className="absolute bottom-4 left-[5px] top-4 hidden w-px bg-border sm:block" />
+
+                {group.items.map((result) => {
+                  if (result.type === 'MOVEMENT') {
+                    return (
+                      <div
+                        key={`movement-${result.id}`}
+                        className="relative"
                       >
-                        {
-                          result
-                            .workout
-                            .name
-                        }
-                      </Link>
+                        <div className="absolute left-[-21px] top-7 z-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block" />
 
-                      {result.workout
-                        .isBenchmark && (
-                        <Badge>
-                          {t(
-                            'benchmark',
+                        <Card className="overflow-hidden">
+                          <div className="p-5 sm:p-6">
+                            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <Badge>
+                                    {result.measurementType.name}
+                                  </Badge>
+
+                                  <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                    {t('labels.movement')}
+                                  </span>
+                                </div>
+
+                                <Link
+                                  href={`/movements/${result.movement.id}`}
+                                  className="mt-3 block truncate text-xl font-bold transition hover:text-accent"
+                                >
+                                  {result.movement.name}
+                                </Link>
+
+                                <p className="mt-2 text-sm text-muted">
+                                  {formatTime(result.performedAt)}
+                                </p>
+                              </div>
+
+                              <div className="sm:text-right">
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t('labels.standaloneResult')}
+                                </p>
+
+                                <p className="mt-1 text-2xl font-black tracking-tight">
+                                  {formatMeasurement(
+                                    result.measurementType.key,
+                                    result.result,
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {result.notes && (
+                              <p className="mt-5 border-t border-border pt-4 text-sm text-muted">
+                                {result.notes}
+                              </p>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
+                    );
+                  }
+
+                  const groupedMovements = groupWorkoutMovements(
+                    result.movements,
+                  );
+
+                  const isExpanded = expandedWorkoutIds.has(result.id);
+
+                  const visibleMovements = isExpanded
+                    ? groupedMovements
+                    : groupedMovements.slice(0, 2);
+
+                  const hiddenMovementCount = Math.max(
+                    groupedMovements.length - 2,
+                    0,
+                  );
+
+                  return (
+                    <div
+                      key={`workout-${result.id}`}
+                      className="relative"
+                    >
+                      <div className="absolute left-[-21px] top-7 z-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block" />
+
+                      <Card className="overflow-hidden">
+                        <div className="p-5 sm:p-6">
+                          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge>
+                                  {result.level.name}
+                                </Badge>
+
+                                {result.prescriptionCategory && (
+                                  <Badge>
+                                    {result.prescriptionCategory.name}
+                                  </Badge>
+                                )}
+
+                                {result.workout.isBenchmark && (
+                                  <Badge>
+                                    {t('labels.benchmark')}
+                                  </Badge>
+                                )}
+
+                                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t('labels.workout')}
+                                </span>
+                              </div>
+
+                              <Link
+                                href={`/workouts/${result.workout.id}`}
+                                className="mt-3 block truncate text-xl font-bold transition hover:text-accent"
+                              >
+                                {result.workout.name}
+                              </Link>
+
+                              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+                                <span>
+                                  {getWorkoutTypeName(
+                                    result.workout.type.key,
+                                    result.workout.type.name,
+                                  )}
+                                </span>
+
+                                <span>•</span>
+
+                                <span>
+                                  {formatTime(result.performedAt)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="sm:text-right">
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {getResultTypeName(
+                                  result.result.type.key,
+                                  result.result.type.name,
+                                )}
+                              </p>
+
+                              <p className="mt-1 text-3xl font-black tracking-tight">
+                                {formatWorkoutResult(result)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {groupedMovements.length > 0 && (
+                            <div className="mt-5 border-t border-border pt-5">
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t('labels.movementResults')}
+                                </p>
+
+                                <span className="text-xs text-muted">
+                                  {groupedMovements.length}
+                                </span>
+                              </div>
+
+                              <div className="mt-3 space-y-2">
+                                {visibleMovements.map((movementGroup) => (
+                                  <div
+                                    key={movementGroup.movement.id}
+                                    className="rounded-lg border border-border bg-background px-4 py-3"
+                                  >
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                      <Link
+                                        href={`/movements/${movementGroup.movement.id}`}
+                                        className="min-w-0 truncate font-semibold transition hover:text-accent"
+                                      >
+                                        {movementGroup.movement.name}
+                                      </Link>
+
+                                      <div className="flex flex-wrap gap-x-3 gap-y-1 sm:justify-end">
+                                        {movementGroup.results.map(
+                                          (movementResult) => (
+                                            <div
+                                              key={movementResult.id}
+                                              className="flex items-baseline gap-1.5"
+                                            >
+                                              <span className="text-xs text-muted">
+                                                {
+                                                  movementResult
+                                                    .measurementType.name
+                                                }
+                                              </span>
+
+                                              <span className="font-bold">
+                                                {formatMeasurement(
+                                                  movementResult
+                                                    .measurementType.key,
+                                                  movementResult,
+                                                )}
+                                              </span>
+                                            </div>
+                                          ),
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {movementGroup.results.some(
+                                      (movementResult) =>
+                                        Boolean(movementResult.notes),
+                                    ) && (
+                                      <div className="mt-2 border-t border-border pt-2">
+                                        {movementGroup.results
+                                          .filter(
+                                            (movementResult) =>
+                                              movementResult.notes,
+                                          )
+                                          .map((movementResult) => (
+                                            <p
+                                              key={`${movementResult.id}-note`}
+                                              className="text-xs text-muted"
+                                            >
+                                              {movementResult.notes}
+                                            </p>
+                                          ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+
+                              {hiddenMovementCount > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    toggleWorkout(result.id)
+                                  }
+                                  aria-expanded={isExpanded}
+                                  className="mt-3 flex min-h-10 w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent transition hover:border-accent/40 hover:bg-accent/5"
+                                >
+                                  {isExpanded
+                                    ? t('labels.showLess')
+                                    : t('labels.showMore', {
+                                        count: hiddenMovementCount,
+                                      })}
+                                </button>
+                              )}
+                            </div>
                           )}
-                        </Badge>
-                      )}
 
-                      {result.workoutVariant && (
-                        <Badge
-                          variant={
-                            result
-                              .workoutVariant
-                              .level.key ===
-                            'RX'
-                              ? 'accent'
-                              : undefined
-                          }
-                        >
-                          {
-                            result
-                              .workoutVariant
-                              .level.name
-                          }
-                        </Badge>
-                      )}
-
-                      {result.prescriptionCategory && (
-                        <Badge>
-                          {
-                            result
-                              .prescriptionCategory
-                              .name
-                          }
-                        </Badge>
-                      )}
+                          {result.notes && (
+                            <p className="mt-5 border-t border-border pt-4 text-sm text-muted">
+                              {result.notes}
+                            </p>
+                          )}
+                        </div>
+                      </Card>
                     </div>
-
-                    <p className="mt-1 text-sm text-muted">
-                      {getWorkoutTypeName(
-                        result.workout
-                          .type.key,
-                        result.workout
-                          .type.name,
-                      )}
-                      {' · '}
-                      {getResultTypeName(
-                        result
-                          .resultType
-                          .key,
-                        result
-                          .resultType
-                          .name,
-                      )}
-                    </p>
-
-                    {result.notes && (
-                      <p className="mt-3 max-w-2xl text-sm text-muted">
-                        {
-                          result.notes
-                        }
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="shrink-0 sm:text-right">
-                    <p className="text-2xl font-black">
-                      {formatResult(
-                        result,
-                      )}
-                    </p>
-
-                    <p className="mt-1 text-sm text-muted">
-                      {formatDate(
-                        result.performedAt,
-                      )}
-                    </p>
-
-                    <p className="mt-0.5 text-xs text-muted">
-                      {formatTime(
-                        result.performedAt,
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ),
-          )}
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       )}
     </>

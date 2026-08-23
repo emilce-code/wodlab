@@ -322,18 +322,35 @@
   "history": {
     "eyebrow": "History",
     "title": "Your training history",
-    "description": "Review and filter your previous workout results.",
+    "description": "Review your workouts and movement results in one timeline.",
     "benchmark": "Benchmark",
     "scaled": "Scaled",
     "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+    "activity": {
+      "label": "Activity",
+      "all": "All activities",
+      "workouts": "Workouts",
+      "movements": "Movements"
+    },
+    "labels": {
+      "workout": "Workout",
+      "movement": "Movement",
+      "movementResults": "Movement results",
+      "standaloneResult": "Standalone result",
+      "benchmark": "Benchmark"
+    },
+    "dates": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
     "empty": {
-      "title": "No workout history yet",
-      "description": "Your logged workout results will appear here.",
+      "title": "No training history yet",
+      "description": "Your logged workouts and movement results will appear here.",
       "browseWorkouts": "Browse workouts"
     },
     "filters": {
       "search": "Search",
-      "searchPlaceholder": "Workout name...",
+      "searchPlaceholder": "Workout or movement name...",
       "workoutType": "Workout type",
       "allWorkoutTypes": "All types",
       "resultType": "Result type",
@@ -342,7 +359,7 @@
       "rxAndScaled": "Rx + Scaled",
       "rxOnly": "Rx only",
       "scaledOnly": "Scaled only",
-      "showing": "Showing {filtered} of {total} results",
+      "showing": "Showing {filtered} of {total} entries",
       "clear": "Clear filters",
       "workoutLevel": "Workout level",
       "allWorkoutLevels": "All workout levels"
@@ -625,5 +642,14 @@
       "createAccount": "Create your WODLY account"
     },
     "footer": "Train. Log. Track."
+  },
+  "labels": {
+    "workout": "Workout",
+    "movement": "Movement",
+    "movementResults": "Movement results",
+    "standaloneResult": "Standalone result",
+    "benchmark": "Benchmark",
+    "showMore": "Show {count} more",
+    "showLess": "Show less"
   }
 }

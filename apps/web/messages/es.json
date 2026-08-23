@@ -322,27 +322,44 @@
   "history": {
     "eyebrow": "Historial",
     "title": "Tu historial de entrenamiento",
-    "description": "Revisa y filtra los resultados de tus entrenamientos anteriores.",
+    "description": "Revisa tus entrenamientos y resultados de movimientos en una sola línea de tiempo.",
     "benchmark": "Benchmark",
     "scaled": "Escalado",
     "repsValue": "{count, plural, =1 {1 repetición} other {# repeticiones}}",
+    "activity": {
+      "label": "Actividad",
+      "all": "Todas las actividades",
+      "workouts": "Entrenamientos",
+      "movements": "Movimientos"
+    },
+    "labels": {
+      "workout": "Entrenamiento",
+      "movement": "Movimiento",
+      "movementResults": "Resultados de movimientos",
+      "standaloneResult": "Resultado individual",
+      "benchmark": "Benchmark"
+    },
+    "dates": {
+      "today": "Hoy",
+      "yesterday": "Ayer"
+    },
     "empty": {
-      "title": "Aún no tienes historial",
-      "description": "Los resultados de tus entrenamientos aparecerán aquí.",
+      "title": "Aún no hay historial de entrenamiento",
+      "description": "Tus entrenamientos y resultados de movimientos aparecerán aquí.",
       "browseWorkouts": "Ver entrenamientos"
     },
     "filters": {
       "search": "Buscar",
-      "searchPlaceholder": "Nombre del entrenamiento...",
+      "searchPlaceholder": "Nombre del entrenamiento o movimiento...",
       "workoutType": "Tipo de entrenamiento",
       "allWorkoutTypes": "Todos los tipos",
       "resultType": "Tipo de resultado",
       "allResultTypes": "Todos los resultados",
-      "prescription": "Modalidad",
+      "prescription": "Prescripción",
       "rxAndScaled": "Rx + Escalado",
       "rxOnly": "Solo Rx",
       "scaledOnly": "Solo escalado",
-      "showing": "Mostrando {filtered} de {total} resultados",
+      "showing": "Mostrando {filtered} de {total} registros",
       "clear": "Limpiar filtros",
       "workoutLevel": "Nivel del entrenamiento",
       "allWorkoutLevels": "Todos los niveles"
@@ -625,5 +642,14 @@
       "createAccount": "Crear mi cuenta de WODLY"
     },
     "footer": "Entrena. Registra. Progresa."
+  },
+  "labels": {
+    "workout": "Entrenamiento",
+    "movement": "Movimiento",
+    "movementResults": "Resultados de movimientos",
+    "standaloneResult": "Resultado individual",
+    "benchmark": "Benchmark",
+    "showMore": "Mostrar {count} más",
+    "showLess": "Mostrar menos"
   }
 }

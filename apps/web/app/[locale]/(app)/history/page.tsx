@@ -3,32 +3,28 @@ import { getTranslations } from 'next-intl/server';
 import { authenticatedApiFetch } from '@/lib/api';
 
 import HistoryList, {
-  type WorkoutHistoryResult,
+  type TrainingHistoryItem,
 } from './components/HistoryList';
 
-async function getHistory(): Promise<
-  WorkoutHistoryResult[]
-> {
-  const response =
-    await authenticatedApiFetch(
-      '/workouts/results/history',
-    );
+type TrainingHistoryResponse = {
+  items: TrainingHistoryItem[];
+};
+
+async function getHistory(): Promise<TrainingHistoryItem[]> {
+  const response = await authenticatedApiFetch('/training/history');
 
   if (!response?.ok) {
     return [];
   }
 
-  return (await response.json()) as WorkoutHistoryResult[];
+  const data = (await response.json()) as TrainingHistoryResponse;
+
+  return data.items ?? [];
 }
 
 export default async function HistoryPage() {
-  const t =
-    await getTranslations(
-      'history',
-    );
-
-  const results =
-    await getHistory();
+  const t = await getTranslations('history');
+  const results = await getHistory();
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -46,9 +42,7 @@ export default async function HistoryPage() {
         </p>
       </header>
 
-      <HistoryList
-        results={results}
-      />
+      <HistoryList results={results} />
     </div>
   );
 }
