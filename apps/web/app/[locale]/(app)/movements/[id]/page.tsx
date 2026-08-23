@@ -19,6 +19,7 @@ import {
 } from '@/lib/auth';
 
 import LogMovementResultForm from './components/LogMovementResultForm';
+import MovementProgressChart from './components/MovementProgressChart';
 
 type WeightUnit =
   | 'KG'
@@ -575,6 +576,37 @@ export default async function MovementDetailPage({
             )}
           </div>
         )}
+      </section>
+
+      <section className="mt-12">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          {t(
+            'progress.eyebrow',
+          )}
+        </p>
+
+        <h2 className="mt-2 text-2xl font-bold">
+          {t(
+            'progress.title',
+          )}
+        </h2>
+
+        <p className="mt-2 text-sm text-muted">
+          {t(
+            'progress.description',
+          )}
+        </p>
+
+        <Card className="mt-5 p-5 sm:p-6">
+          <MovementProgressChart
+            measurementTypes={
+              currentMovement.measurementTypes
+            }
+            results={
+              results
+            }
+          />
+        </Card>
       </section>
 
       <section className="mt-12">

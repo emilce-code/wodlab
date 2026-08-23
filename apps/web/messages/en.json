@@ -446,6 +446,22 @@
           "saveError": "Unable to save result.",
           "connectionError": "Unable to save result. Please try again."
         }
+      }, 
+      "progress": {
+        "eyebrow": "Progress",
+        "title": "Performance over time",
+        "description": "See how your performance on this movement changes across your logged results.",
+        "measurementType": "Metric",
+        "repScheme": "Rep scheme",
+        "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+        "emptyTitle": "No progress data yet",
+        "emptyDescription": "Log results for this movement to start building your progress chart.",
+        "noData": "No results for this metric",
+        "noDataDescription": "Log another result using this metric to start tracking its progress.",
+        "logAnotherResult": "Log another result to start seeing your trend.",
+        "higherIsBetter": "Higher values represent better performances.",
+        "lowerIsBetter": "Lower values represent better performances.",
+        "ariaLabel": "Movement performance trend"
       }
     }
   },

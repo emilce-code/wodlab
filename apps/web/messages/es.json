@@ -446,6 +446,22 @@
           "saveError": "No se pudo guardar el resultado.",
           "connectionError": "No se pudo guardar el resultado. Inténtalo de nuevo."
         }
+      },
+      "progress": {
+        "eyebrow": "Progreso",
+        "title": "Rendimiento a lo largo del tiempo",
+        "description": "Observa cómo cambia tu rendimiento en este movimiento a través de los resultados registrados.",
+        "measurementType": "Métrica",
+        "repScheme": "Esquema de repeticiones",
+        "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+        "emptyTitle": "Aún no hay datos de progreso",
+        "emptyDescription": "Registra resultados para este movimiento y comienza a construir tu gráfico de progreso.",
+        "noData": "No hay resultados para esta métrica",
+        "noDataDescription": "Registra otro resultado con esta métrica para comenzar a seguir su progreso.",
+        "logAnotherResult": "Registra otro resultado para comenzar a ver tu tendencia.",
+        "higherIsBetter": "Los valores más altos representan mejores resultados.",
+        "lowerIsBetter": "Los valores más bajos representan mejores resultados.",
+        "ariaLabel": "Tendencia de rendimiento del movimiento"
       }
     }
   },
