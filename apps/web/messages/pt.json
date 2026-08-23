@@ -181,7 +181,13 @@
         "secondsShort": "seg",
         "notes": "Observações do movimento",
         "optional": "(opcional)",
-        "notesPlaceholder": "Adaptação, ritmo alvo, dica técnica..."
+        "notesPlaceholder": "Adaptação, ritmo alvo, dica técnica...",
+        "sharedPrescriptionDescription": "Estes valores se aplicam a todos, a menos que uma categoria tenha um valor específico.",
+        "categoryPrescriptions": "Prescrições por categoria",
+        "categoryPrescriptionsDescription": "Adicione valores específicos apenas quando a prescrição variar por categoria.",
+        "removeCategoryPrescription": "Remover",
+        "categoryFallbackHint": "Deixe um campo vazio para usar o valor compartilhado.",
+        "categoryNotesPlaceholder": "Notas opcionais para esta categoria"
       },
       "variants": {
         "eyebrow": "Variações do treino",
@@ -257,6 +263,10 @@
       "notesPlaceholder": "Como foi? Adaptação, ritmo ou qualquer detalhe que queira lembrar...",
       "save": "Salvar resultado",
       "saving": "Salvando resultado...",
+      "workoutLevel": "Nível do treino",
+      "selectWorkoutLevel": "Selecione um nível",
+      "prescriptionCategory": "Prescrição",
+      "noPrescriptionCategory": "Sem prescrição específica",
       "validation": {
         "timeRequired": "Informe o tempo do treino.",
         "invalidSeconds": "Os segundos devem estar entre 0 e 59.",
@@ -265,7 +275,8 @@
         "loadRequired": "Informe a carga.",
         "performedAtRequired": "Selecione quando o treino foi realizado.",
         "saveError": "Não foi possível salvar o resultado.",
-        "connectionError": "Não foi possível salvar o resultado. Tente novamente."
+        "connectionError": "Não foi possível salvar o resultado. Tente novamente.",
+        "variantRequired": "Selecione o nível do treino que você realizou."
       }
     }
   },
@@ -308,7 +319,9 @@
       "rxOnly": "Somente Rx",
       "scaledOnly": "Somente adaptado",
       "showing": "Exibindo {filtered} de {total} resultados",
-      "clear": "Limpar filtros"
+      "clear": "Limpar filtros",
+      "workoutLevel": "Nível do treino",
+      "allWorkoutLevels": "Todos os níveis"
     },
     "noMatches": {
       "title": "Nenhum resultado encontrado",

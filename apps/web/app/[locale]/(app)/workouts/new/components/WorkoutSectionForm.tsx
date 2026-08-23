@@ -2,6 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 
+import type {
+  PrescriptionCategory,
+} from '../page';
+
 import WorkoutMovementForm, {
   WorkoutMovementFormState,
 } from './WorkoutMovementForm';
@@ -27,6 +31,7 @@ type Props = {
   section: WorkoutSectionFormState;
   sectionNumber: number;
   workoutTypes: WorkoutType[];
+  prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   onChange: (
     section: WorkoutSectionFormState,
@@ -54,6 +59,7 @@ export default function WorkoutSectionForm({
   section,
   sectionNumber,
   workoutTypes,
+  prescriptionCategories,
   canRemove,
   onChange,
   onRemove,
@@ -479,9 +485,8 @@ export default function WorkoutSectionForm({
                     </div>
 
                     <WorkoutMovementForm
-                      movement={
-                        movement
-                      }
+                      movement={movement}
+                      prescriptionCategories={prescriptionCategories}
                       canRemove
                       onChange={(
                         updatedMovement,

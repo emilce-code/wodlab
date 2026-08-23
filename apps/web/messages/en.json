@@ -181,7 +181,13 @@
         "secondsShort": "sec",
         "notes": "Movement notes",
         "optional": "(optional)",
-        "notesPlaceholder": "Scaling, target pace, technique cue..."
+        "notesPlaceholder": "Scaling, target pace, technique cue...",
+        "sharedPrescriptionDescription": "Values here apply to everyone unless a category-specific value overrides them.",
+        "categoryPrescriptions": "Category-specific prescriptions",
+        "categoryPrescriptionsDescription": "Add overrides only when the prescribed values differ by category.",
+        "removeCategoryPrescription": "Remove",
+        "categoryFallbackHint": "Leave a field blank to use the shared prescription value.",
+        "categoryNotesPlaceholder": "Optional notes for this category"
       },
       "variants": {
         "eyebrow": "Workout variations",
@@ -257,6 +263,10 @@
       "notesPlaceholder": "How did it feel? Scaling, pacing, anything worth remembering...",
       "save": "Save result",
       "saving": "Saving result...",
+      "workoutLevel": "Workout level",
+      "selectWorkoutLevel": "Select a level",
+      "prescriptionCategory": "Prescription",
+      "noPrescriptionCategory": "No specific prescription",
       "validation": {
         "timeRequired": "Enter a workout time.",
         "invalidSeconds": "Seconds must be between 0 and 59.",
@@ -265,7 +275,8 @@
         "loadRequired": "Enter the load.",
         "performedAtRequired": "Select when the workout was performed.",
         "saveError": "Unable to save result.",
-        "connectionError": "Unable to save result. Please try again."
+        "connectionError": "Unable to save result. Please try again.",
+        "variantRequired": "Select the workout level you performed."
       }
     }
   },
@@ -308,7 +319,9 @@
       "rxOnly": "Rx only",
       "scaledOnly": "Scaled only",
       "showing": "Showing {filtered} of {total} results",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "workoutLevel": "Workout level",
+      "allWorkoutLevels": "All workout levels"
     },
     "noMatches": {
       "title": "No matching results",

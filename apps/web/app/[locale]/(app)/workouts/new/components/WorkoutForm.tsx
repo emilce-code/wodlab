@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 
 import type {
+  PrescriptionCategory,
   WorkoutLevel,
   WorkoutType,
 } from '../page';
@@ -24,6 +25,7 @@ import WorkoutVariantForm, {
 type Props = {
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
+  prescriptionCategories: PrescriptionCategory[];
 };
 
 function createEmptySection(): WorkoutSectionFormState {
@@ -85,6 +87,7 @@ function parseRepScheme(
 export default function WorkoutForm({
   workoutTypes,
   workoutLevels,
+  prescriptionCategories,
 }: Props) {
   const t =
     useTranslations(
@@ -520,6 +523,65 @@ export default function WorkoutForm({
                           notes:
                             movement.notes.trim() ||
                             undefined,
+
+                          prescriptions:
+                            movement.prescriptions
+                              .map(
+                                (prescription) => ({
+                                  categoryKey:
+                                    prescription.categoryKey,
+
+                                  reps:
+                                    optionalNumber(
+                                      prescription.reps,
+                                    ),
+
+                                  weight:
+                                    optionalNumber(
+                                      prescription.weight,
+                                    ),
+
+                                  weightUnit:
+                                    prescription.weightUnit ||
+                                    undefined,
+
+                                  distance:
+                                    optionalNumber(
+                                      prescription.distance,
+                                    ),
+
+                                  calories:
+                                    optionalNumber(
+                                      prescription.calories,
+                                    ),
+
+                                  durationSeconds:
+                                    optionalNumber(
+                                      prescription.durationSeconds,
+                                    ),
+
+                                  notes:
+                                    prescription.notes.trim() ||
+                                    undefined,
+                                }),
+                              )
+                              .filter(
+                                (prescription) =>
+                                  prescription.reps !==
+                                    undefined ||
+                                  prescription.weight !==
+                                    undefined ||
+                                  prescription.weightUnit !==
+                                    undefined ||
+                                  prescription.distance !==
+                                    undefined ||
+                                  prescription.calories !==
+                                    undefined ||
+                                  prescription.durationSeconds !==
+                                    undefined ||
+                                  prescription.notes !==
+                                    undefined,
+                              ),
                         }),
                       ),
                   }),
@@ -822,31 +884,15 @@ export default function WorkoutForm({
               index,
             ) => (
               <WorkoutVariantForm
-                key={
-                  variant.id
-                }
-                variant={
-                  variant
-                }
-                variantNumber={
-                  index + 1
-                }
-                workoutTypes={
-                  workoutTypes
-                }
-                workoutLevels={
-                  workoutLevels
-                }
-                usedLevelKeys={
-                  usedLevelKeys
-                }
-                canRemove={
-                  variants.length >
-                  1
-                }
-                onChange={(
-                  updatedVariant,
-                ) =>
+                key={variant.id}
+                variant={variant}
+                variantNumber={index + 1}
+                workoutTypes={workoutTypes}
+                workoutLevels={workoutLevels}
+                usedLevelKeys={usedLevelKeys}
+                canRemove={variants.length > 1}
+                prescriptionCategories={prescriptionCategories}
+                onChange={(updatedVariant,) =>
                   updateVariant(
                     variant.id,
                     updatedVariant,

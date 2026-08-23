@@ -20,7 +20,21 @@ export type TrendResult = {
   load: number | null;
   weightUnit: 'KG' | 'LB' | null;
 
-  isRx: boolean;
+  workoutVariant: {
+    id: string;
+    name: string | null;
+
+    level: {
+      key: string;
+      name: string;
+    };
+  } | null;
+
+  prescriptionCategory: {
+    key: string;
+    name: string;
+  } | null;
+
   notes: string | null;
 
   resultType: ResultType;
@@ -526,13 +540,39 @@ export default function WorkoutTrendChart({
                     )}
                   </p>
 
-                  <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
-                    {result.isRx
-                      ? 'Rx'
-                      : t(
-                          'scaled',
-                        )}
-                  </p>
+                  {(result.workoutVariant ||
+                    result.prescriptionCategory) && (
+                    <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                      {result.workoutVariant && (
+                        <span
+                          className={
+                            result
+                              .workoutVariant
+                              .level.key ===
+                            'RX'
+                              ? 'rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent'
+                              : 'rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted'
+                          }
+                        >
+                          {
+                            result
+                              .workoutVariant
+                              .level.name
+                          }
+                        </span>
+                      )}
+
+                      {result.prescriptionCategory && (
+                        <span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+                          {
+                            result
+                              .prescriptionCategory
+                              .name
+                          }
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {index <

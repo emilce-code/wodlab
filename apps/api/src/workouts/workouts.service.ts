@@ -437,10 +437,68 @@ export class WorkoutsService {
     const totalResults =
       mappedResults.length;
 
+    const levelCounts =
+      new Map<
+        string,
+        {
+          key: string;
+          name: string;
+          count: number;
+        }
+      >();
+
+    mappedResults.forEach(
+      (result) => {
+        const level =
+          result.workoutVariant
+            ?.level;
+
+        if (!level) {
+          return;
+        }
+
+        const existing =
+          levelCounts.get(
+            level.key,
+          );
+
+        if (existing) {
+          existing.count += 1;
+
+          return;
+        }
+
+        levelCounts.set(
+          level.key,
+          {
+            key: level.key,
+            name: level.name,
+            count: 1,
+          },
+        );
+      },
+    );
+
+    const levelBreakdown =
+      Array.from(
+        levelCounts.values(),
+      ).sort((a, b) => {
+        if (a.key === 'RX') {
+          return -1;
+        }
+
+        if (b.key === 'RX') {
+          return 1;
+        }
+
+        return (
+          b.count - a.count
+        );
+      });
+
     const rxResults =
-      mappedResults.filter(
-        (result) => result.isRx,
-      ).length;
+      levelCounts.get('RX')
+        ?.count ?? 0;
 
     const benchmarkWorkouts =
       workouts.filter(
@@ -457,9 +515,6 @@ export class WorkoutsService {
 
         rxResults,
 
-        scaledResults:
-          totalResults - rxResults,
-
         rxRate:
           totalResults > 0
             ? Math.round(
@@ -468,6 +523,8 @@ export class WorkoutsService {
                   100,
               )
             : 0,
+
+        levelBreakdown,
 
         benchmarkWorkouts,
       },
@@ -1362,12 +1419,6 @@ export class WorkoutsService {
       workoutVariant,
 
       prescriptionCategory,
-
-      // Transitional compatibility for existing history/progress UI.
-      // Once the web app uses workoutVariant.level directly, this can be removed.
-      isRx:
-        workoutVariant?.level.key ===
-        'RX',
     };
   }
 

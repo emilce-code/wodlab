@@ -19,9 +19,26 @@ type ResultType = {
   name: string;
 };
 
+type WorkoutVariant = {
+  id: string;
+  name: string | null;
+
+  level: {
+    key: string;
+    name: string;
+  };
+};
+
+type PrescriptionCategory = {
+  key: string;
+  name: string;
+};
+
 type Props = {
   workoutId: string;
   resultType: ResultType;
+  variants: WorkoutVariant[];
+  prescriptionCategories: PrescriptionCategory[];
   preferredWeightUnit?: 'KG' | 'LB';
 };
 
@@ -59,6 +76,8 @@ function getLocalTimeValue() {
 export default function LogResultForm({
   workoutId,
   resultType,
+  variants,
+  prescriptionCategories,
   preferredWeightUnit = 'KG',
 }: Props) {
   const t =
@@ -87,6 +106,26 @@ export default function LogResultForm({
       null,
     );
 
+  const defaultVariant =
+    variants.find(
+      (variant) =>
+        variant.level.key ===
+        'RX',
+    ) ??
+    variants[0];
+
+  const [
+    workoutVariantId,
+    setWorkoutVariantId,
+  ] = useState(
+    defaultVariant?.id ?? '',
+  );
+
+  const [
+    prescriptionCategoryKey,
+    setPrescriptionCategoryKey,
+  ] = useState('');
+
   const [
     minutes,
     setMinutes,
@@ -97,24 +136,29 @@ export default function LogResultForm({
     setSeconds,
   ] = useState('');
 
-  const [rounds, setRounds] =
-    useState('');
+  const [
+    rounds,
+    setRounds,
+  ] = useState('');
 
-  const [reps, setReps] =
-    useState('');
+  const [
+    reps,
+    setReps,
+  ] = useState('');
 
-  const [load, setLoad] =
-    useState('');
+  const [
+    load,
+    setLoad,
+  ] = useState('');
 
   const [
     weightUnit,
     setWeightUnit,
-  ] = useState<'KG' | 'LB'>(
+  ] = useState<
+    'KG' | 'LB'
+  >(
     preferredWeightUnit,
   );
-
-  const [isRx, setIsRx] =
-    useState(false);
 
   const [
     performedDate,
@@ -130,13 +174,17 @@ export default function LogResultForm({
     getLocalTimeValue,
   );
 
-  const [notes, setNotes] =
-    useState('');
+  const [
+    notes,
+    setNotes,
+  ] = useState('');
 
-  const [error, setError] =
-    useState<string | null>(
-      null,
-    );
+  const [
+    error,
+    setError,
+  ] = useState<
+    string | null
+  >(null);
 
   const [
     isSubmitting,
@@ -231,7 +279,15 @@ export default function LogResultForm({
   function validate():
     | string
     | null {
-    switch (resultType.key) {
+    if (!workoutVariantId) {
+      return t(
+        'validation.variantRequired',
+      );
+    }
+
+    switch (
+      resultType.key
+    ) {
       case 'TIME': {
         const minuteValue =
           optionalNumber(
@@ -278,7 +334,9 @@ export default function LogResultForm({
       }
 
       case 'REPS': {
-        if (!reps.trim()) {
+        if (
+          !reps.trim()
+        ) {
           return t(
             'validation.repsRequired',
           );
@@ -288,7 +346,9 @@ export default function LogResultForm({
       }
 
       case 'LOAD': {
-        if (!load.trim()) {
+        if (
+          !load.trim()
+        ) {
           return t(
             'validation.loadRequired',
           );
@@ -334,8 +394,13 @@ export default function LogResultForm({
     const validationError =
       validate();
 
-    if (validationError) {
-      setError(validationError);
+    if (
+      validationError
+    ) {
+      setError(
+        validationError,
+      );
+
       return;
     }
 
@@ -343,6 +408,8 @@ export default function LogResultForm({
 
     try {
       const payload: {
+        workoutVariantId: string;
+        prescriptionCategoryKey?: string;
         performedAt: string;
         timeSeconds?: number;
         rounds?: number;
@@ -351,15 +418,23 @@ export default function LogResultForm({
         weightUnit?:
           | 'KG'
           | 'LB';
-        isRx: boolean;
         notes?: string;
       } = {
+        workoutVariantId,
         performedAt:
           getPerformedAtIso(),
-        isRx,
       };
 
-      if (notes.trim()) {
+      if (
+        prescriptionCategoryKey
+      ) {
+        payload.prescriptionCategoryKey =
+          prescriptionCategoryKey;
+      }
+
+      if (
+        notes.trim()
+      ) {
         payload.notes =
           notes.trim();
       }
@@ -378,6 +453,7 @@ export default function LogResultForm({
               seconds,
             ) ??
               0);
+
           break;
 
         case 'ROUNDS_REPS':
@@ -385,10 +461,12 @@ export default function LogResultForm({
             optionalNumber(
               rounds,
             );
+
           payload.reps =
             optionalNumber(
               reps,
             );
+
           break;
 
         case 'REPS':
@@ -396,6 +474,7 @@ export default function LogResultForm({
             optionalNumber(
               reps,
             );
+
           break;
 
         case 'LOAD':
@@ -403,8 +482,10 @@ export default function LogResultForm({
             optionalNumber(
               load,
             );
+
           payload.weightUnit =
             weightUnit;
+
           break;
       }
 
@@ -429,7 +510,9 @@ export default function LogResultForm({
       const data =
         await response.json();
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         const message =
           Array.isArray(
             data.message,
@@ -450,6 +533,7 @@ export default function LogResultForm({
       }
 
       resetForm();
+
       router.refresh();
     } catch {
       setError(
@@ -458,7 +542,9 @@ export default function LogResultForm({
         ),
       );
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(
+        false,
+      );
     }
   }
 
@@ -468,7 +554,9 @@ export default function LogResultForm({
     setRounds('');
     setReps('');
     setLoad('');
-    setIsRx(false);
+    setPrescriptionCategoryKey(
+      '',
+    );
 
     setPerformedDate(
       getLocalDateValue(),
@@ -483,7 +571,9 @@ export default function LogResultForm({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={
+        handleSubmit
+      }
       className="rounded-xl border border-border bg-surface p-6"
     >
       <div>
@@ -498,18 +588,139 @@ export default function LogResultForm({
         </h3>
 
         <p className="mt-1 text-sm text-muted">
-          {t('description')}
+          {t(
+            'description',
+          )}
         </p>
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
+        <div>
+          <label
+            htmlFor="workoutVariantId"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t(
+              'workoutLevel',
+            )}
+          </label>
+
+          <select
+            id="workoutVariantId"
+            value={
+              workoutVariantId
+            }
+            onChange={(
+              event,
+            ) =>
+              setWorkoutVariantId(
+                event.target
+                  .value,
+              )
+            }
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+          >
+            <option value="">
+              {t(
+                'selectWorkoutLevel',
+              )}
+            </option>
+
+            {variants.map(
+              (variant) => (
+                <option
+                  key={
+                    variant.id
+                  }
+                  value={
+                    variant.id
+                  }
+                >
+                  {
+                    variant
+                      .level.name
+                  }
+                  {variant.name
+                    ? ` · ${variant.name}`
+                    : ''}
+                </option>
+              ),
+            )}
+          </select>
+        </div>
+
+        {prescriptionCategories.length >
+          0 && (
+          <div>
+            <label
+              htmlFor="prescriptionCategory"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t(
+                'prescriptionCategory',
+              )}
+
+              <span className="ml-1 font-normal text-muted">
+                {t(
+                  'optional',
+                )}
+              </span>
+            </label>
+
+            <select
+              id="prescriptionCategory"
+              value={
+                prescriptionCategoryKey
+              }
+              onChange={(
+                event,
+              ) =>
+                setPrescriptionCategoryKey(
+                  event.target
+                    .value,
+                )
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+            >
+              <option value="">
+                {t(
+                  'noPrescriptionCategory',
+                )}
+              </option>
+
+              {prescriptionCategories.map(
+                (
+                  category,
+                ) => (
+                  <option
+                    key={
+                      category.key
+                    }
+                    value={
+                      category.key
+                    }
+                  >
+                    {
+                      category.name
+                    }
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+        )}
+
         {resultType.key ===
           'TIME' && (
           <>
             <NumberField
               id="minutes"
-              label={t('minutes')}
-              value={minutes}
+              label={t(
+                'minutes',
+              )}
+              value={
+                minutes
+              }
               onChange={
                 setMinutes
               }
@@ -518,8 +729,12 @@ export default function LogResultForm({
 
             <NumberField
               id="seconds"
-              label={t('seconds')}
-              value={seconds}
+              label={t(
+                'seconds',
+              )}
+              value={
+                seconds
+              }
               onChange={
                 setSeconds
               }
@@ -534,9 +749,15 @@ export default function LogResultForm({
           <>
             <NumberField
               id="rounds"
-              label={t('rounds')}
-              value={rounds}
-              onChange={setRounds}
+              label={t(
+                'rounds',
+              )}
+              value={
+                rounds
+              }
+              onChange={
+                setRounds
+              }
               placeholder="7"
             />
 
@@ -545,8 +766,12 @@ export default function LogResultForm({
               label={t(
                 'extraReps',
               )}
-              value={reps}
-              onChange={setReps}
+              value={
+                reps
+              }
+              onChange={
+                setReps
+              }
               placeholder="12"
             />
           </>
@@ -557,9 +782,15 @@ export default function LogResultForm({
           <div className="md:col-span-2">
             <NumberField
               id="reps"
-              label={t('reps')}
-              value={reps}
-              onChange={setReps}
+              label={t(
+                'reps',
+              )}
+              value={
+                reps
+              }
+              onChange={
+                setReps
+              }
               placeholder="50"
             />
           </div>
@@ -570,9 +801,15 @@ export default function LogResultForm({
           <>
             <NumberField
               id="load"
-              label={t('load')}
-              value={load}
-              onChange={setLoad}
+              label={t(
+                'load',
+              )}
+              value={
+                load
+              }
+              onChange={
+                setLoad
+              }
               placeholder="100"
               step="0.1"
             />
@@ -582,13 +819,19 @@ export default function LogResultForm({
                 htmlFor="weightUnit"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t('unit')}
+                {t(
+                  'unit',
+                )}
               </label>
 
               <select
                 id="weightUnit"
-                value={weightUnit}
-                onChange={(event) =>
+                value={
+                  weightUnit
+                }
+                onChange={(
+                  event,
+                ) =>
                   setWeightUnit(
                     event.target
                       .value as
@@ -612,13 +855,17 @@ export default function LogResultForm({
 
         <div className="md:col-span-2">
           <p className="mb-1.5 text-sm font-medium">
-            {t('performedAt')}
+            {t(
+              'performedAt',
+            )}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
-                {t('date')}
+                {t(
+                  'date',
+                )}
               </p>
 
               <button
@@ -651,12 +898,16 @@ export default function LogResultForm({
               </button>
 
               <input
-                ref={dateInputRef}
+                ref={
+                  dateInputRef
+                }
                 type="date"
                 value={
                   performedDate
                 }
-                onChange={(event) =>
+                onChange={(
+                  event,
+                ) =>
                   setPerformedDate(
                     event.target
                       .value,
@@ -669,7 +920,9 @@ export default function LogResultForm({
 
             <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
-                {t('time')}
+                {t(
+                  'time',
+                )}
               </p>
 
               <button
@@ -702,12 +955,16 @@ export default function LogResultForm({
               </button>
 
               <input
-                ref={timeInputRef}
+                ref={
+                  timeInputRef
+                }
                 type="time"
                 value={
                   performedTime
                 }
-                onChange={(event) =>
+                onChange={(
+                  event,
+                ) =>
                   setPerformedTime(
                     event.target
                       .value,
@@ -727,52 +984,33 @@ export default function LogResultForm({
         </div>
 
         <div className="md:col-span-2">
-          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-4 py-3">
-            <input
-              type="checkbox"
-              checked={isRx}
-              onChange={(event) =>
-                setIsRx(
-                  event.target
-                    .checked,
-                )
-              }
-              className="h-4 w-4 rounded border-border accent-[var(--accent)]"
-            />
-
-            <div>
-              <p className="text-sm font-medium">
-                Rx
-              </p>
-
-              <p className="mt-0.5 text-xs text-muted">
-                {t(
-                  'rxDescription',
-                )}
-              </p>
-            </div>
-          </label>
-        </div>
-
-        <div className="md:col-span-2">
           <label
             htmlFor="notes"
             className="mb-1.5 block text-sm font-medium"
           >
-            {t('notes')}
+            {t(
+              'notes',
+            )}
 
             <span className="ml-1 font-normal text-muted">
-              {t('optional')}
+              {t(
+                'optional',
+              )}
             </span>
           </label>
 
           <textarea
             id="notes"
             rows={3}
-            value={notes}
-            onChange={(event) =>
+            value={
+              notes
+            }
+            onChange={(
+              event,
+            ) =>
               setNotes(
-                event.target.value,
+                event.target
+                  .value,
               )
             }
             placeholder={t(
@@ -798,13 +1036,18 @@ export default function LogResultForm({
         <button
           type="submit"
           disabled={
-            isSubmitting
+            isSubmitting ||
+            !workoutVariantId
           }
           className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {isSubmitting
-            ? t('saving')
-            : t('save')}
+            ? t(
+                'saving',
+              )
+            : t(
+                'save',
+              )}
         </button>
       </div>
     </form>
@@ -848,9 +1091,12 @@ function NumberField({
         max={max}
         step={step}
         value={value}
-        onChange={(event) =>
+        onChange={(
+          event,
+        ) =>
           onChange(
-            event.target.value,
+            event.target
+              .value,
           )
         }
         placeholder={

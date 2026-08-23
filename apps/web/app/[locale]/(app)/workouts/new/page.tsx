@@ -17,6 +17,12 @@ export type WorkoutLevel = {
   description: string | null;
 };
 
+export type PrescriptionCategory = {
+  key: string;
+  name: string;
+  description: string | null;
+};
+
 async function getWorkoutTypes(): Promise<
   WorkoutType[]
 > {
@@ -47,6 +53,21 @@ async function getWorkoutLevels(): Promise<
   return (await response.json()) as WorkoutLevel[];
 }
 
+async function getPrescriptionCategories(): Promise<
+  PrescriptionCategory[]
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/workouts/prescription-categories',
+    );
+
+  if (!response?.ok) {
+    return [];
+  }
+
+  return (await response.json()) as PrescriptionCategory[];
+}
+
 export default async function NewWorkoutPage() {
   const t =
     await getTranslations(
@@ -56,9 +77,11 @@ export default async function NewWorkoutPage() {
   const [
     workoutTypes,
     workoutLevels,
+    prescriptionCategories,
   ] = await Promise.all([
     getWorkoutTypes(),
     getWorkoutLevels(),
+    getPrescriptionCategories(),
   ]);
 
   return (
@@ -90,6 +113,9 @@ export default async function NewWorkoutPage() {
             }
             workoutLevels={
               workoutLevels
+            }
+            prescriptionCategories={
+              prescriptionCategories
             }
           />
         </div>

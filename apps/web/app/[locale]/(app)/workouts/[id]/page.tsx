@@ -16,6 +16,23 @@ type ResultType = {
   name: string;
 };
 
+type WorkoutPrescription = {
+  id: string;
+
+  category: {
+    key: string;
+    name: string;
+  };
+
+  reps: number | null;
+  weight: number | null;
+  weightUnit: 'KG' | 'LB' | null;
+  distance: number | null;
+  calories: number | null;
+  durationSeconds: number | null;
+  notes: string | null;
+};
+
 type WorkoutMovement = {
   id: string;
   order: number;
@@ -31,6 +48,8 @@ type WorkoutMovement = {
     id: string;
     name: string;
   };
+
+  prescriptions: WorkoutPrescription[];
 };
 
 type WorkoutSection = {
@@ -51,6 +70,19 @@ type WorkoutSection = {
   movements: WorkoutMovement[];
 };
 
+type WorkoutVariant = {
+  id: string;
+  name: string | null;
+  notes: string | null;
+
+  level: {
+    key: string;
+    name: string;
+  };
+
+  sections: WorkoutSection[];
+};
+
 type Workout = {
   id: string;
   name: string;
@@ -63,7 +95,7 @@ type Workout = {
     defaultResultType: ResultType | null;
   };
 
-  sections: WorkoutSection[];
+  variants: WorkoutVariant[];
 };
 
 type WorkoutResult = {
@@ -85,7 +117,21 @@ type WorkoutResult = {
   load: number | null;
   weightUnit: 'KG' | 'LB' | null;
 
-  isRx: boolean;
+  workoutVariant: {
+    id: string;
+    name: string | null;
+
+    level: {
+      key: string;
+      name: string;
+    };
+  } | null;
+
+  prescriptionCategory: {
+    key: string;
+    name: string;
+  } | null;
+
   notes: string | null;
 
   createdAt: string;
@@ -96,6 +142,11 @@ type WorkoutResultSummary = {
   personalBest: WorkoutResult | null;
   lastResult: WorkoutResult | null;
   totalResults: number;
+};
+
+type PrescriptionCategory = {
+  key: string;
+  name: string;
 };
 
 type Props = {
@@ -153,59 +204,81 @@ async function getWorkoutResultSummary(
   return (await response.json()) as WorkoutResultSummary;
 }
 
-function formatDuration(
-  seconds: number,
-) {
-  const minutes =
-    Math.floor(seconds / 60);
+async function getPreferredWeightUnit(): Promise<
+  'KG' | 'LB'
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/athlete-profile',
+    );
 
-  const remainingSeconds =
-    seconds % 60;
-
-  if (minutes === 0) {
-    return `${remainingSeconds}s`;
+  if (!response?.ok) {
+    return 'KG';
   }
 
-  return `${minutes}:${remainingSeconds
-    .toString()
-    .padStart(2, '0')}`;
+  const profile =
+    (await response.json()) as {
+      preferredWeightUnit?:
+        | 'KG'
+        | 'LB';
+    };
+
+  return (
+    profile.preferredWeightUnit ??
+    'KG'
+  );
 }
 
 export default async function WorkoutPage({
   params,
 }: Props) {
-  const { id } = await params;
-
-  const locale =
-    await getLocale();
-
-  const t =
-    await getTranslations(
-      'workouts.detail',
-    );
-
-  const typeT =
-    await getTranslations(
-      'workoutTypes',
-    );
-
-  const resultTypeT =
-    await getTranslations(
-      'resultTypes',
-    );
+  const { id } =
+    await params;
 
   const [
     workout,
     results,
     summary,
+    preferredWeightUnit,
+    t,
+    workoutTypeT,
+    resultTypeT,
+    locale,
   ] = await Promise.all([
     getWorkout(id),
     getWorkoutResults(id),
     getWorkoutResultSummary(id),
+    getPreferredWeightUnit(),
+    getTranslations(
+      'workouts.detail',
+    ),
+    getTranslations(
+      'workoutTypes',
+    ),
+    getTranslations(
+      'resultTypes',
+    ),
+    getLocale(),
   ]);
 
   if (!workout) {
     notFound();
+  }
+
+  function formatDuration(
+    totalSeconds: number,
+  ) {
+    const minutes =
+      Math.floor(
+        totalSeconds / 60,
+      );
+
+    const seconds =
+      totalSeconds % 60;
+
+    return `${minutes}:${String(
+      seconds,
+    ).padStart(2, '0')}`;
   }
 
   function getWorkoutTypeName(
@@ -215,10 +288,21 @@ export default async function WorkoutPage({
     },
   ) {
     const key =
-      type.key.toLowerCase();
+      type.key
+        .toLowerCase()
+        .replaceAll(
+          ' ',
+          '_',
+        )
+        .replaceAll(
+          '-',
+          '_',
+        );
 
-    return typeT.has(key)
-      ? typeT(key)
+    return workoutTypeT.has(
+      key,
+    )
+      ? workoutTypeT(key)
       : type.name;
   }
 
@@ -228,7 +312,9 @@ export default async function WorkoutPage({
     const key =
       type.key.toLowerCase();
 
-    return resultTypeT.has(key)
+    return resultTypeT.has(
+      key,
+    )
       ? resultTypeT(key)
       : type.name;
   }
@@ -236,17 +322,25 @@ export default async function WorkoutPage({
   function getMovementPrescription(
     movement: WorkoutMovement,
   ) {
-    const values: string[] = [];
+    const values: string[] =
+      [];
 
-    if (movement.reps !== null) {
+    if (
+      movement.reps !==
+      null
+    ) {
       values.push(
         t('repsValue', {
-          count: movement.reps,
+          count:
+            movement.reps,
         }),
       );
     }
 
-    if (movement.weight !== null) {
+    if (
+      movement.weight !==
+      null
+    ) {
       values.push(
         `${movement.weight}${
           movement.weightUnit
@@ -257,7 +351,8 @@ export default async function WorkoutPage({
     }
 
     if (
-      movement.distance !== null
+      movement.distance !==
+      null
     ) {
       values.push(
         `${movement.distance} m`,
@@ -265,7 +360,8 @@ export default async function WorkoutPage({
     }
 
     if (
-      movement.calories !== null
+      movement.calories !==
+      null
     ) {
       values.push(
         `${movement.calories} cal`,
@@ -283,7 +379,74 @@ export default async function WorkoutPage({
       );
     }
 
-    return values.join(' · ');
+    return values.join(
+      ' · ',
+    );
+  }
+
+  function getCategoryPrescription(
+    prescription: WorkoutPrescription,
+  ) {
+    const values: string[] =
+      [];
+
+    if (
+      prescription.reps !==
+      null
+    ) {
+      values.push(
+        t('repsValue', {
+          count:
+            prescription.reps,
+        }),
+      );
+    }
+
+    if (
+      prescription.weight !==
+      null
+    ) {
+      values.push(
+        `${prescription.weight}${
+          prescription.weightUnit
+            ? ` ${prescription.weightUnit}`
+            : ''
+        }`,
+      );
+    }
+
+    if (
+      prescription.distance !==
+      null
+    ) {
+      values.push(
+        `${prescription.distance} m`,
+      );
+    }
+
+    if (
+      prescription.calories !==
+      null
+    ) {
+      values.push(
+        `${prescription.calories} cal`,
+      );
+    }
+
+    if (
+      prescription.durationSeconds !==
+      null
+    ) {
+      values.push(
+        formatDuration(
+          prescription.durationSeconds,
+        ),
+      );
+    }
+
+    return values.join(
+      ' · ',
+    );
   }
 
   function formatResult(
@@ -302,18 +465,27 @@ export default async function WorkoutPage({
 
       case 'ROUNDS_REPS':
         return `${
-          result.rounds ?? 0
-        } + ${result.reps ?? 0}`;
+          result.rounds ??
+          0
+        } + ${
+          result.reps ?? 0
+        }`;
 
       case 'REPS':
-        return result.reps !== null
-          ? t('repsValue', {
-              count: result.reps,
-            })
+        return result.reps !==
+          null
+          ? t(
+              'repsValue',
+              {
+                count:
+                  result.reps,
+              },
+            )
           : '—';
 
       case 'LOAD':
-        return result.load !== null
+        return result.load !==
+          null
           ? `${result.load} ${
               result.weightUnit ??
               ''
@@ -335,8 +507,59 @@ export default async function WorkoutPage({
         day: 'numeric',
         year: 'numeric',
       },
-    ).format(new Date(value));
+    ).format(
+      new Date(value),
+    );
   }
+
+  const prescriptionCategories: PrescriptionCategory[] =
+    Array.from(
+      new Map(
+        workout.variants
+          .flatMap(
+            (variant) =>
+              variant.sections.flatMap(
+                (section) =>
+                  section.movements.flatMap(
+                    (
+                      movement,
+                    ) =>
+                      movement.prescriptions.map(
+                        (
+                          prescription,
+                        ) =>
+                          [
+                            prescription
+                              .category
+                              .key,
+                            prescription
+                              .category,
+                          ] as const,
+                      ),
+                  ),
+              ),
+          )
+          .map(
+            ([
+              key,
+              category,
+            ]) => [
+              key,
+              category,
+            ],
+          ),
+      ).values(),
+    );
+
+  const logResultVariants =
+    workout.variants.map(
+      (variant) => ({
+        id: variant.id,
+        name: variant.name,
+        level:
+          variant.level,
+      }),
+    );
 
   const personalBest =
     summary.personalBest;
@@ -350,7 +573,10 @@ export default async function WorkoutPage({
         href="/workouts"
         className="text-sm font-medium text-muted transition hover:text-foreground"
       >
-        ← {t('backToWorkouts')}
+        ←{' '}
+        {t(
+          'backToWorkouts',
+        )}
       </Link>
 
       <header className="mt-8">
@@ -363,7 +589,9 @@ export default async function WorkoutPage({
 
           {workout.isBenchmark && (
             <Badge>
-              {t('benchmark')}
+              {t(
+                'benchmark',
+              )}
             </Badge>
           )}
         </div>
@@ -374,144 +602,258 @@ export default async function WorkoutPage({
 
         {workout.description && (
           <p className="mt-4 max-w-2xl text-muted">
-            {workout.description}
+            {
+              workout.description
+            }
           </p>
         )}
       </header>
 
-      <div className="mt-10 space-y-6">
-        {workout.sections.map(
-          (section, index) => {
-            const prescriptionType =
-              getWorkoutTypeName(
-                section.type,
-              );
+      <div className="mt-10 space-y-10">
+        {workout.variants.map(
+          (variant) => (
+            <section
+              key={
+                variant.id
+              }
+            >
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <Badge variant="accent">
+                  {
+                    variant
+                      .level.name
+                  }
+                </Badge>
 
-            return (
-              <Card
-                key={section.id}
-                className="overflow-hidden"
-              >
-                <div className="p-6 sm:p-8">
-                  {workout.sections
-                    .length > 1 && (
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                      {t('section', {
-                        number:
-                          index + 1,
-                      })}
-                    </p>
-                  )}
+                {variant.name && (
+                  <h2 className="text-xl font-bold">
+                    {
+                      variant.name
+                    }
+                  </h2>
+                )}
+              </div>
 
-                  <div className="mt-1 flex flex-wrap items-center gap-3">
-                    <h2 className="text-lg font-bold">
-                      {
-                        prescriptionType
-                      }
-                    </h2>
+              {variant.notes && (
+                <p className="mb-5 text-sm text-muted">
+                  {
+                    variant.notes
+                  }
+                </p>
+              )}
 
-                    {section.rounds !==
-                      null && (
-                      <Badge>
-                        {t('roundCount', {
-                          count:
-                            section.rounds,
-                        })}
-                      </Badge>
-                    )}
+              <div className="space-y-6">
+                {variant.sections.map(
+                  (
+                    section,
+                    index,
+                  ) => {
+                    const prescriptionType =
+                      getWorkoutTypeName(
+                        section.type,
+                      );
 
-                    {section.durationSeconds !==
-                      null && (
-                      <Badge>
-                        {formatDuration(
-                          section.durationSeconds,
-                        )}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {section.repScheme
-                    .length > 0 && (
-                    <p className="mt-6 text-3xl font-black tracking-wide sm:text-4xl">
-                      {section.repScheme.join(
-                        ' — ',
-                      )}
-                    </p>
-                  )}
-
-                  <div className="mt-7 divide-y divide-border">
-                    {section.movements.map(
-                      (item) => {
-                        const prescription =
-                          getMovementPrescription(
-                            item,
-                          );
-
-                        return (
-                          <div
-                            key={
-                              item.id
-                            }
-                            className="flex items-start justify-between gap-6 py-4 first:pt-0 last:pb-0"
-                          >
-                            <div>
-                              <p className="font-semibold">
+                    return (
+                      <Card
+                        key={
+                          section.id
+                        }
+                        className="overflow-hidden"
+                      >
+                        <div className="p-6 sm:p-8">
+                          {variant
+                            .sections
+                            .length >
+                            1 && (
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                              {t(
+                                'section',
                                 {
-                                  item
-                                    .movement
-                                    .name
-                                }
-                              </p>
+                                  number:
+                                    index +
+                                    1,
+                                },
+                              )}
+                            </p>
+                          )}
 
-                              {item.notes && (
-                                <p className="mt-1 text-sm text-muted">
+                          <div className="mt-1 flex flex-wrap items-center gap-3">
+                            <h3 className="text-lg font-bold">
+                              {
+                                prescriptionType
+                              }
+                            </h3>
+
+                            {section.rounds !==
+                              null && (
+                              <Badge>
+                                {t(
+                                  'roundCount',
                                   {
-                                    item.notes
+                                    count:
+                                      section.rounds,
+                                  },
+                                )}
+                              </Badge>
+                            )}
+
+                            {section.durationSeconds !==
+                              null && (
+                              <Badge>
+                                {formatDuration(
+                                  section.durationSeconds,
+                                )}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {section
+                            .repScheme
+                            .length >
+                            0 && (
+                            <p className="mt-6 text-3xl font-black tracking-wide sm:text-4xl">
+                              {section.repScheme.join(
+                                ' — ',
+                              )}
+                            </p>
+                          )}
+
+                          <div className="mt-7 divide-y divide-border">
+                            {section.movements.map(
+                              (
+                                item,
+                              ) => {
+                                const sharedPrescription =
+                                  getMovementPrescription(
+                                    item,
+                                  );
+
+                                return (
+                                  <div
+                                    key={
+                                      item.id
+                                    }
+                                    className="py-4 first:pt-0 last:pb-0"
+                                  >
+                                    <div className="flex items-start justify-between gap-6">
+                                      <div>
+                                        <p className="font-semibold">
+                                          {
+                                            item
+                                              .movement
+                                              .name
+                                          }
+                                        </p>
+
+                                        {item.notes && (
+                                          <p className="mt-1 text-sm text-muted">
+                                            {
+                                              item.notes
+                                            }
+                                          </p>
+                                        )}
+                                      </div>
+
+                                      {sharedPrescription && (
+                                        <p className="shrink-0 text-sm font-medium text-muted">
+                                          {
+                                            sharedPrescription
+                                          }
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {item
+                                      .prescriptions
+                                      .length >
+                                      0 && (
+                                      <div className="mt-3 space-y-2">
+                                        {item.prescriptions.map(
+                                          (
+                                            prescription,
+                                          ) => {
+                                            const value =
+                                              getCategoryPrescription(
+                                                prescription,
+                                              );
+
+                                            return (
+                                              <div
+                                                key={
+                                                  prescription.id
+                                                }
+                                                className="flex flex-wrap items-center gap-2 text-sm"
+                                              >
+                                                <Badge>
+                                                  {
+                                                    prescription
+                                                      .category
+                                                      .name
+                                                  }
+                                                </Badge>
+
+                                                {value && (
+                                                  <span className="font-medium text-muted">
+                                                    {
+                                                      value
+                                                    }
+                                                  </span>
+                                                )}
+
+                                                {prescription.notes && (
+                                                  <span className="text-muted">
+                                                    ·{' '}
+                                                    {
+                                                      prescription.notes
+                                                    }
+                                                  </span>
+                                                )}
+                                              </div>
+                                            );
+                                          },
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              },
+                            )}
+                          </div>
+
+                          {(section.restSeconds !==
+                            null ||
+                            section.notes) && (
+                            <div className="mt-6 border-t border-border pt-5 text-sm text-muted">
+                              {section.restSeconds !==
+                                null && (
+                                <p>
+                                  {t(
+                                    'rest',
+                                  )}
+                                  :{' '}
+                                  {formatDuration(
+                                    section.restSeconds,
+                                  )}
+                                </p>
+                              )}
+
+                              {section.notes && (
+                                <p className="mt-2">
+                                  {
+                                    section.notes
                                   }
                                 </p>
                               )}
                             </div>
-
-                            {prescription && (
-                              <p className="shrink-0 text-sm font-medium text-muted">
-                                {
-                                  prescription
-                                }
-                              </p>
-                            )}
-                          </div>
-                        );
-                      },
-                    )}
-                  </div>
-
-                  {(section.restSeconds !==
-                    null ||
-                    section.notes) && (
-                    <div className="mt-6 border-t border-border pt-5 text-sm text-muted">
-                      {section.restSeconds !==
-                        null && (
-                        <p>
-                          {t('rest')}:{' '}
-                          {formatDuration(
-                            section.restSeconds,
                           )}
-                        </p>
-                      )}
-
-                      {section.notes && (
-                        <p className="mt-2">
-                          {
-                            section.notes
-                          }
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          },
+                        </div>
+                      </Card>
+                    );
+                  },
+                )}
+              </div>
+            </section>
+          ),
         )}
       </div>
 
@@ -519,10 +861,21 @@ export default async function WorkoutPage({
         .defaultResultType && (
         <section className="mt-12">
           <LogResultForm
-            workoutId={workout.id}
+            workoutId={
+              workout.id
+            }
             resultType={
               workout.type
                 .defaultResultType
+            }
+            variants={
+              logResultVariants
+            }
+            prescriptionCategories={
+              prescriptionCategories
+            }
+            preferredWeightUnit={
+              preferredWeightUnit
             }
           />
         </section>
@@ -573,13 +926,32 @@ export default async function WorkoutPage({
                     )}
                   </p>
 
-                  {personalBest.isRx ? (
-                    <Badge variant="accent">
-                      Rx
+                  {personalBest.workoutVariant && (
+                    <Badge
+                      variant={
+                        personalBest
+                          .workoutVariant
+                          .level.key ===
+                        'RX'
+                          ? 'accent'
+                          : undefined
+                      }
+                    >
+                      {
+                        personalBest
+                          .workoutVariant
+                          .level.name
+                      }
                     </Badge>
-                  ) : (
+                  )}
+
+                  {personalBest.prescriptionCategory && (
                     <Badge>
-                      {t('scaled')}
+                      {
+                        personalBest
+                          .prescriptionCategory
+                          .name
+                      }
                     </Badge>
                   )}
                 </div>
@@ -621,13 +993,32 @@ export default async function WorkoutPage({
                     )}
                   </p>
 
-                  {lastResult.isRx ? (
-                    <Badge variant="accent">
-                      Rx
+                  {lastResult.workoutVariant && (
+                    <Badge
+                      variant={
+                        lastResult
+                          .workoutVariant
+                          .level.key ===
+                        'RX'
+                          ? 'accent'
+                          : undefined
+                      }
+                    >
+                      {
+                        lastResult
+                          .workoutVariant
+                          .level.name
+                      }
                     </Badge>
-                  ) : (
+                  )}
+
+                  {lastResult.prescriptionCategory && (
                     <Badge>
-                      {t('scaled')}
+                      {
+                        lastResult
+                          .prescriptionCategory
+                          .name
+                      }
                     </Badge>
                   )}
                 </div>
@@ -654,6 +1045,30 @@ export default async function WorkoutPage({
           </Card>
         </div>
 
+        {results.length >
+          0 && (
+          <div className="mt-5">
+            <Card className="p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                {getResultTypeName(
+                  results[0]
+                    .resultType,
+                )}
+              </p>
+
+              <p className="mt-2 text-sm text-muted">
+                {t(
+                  'performance.resultCount',
+                  {
+                    count:
+                      results.length,
+                  },
+                )}
+              </p>
+            </Card>
+          </div>
+        )}
+
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
@@ -671,93 +1086,6 @@ export default async function WorkoutPage({
             'performance.liveTrackingLater',
           )}
         </p>
-      </section>
-
-      <section className="mt-12">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {t('history.eyebrow')}
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold">
-            {t('history.title')}
-          </h2>
-        </div>
-
-        {results.length === 0 ? (
-          <div className="mt-5 rounded-xl border border-dashed border-border px-6 py-12 text-center">
-            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent">
-              +
-            </div>
-
-            <p className="mt-4 font-semibold">
-              {t(
-                'history.emptyTitle',
-              )}
-            </p>
-
-            <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-              {t(
-                'history.emptyDescription',
-              )}
-            </p>
-          </div>
-        ) : (
-          <Card className="mt-5 overflow-hidden">
-            <div className="divide-y divide-border">
-              {results.map(
-                (result) => (
-                  <div
-                    key={result.id}
-                    className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">
-                          {formatResult(
-                            result,
-                          )}
-                        </p>
-
-                        {result.isRx ? (
-                          <Badge variant="accent">
-                            Rx
-                          </Badge>
-                        ) : (
-                          <Badge>
-                            {t(
-                              'scaled',
-                            )}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <p className="mt-1 text-sm text-muted">
-                        {formatDate(
-                          result.performedAt,
-                        )}
-                      </p>
-
-                      {result.notes && (
-                        <p className="mt-2 text-sm text-muted">
-                          {
-                            result.notes
-                          }
-                        </p>
-                      )}
-                    </div>
-
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                      {getResultTypeName(
-                        result.resultType,
-                      )}
-                    </p>
-                  </div>
-                ),
-              )}
-            </div>
-          </Card>
-        )}
       </section>
     </div>
   );

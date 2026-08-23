@@ -56,12 +56,15 @@ export default function WorkoutLibrary({
           }
 
           const movementNames =
-            workout.sections.flatMap(
-              (section) =>
-                section.movements.map(
-                  (item) =>
-                    item.movement
-                      .name,
+            workout.variants.flatMap(
+              (variant) =>
+                variant.sections.flatMap(
+                  (section) =>
+                    section.movements.map(
+                      (item) =>
+                        item.movement
+                          .name,
+                    ),
                 ),
             );
 

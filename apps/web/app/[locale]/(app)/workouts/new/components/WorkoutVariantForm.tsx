@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 
 import type {
+  PrescriptionCategory,
   WorkoutLevel,
   WorkoutType,
 } from '../page';
@@ -25,6 +26,7 @@ type Props = {
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
   usedLevelKeys: string[];
+  prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   onChange: (
     variant: WorkoutVariantFormState,
@@ -52,6 +54,7 @@ export default function WorkoutVariantForm({
   workoutLevels,
   usedLevelKeys,
   canRemove,
+  prescriptionCategories,
   onChange,
   onRemove,
 }: Props) {
@@ -303,6 +306,7 @@ export default function WorkoutVariantForm({
                 variant.sections
                   .length > 1
               }
+              prescriptionCategories={prescriptionCategories}
               onChange={(
                 updatedSection,
               ) =>

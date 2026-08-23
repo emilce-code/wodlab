@@ -18,18 +18,27 @@ export type Workout = {
     name: string;
   };
 
-  sections: {
+  variants: {
     id: string;
-    order: number;
-    repScheme: number[];
 
-    movements: {
+    level: {
+      key: string;
+      name: string;
+    };
+
+    sections: {
       id: string;
+      order: number;
+      repScheme: number[];
 
-      movement: {
+      movements: {
         id: string;
-        name: string;
-      };
+
+        movement: {
+          id: string;
+          name: string;
+        };
+      }[];
     }[];
   }[];
 };
@@ -51,19 +60,27 @@ export default function WorkoutCard({
       'workoutTypes',
     );
 
+  const defaultVariant =
+    workout.variants.find(
+      (variant) =>
+        variant.level.key ===
+        'RX',
+    ) ??
+    workout.variants[0];
+
   const firstSection =
-    workout.sections[0];
+    defaultVariant?.sections[0];
 
   const movementNames =
     Array.from(
       new Set(
-        workout.sections.flatMap(
+        defaultVariant?.sections.flatMap(
           (section) =>
             section.movements.map(
               (item) =>
                 item.movement.name,
             ),
-        ),
+        ) ?? [],
       ),
     );
 
@@ -86,9 +103,20 @@ export default function WorkoutCard({
     >
       <Card className="flex h-full flex-col p-6 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-accent/40">
         <div className="flex items-start justify-between gap-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-            {getWorkoutTypeName()}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+              {getWorkoutTypeName()}
+            </p>
+
+            {defaultVariant && (
+              <Badge>
+                {
+                  defaultVariant
+                    .level.name
+                }
+              </Badge>
+            )}
+          </div>
 
           {workout.isBenchmark && (
             <Badge>
@@ -142,6 +170,18 @@ export default function WorkoutCard({
             </p>
           )}
         </div>
+
+        {workout.variants.length >
+          1 && (
+          <p className="mt-5 text-xs text-muted">
+            {workout.variants
+              .map(
+                (variant) =>
+                  variant.level.name,
+              )
+              .join(' · ')}
+          </p>
+        )}
 
         <div className="mt-auto pt-8">
           <span className="text-sm font-semibold text-muted transition-colors group-hover:text-accent">

@@ -43,7 +43,21 @@ export type WorkoutHistoryResult = {
   load: number | null;
   weightUnit: 'KG' | 'LB' | null;
 
-  isRx: boolean;
+  workoutVariant: {
+    id: string;
+    name: string | null;
+
+    level: {
+      key: string;
+      name: string;
+    };
+  } | null;
+
+  prescriptionCategory: {
+    key: string;
+    name: string;
+  } | null;
+
   notes: string | null;
 
   createdAt: string;
@@ -54,10 +68,7 @@ type Props = {
   results: WorkoutHistoryResult[];
 };
 
-type RxFilter =
-  | 'ALL'
-  | 'RX'
-  | 'SCALED';
+type LevelFilter = string;
 
 function formatDuration(
   seconds: number,
@@ -110,10 +121,11 @@ export default function HistoryList({
   ] = useState('ALL');
 
   const [
-    rxFilter,
-    setRxFilter,
-  ] =
-    useState<RxFilter>('ALL');
+    levelFilter,
+    setLevelFilter,
+  ] = useState<LevelFilter>(
+    'ALL',
+  );
 
   function getWorkoutTypeName(
     key: string,
@@ -284,6 +296,49 @@ export default function HistoryList({
       locale,
     ]);
 
+  const workoutLevels =
+    useMemo(() => {
+      const levels = new Map<
+        string,
+        string
+      >();
+
+      results.forEach(
+        (result) => {
+          if (
+            result.workoutVariant
+          ) {
+            levels.set(
+              result.workoutVariant
+                .level.key,
+              result.workoutVariant
+                .level.name,
+            );
+          }
+        },
+      );
+
+      return Array.from(
+        levels.entries(),
+      ).sort((a, b) => {
+        if (a[0] === 'RX') {
+          return -1;
+        }
+
+        if (b[0] === 'RX') {
+          return 1;
+        }
+
+        return a[1].localeCompare(
+          b[1],
+          locale,
+        );
+      });
+    }, [
+      results,
+      locale,
+    ]);
+
   const filteredResults =
     useMemo(() => {
       const normalizedSearch =
@@ -325,16 +380,11 @@ export default function HistoryList({
           }
 
           if (
-            rxFilter === 'RX' &&
-            !result.isRx
-          ) {
-            return false;
-          }
-
-          if (
-            rxFilter ===
-              'SCALED' &&
-            result.isRx
+            levelFilter !==
+              'ALL' &&
+            result.workoutVariant
+              ?.level.key !==
+              levelFilter
           ) {
             return false;
           }
@@ -347,20 +397,20 @@ export default function HistoryList({
       search,
       workoutType,
       resultType,
-      rxFilter,
+      levelFilter,
     ]);
 
   const hasActiveFilters =
     search.trim() !== '' ||
     workoutType !== 'ALL' ||
     resultType !== 'ALL' ||
-    rxFilter !== 'ALL';
+    levelFilter !== 'ALL';
 
   function clearFilters() {
     setSearch('');
     setWorkoutType('ALL');
     setResultType('ALL');
-    setRxFilter('ALL');
+    setLevelFilter('ALL');
   }
 
   if (results.length === 0) {
@@ -508,42 +558,40 @@ export default function HistoryList({
 
           <div>
             <label
-              htmlFor="rxFilter"
+              htmlFor="levelFilter"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
               {t(
-                'filters.prescription',
+                'filters.workoutLevel',
               )}
             </label>
 
             <select
-              id="rxFilter"
-              value={rxFilter}
+              id="levelFilter"
+              value={levelFilter}
               onChange={(event) =>
-                setRxFilter(
-                  event.target
-                    .value as RxFilter,
+                setLevelFilter(
+                  event.target.value,
                 )
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
               <option value="ALL">
                 {t(
-                  'filters.rxAndScaled',
+                  'filters.allWorkoutLevels',
                 )}
               </option>
 
-              <option value="RX">
-                {t(
-                  'filters.rxOnly',
-                )}
-              </option>
-
-              <option value="SCALED">
-                {t(
-                  'filters.scaledOnly',
-                )}
-              </option>
+              {workoutLevels.map(
+                ([key, name]) => (
+                  <option
+                    key={key}
+                    value={key}
+                  >
+                    {name}
+                  </option>
+                ),
+              )}
             </select>
           </div>
         </div>
@@ -633,15 +681,32 @@ export default function HistoryList({
                         </Badge>
                       )}
 
-                      {result.isRx ? (
-                        <Badge variant="accent">
-                          Rx
+                      {result.workoutVariant && (
+                        <Badge
+                          variant={
+                            result
+                              .workoutVariant
+                              .level.key ===
+                            'RX'
+                              ? 'accent'
+                              : undefined
+                          }
+                        >
+                          {
+                            result
+                              .workoutVariant
+                              .level.name
+                          }
                         </Badge>
-                      ) : (
+                      )}
+
+                      {result.prescriptionCategory && (
                         <Badge>
-                          {t(
-                            'scaled',
-                          )}
+                          {
+                            result
+                              .prescriptionCategory
+                              .name
+                          }
                         </Badge>
                       )}
                     </div>
