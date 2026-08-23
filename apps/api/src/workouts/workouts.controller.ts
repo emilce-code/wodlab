@@ -1,10 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Post,
   Patch,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -59,6 +60,16 @@ export class WorkoutsController {
     );
   }
 
+  @Get('levels')
+  findWorkoutLevels() {
+    return this.workoutsService.findWorkoutLevels();
+  }
+
+  @Get('prescription-categories')
+  findPrescriptionCategories() {
+    return this.workoutsService.findPrescriptionCategories();
+  }
+
   // Collection routes
   @Get()
   findAll() {
@@ -90,7 +101,6 @@ export class WorkoutsController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id/results/:resultId')
   updateResult(
     @Param('id') workoutId: string,
@@ -103,6 +113,19 @@ export class WorkoutsController {
       workoutId,
       resultId,
       dto,
+    );
+  }
+
+  @Delete(':id/results/:resultId')
+  deleteResult(
+    @Param('id') workoutId: string,
+    @Param('resultId') resultId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.workoutsService.deleteResult(
+      request.user.userId,
+      workoutId,
+      resultId,
     );
   }
 
@@ -126,16 +149,6 @@ export class WorkoutsController {
       request.user.userId,
       id,
     );
-  }
-
-  @Get('levels')
-  findWorkoutLevels() {
-    return this.workoutsService.findWorkoutLevels();
-  }
-
-  @Get('prescription-categories')
-  findPrescriptionCategories() {
-    return this.workoutsService.findPrescriptionCategories();
   }
 
   // Dynamic route LAST

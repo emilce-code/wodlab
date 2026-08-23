@@ -1515,6 +1515,80 @@ export class WorkoutsService {
     );
   }
 
+  async deleteResult(
+    userId: string,
+    workoutId: string,
+    resultId: string,
+  ) {
+    const athleteProfile =
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!athleteProfile) {
+      throw new NotFoundException(
+        'Athlete profile not found',
+      );
+    }
+
+    const existingResult =
+      await this.prisma.workoutResult.findFirst({
+        where: {
+          id: resultId,
+          workoutId,
+          athleteProfileId:
+            athleteProfile.id,
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!existingResult) {
+      throw new NotFoundException(
+        'Workout result not found',
+      );
+    }
+
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.movementResult.deleteMany({
+          where: {
+            sourceWorkoutResultId:
+              existingResult.id,
+          },
+        });
+
+        await tx.workoutResultMovement.deleteMany({
+          where: {
+            workoutResultId:
+              existingResult.id,
+          },
+        });
+
+        await tx.workoutResult.delete({
+          where: {
+            id:
+              existingResult.id,
+          },
+        });
+
+        return {
+          id:
+            existingResult.id,
+          deleted: true,
+        };
+      },
+    );
+  }
+
   private async buildGeneratedMovementResults(
     tx: any,
     submittedMovements: CreateWorkoutResultDto['movements'],

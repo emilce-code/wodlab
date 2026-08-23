@@ -58,3 +58,19 @@ export async function PATCH(
 
   return forwardResponse(response);
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  context: RouteContext,
+) {
+  const { id, resultId } = await context.params;
+
+  const response = await authenticatedApiFetch(
+    `/workouts/${id}/results/${resultId}`,
+    {
+      method: 'DELETE',
+    },
+  );
+
+  return forwardResponse(response);
+}

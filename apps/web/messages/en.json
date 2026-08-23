@@ -264,7 +264,15 @@
         "title": "Previous results",
         "emptyTitle": "No results yet",
         "edit": "Edit",
-        "emptyDescription": "Your previous attempts and personal bests will appear here after you start logging workout results."
+        "emptyDescription": "Your previous attempts and personal bests will appear here after you start logging workout results.",
+        "delete": "Delete",
+        "deleteConfirmTitle": "Delete this workout result?",
+        "deleteConfirmDescription": "This will also remove movement results generated from this workout. This action cannot be undone.",
+        "confirmDelete": "Delete result",
+        "cancelDelete": "Cancel",
+        "deleting": "Deleting...",
+        "deleteError": "Unable to delete workout result.",
+        "deleteConnectionError": "Unable to delete workout result. Please try again."
       }
     },
     "logResult": {

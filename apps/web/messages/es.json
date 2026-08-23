@@ -264,7 +264,15 @@
         "title": "Resultados anteriores",
         "emptyTitle": "Aún no hay resultados",
         "edit": "Editar",
-        "emptyDescription": "Tus intentos anteriores y mejores marcas aparecerán aquí cuando comiences a registrar resultados."
+        "emptyDescription": "Tus intentos anteriores y mejores marcas aparecerán aquí cuando comiences a registrar resultados.",
+        "delete": "Eliminar",
+        "deleteConfirmTitle": "¿Eliminar este resultado del entrenamiento?",
+        "deleteConfirmDescription": "También se eliminarán los resultados de movimientos generados por este entrenamiento. Esta acción no se puede deshacer.",
+        "confirmDelete": "Eliminar resultado",
+        "cancelDelete": "Cancelar",
+        "deleting": "Eliminando...",
+        "deleteError": "No se pudo eliminar el resultado del entrenamiento.",
+        "deleteConnectionError": "No se pudo eliminar el resultado del entrenamiento. Inténtalo de nuevo."
       }
     },
     "logResult": {
