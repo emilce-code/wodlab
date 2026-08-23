@@ -430,6 +430,36 @@
       "title": "Sign out",
       "description": "Sign out of WODLY on this device.",
       "logout": "Log out"
+    },
+    "profile": {
+      "eyebrow": "Athlete profile",
+      "title": "Profile & training",
+      "description": "Manage your athlete information and default training preferences.",
+      "displayName": "Display name",
+      "email": "Email",
+      "emailDescription": "Your email is managed by your sign-in provider.",
+      "trainingPreferences": "Training preferences",
+      "trainingPreferencesDescription": "These defaults will be used when logging workouts.",
+      "weightUnit": "Weight unit",
+      "kilograms": "Kilograms (kg)",
+      "pounds": "Pounds (lb)",
+      "workoutLevel": "Default workout level",
+      "noWorkoutLevelPreference": "No default level",
+      "prescriptionCategory": "Default prescription",
+      "noPrescriptionPreference": "No default prescription",
+      "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saved": "Profile saved successfully.",
+      "validation": {
+        "displayNameRequired": "Enter a display name.",
+        "saveError": "Unable to save your profile.",
+        "connectionError": "Unable to connect. Please try again."
+      }
+    },
+    "preferences": {
+      "eyebrow": "Account preferences",
+      "title": "Preferences"
     }
   },
   "landing": {

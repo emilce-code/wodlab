@@ -8,6 +8,11 @@ type Auth0UserInput = {
   displayName: string;
 };
 
+const athleteProfileInclude = {
+  preferredWorkoutLevel: true,
+  preferredPrescriptionCategory: true,
+} as const;
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -16,18 +21,30 @@ export class UsersService {
 
   findById(id: string) {
     return this.prisma.user.findUnique({
-      where: { id },
+      where: {
+        id,
+      },
+
       include: {
-        athleteProfile: true,
+        athleteProfile: {
+          include:
+            athleteProfileInclude,
+        },
       },
     });
   }
 
   findByEmail(email: string) {
     return this.prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
+
       include: {
-        athleteProfile: true,
+        athleteProfile: {
+          include:
+            athleteProfileInclude,
+        },
       },
     });
   }
@@ -39,8 +56,12 @@ export class UsersService {
       where: {
         auth0UserId,
       },
+
       include: {
-        athleteProfile: true,
+        athleteProfile: {
+          include:
+            athleteProfileInclude,
+        },
       },
     });
   }
@@ -74,7 +95,10 @@ export class UsersService {
       },
 
       include: {
-        athleteProfile: true,
+        athleteProfile: {
+          include:
+            athleteProfileInclude,
+        },
       },
     });
   }

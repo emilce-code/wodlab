@@ -4,6 +4,14 @@ import {
 
 import { auth0 } from './auth0';
 
+type AthletePreference = {
+  id: string;
+  key: string;
+  name: string;
+  description?: string | null;
+  sortOrder?: number;
+};
+
 export type CurrentUser = {
   id: string;
   email: string;
@@ -14,6 +22,12 @@ export type CurrentUser = {
     preferredWeightUnit:
       | 'KG'
       | 'LB';
+
+    preferredWorkoutLevel:
+      AthletePreference | null;
+
+    preferredPrescriptionCategory:
+      AthletePreference | null;
   } | null;
 
   createdAt: string;

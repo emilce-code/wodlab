@@ -430,6 +430,36 @@
       "title": "Cerrar sesión",
       "description": "Cierra tu sesión de WODLY en este dispositivo.",
       "logout": "Cerrar sesión"
+    },
+    "profile": {
+      "eyebrow": "Perfil de atleta",
+      "title": "Perfil y entrenamiento",
+      "description": "Administra tu información de atleta y tus preferencias predeterminadas de entrenamiento.",
+      "displayName": "Nombre para mostrar",
+      "email": "Correo electrónico",
+      "emailDescription": "Tu correo electrónico es administrado por tu proveedor de inicio de sesión.",
+      "trainingPreferences": "Preferencias de entrenamiento",
+      "trainingPreferencesDescription": "Estos valores se usarán de forma predeterminada al registrar entrenamientos.",
+      "weightUnit": "Unidad de peso",
+      "kilograms": "Kilogramos (kg)",
+      "pounds": "Libras (lb)",
+      "workoutLevel": "Nivel de entrenamiento predeterminado",
+      "noWorkoutLevelPreference": "Sin nivel predeterminado",
+      "prescriptionCategory": "Prescripción predeterminada",
+      "noPrescriptionPreference": "Sin prescripción predeterminada",
+      "prescriptionDescription": "Se utiliza cuando un entrenamiento tiene prescripciones específicas por categoría.",
+      "save": "Guardar cambios",
+      "saving": "Guardando...",
+      "saved": "Perfil guardado correctamente.",
+      "validation": {
+        "displayNameRequired": "Ingresa un nombre para mostrar.",
+        "saveError": "No se pudo guardar tu perfil.",
+        "connectionError": "No se pudo conectar. Inténtalo de nuevo."
+      }
+    },
+    "preferences": {
+      "eyebrow": "Preferencias de la cuenta",
+      "title": "Preferencias"
     }
   },
   "landing": {

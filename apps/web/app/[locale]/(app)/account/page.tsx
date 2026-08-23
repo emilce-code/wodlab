@@ -1,9 +1,70 @@
-import { getTranslations } from 'next-intl/server';
+import {
+  getTranslations,
+} from 'next-intl/server';
 
 import LogoutButton from '@/components/auth/LogoutButton';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import Card from '@/components/ui/Card';
-import { getCurrentUser } from '@/lib/auth';
+
+import {
+  authenticatedApiFetch,
+} from '@/lib/api';
+
+import {
+  getCurrentUser,
+} from '@/lib/auth';
+
+import AthleteProfileForm from './components/AthleteProfileForm';
+
+type WorkoutLevel = {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  sortOrder: number;
+};
+
+type PrescriptionCategory = {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  sortOrder: number;
+};
+
+async function getWorkoutLevels(): Promise<
+  WorkoutLevel[]
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/workouts/levels',
+    );
+
+  if (!response?.ok) {
+    return [];
+  }
+
+  return (
+    await response.json()
+  ) as WorkoutLevel[];
+}
+
+async function getPrescriptionCategories(): Promise<
+  PrescriptionCategory[]
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/workouts/prescription-categories',
+    );
+
+  if (!response?.ok) {
+    return [];
+  }
+
+  return (
+    await response.json()
+  ) as PrescriptionCategory[];
+}
 
 export default async function AccountPage() {
   const t =
@@ -11,8 +72,15 @@ export default async function AccountPage() {
       'account',
     );
 
-  const user =
-    await getCurrentUser();
+  const [
+    user,
+    workoutLevels,
+    prescriptionCategories,
+  ] = await Promise.all([
+    getCurrentUser(),
+    getWorkoutLevels(),
+    getPrescriptionCategories(),
+  ]);
 
   if (!user) {
     return null;
@@ -23,16 +91,14 @@ export default async function AccountPage() {
       ?.displayName ??
     user.email;
 
-  const preferredWeightUnit =
-    user.athleteProfile
-      ?.preferredWeightUnit ??
-    'KG';
-
   const initials =
     displayName
       .split(' ')
       .filter(Boolean)
-      .map((part) => part[0])
+      .map(
+        (part) =>
+          part[0],
+      )
       .join('')
       .slice(0, 2)
       .toUpperCase();
@@ -55,7 +121,7 @@ export default async function AccountPage() {
 
       <Card className="mt-8 p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-accent text-lg font-black text-accent">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-accent text-lg font-black text-accent">
             {initials}
           </div>
 
@@ -69,32 +135,83 @@ export default async function AccountPage() {
             </p>
           </div>
         </div>
+      </Card>
 
-        <div className="mt-6 border-t border-border pt-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium">
-                {t(
-                  'weightUnit.title',
-                )}
-              </p>
+      <section className="mt-6">
+        <div className="mb-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {t(
+              'profile.eyebrow',
+            )}
+          </p>
 
-              <p className="mt-1 text-sm text-muted">
-                {t(
-                  'weightUnit.description',
-                )}
-              </p>
-            </div>
+          <h2 className="mt-1 text-xl font-bold">
+            {t(
+              'profile.title',
+            )}
+          </h2>
 
-            <span className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm font-semibold">
-              {
-                preferredWeightUnit
-              }
-            </span>
-          </div>
+          <p className="mt-1 text-sm text-muted">
+            {t(
+              'profile.description',
+            )}
+          </p>
         </div>
 
-        <div className="mt-6 border-t border-border pt-6">
+        <AthleteProfileForm
+          email={user.email}
+          profile={{
+            displayName:
+              user
+                .athleteProfile
+                ?.displayName ??
+              '',
+
+            preferredWeightUnit:
+              user
+                .athleteProfile
+                ?.preferredWeightUnit ??
+              'KG',
+
+            preferredWorkoutLevelKey:
+              user
+                .athleteProfile
+                ?.preferredWorkoutLevel
+                ?.key ??
+              '',
+
+            preferredPrescriptionCategoryKey:
+              user
+                .athleteProfile
+                ?.preferredPrescriptionCategory
+                ?.key ??
+              '',
+          }}
+          workoutLevels={
+            workoutLevels
+          }
+          prescriptionCategories={
+            prescriptionCategories
+          }
+        />
+      </section>
+
+      <section className="mt-6">
+        <div className="mb-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+            {t(
+              'preferences.eyebrow',
+            )}
+          </p>
+
+          <h2 className="mt-1 text-xl font-bold">
+            {t(
+              'preferences.title',
+            )}
+          </h2>
+        </div>
+
+        <Card className="p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium">
@@ -114,8 +231,8 @@ export default async function AccountPage() {
               <LanguageSwitcher />
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </section>
 
       <Card className="mt-6 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">

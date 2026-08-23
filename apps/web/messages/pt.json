@@ -430,6 +430,36 @@
       "title": "Sair",
       "description": "Saia do WODLY neste dispositivo.",
       "logout": "Sair"
+    },
+    "profile": {
+      "eyebrow": "Perfil do atleta",
+      "title": "Perfil e treino",
+      "description": "Gerencie suas informações de atleta e suas preferências padrão de treino.",
+      "displayName": "Nome de exibição",
+      "email": "E-mail",
+      "emailDescription": "Seu e-mail é gerenciado pelo seu provedor de login.",
+      "trainingPreferences": "Preferências de treino",
+      "trainingPreferencesDescription": "Esses valores serão usados como padrão ao registrar treinos.",
+      "weightUnit": "Unidade de peso",
+      "kilograms": "Quilogramas (kg)",
+      "pounds": "Libras (lb)",
+      "workoutLevel": "Nível de treino padrão",
+      "noWorkoutLevelPreference": "Sem nível padrão",
+      "prescriptionCategory": "Prescrição padrão",
+      "noPrescriptionPreference": "Sem prescrição padrão",
+      "prescriptionDescription": "Usada quando um treino possui prescrições específicas por categoria.",
+      "save": "Salvar alterações",
+      "saving": "Salvando...",
+      "saved": "Perfil salvo com sucesso.",
+      "validation": {
+        "displayNameRequired": "Informe um nome de exibição.",
+        "saveError": "Não foi possível salvar seu perfil.",
+        "connectionError": "Não foi possível conectar. Tente novamente."
+      }
+    },
+    "preferences": {
+      "eyebrow": "Preferências da conta",
+      "title": "Preferências"
     }
   },
   "landing": {
