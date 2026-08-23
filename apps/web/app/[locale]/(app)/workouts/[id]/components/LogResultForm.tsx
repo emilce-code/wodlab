@@ -5,21 +5,20 @@ import { useLocale, useTranslations } from 'next-intl';
 
 import { useRouter } from '@/i18n/navigation';
 
-type WeightUnit = 'KG' | 'LB';
+export type WeightUnit = 'KG' | 'LB';
 
-type ResultType = {
+export type ResultType = {
   key: string;
   name: string;
 };
 
-type MeasurementType = {
+export type MeasurementType = {
   key: string;
   name: string;
 };
 
-type WorkoutMovement = {
+export type WorkoutMovement = {
   id: string;
-
   movement: {
     id: string;
     name: string;
@@ -27,27 +26,59 @@ type WorkoutMovement = {
   };
 };
 
-type WorkoutSection = {
+export type WorkoutSection = {
   id: string;
   order: number;
   movements: WorkoutMovement[];
 };
 
-type WorkoutVariant = {
+export type WorkoutVariant = {
   id: string;
   name: string | null;
-
   level: {
     key: string;
     name: string;
   };
-
   sections: WorkoutSection[];
 };
 
-type PrescriptionCategory = {
+export type PrescriptionCategory = {
   key: string;
   name: string;
+};
+
+export type WorkoutResultForEdit = {
+  id: string;
+  performedAt: string;
+  timeSeconds: number | null;
+  rounds: number | null;
+  reps: number | null;
+  load: number | null;
+  weightUnit: WeightUnit | null;
+  notes: string | null;
+  workoutVariant: {
+    id: string;
+    name: string | null;
+    level: {
+      key: string;
+      name: string;
+    };
+  } | null;
+  prescriptionCategory: {
+    key: string;
+    name: string;
+  } | null;
+  performedMovements: {
+    id: string;
+    workoutMovementId: string;
+    reps: number | null;
+    load: number | null;
+    weightUnit: WeightUnit | null;
+    distance: number | null;
+    calories: number | null;
+    durationSeconds: number | null;
+    notes: string | null;
+  }[];
 };
 
 type MovementPerformance = {
@@ -80,23 +111,60 @@ type Props = {
   preferredWeightUnit?: WeightUnit;
   preferredWorkoutLevelKey?: string | null;
   preferredPrescriptionCategoryKey?: string | null;
+  result?: WorkoutResultForEdit;
+  onCancel?: () => void;
+  onSaved?: () => void;
 };
 
-function getLocalDateValue() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+function getLocalDateValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
 
-function getLocalTimeValue() {
-  const now = new Date();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
+function getLocalTimeValue(date = new Date()) {
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
 
   return `${hours}:${minutes}`;
+}
+
+function buildMovementPerformanceState(
+  result: WorkoutResultForEdit | undefined,
+  preferredWeightUnit: WeightUnit,
+): MovementPerformanceState {
+  if (!result) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    result.performedMovements.map((movement) => {
+      const totalDurationSeconds = movement.durationSeconds ?? 0;
+
+      return [
+        movement.workoutMovementId,
+        {
+          reps: movement.reps !== null ? String(movement.reps) : '',
+          load: movement.load !== null ? String(movement.load) : '',
+          weightUnit: movement.weightUnit ?? preferredWeightUnit,
+          distance:
+            movement.distance !== null ? String(movement.distance) : '',
+          durationMinutes:
+            movement.durationSeconds !== null
+              ? String(Math.floor(totalDurationSeconds / 60))
+              : '',
+          durationSeconds:
+            movement.durationSeconds !== null
+              ? String(totalDurationSeconds % 60)
+              : '',
+          calories:
+            movement.calories !== null ? String(movement.calories) : '',
+        } satisfies MovementPerformance,
+      ];
+    }),
+  );
 }
 
 export default function LogResultForm({
@@ -107,12 +175,13 @@ export default function LogResultForm({
   preferredWeightUnit = 'KG',
   preferredWorkoutLevelKey = null,
   preferredPrescriptionCategoryKey = null,
+  result,
+  onCancel,
+  onSaved,
 }: Props) {
   const t = useTranslations('workouts.logResult');
   const resultTypeT = useTranslations('resultTypes');
-  const movementBuilderT = useTranslations(
-    'workouts.create.movementBuilder',
-  );
+  const movementBuilderT = useTranslations('workouts.create.movementBuilder');
   const sectionBuilderT = useTranslations('workouts.create.sectionBuilder');
 
   const locale = useLocale();
@@ -120,6 +189,9 @@ export default function LogResultForm({
 
   const dateInputRef = useRef<HTMLInputElement>(null);
   const timeInputRef = useRef<HTMLInputElement>(null);
+
+  const isEditing = Boolean(result);
+  const resultDate = result ? new Date(result.performedAt) : null;
 
   const preferredVariant = preferredWorkoutLevelKey
     ? variants.find(
@@ -140,28 +212,64 @@ export default function LogResultForm({
       ? preferredPrescriptionCategoryKey
       : '';
 
+  const initialTimeSeconds = result?.timeSeconds ?? 0;
+
   const [workoutVariantId, setWorkoutVariantId] = useState(
-    defaultVariant?.id ?? '',
+    result?.workoutVariant?.id ?? defaultVariant?.id ?? '',
   );
 
   const [prescriptionCategoryKey, setPrescriptionCategoryKey] = useState(
-    defaultPrescriptionCategoryKey,
+    result?.prescriptionCategory?.key ?? defaultPrescriptionCategoryKey,
   );
 
-  const [minutes, setMinutes] = useState('');
-  const [seconds, setSeconds] = useState('');
-  const [rounds, setRounds] = useState('');
-  const [reps, setReps] = useState('');
-  const [load, setLoad] = useState('');
-  const [weightUnit, setWeightUnit] =
-    useState<WeightUnit>(preferredWeightUnit);
+  const [minutes, setMinutes] = useState(
+    result?.timeSeconds !== null && result?.timeSeconds !== undefined
+      ? String(Math.floor(initialTimeSeconds / 60))
+      : '',
+  );
+
+  const [seconds, setSeconds] = useState(
+    result?.timeSeconds !== null && result?.timeSeconds !== undefined
+      ? String(initialTimeSeconds % 60)
+      : '',
+  );
+
+  const [rounds, setRounds] = useState(
+    result?.rounds !== null && result?.rounds !== undefined
+      ? String(result.rounds)
+      : '',
+  );
+
+  const [reps, setReps] = useState(
+    result?.reps !== null && result?.reps !== undefined
+      ? String(result.reps)
+      : '',
+  );
+
+  const [load, setLoad] = useState(
+    result?.load !== null && result?.load !== undefined
+      ? String(result.load)
+      : '',
+  );
+
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>(
+    result?.weightUnit ?? preferredWeightUnit,
+  );
 
   const [movementPerformances, setMovementPerformances] =
-    useState<MovementPerformanceState>({});
+    useState<MovementPerformanceState>(() =>
+      buildMovementPerformanceState(result, preferredWeightUnit),
+    );
 
-  const [performedDate, setPerformedDate] = useState(getLocalDateValue);
-  const [performedTime, setPerformedTime] = useState(getLocalTimeValue);
-  const [notes, setNotes] = useState('');
+  const [performedDate, setPerformedDate] = useState(
+    resultDate ? getLocalDateValue(resultDate) : getLocalDateValue(),
+  );
+
+  const [performedTime, setPerformedTime] = useState(
+    resultDate ? getLocalTimeValue(resultDate) : getLocalTimeValue(),
+  );
+
+  const [notes, setNotes] = useState(result?.notes ?? '');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -222,7 +330,6 @@ export default function LogResultForm({
   ) {
     setMovementPerformances((current) => ({
       ...current,
-
       [workoutMovementId]: {
         ...getMovementPerformance(workoutMovementId),
         ...changes,
@@ -445,36 +552,34 @@ export default function LogResultForm({
           return t('validation.timeRequired');
         }
 
-        if (minuteValue < 0 || secondValue < 0 || secondValue > 59) {
+        if (
+          minuteValue < 0 ||
+          secondValue < 0 ||
+          secondValue > 59
+        ) {
           return t('validation.invalidSeconds');
         }
 
         break;
       }
 
-      case 'ROUNDS_REPS': {
+      case 'ROUNDS_REPS':
         if (!rounds.trim() && !reps.trim()) {
           return t('validation.roundsOrRepsRequired');
         }
-
         break;
-      }
 
-      case 'REPS': {
+      case 'REPS':
         if (!reps.trim()) {
           return t('validation.repsRequired');
         }
-
         break;
-      }
 
-      case 'LOAD': {
+      case 'LOAD':
         if (!load.trim()) {
           return t('validation.loadRequired');
         }
-
         break;
-      }
     }
 
     for (const item of trackableMovements) {
@@ -505,7 +610,14 @@ export default function LogResultForm({
   }
 
   function handleVariantChange(value: string) {
+    if (value === workoutVariantId) {
+      return;
+    }
+
     setWorkoutVariantId(value);
+
+    // WorkoutMovement IDs belong to a specific variant, so values from the
+    // previous variant must never be silently carried into another variant.
     setMovementPerformances({});
   }
 
@@ -539,12 +651,17 @@ export default function LogResultForm({
         performedAt: getPerformedAtIso(),
       };
 
-      if (prescriptionCategoryKey) {
+      if (isEditing) {
         payload.prescriptionCategoryKey = prescriptionCategoryKey;
-      }
-
-      if (notes.trim()) {
         payload.notes = notes.trim();
+      } else {
+        if (prescriptionCategoryKey) {
+          payload.prescriptionCategoryKey = prescriptionCategoryKey;
+        }
+
+        if (notes.trim()) {
+          payload.notes = notes.trim();
+        }
       }
 
       switch (resultType.key) {
@@ -571,20 +688,26 @@ export default function LogResultForm({
 
       const submittedMovements = getSubmittedMovements();
 
-      if (submittedMovements.length > 0) {
+      if (isEditing) {
+        // An empty array means "remove the previously logged movement
+        // performances". Omitting the property would preserve them.
+        payload.movements = submittedMovements;
+      } else if (submittedMovements.length > 0) {
         payload.movements = submittedMovements;
       }
 
-      const response = await fetch(
-        `/api/workouts/${workoutId}/results`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
+      const url =
+        isEditing && result
+          ? `/api/workouts/${workoutId}/results/${result.id}`
+          : `/api/workouts/${workoutId}/results`;
+
+      const response = await fetch(url, {
+        method: isEditing ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       const data = await response.json();
 
@@ -597,8 +720,12 @@ export default function LogResultForm({
         return;
       }
 
-      resetForm();
+      if (!isEditing) {
+        resetForm();
+      }
+
       router.refresh();
+      onSaved?.();
     } catch {
       setError(t('validation.connectionError'));
     } finally {
@@ -609,19 +736,15 @@ export default function LogResultForm({
   function resetForm() {
     setWorkoutVariantId(defaultVariant?.id ?? '');
     setPrescriptionCategoryKey(defaultPrescriptionCategoryKey);
-
     setMinutes('');
     setSeconds('');
     setRounds('');
     setReps('');
     setLoad('');
     setWeightUnit(preferredWeightUnit);
-
     setMovementPerformances({});
-
     setPerformedDate(getLocalDateValue());
     setPerformedTime(getLocalTimeValue());
-
     setNotes('');
   }
 
@@ -632,31 +755,33 @@ export default function LogResultForm({
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-          {t('eyebrow')}
+          {isEditing ? t('editEyebrow') : t('eyebrow')}
         </p>
 
         <h3 className="mt-1 text-xl font-bold">
-          {localizedResultType}
+          {isEditing ? t('editTitle') : localizedResultType}
         </h3>
 
         <p className="mt-1 text-sm text-muted">
-          {t('description')}
+          {isEditing ? t('editDescription') : t('description')}
         </p>
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         <div>
           <label
-            htmlFor="workoutVariantId"
+            htmlFor={isEditing ? 'editWorkoutVariantId' : 'workoutVariantId'}
             className="mb-1.5 block text-sm font-medium"
           >
             {t('workoutLevel')}
           </label>
 
           <select
-            id="workoutVariantId"
+            id={isEditing ? 'editWorkoutVariantId' : 'workoutVariantId'}
             value={workoutVariantId}
-            onChange={(event) => handleVariantChange(event.target.value)}
+            onChange={(event) =>
+              handleVariantChange(event.target.value)
+            }
             className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           >
             <option value="">
@@ -675,7 +800,11 @@ export default function LogResultForm({
         {prescriptionCategories.length > 0 && (
           <div>
             <label
-              htmlFor="prescriptionCategory"
+              htmlFor={
+                isEditing
+                  ? 'editPrescriptionCategory'
+                  : 'prescriptionCategory'
+              }
               className="mb-1.5 block text-sm font-medium"
             >
               {t('prescriptionCategory')}
@@ -686,7 +815,11 @@ export default function LogResultForm({
             </label>
 
             <select
-              id="prescriptionCategory"
+              id={
+                isEditing
+                  ? 'editPrescriptionCategory'
+                  : 'prescriptionCategory'
+              }
               value={prescriptionCategoryKey}
               onChange={(event) =>
                 setPrescriptionCategoryKey(event.target.value)
@@ -709,7 +842,7 @@ export default function LogResultForm({
         {resultType.key === 'TIME' && (
           <>
             <NumberField
-              id="minutes"
+              id={isEditing ? 'editMinutes' : 'minutes'}
               label={t('minutes')}
               value={minutes}
               onChange={setMinutes}
@@ -717,7 +850,7 @@ export default function LogResultForm({
             />
 
             <NumberField
-              id="seconds"
+              id={isEditing ? 'editSeconds' : 'seconds'}
               label={t('seconds')}
               value={seconds}
               onChange={setSeconds}
@@ -730,7 +863,7 @@ export default function LogResultForm({
         {resultType.key === 'ROUNDS_REPS' && (
           <>
             <NumberField
-              id="rounds"
+              id={isEditing ? 'editRounds' : 'rounds'}
               label={t('rounds')}
               value={rounds}
               onChange={setRounds}
@@ -738,7 +871,7 @@ export default function LogResultForm({
             />
 
             <NumberField
-              id="reps"
+              id={isEditing ? 'editReps' : 'reps'}
               label={t('extraReps')}
               value={reps}
               onChange={setReps}
@@ -750,7 +883,7 @@ export default function LogResultForm({
         {resultType.key === 'REPS' && (
           <div className="md:col-span-2">
             <NumberField
-              id="reps"
+              id={isEditing ? 'editReps' : 'reps'}
               label={t('reps')}
               value={reps}
               onChange={setReps}
@@ -762,7 +895,7 @@ export default function LogResultForm({
         {resultType.key === 'LOAD' && (
           <>
             <NumberField
-              id="load"
+              id={isEditing ? 'editLoad' : 'load'}
               label={t('load')}
               value={load}
               onChange={setLoad}
@@ -772,14 +905,14 @@ export default function LogResultForm({
 
             <div>
               <label
-                htmlFor="weightUnit"
+                htmlFor={isEditing ? 'editWeightUnit' : 'weightUnit'}
                 className="mb-1.5 block text-sm font-medium"
               >
                 {t('unit')}
               </label>
 
               <select
-                id="weightUnit"
+                id={isEditing ? 'editWeightUnit' : 'weightUnit'}
                 value={weightUnit}
                 onChange={(event) =>
                   setWeightUnit(event.target.value as WeightUnit)
@@ -844,7 +977,9 @@ export default function LogResultForm({
                       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {showReps && (
                           <NumberField
-                            id={`movement-${item.id}-reps`}
+                            id={`${
+                              isEditing ? 'edit-' : ''
+                            }movement-${item.id}-reps`}
                             label={movementBuilderT('reps')}
                             value={performance.reps}
                             onChange={(value) =>
@@ -859,7 +994,9 @@ export default function LogResultForm({
                         {supportsWeight && (
                           <>
                             <NumberField
-                              id={`movement-${item.id}-load`}
+                              id={`${
+                                isEditing ? 'edit-' : ''
+                              }movement-${item.id}-load`}
                               label={movementBuilderT('weight')}
                               value={performance.load}
                               onChange={(value) =>
@@ -873,14 +1010,18 @@ export default function LogResultForm({
 
                             <div>
                               <label
-                                htmlFor={`movement-${item.id}-unit`}
+                                htmlFor={`${
+                                  isEditing ? 'edit-' : ''
+                                }movement-${item.id}-unit`}
                                 className="mb-1.5 block text-sm font-medium"
                               >
                                 {movementBuilderT('unit')}
                               </label>
 
                               <select
-                                id={`movement-${item.id}-unit`}
+                                id={`${
+                                  isEditing ? 'edit-' : ''
+                                }movement-${item.id}-unit`}
                                 value={performance.weightUnit}
                                 onChange={(event) =>
                                   updateMovementPerformance(item.id, {
@@ -899,7 +1040,9 @@ export default function LogResultForm({
 
                         {supportsDistance && (
                           <NumberField
-                            id={`movement-${item.id}-distance`}
+                            id={`${
+                              isEditing ? 'edit-' : ''
+                            }movement-${item.id}-distance`}
                             label={movementBuilderT('distance')}
                             value={performance.distance}
                             onChange={(value) =>
@@ -920,7 +1063,9 @@ export default function LogResultForm({
 
                             <div className="grid grid-cols-2 gap-3">
                               <NumberField
-                                id={`movement-${item.id}-duration-minutes`}
+                                id={`${
+                                  isEditing ? 'edit-' : ''
+                                }movement-${item.id}-duration-minutes`}
                                 label={t('minutes')}
                                 value={performance.durationMinutes}
                                 onChange={(value) =>
@@ -932,7 +1077,9 @@ export default function LogResultForm({
                               />
 
                               <NumberField
-                                id={`movement-${item.id}-duration-seconds`}
+                                id={`${
+                                  isEditing ? 'edit-' : ''
+                                }movement-${item.id}-duration-seconds`}
                                 label={t('seconds')}
                                 value={performance.durationSeconds}
                                 onChange={(value) =>
@@ -949,7 +1096,9 @@ export default function LogResultForm({
 
                         {supportsCalories && (
                           <NumberField
-                            id={`movement-${item.id}-calories`}
+                            id={`${
+                              isEditing ? 'edit-' : ''
+                            }movement-${item.id}-calories`}
                             label={movementBuilderT('calories')}
                             value={performance.calories}
                             onChange={(value) =>
@@ -1004,7 +1153,9 @@ export default function LogResultForm({
                 ref={dateInputRef}
                 type="date"
                 value={performedDate}
-                onChange={(event) => setPerformedDate(event.target.value)}
+                onChange={(event) =>
+                  setPerformedDate(event.target.value)
+                }
                 className="sr-only"
                 tabIndex={-1}
               />
@@ -1039,7 +1190,9 @@ export default function LogResultForm({
                 ref={timeInputRef}
                 type="time"
                 value={performedTime}
-                onChange={(event) => setPerformedTime(event.target.value)}
+                onChange={(event) =>
+                  setPerformedTime(event.target.value)
+                }
                 className="sr-only"
                 tabIndex={-1}
               />
@@ -1053,7 +1206,7 @@ export default function LogResultForm({
 
         <div className="md:col-span-2">
           <label
-            htmlFor="notes"
+            htmlFor={isEditing ? 'editWorkoutNotes' : 'notes'}
             className="mb-1.5 block text-sm font-medium"
           >
             {t('notes')}
@@ -1064,7 +1217,7 @@ export default function LogResultForm({
           </label>
 
           <textarea
-            id="notes"
+            id={isEditing ? 'editWorkoutNotes' : 'notes'}
             rows={3}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
@@ -1085,13 +1238,30 @@ export default function LogResultForm({
         </div>
       )}
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        {isEditing && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="inline-flex w-full items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {t('cancel')}
+          </button>
+        )}
+
         <button
           type="submit"
           disabled={isSubmitting || !workoutVariantId}
           className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
-          {isSubmitting ? t('saving') : t('save')}
+          {isSubmitting
+            ? isEditing
+              ? t('updating')
+              : t('saving')
+            : isEditing
+              ? t('update')
+              : t('save')}
         </button>
       </div>
     </form>

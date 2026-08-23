@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import {
 } from '../auth/jwt-auth.guard';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
+import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
 import { WorkoutsService } from './workouts.service';
 
 type AuthenticatedRequest = Request & {
@@ -84,6 +86,22 @@ export class WorkoutsController {
     return this.workoutsService.createResult(
       request.user.userId,
       id,
+      dto,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/results/:resultId')
+  updateResult(
+    @Param('id') workoutId: string,
+    @Param('resultId') resultId: string,
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: UpdateWorkoutResultDto,
+  ) {
+    return this.workoutsService.updateResult(
+      request.user.userId,
+      workoutId,
+      resultId,
       dto,
     );
   }

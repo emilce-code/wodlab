@@ -263,6 +263,7 @@
         "eyebrow": "Historial",
         "title": "Resultados anteriores",
         "emptyTitle": "Aún no hay resultados",
+        "edit": "Editar",
         "emptyDescription": "Tus intentos anteriores y mejores marcas aparecerán aquí cuando comiences a registrar resultados."
       }
     },
@@ -294,6 +295,12 @@
       "selectWorkoutLevel": "Selecciona un nivel",
       "prescriptionCategory": "Prescripción",
       "noPrescriptionCategory": "Sin prescripción específica",
+      "editEyebrow": "Editar resultado",
+      "editTitle": "Actualizar resultado del entrenamiento",
+      "editDescription": "Corrige tu resultado, nivel, rendimiento de movimientos, fecha o notas.",
+      "update": "Actualizar resultado",
+      "updating": "Actualizando...",
+      "cancel": "Cancelar",
       "validation": {
         "timeRequired": "Ingresa el tiempo del entrenamiento.",
         "invalidSeconds": "Los segundos deben estar entre 0 y 59.",
@@ -477,12 +484,24 @@
         "title": "Resultados recientes",
         "resultCount": "{count, plural, =1 {1 resultado} other {# resultados}}",
         "emptyTitle": "Aún no hay resultados",
-        "emptyDescription": "El historial de este movimiento aparecerá aquí después de registrar tu primer resultado."
+        "emptyDescription": "El historial de este movimiento aparecerá aquí después de registrar tu primer resultado.",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "deleteConfirmTitle": "¿Eliminar este resultado?",
+        "deleteConfirmDescription": "Esta acción no se puede deshacer.",
+        "confirmDelete": "Eliminar resultado",
+        "cancelDelete": "Cancelar",
+        "deleting": "Eliminando...",
+        "deleteError": "No se pudo eliminar el resultado.",
+        "deleteConnectionError": "No se pudo eliminar el resultado. Inténtalo de nuevo."
       },
       "logResult": {
         "eyebrow": "Registrar resultado",
         "title": "Registra una marca",
         "description": "Agrega un resultado para este movimiento y mantén actualizados tus récords personales.",
+        "editEyebrow": "Editar resultado",
+        "editTitle": "Actualizar resultado del movimiento",
+        "editDescription": "Corrige la medición, resultado, fecha o notas de este registro.",
         "measurementType": "Tipo de resultado",
         "reps": "Repeticiones",
         "load": "Peso",
@@ -499,6 +518,9 @@
         "save": "Guardar resultado",
         "saving": "Guardando resultado...",
         "saved": "Resultado guardado correctamente.",
+        "update": "Actualizar resultado",
+        "updating": "Actualizando...",
+        "cancel": "Cancelar",
         "validation": {
           "measurementRequired": "Selecciona un tipo de resultado.",
           "repsRequired": "Ingresa la cantidad de repeticiones.",

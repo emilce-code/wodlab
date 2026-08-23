@@ -1,35 +1,20 @@
-import {
-  getLocale,
-  getTranslations,
-} from 'next-intl/server';
-import {
-  notFound,
-} from 'next/navigation';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
-import {
-  Link,
-} from '@/i18n/navigation';
-import {
-  authenticatedApiFetch,
-} from '@/lib/api';
-import {
-  getCurrentUser,
-} from '@/lib/auth';
+import { Link } from '@/i18n/navigation';
+import { authenticatedApiFetch } from '@/lib/api';
+import { getCurrentUser } from '@/lib/auth';
 
 import LogMovementResultForm from './components/LogMovementResultForm';
 import MovementProgressChart from './components/MovementProgressChart';
+import MovementResultActions from './components/MovementResultActions';
 import MovementResultSource from './components/MovementResultSource';
-
-type WeightUnit =
-  | 'KG'
-  | 'LB';
-
-type MeasurementType = {
-  key: string;
-  name: string;
-};
+import {
+  MeasurementType,
+  MovementResult,
+} from './movement-result.types';
 
 type Movement = {
   id: string;
@@ -37,97 +22,16 @@ type Movement = {
   aliases: string[];
   isFoundational: boolean;
   official: boolean;
-
   category: {
     key: string;
     name: string;
   };
-
-  measurementTypes:
-    MeasurementType[];
-};
-
-type MovementResultSource =
-  | {
-      type: 'MANUAL';
-    }
-  | {
-      type: 'WORKOUT';
-
-      workoutResultId: string;
-
-      workout: {
-        id: string;
-        name: string;
-      };
-
-      workoutVariant: {
-        id: string;
-        name: string | null;
-
-        level: {
-          key: string;
-          name: string;
-        };
-      };
-
-      prescriptionCategory: {
-        key: string;
-        name: string;
-      } | null;
-    };
-
-type MovementResult = {
-  id: string;
-
-  measurementType: {
-    key: string;
-    name: string;
-  };
-
-  source: MovementResultSource;
-
-  performedAt: string;
-
-  reps:
-    | number
-    | null;
-
-  load:
-    | number
-    | string
-    | null;
-
-  weightUnit:
-    | WeightUnit
-    | null;
-
-  distance:
-    | number
-    | null;
-
-  durationSeconds:
-    | number
-    | null;
-
-  calories:
-    | number
-    | null;
-
-  notes:
-    | string
-    | null;
-
-  createdAt: string;
-  updatedAt: string;
+  measurementTypes: MeasurementType[];
 };
 
 type WeightRecord = {
   reps: number;
-
-  result:
-    | MovementResult
-    | null;
+  result: MovementResult | null;
 };
 
 type PersonalRecordGroup = {
@@ -135,13 +39,8 @@ type PersonalRecordGroup = {
     key: string;
     name: string;
   };
-
-  result?:
-    | MovementResult
-    | null;
-
-  records?:
-    WeightRecord[];
+  result?: MovementResult | null;
+  records?: WeightRecord[];
 };
 
 type MovementResultSummary = {
@@ -149,15 +48,9 @@ type MovementResultSummary = {
     id: string;
     name: string;
   };
-
   totalResults: number;
-
-  lastResult:
-    | MovementResult
-    | null;
-
-  personalRecords:
-    PersonalRecordGroup[];
+  lastResult: MovementResult | null;
+  personalRecords: PersonalRecordGroup[];
 };
 
 type Props = {
@@ -166,68 +59,42 @@ type Props = {
   }>;
 };
 
-async function getMovement(
-  id: string,
-): Promise<
-  Movement | null
-> {
-  const response =
-    await authenticatedApiFetch(
-      `/movements/${id}`,
-    );
+async function getMovement(id: string): Promise<Movement | null> {
+  const response = await authenticatedApiFetch(`/movements/${id}`);
 
   if (!response?.ok) {
     return null;
   }
 
-  return (
-    await response.json()
-  ) as Movement;
+  return (await response.json()) as Movement;
 }
 
-async function getMovementResults(
-  id: string,
-): Promise<
-  MovementResult[]
-> {
-  const response =
-    await authenticatedApiFetch(
-      `/movements/${id}/results`,
-    );
+async function getMovementResults(id: string): Promise<MovementResult[]> {
+  const response = await authenticatedApiFetch(`/movements/${id}/results`);
 
   if (!response?.ok) {
     return [];
   }
 
-  return (
-    await response.json()
-  ) as MovementResult[];
+  return (await response.json()) as MovementResult[];
 }
 
 async function getMovementSummary(
   id: string,
-): Promise<
-  MovementResultSummary | null
-> {
-  const response =
-    await authenticatedApiFetch(
-      `/movements/${id}/results/summary`,
-    );
+): Promise<MovementResultSummary | null> {
+  const response = await authenticatedApiFetch(
+    `/movements/${id}/results/summary`,
+  );
 
   if (!response?.ok) {
     return null;
   }
 
-  return (
-    await response.json()
-  ) as MovementResultSummary;
+  return (await response.json()) as MovementResultSummary;
 }
 
-export default async function MovementDetailPage({
-  params,
-}: Props) {
-  const { id } =
-    await params;
+export default async function MovementDetailPage({ params }: Props) {
+  const { id } = await params;
 
   const [
     movement,
@@ -240,29 +107,12 @@ export default async function MovementDetailPage({
     locale,
   ] = await Promise.all([
     getMovement(id),
-
-    getMovementResults(
-      id,
-    ),
-
-    getMovementSummary(
-      id,
-    ),
-
+    getMovementResults(id),
+    getMovementSummary(id),
     getCurrentUser(),
-
-    getTranslations(
-      'movements.detail',
-    ),
-
-    getTranslations(
-      'movementCategories',
-    ),
-
-    getTranslations(
-      'measurementTypes',
-    ),
-
+    getTranslations('movements.detail'),
+    getTranslations('movementCategories'),
+    getTranslations('measurementTypes'),
     getLocale(),
   ]);
 
@@ -270,120 +120,63 @@ export default async function MovementDetailPage({
     notFound();
   }
 
-  const currentMovement =
-    movement;
+  const currentMovement = movement;
 
   const preferredWeightUnit =
-    user?.athleteProfile
-      ?.preferredWeightUnit ??
-    'KG';
+    user?.athleteProfile?.preferredWeightUnit ?? 'KG';
 
   function getCategoryName() {
-    const key =
-      currentMovement.category.key.toLowerCase();
+    const key = currentMovement.category.key.toLowerCase();
 
-    return categoryT.has(
-      key,
-    )
+    return categoryT.has(key)
       ? categoryT(key)
       : currentMovement.category.name;
   }
 
-  function getMeasurementName(
-    type: {
-      key: string;
-      name: string;
-    },
-  ) {
-    const key =
-      type.key.toLowerCase();
+  function getMeasurementName(type: {
+    key: string;
+    name: string;
+  }) {
+    const key = type.key.toLowerCase();
 
-    return measurementT.has(
-      key,
-    )
+    return measurementT.has(key)
       ? measurementT(key)
       : type.name;
   }
 
-  function formatDuration(
-    totalSeconds: number,
-  ) {
-    const minutes =
-      Math.floor(
-        totalSeconds /
-          60,
-      );
+  function formatDuration(totalSeconds: number) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
-    const seconds =
-      totalSeconds %
-      60;
-
-    return `${minutes}:${String(
-      seconds,
-    ).padStart(
-      2,
-      '0',
-    )}`;
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
   }
 
-  function formatDate(
-    value: string,
-  ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        month:
-          'short',
-
-        day:
-          'numeric',
-
-        year:
-          'numeric',
-      },
-    ).format(
-      new Date(
-        value,
-      ),
-    );
+  function formatDate(value: string) {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(value));
   }
 
-  function formatResult(
-    result: MovementResult,
-  ) {
-    switch (
-      result
-        .measurementType
-        .key
-    ) {
+  function formatResult(result: MovementResult) {
+    switch (result.measurementType.key) {
       case 'REPS':
-        return t(
-          'repsValue',
-          {
-            count:
-              result.reps ??
-              0,
-          },
-        );
+        return t('repsValue', {
+          count: result.reps ?? 0,
+        });
 
       case 'WEIGHT':
-        return `${result.reps ?? 0} × ${
-          result.load ??
-          '—'
-        } ${
-          result.weightUnit ??
-          ''
+        return `${result.reps ?? 0} × ${result.load ?? '—'} ${
+          result.weightUnit ?? ''
         }`.trim();
 
       case 'DISTANCE':
         return `${result.distance ?? 0} m`;
 
       case 'DURATION':
-        return result.durationSeconds !==
-          null
-          ? formatDuration(
-              result.durationSeconds,
-            )
+        return result.durationSeconds !== null
+          ? formatDuration(result.durationSeconds)
           : '—';
 
       case 'CALORIES':
@@ -394,23 +187,13 @@ export default async function MovementDetailPage({
     }
   }
 
-  const personalRecords =
-    summary
-      ?.personalRecords ??
-    [];
+  const personalRecords = summary?.personalRecords ?? [];
 
-  const hasPersonalRecords =
-    personalRecords.some(
-      (group) =>
-        Boolean(
-          group.result,
-        ) ||
-        (
-          group.records
-            ?.length ??
-          0
-        ) > 0,
-    );
+  const hasPersonalRecords = personalRecords.some(
+    (group) =>
+      Boolean(group.result) ||
+      (group.records?.length ?? 0) > 0,
+  );
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -418,272 +201,167 @@ export default async function MovementDetailPage({
         href="/movements"
         className="text-sm font-medium text-muted transition hover:text-foreground"
       >
-        ←{' '}
-
-        {t(
-          'backToMovements',
-        )}
+        ← {t('backToMovements')}
       </Link>
 
       <header className="mt-8">
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {
-              getCategoryName()
-            }
+            {getCategoryName()}
           </p>
 
           {currentMovement.isFoundational && (
             <Badge>
-              {t(
-                'foundational',
-              )}
+              {t('foundational')}
             </Badge>
           )}
         </div>
 
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-          {
-            currentMovement.name
-          }
+          {currentMovement.name}
         </h1>
 
-        {currentMovement.aliases.length >
-          0 && (
+        {currentMovement.aliases.length > 0 && (
           <p className="mt-3 text-sm text-muted">
-            {t(
-              'alsoKnownAs',
-            )}
-            :{' '}
-
-            {currentMovement.aliases.join(
-              ' · ',
-            )}
+            {t('alsoKnownAs')}: {currentMovement.aliases.join(' · ')}
           </p>
         )}
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {currentMovement.measurementTypes.map(
-            (type) => (
-              <Badge
-                key={
-                  type.key
-                }
-              >
-                {getMeasurementName(
-                  type,
-                )}
-              </Badge>
-            ),
-          )}
+          {currentMovement.measurementTypes.map((type) => (
+            <Badge key={type.key}>
+              {getMeasurementName(type)}
+            </Badge>
+          ))}
         </div>
       </header>
 
       <section className="mt-12">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t(
-            'personalRecords.eyebrow',
-          )}
+          {t('personalRecords.eyebrow')}
         </p>
 
         <h2 className="mt-2 text-2xl font-bold">
-          {t(
-            'personalRecords.title',
-          )}
+          {t('personalRecords.title')}
         </h2>
 
         <p className="mt-2 text-sm text-muted">
-          {t(
-            'personalRecords.description',
-          )}
+          {t('personalRecords.description')}
         </p>
 
         {!hasPersonalRecords ? (
           <Card className="mt-5 p-6">
             <p className="font-semibold">
-              {t(
-                'personalRecords.emptyTitle',
-              )}
+              {t('personalRecords.emptyTitle')}
             </p>
 
             <p className="mt-2 text-sm text-muted">
-              {t(
-                'personalRecords.emptyDescription',
-              )}
+              {t('personalRecords.emptyDescription')}
             </p>
           </Card>
         ) : (
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {personalRecords.flatMap(
-              (group) => {
-                if (
-                  group
-                    .measurementType
-                    .key ===
-                  'WEIGHT'
-                ) {
-                  return (
-                    group.records ??
-                    []
-                  )
-                    .filter(
-                      (
-                        record,
-                      ) =>
-                        record.result !==
-                        null,
-                    )
-                    .map(
-                      (
-                        record,
-                      ) => {
-                        const result =
-                          record.result;
+            {personalRecords.flatMap((group) => {
+              if (group.measurementType.key === 'WEIGHT') {
+                return (group.records ?? [])
+                  .filter((record) => record.result !== null)
+                  .map((record) => {
+                    const result = record.result;
 
-                        if (!result) {
-                          return null;
-                        }
-
-                        return (
-                          <Card
-                            key={`WEIGHT-${record.reps}`}
-                            className="p-5"
-                          >
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                              {
-                                record.reps
-                              }
-                              RM
-                            </p>
-
-                            <p className="mt-3 text-3xl font-black text-accent">
-                              {
-                                result.load
-                              }{' '}
-
-                              {
-                                result.weightUnit
-                              }
-                            </p>
-
-                            <p className="mt-2 text-sm text-muted">
-                              {formatDate(
-                                result.performedAt,
-                              )}
-                            </p>
-
-                            <div className="mt-4 border-t border-border pt-4">
-                              <MovementResultSource
-                                source={
-                                  result.source
-                                }
-                                locale={
-                                  locale
-                                }
-                                compact
-                              />
-                            </div>
-                          </Card>
-                        );
-                      },
-                    );
-                }
-
-                if (
-                  !group.result
-                ) {
-                  return [];
-                }
-
-                return [
-                  <Card
-                    key={
-                      group
-                        .measurementType
-                        .key
+                    if (!result) {
+                      return null;
                     }
-                    className="p-5"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                      {getMeasurementName(
-                        group.measurementType,
-                      )}
-                    </p>
 
-                    <p className="mt-3 text-3xl font-black text-accent">
-                      {formatResult(
-                        group.result,
-                      )}
-                    </p>
+                    return (
+                      <Card
+                        key={`WEIGHT-${record.reps}`}
+                        className="p-5"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                          {record.reps}RM
+                        </p>
 
-                    <p className="mt-2 text-sm text-muted">
-                      {formatDate(
-                        group.result
-                          .performedAt,
-                      )}
-                    </p>
+                        <p className="mt-3 text-3xl font-black text-accent">
+                          {result.load} {result.weightUnit}
+                        </p>
 
-                    <div className="mt-4 border-t border-border pt-4">
-                      <MovementResultSource
-                        source={
-                          group.result.source
-                        }
-                        locale={
-                          locale
-                        }
-                        compact
-                      />
-                    </div>
-                  </Card>,
-                ];
-              },
-            )}
+                        <p className="mt-2 text-sm text-muted">
+                          {formatDate(result.performedAt)}
+                        </p>
+
+                        <div className="mt-4 border-t border-border pt-4">
+                          <MovementResultSource
+                            source={result.source}
+                            locale={locale}
+                            compact
+                          />
+                        </div>
+                      </Card>
+                    );
+                  });
+              }
+
+              if (!group.result) {
+                return [];
+              }
+
+              return [
+                <Card
+                  key={group.measurementType.key}
+                  className="p-5"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {getMeasurementName(group.measurementType)}
+                  </p>
+
+                  <p className="mt-3 text-3xl font-black text-accent">
+                    {formatResult(group.result)}
+                  </p>
+
+                  <p className="mt-2 text-sm text-muted">
+                    {formatDate(group.result.performedAt)}
+                  </p>
+
+                  <div className="mt-4 border-t border-border pt-4">
+                    <MovementResultSource
+                      source={group.result.source}
+                      locale={locale}
+                      compact
+                    />
+                  </div>
+                </Card>,
+              ];
+            })}
           </div>
         )}
       </section>
 
       <section className="mt-12">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t(
-            'progress.eyebrow',
-          )}
+          {t('progress.eyebrow')}
         </p>
 
         <h2 className="mt-2 text-2xl font-bold">
-          {t(
-            'progress.title',
-          )}
+          {t('progress.title')}
         </h2>
 
         <p className="mt-2 text-sm text-muted">
-          {t(
-            'progress.description',
-          )}
+          {t('progress.description')}
         </p>
 
         <Card className="mt-5 p-5 sm:p-6">
           <MovementProgressChart
-            measurementTypes={
-              currentMovement.measurementTypes
-            }
-            results={
-              results
-            }
+            measurementTypes={currentMovement.measurementTypes}
+            results={results}
           />
         </Card>
       </section>
 
       <section className="mt-12">
         <LogMovementResultForm
-          movementId={
-            currentMovement.id
-          }
-          measurementTypes={
-            currentMovement.measurementTypes
-          }
-          preferredWeightUnit={
-            preferredWeightUnit
-          }
+          movementId={currentMovement.id}
+          measurementTypes={currentMovement.measurementTypes}
+          preferredWeightUnit={preferredWeightUnit}
         />
       </section>
 
@@ -691,103 +369,86 @@ export default async function MovementDetailPage({
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              {t(
-                'history.eyebrow',
-              )}
+              {t('history.eyebrow')}
             </p>
 
             <h2 className="mt-2 text-2xl font-bold">
-              {t(
-                'history.title',
-              )}
+              {t('history.title')}
             </h2>
           </div>
 
-          {results.length >
-            0 && (
+          {results.length > 0 && (
             <p className="text-sm text-muted">
-              {t(
-                'history.resultCount',
-                {
-                  count:
-                    results.length,
-                },
-              )}
+              {t('history.resultCount', {
+                count: results.length,
+              })}
             </p>
           )}
         </div>
 
-        {results.length ===
-        0 ? (
+        {results.length === 0 ? (
           <Card className="mt-5 p-6">
             <p className="font-semibold">
-              {t(
-                'history.emptyTitle',
-              )}
+              {t('history.emptyTitle')}
             </p>
 
             <p className="mt-2 text-sm text-muted">
-              {t(
-                'history.emptyDescription',
-              )}
+              {t('history.emptyDescription')}
             </p>
           </Card>
         ) : (
           <Card className="mt-5 overflow-hidden">
             <div className="divide-y divide-border">
-              {results.map(
-                (
-                  result,
-                ) => (
-                  <div
-                    key={
-                      result.id
-                    }
-                    className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between"
-                  >
+              {results.map((result) => (
+                <div
+                  key={result.id}
+                  className="p-5"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-lg font-bold">
-                          {formatResult(
-                            result,
-                          )}
+                          {formatResult(result)}
                         </p>
 
                         <Badge>
-                          {getMeasurementName(
-                            result.measurementType,
-                          )}
+                          {getMeasurementName(result.measurementType)}
                         </Badge>
                       </div>
 
                       {result.notes && (
                         <p className="mt-2 text-sm text-muted">
-                          {
-                            result.notes
-                          }
+                          {result.notes}
                         </p>
                       )}
 
                       <div className="mt-3">
                         <MovementResultSource
-                          source={
-                            result.source
-                          }
-                          locale={
-                            locale
-                          }
+                          source={result.source}
+                          locale={locale}
                         />
                       </div>
                     </div>
 
-                    <p className="shrink-0 text-sm text-muted">
-                      {formatDate(
-                        result.performedAt,
+                    <div className="shrink-0 sm:text-right">
+                      <p className="text-sm text-muted">
+                        {formatDate(result.performedAt)}
+                      </p>
+
+                      {result.source.type === 'MANUAL' && (
+                        <MovementResultActions
+                          movementId={currentMovement.id}
+                          result={result}
+                          measurementTypes={
+                            currentMovement.measurementTypes
+                          }
+                          preferredWeightUnit={preferredWeightUnit}
+                        />
                       )}
-                    </p>
+                    </div>
                   </div>
-                ),
-              )}
+                </div>
+              ))}
             </div>
           </Card>
         )}

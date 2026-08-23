@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
 import { FindMovementsQueryDto } from './dto/find-movements-query.dto';
 import { MovementResponseDto } from './dto/movement-response.dto';
+import { UpdateMovementResultDto } from './dto/update-movement-result.dto';
 
 const movementResultInclude = {
   measurementType: {
@@ -617,6 +618,230 @@ export class MovementsService {
     return this.mapMovementResult(
       result,
     );
+  }
+
+  async updateResult(
+    movementId: string,
+    resultId: string,
+    userId: string,
+    dto: UpdateMovementResultDto,
+  ) {
+    const athleteProfile = await this.getAthleteProfile(userId);
+
+    const existingResult = await this.prisma.movementResult.findFirst({
+      where: {
+        id: resultId,
+        movementId,
+        athleteProfileId: athleteProfile.id,
+      },
+
+      include: {
+        measurementType: true,
+      },
+    });
+
+    if (!existingResult) {
+      throw new NotFoundException('Movement result not found');
+    }
+
+    if (existingResult.sourceWorkoutResultId) {
+      throw new BadRequestException(
+        'Workout-generated movement results must be edited through the workout result',
+      );
+    }
+
+    const movement = await this.prisma.movement.findUnique({
+      where: {
+        id: movementId,
+      },
+
+      include: {
+        measurementTypes: {
+          include: {
+            measurementType: true,
+          },
+        },
+      },
+    });
+
+    if (!movement) {
+      throw new NotFoundException('Movement not found');
+    }
+
+    const measurementTypeKey =
+      dto.measurementTypeKey ?? existingResult.measurementType.key;
+
+    const measurementType = movement.measurementTypes
+      .map((item) => item.measurementType)
+      .find((type) => type.key === measurementTypeKey);
+
+    if (!measurementType) {
+      throw new BadRequestException(
+        `Measurement type "${measurementTypeKey}" is not supported by this movement`,
+      );
+    }
+
+    const finalResult: CreateMovementResultDto = {
+      measurementTypeKey,
+      performedAt:
+        dto.performedAt ?? existingResult.performedAt.toISOString(),
+
+      reps:
+        dto.reps !== undefined
+          ? dto.reps
+          : existingResult.reps ?? undefined,
+
+      load:
+        dto.load !== undefined
+          ? dto.load
+          : existingResult.load !== null
+            ? Number(existingResult.load)
+            : undefined,
+
+      weightUnit:
+        dto.weightUnit !== undefined
+          ? dto.weightUnit
+          : existingResult.weightUnit ?? undefined,
+
+      distance:
+        dto.distance !== undefined
+          ? dto.distance
+          : existingResult.distance ?? undefined,
+
+      durationSeconds:
+        dto.durationSeconds !== undefined
+          ? dto.durationSeconds
+          : existingResult.durationSeconds ?? undefined,
+
+      calories:
+        dto.calories !== undefined
+          ? dto.calories
+          : existingResult.calories ?? undefined,
+
+      notes:
+        dto.notes !== undefined
+          ? dto.notes
+          : existingResult.notes ?? undefined,
+    };
+
+    this.validateResult(measurementType.key, finalResult);
+
+    const reps =
+      measurementType.key === 'REPS' || measurementType.key === 'WEIGHT'
+        ? finalResult.reps
+        : null;
+
+    const load =
+      measurementType.key === 'WEIGHT'
+        ? finalResult.load
+        : null;
+
+    const weightUnit =
+      measurementType.key === 'WEIGHT'
+        ? finalResult.weightUnit ?? athleteProfile.preferredWeightUnit
+        : null;
+
+    const distance =
+      measurementType.key === 'DISTANCE'
+        ? finalResult.distance
+        : null;
+
+    const durationSeconds =
+      measurementType.key === 'DURATION'
+        ? finalResult.durationSeconds
+        : null;
+
+    const calories =
+      measurementType.key === 'CALORIES'
+        ? finalResult.calories
+        : null;
+
+    const result = await this.prisma.movementResult.update({
+      where: {
+        id: existingResult.id,
+      },
+
+      data: {
+        measurementTypeId: measurementType.id,
+        performedAt: new Date(finalResult.performedAt),
+        reps,
+        load,
+        weightUnit,
+        distance,
+        durationSeconds,
+        calories,
+
+        ...(dto.notes !== undefined
+          ? {
+              notes: dto.notes.trim() || null,
+            }
+          : {}),
+      },
+
+      include: {
+        ...movementResultInclude,
+
+        movement: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return this.mapMovementResult(result);
+  }
+
+  async deleteResult(
+    movementId: string,
+    resultId: string,
+    userId: string,
+  ) {
+    const athleteProfile = await this.prisma.athleteProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
+    if (!athleteProfile) {
+      throw new NotFoundException('Athlete profile not found');
+    }
+
+    const result = await this.prisma.movementResult.findUnique({
+      where: { id: resultId },
+      select: {
+        id: true,
+        movementId: true,
+        athleteProfileId: true,
+        sourceWorkoutResultId: true,
+      },
+    });
+
+    if (!result) {
+      throw new NotFoundException('Movement result not found');
+    }
+
+    if (
+      result.movementId !== movementId ||
+      result.athleteProfileId !== athleteProfile.id
+    ) {
+      throw new NotFoundException('Movement result not found');
+    }
+
+    if (result.sourceWorkoutResultId) {
+      throw new BadRequestException(
+        'Workout-generated movement results cannot be deleted directly',
+      );
+    }
+
+    await this.prisma.movementResult.delete({
+      where: { id: result.id },
+    });
+
+    return {
+      id: result.id,
+      deleted: true,
+    };
   }
 
   async findResults(

@@ -263,6 +263,7 @@
         "eyebrow": "History",
         "title": "Previous results",
         "emptyTitle": "No results yet",
+        "edit": "Edit",
         "emptyDescription": "Your previous attempts and personal bests will appear here after you start logging workout results."
       }
     },
@@ -294,6 +295,12 @@
       "selectWorkoutLevel": "Select a level",
       "prescriptionCategory": "Prescription",
       "noPrescriptionCategory": "No specific prescription",
+      "editEyebrow": "Edit result",
+      "editTitle": "Update workout result",
+      "editDescription": "Correct your score, workout level, movement performance, date, or notes.",
+      "update": "Update result",
+      "updating": "Updating...",
+      "cancel": "Cancel",
       "validation": {
         "timeRequired": "Enter a workout time.",
         "invalidSeconds": "Seconds must be between 0 and 59.",
@@ -477,12 +484,24 @@
         "title": "Recent results",
         "resultCount": "{count, plural, =1 {1 result} other {# results}}",
         "emptyTitle": "No results yet",
-        "emptyDescription": "Your movement history will appear here after you log your first result."
+        "emptyDescription": "Your movement history will appear here after you log your first result.",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirmTitle": "Delete this result?",
+        "deleteConfirmDescription": "This action cannot be undone.",
+        "confirmDelete": "Delete result",
+        "cancelDelete": "Cancel",
+        "deleting": "Deleting...",
+        "deleteError": "Unable to delete result.",
+        "deleteConnectionError": "Unable to delete result. Please try again."
       },
       "logResult": {
         "eyebrow": "Log result",
         "title": "Record a performance",
         "description": "Add a result for this movement and keep your personal records up to date.",
+        "editEyebrow": "Edit result",
+        "editTitle": "Update movement result",
+        "editDescription": "Correct the measurement, score, date, or notes for this result.",
         "measurementType": "Result type",
         "reps": "Reps",
         "load": "Load",
@@ -499,6 +518,9 @@
         "save": "Save result",
         "saving": "Saving result...",
         "saved": "Result saved successfully.",
+        "update": "Update result",
+        "updating": "Updating...",
+        "cancel": "Cancel",
         "validation": {
           "measurementRequired": "Select a result type.",
           "repsRequired": "Enter the number of reps.",
@@ -511,7 +533,7 @@
           "saveError": "Unable to save result.",
           "connectionError": "Unable to save result. Please try again."
         }
-      }, 
+      },
       "progress": {
         "eyebrow": "Progress",
         "title": "Performance over time",

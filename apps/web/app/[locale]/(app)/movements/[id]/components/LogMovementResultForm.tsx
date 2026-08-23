@@ -1,82 +1,36 @@
 'use client';
 
-import {
-  FormEvent,
-  useState,
-} from 'react';
-import {
-  useTranslations,
-} from 'next-intl';
+import { FormEvent, useState } from 'react';
+import { useTranslations } from 'next-intl';
+
+import { useRouter } from '@/i18n/navigation';
 
 import {
-  useRouter,
-} from '@/i18n/navigation';
-
-type WeightUnit =
-  | 'KG'
-  | 'LB';
-
-type MeasurementType = {
-  key: string;
-  name: string;
-};
+  MeasurementType,
+  MovementResult,
+  WeightUnit,
+} from '../movement-result.types';
 
 type Props = {
   movementId: string;
-
-  measurementTypes:
-    MeasurementType[];
-
-  preferredWeightUnit?:
-    WeightUnit;
+  measurementTypes: MeasurementType[];
+  preferredWeightUnit?: WeightUnit;
+  result?: MovementResult;
+  onCancel?: () => void;
+  onSaved?: () => void;
 };
 
-function getLocalDateValue() {
-  const now =
-    new Date();
-
-  const year =
-    now.getFullYear();
-
-  const month =
-    String(
-      now.getMonth() +
-        1,
-    ).padStart(
-      2,
-      '0',
-    );
-
-  const day =
-    String(
-      now.getDate(),
-    ).padStart(
-      2,
-      '0',
-    );
+function getLocalDateValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
 
-function getLocalTimeValue() {
-  const now =
-    new Date();
-
-  const hours =
-    String(
-      now.getHours(),
-    ).padStart(
-      2,
-      '0',
-    );
-
-  const minutes =
-    String(
-      now.getMinutes(),
-    ).padStart(
-      2,
-      '0',
-    );
+function getLocalTimeValue(date = new Date()) {
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
 
   return `${hours}:${minutes}`;
 }
@@ -85,121 +39,82 @@ export default function LogMovementResultForm({
   movementId,
   measurementTypes,
   preferredWeightUnit = 'KG',
+  result,
+  onCancel,
+  onSaved,
 }: Props) {
-  const t =
-    useTranslations(
-      'movements.detail.logResult',
-    );
+  const t = useTranslations('movements.detail.logResult');
+  const measurementT = useTranslations('measurementTypes');
+  const router = useRouter();
 
-  const measurementT =
-    useTranslations(
-      'measurementTypes',
-    );
+  const isEditing = Boolean(result);
+  const resultDate = result ? new Date(result.performedAt) : null;
+  const initialDurationSeconds = result?.durationSeconds ?? 0;
 
-  const router =
-    useRouter();
-
-  const defaultMeasurementType =
-    measurementTypes[0]
-      ?.key ?? '';
-
-  const [
-    measurementTypeKey,
-    setMeasurementTypeKey,
-  ] = useState(
-    defaultMeasurementType,
+  const [measurementTypeKey, setMeasurementTypeKey] = useState(
+    result?.measurementType.key ?? measurementTypes[0]?.key ?? '',
   );
 
-  const [
-    reps,
-    setReps,
-  ] = useState('');
-
-  const [
-    load,
-    setLoad,
-  ] = useState('');
-
-  const [
-    weightUnit,
-    setWeightUnit,
-  ] =
-    useState<WeightUnit>(
-      preferredWeightUnit,
-    );
-
-  const [
-    distance,
-    setDistance,
-  ] = useState('');
-
-  const [
-    durationMinutes,
-    setDurationMinutes,
-  ] = useState('');
-
-  const [
-    durationSeconds,
-    setDurationSeconds,
-  ] = useState('');
-
-  const [
-    calories,
-    setCalories,
-  ] = useState('');
-
-  const [
-    performedDate,
-    setPerformedDate,
-  ] = useState(
-    getLocalDateValue,
+  const [reps, setReps] = useState(
+    result?.reps !== null && result?.reps !== undefined
+      ? String(result.reps)
+      : '',
   );
 
-  const [
-    performedTime,
-    setPerformedTime,
-  ] = useState(
-    getLocalTimeValue,
+  const [load, setLoad] = useState(
+    result?.load !== null && result?.load !== undefined
+      ? String(result.load)
+      : '',
   );
 
-  const [
-    notes,
-    setNotes,
-  ] = useState('');
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>(
+    result?.weightUnit ?? preferredWeightUnit,
+  );
 
-  const [
-    error,
-    setError,
-  ] = useState<
-    string | null
-  >(null);
+  const [distance, setDistance] = useState(
+    result?.distance !== null && result?.distance !== undefined
+      ? String(result.distance)
+      : '',
+  );
 
-  const [
-    success,
-    setSuccess,
-  ] = useState(false);
+  const [durationMinutes, setDurationMinutes] = useState(
+    result?.durationSeconds !== null && result?.durationSeconds !== undefined
+      ? String(Math.floor(initialDurationSeconds / 60))
+      : '',
+  );
 
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false);
+  const [durationSeconds, setDurationSeconds] = useState(
+    result?.durationSeconds !== null && result?.durationSeconds !== undefined
+      ? String(initialDurationSeconds % 60)
+      : '',
+  );
 
-  function getMeasurementName(
-    type: MeasurementType,
-  ) {
-    const key =
-      type.key.toLowerCase();
+  const [calories, setCalories] = useState(
+    result?.calories !== null && result?.calories !== undefined
+      ? String(result.calories)
+      : '',
+  );
 
-    return measurementT.has(
-      key,
-    )
-      ? measurementT(key)
-      : type.name;
+  const [performedDate, setPerformedDate] = useState(
+    resultDate ? getLocalDateValue(resultDate) : getLocalDateValue(),
+  );
+
+  const [performedTime, setPerformedTime] = useState(
+    resultDate ? getLocalTimeValue(resultDate) : getLocalTimeValue(),
+  );
+
+  const [notes, setNotes] = useState(result?.notes ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function getMeasurementName(type: MeasurementType) {
+    const key = type.key.toLowerCase();
+
+    return measurementT.has(key) ? measurementT(key) : type.name;
   }
 
-  function toNumber(
-    value: string,
-  ) {
+  function toNumber(value: string) {
     if (!value.trim()) {
       return undefined;
     }
@@ -208,150 +123,90 @@ export default function LogMovementResultForm({
   }
 
   function validate() {
-    if (
-      !measurementTypeKey
-    ) {
-      return t(
-        'validation.measurementRequired',
-      );
+    if (!measurementTypeKey) {
+      return t('validation.measurementRequired');
     }
 
-    switch (
-      measurementTypeKey
-    ) {
+    switch (measurementTypeKey) {
       case 'REPS':
         if (!reps.trim()) {
-          return t(
-            'validation.repsRequired',
-          );
+          return t('validation.repsRequired');
         }
 
         break;
 
       case 'WEIGHT':
         if (!load.trim()) {
-          return t(
-            'validation.loadRequired',
-          );
+          return t('validation.loadRequired');
         }
 
         if (!reps.trim()) {
-          return t(
-            'validation.repsRequired',
-          );
+          return t('validation.repsRequired');
         }
 
         break;
 
       case 'DISTANCE':
-        if (
-          !distance.trim()
-        ) {
-          return t(
-            'validation.distanceRequired',
-          );
+        if (!distance.trim()) {
+          return t('validation.distanceRequired');
         }
 
         break;
 
       case 'DURATION': {
-        const minutes =
-          toNumber(
-            durationMinutes,
-          ) ?? 0;
+        const minutes = toNumber(durationMinutes) ?? 0;
+        const seconds = toNumber(durationSeconds) ?? 0;
 
-        const seconds =
-          toNumber(
-            durationSeconds,
-          ) ?? 0;
-
-        if (
-          minutes === 0 &&
-          seconds === 0
-        ) {
-          return t(
-            'validation.durationRequired',
-          );
+        if (minutes === 0 && seconds === 0) {
+          return t('validation.durationRequired');
         }
 
-        if (
-          seconds < 0 ||
-          seconds > 59
-        ) {
-          return t(
-            'validation.invalidSeconds',
-          );
+        if (seconds < 0 || seconds > 59) {
+          return t('validation.invalidSeconds');
         }
 
         break;
       }
 
       case 'CALORIES':
-        if (
-          !calories.trim()
-        ) {
-          return t(
-            'validation.caloriesRequired',
-          );
+        if (!calories.trim()) {
+          return t('validation.caloriesRequired');
         }
 
         break;
     }
 
-    if (
-      !performedDate ||
-      !performedTime
-    ) {
-      return t(
-        'validation.performedAtRequired',
-      );
+    if (!performedDate || !performedTime) {
+      return t('validation.performedAtRequired');
     }
 
     return null;
   }
 
   function resetForm() {
+    setMeasurementTypeKey(measurementTypes[0]?.key ?? '');
     setReps('');
     setLoad('');
-
-    setWeightUnit(
-      preferredWeightUnit,
-    );
-
+    setWeightUnit(preferredWeightUnit);
     setDistance('');
     setDurationMinutes('');
     setDurationSeconds('');
     setCalories('');
-
-    setPerformedDate(
-      getLocalDateValue(),
-    );
-
-    setPerformedTime(
-      getLocalTimeValue(),
-    );
-
+    setPerformedDate(getLocalDateValue());
+    setPerformedTime(getLocalTimeValue());
     setNotes('');
   }
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError(null);
     setSuccess(false);
 
-    const validationError =
-      validate();
+    const validationError = validate();
 
-    if (
-      validationError
-    ) {
-      setError(
-        validationError,
-      );
-
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -370,447 +225,277 @@ export default function LogMovementResultForm({
         notes?: string;
       } = {
         measurementTypeKey,
-
-        performedAt:
-          new Date(
-            `${performedDate}T${performedTime}`,
-          ).toISOString(),
+        performedAt: new Date(
+          `${performedDate}T${performedTime}`,
+        ).toISOString(),
+        notes: notes.trim(),
       };
 
-      switch (
-        measurementTypeKey
-      ) {
+      switch (measurementTypeKey) {
         case 'REPS':
-          payload.reps =
-            toNumber(
-              reps,
-            );
-
+          payload.reps = toNumber(reps);
           break;
 
         case 'WEIGHT':
-          payload.reps =
-            toNumber(
-              reps,
-            );
-
-          payload.load =
-            toNumber(
-              load,
-            );
-
-          payload.weightUnit =
-            weightUnit;
-
+          payload.reps = toNumber(reps);
+          payload.load = toNumber(load);
+          payload.weightUnit = weightUnit;
           break;
 
         case 'DISTANCE':
-          payload.distance =
-            toNumber(
-              distance,
-            );
-
+          payload.distance = toNumber(distance);
           break;
 
         case 'DURATION':
           payload.durationSeconds =
-            (toNumber(
-              durationMinutes,
-            ) ??
-              0) *
-              60 +
-            (toNumber(
-              durationSeconds,
-            ) ??
-              0);
-
+            (toNumber(durationMinutes) ?? 0) * 60 +
+            (toNumber(durationSeconds) ?? 0);
           break;
 
         case 'CALORIES':
-          payload.calories =
-            toNumber(
-              calories,
-            );
-
+          payload.calories = toNumber(calories);
           break;
       }
 
-      if (
-        notes.trim()
-      ) {
-        payload.notes =
-          notes.trim();
-      }
+      const url =
+        isEditing && result
+          ? `/api/movements/${movementId}/results/${result.id}`
+          : `/api/movements/${movementId}/results`;
 
-      const response =
-        await fetch(
-          `/api/movements/${movementId}/results`,
-          {
-            method: 'POST',
+      const response = await fetch(url, {
+        method: isEditing ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
 
-            headers: {
-              'Content-Type':
-                'application/json',
-            },
+      const data = await response.json();
 
-            body:
-              JSON.stringify(
-                payload,
-              ),
-          },
-        );
+      if (!response.ok) {
+        const message = Array.isArray(data.message)
+          ? data.message.join(', ')
+          : data.message;
 
-      const data =
-        await response.json();
-
-      if (
-        !response.ok
-      ) {
-        const message =
-          Array.isArray(
-            data.message,
-          )
-            ? data.message.join(
-                ', ',
-              )
-            : data.message;
-
-        setError(
-          message ??
-            t(
-              'validation.saveError',
-            ),
-        );
-
+        setError(message ?? t('validation.saveError'));
         return;
       }
 
-      resetForm();
-
-      setSuccess(true);
+      if (!isEditing) {
+        resetForm();
+        setSuccess(true);
+      }
 
       router.refresh();
+      onSaved?.();
     } catch {
-      setError(
-        t(
-          'validation.connectionError',
-        ),
-      );
+      setError(t('validation.connectionError'));
     } finally {
-      setIsSubmitting(
-        false,
-      );
+      setIsSubmitting(false);
     }
   }
 
   return (
     <form
-      onSubmit={
-        handleSubmit
-      }
+      onSubmit={handleSubmit}
       className="rounded-xl border border-border bg-surface p-6"
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-          {t('eyebrow')}
+          {isEditing ? t('editEyebrow') : t('eyebrow')}
         </p>
 
         <h2 className="mt-1 text-xl font-bold">
-          {t('title')}
+          {isEditing ? t('editTitle') : t('title')}
         </h2>
 
         <p className="mt-1 text-sm text-muted">
-          {t(
-            'description',
-          )}
+          {isEditing ? t('editDescription') : t('description')}
         </p>
       </div>
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2">
-        {measurementTypes.length >
-          1 && (
+        {measurementTypes.length > 1 && (
           <div className="sm:col-span-2">
             <label
-              htmlFor="measurementType"
+              htmlFor={isEditing ? 'editMeasurementType' : 'measurementType'}
               className="mb-1.5 block text-sm font-medium"
             >
-              {t(
-                'measurementType',
-              )}
+              {t('measurementType')}
             </label>
 
             <select
-              id="measurementType"
-              value={
-                measurementTypeKey
-              }
-              onChange={(
-                event,
-              ) => {
-                setMeasurementTypeKey(
-                  event.target
-                    .value,
-                );
-
-                setError(
-                  null,
-                );
-
-                setSuccess(
-                  false,
-                );
+              id={isEditing ? 'editMeasurementType' : 'measurementType'}
+              value={measurementTypeKey}
+              onChange={(event) => {
+                setMeasurementTypeKey(event.target.value);
+                setError(null);
+                setSuccess(false);
               }}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              {measurementTypes.map(
-                (type) => (
-                  <option
-                    key={
-                      type.key
-                    }
-                    value={
-                      type.key
-                    }
-                  >
-                    {getMeasurementName(
-                      type,
-                    )}
-                  </option>
-                ),
-              )}
+              {measurementTypes.map((type) => (
+                <option key={type.key} value={type.key}>
+                  {getMeasurementName(type)}
+                </option>
+              ))}
             </select>
           </div>
         )}
 
-        {measurementTypeKey ===
-          'REPS' && (
+        {measurementTypeKey === 'REPS' && (
           <NumberField
-            id="movementReps"
-            label={t(
-              'reps',
-            )}
+            id={isEditing ? 'editMovementReps' : 'movementReps'}
+            label={t('reps')}
             value={reps}
-            onChange={
-              setReps
-            }
+            onChange={setReps}
             placeholder="10"
           />
         )}
 
-        {measurementTypeKey ===
-          'WEIGHT' && (
+        {measurementTypeKey === 'WEIGHT' && (
           <>
             <NumberField
-              id="movementReps"
-              label={t(
-                'reps',
-              )}
+              id={isEditing ? 'editMovementReps' : 'movementReps'}
+              label={t('reps')}
               value={reps}
-              onChange={
-                setReps
-              }
+              onChange={setReps}
               placeholder="1"
             />
 
             <NumberField
-              id="movementLoad"
-              label={t(
-                'load',
-              )}
+              id={isEditing ? 'editMovementLoad' : 'movementLoad'}
+              label={t('load')}
               value={load}
-              onChange={
-                setLoad
-              }
+              onChange={setLoad}
               placeholder="100"
               step="0.1"
             />
 
             <div>
               <label
-                htmlFor="movementWeightUnit"
+                htmlFor={
+                  isEditing
+                    ? 'editMovementWeightUnit'
+                    : 'movementWeightUnit'
+                }
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t(
-                  'weightUnit',
-                )}
+                {t('weightUnit')}
               </label>
 
               <select
-                id="movementWeightUnit"
-                value={
-                  weightUnit
+                id={
+                  isEditing
+                    ? 'editMovementWeightUnit'
+                    : 'movementWeightUnit'
                 }
-                onChange={(
-                  event,
-                ) =>
-                  setWeightUnit(
-                    event.target
-                      .value as WeightUnit,
-                  )
+                value={weightUnit}
+                onChange={(event) =>
+                  setWeightUnit(event.target.value as WeightUnit)
                 }
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               >
-                <option value="KG">
-                  KG
-                </option>
-
-                <option value="LB">
-                  LB
-                </option>
+                <option value="KG">KG</option>
+                <option value="LB">LB</option>
               </select>
             </div>
           </>
         )}
 
-        {measurementTypeKey ===
-          'DISTANCE' && (
+        {measurementTypeKey === 'DISTANCE' && (
           <NumberField
-            id="movementDistance"
-            label={t(
-              'distanceMeters',
-            )}
-            value={
-              distance
-            }
-            onChange={
-              setDistance
-            }
+            id={isEditing ? 'editMovementDistance' : 'movementDistance'}
+            label={t('distanceMeters')}
+            value={distance}
+            onChange={setDistance}
             placeholder="5000"
           />
         )}
 
-        {measurementTypeKey ===
-          'DURATION' && (
+        {measurementTypeKey === 'DURATION' && (
           <>
             <NumberField
-              id="durationMinutes"
-              label={t(
-                'minutes',
-              )}
-              value={
-                durationMinutes
-              }
-              onChange={
-                setDurationMinutes
-              }
+              id={isEditing ? 'editDurationMinutes' : 'durationMinutes'}
+              label={t('minutes')}
+              value={durationMinutes}
+              onChange={setDurationMinutes}
               placeholder="5"
             />
 
             <NumberField
-              id="durationSeconds"
-              label={t(
-                'seconds',
-              )}
-              value={
-                durationSeconds
-              }
-              onChange={
-                setDurationSeconds
-              }
+              id={isEditing ? 'editDurationSeconds' : 'durationSeconds'}
+              label={t('seconds')}
+              value={durationSeconds}
+              onChange={setDurationSeconds}
               placeholder="30"
               max={59}
             />
           </>
         )}
 
-        {measurementTypeKey ===
-          'CALORIES' && (
+        {measurementTypeKey === 'CALORIES' && (
           <NumberField
-            id="movementCalories"
-            label={t(
-              'calories',
-            )}
-            value={
-              calories
-            }
-            onChange={
-              setCalories
-            }
+            id={isEditing ? 'editMovementCalories' : 'movementCalories'}
+            label={t('calories')}
+            value={calories}
+            onChange={setCalories}
             placeholder="50"
           />
         )}
 
         <div>
           <label
-            htmlFor="performedDate"
+            htmlFor={isEditing ? 'editPerformedDate' : 'performedDate'}
             className="mb-1.5 block text-sm font-medium"
           >
             {t('date')}
           </label>
 
           <input
-            id="performedDate"
+            id={isEditing ? 'editPerformedDate' : 'performedDate'}
             type="date"
-            value={
-              performedDate
-            }
-            onChange={(
-              event,
-            ) =>
-              setPerformedDate(
-                event.target
-                  .value,
-              )
-            }
+            value={performedDate}
+            onChange={(event) => setPerformedDate(event.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           />
         </div>
 
         <div>
           <label
-            htmlFor="performedTime"
+            htmlFor={isEditing ? 'editPerformedTime' : 'performedTime'}
             className="mb-1.5 block text-sm font-medium"
           >
             {t('time')}
           </label>
 
           <input
-            id="performedTime"
+            id={isEditing ? 'editPerformedTime' : 'performedTime'}
             type="time"
-            value={
-              performedTime
-            }
-            onChange={(
-              event,
-            ) =>
-              setPerformedTime(
-                event.target
-                  .value,
-              )
-            }
+            value={performedTime}
+            onChange={(event) => setPerformedTime(event.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           />
         </div>
 
         <div className="sm:col-span-2">
           <label
-            htmlFor="movementNotes"
+            htmlFor={isEditing ? 'editMovementNotes' : 'movementNotes'}
             className="mb-1.5 block text-sm font-medium"
           >
             {t('notes')}
 
             <span className="ml-1 font-normal text-muted">
-              {t(
-                'optional',
-              )}
+              {t('optional')}
             </span>
           </label>
 
           <textarea
-            id="movementNotes"
+            id={isEditing ? 'editMovementNotes' : 'movementNotes'}
             rows={3}
             value={notes}
-            onChange={(
-              event,
-            ) =>
-              setNotes(
-                event.target
-                  .value,
-              )
-            }
-            placeholder={t(
-              'notesPlaceholder',
-            )}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder={t('notesPlaceholder')}
             className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           />
         </div>
@@ -830,28 +515,34 @@ export default function LogMovementResultForm({
           role="status"
           className="mt-5 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-accent"
         >
-          {t(
-            'saved',
-          )}
+          {t('saved')}
         </div>
       )}
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        {isEditing && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="inline-flex w-full items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {t('cancel')}
+          </button>
+        )}
+
         <button
           type="submit"
-          disabled={
-            isSubmitting ||
-            !measurementTypeKey
-          }
+          disabled={isSubmitting || !measurementTypeKey}
           className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {isSubmitting
-            ? t(
-                'saving',
-              )
-            : t(
-                'save',
-              )}
+            ? isEditing
+              ? t('updating')
+              : t('saving')
+            : isEditing
+              ? t('update')
+              : t('save')}
         </button>
       </div>
     </form>
@@ -862,11 +553,7 @@ type NumberFieldProps = {
   id: string;
   label: string;
   value: string;
-
-  onChange: (
-    value: string,
-  ) => void;
-
+  onChange: (value: string) => void;
   placeholder: string;
   max?: number;
   step?: string;
@@ -897,17 +584,8 @@ function NumberField({
         max={max}
         step={step}
         value={value}
-        onChange={(
-          event,
-        ) =>
-          onChange(
-            event.target
-              .value,
-          )
-        }
-        placeholder={
-          placeholder
-        }
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
         className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
       />
     </div>

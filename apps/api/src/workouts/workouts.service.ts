@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { WorkoutResponseDto } from './dto/workout-response.dto';
+import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
 
 const workoutInclude = {
   type: {
@@ -1000,6 +1001,518 @@ export class WorkoutsService {
     });
 
     return this.mapWorkoutResult(result);
+  }
+
+  async updateResult(
+    userId: string,
+    workoutId: string,
+    resultId: string,
+    dto: UpdateWorkoutResultDto,
+  ) {
+    const athleteProfile =
+      await this.prisma.athleteProfile.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+    if (!athleteProfile) {
+      throw new NotFoundException(
+        'Athlete profile not found',
+      );
+    }
+
+    const existingResult =
+      await this.prisma.workoutResult.findFirst({
+        where: {
+          id: resultId,
+          workoutId,
+          athleteProfileId:
+            athleteProfile.id,
+        },
+
+        include: {
+          resultType: true,
+
+          workoutVariant: {
+            include: {
+              level: true,
+
+              sections: {
+                include: {
+                  movements: {
+                    select: {
+                      id: true,
+                      movementId: true,
+
+                      movement: {
+                        select: {
+                          measurementTypes: {
+                            select: {
+                              measurementType: {
+                                select: {
+                                  key: true,
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+
+          prescriptionCategory: true,
+
+          performedMovements: true,
+        },
+      });
+
+    if (!existingResult) {
+      throw new NotFoundException(
+        'Workout result not found',
+      );
+    }
+
+    const workout =
+      await this.prisma.workout.findUnique({
+        where: {
+          id: workoutId,
+        },
+
+        include: {
+          type: {
+            include: {
+              defaultResultType: true,
+            },
+          },
+        },
+      });
+
+    if (!workout) {
+      throw new NotFoundException(
+        'Workout not found',
+      );
+    }
+
+    const workoutVariantId =
+      dto.workoutVariantId ??
+      existingResult.workoutVariantId;
+
+    if (!workoutVariantId) {
+      throw new BadRequestException(
+        'Workout variant is required',
+      );
+    }
+
+    const workoutVariant =
+      await this.prisma.workoutVariant.findFirst({
+        where: {
+          id: workoutVariantId,
+          workoutId,
+        },
+
+        include: {
+          level: true,
+
+          sections: {
+            include: {
+              movements: {
+                select: {
+                  id: true,
+                  movementId: true,
+
+                  movement: {
+                    select: {
+                      measurementTypes: {
+                        select: {
+                          measurementType: {
+                            select: {
+                              key: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+    if (!workoutVariant) {
+      throw new NotFoundException(
+        'Workout variant not found for this workout',
+      );
+    }
+
+    let prescriptionCategory =
+      existingResult.prescriptionCategory;
+
+    if (
+      dto.prescriptionCategoryKey !==
+      undefined
+    ) {
+      if (
+        dto.prescriptionCategoryKey
+          .trim() === ''
+      ) {
+        prescriptionCategory = null;
+      } else {
+        prescriptionCategory =
+          await this.prisma.prescriptionCategory.findUnique({
+            where: {
+              key:
+                dto.prescriptionCategoryKey,
+            },
+          });
+
+        if (!prescriptionCategory) {
+          throw new NotFoundException(
+            `Prescription category "${dto.prescriptionCategoryKey}" not found`,
+          );
+        }
+      }
+    }
+
+    const resultType =
+      workout.type.defaultResultType ??
+      existingResult.resultType;
+
+    if (!resultType) {
+      throw new BadRequestException(
+        `Workout type "${workout.type.name}" does not have a default result type`,
+      );
+    }
+
+    const existingMovementMap =
+      new Map(
+        existingResult.performedMovements.map(
+          (movement) => [
+            movement.workoutMovementId,
+            movement,
+          ],
+        ),
+      );
+
+    const finalMovements =
+      dto.movements !== undefined
+        ? dto.movements
+        : existingResult.performedMovements.map(
+            (movement) => ({
+              workoutMovementId:
+                movement.workoutMovementId,
+
+              reps:
+                movement.reps ??
+                undefined,
+
+              load:
+                movement.load !== null
+                  ? Number(
+                      movement.load,
+                    )
+                  : undefined,
+
+              weightUnit:
+                movement.weightUnit ??
+                undefined,
+
+              distance:
+                movement.distance ??
+                undefined,
+
+              calories:
+                movement.calories ??
+                undefined,
+
+              durationSeconds:
+                movement.durationSeconds ??
+                undefined,
+
+              notes:
+                movement.notes ??
+                undefined,
+            }),
+          );
+
+    const submittedMovementIds =
+      finalMovements.map(
+        (movement) =>
+          movement.workoutMovementId,
+      );
+
+    const uniqueMovementIds =
+      new Set(
+        submittedMovementIds,
+      );
+
+    if (
+      uniqueMovementIds.size !==
+      submittedMovementIds.length
+    ) {
+      throw new BadRequestException(
+        'A workout movement can only be submitted once per workout result',
+      );
+    }
+
+    const workoutMovementMap =
+      new Map(
+        workoutVariant.sections.flatMap(
+          (section) =>
+            section.movements.map(
+              (movement) =>
+                [
+                  movement.id,
+                  movement,
+                ] as const,
+            ),
+        ),
+      );
+
+    for (const movement of finalMovements) {
+      if (
+        !workoutMovementMap.has(
+          movement.workoutMovementId,
+        )
+      ) {
+        throw new BadRequestException(
+          `Workout movement "${movement.workoutMovementId}" does not belong to the selected workout variant`,
+        );
+      }
+    }
+
+    const finalResultDto: CreateWorkoutResultDto =
+      {
+        workoutVariantId,
+        prescriptionCategoryKey:
+          prescriptionCategory?.key,
+
+        performedAt:
+          dto.performedAt ??
+          existingResult.performedAt.toISOString(),
+
+        timeSeconds:
+          dto.timeSeconds !==
+          undefined
+            ? dto.timeSeconds
+            : existingResult.timeSeconds ??
+              undefined,
+
+        rounds:
+          dto.rounds !== undefined
+            ? dto.rounds
+            : existingResult.rounds ??
+              undefined,
+
+        reps:
+          dto.reps !== undefined
+            ? dto.reps
+            : existingResult.reps ??
+              undefined,
+
+        load:
+          dto.load !== undefined
+            ? dto.load
+            : existingResult.load !== null
+              ? Number(
+                  existingResult.load,
+                )
+              : undefined,
+
+        weightUnit:
+          dto.weightUnit !==
+          undefined
+            ? dto.weightUnit
+            : existingResult.weightUnit ??
+              undefined,
+
+        notes:
+          dto.notes !== undefined
+            ? dto.notes
+            : existingResult.notes ??
+              undefined,
+
+        movements: finalMovements,
+      };
+
+    this.validateResultForType(
+      resultType.key,
+      finalResultDto,
+    );
+
+    const performedAt =
+      new Date(
+        finalResultDto.performedAt!,
+      );
+
+    const result =
+      await this.prisma.$transaction(
+        async (tx) => {
+          await tx.workoutResultMovement.deleteMany({
+            where: {
+              workoutResultId:
+                existingResult.id,
+            },
+          });
+
+          await tx.movementResult.deleteMany({
+            where: {
+              sourceWorkoutResultId:
+                existingResult.id,
+            },
+          });
+
+          const updatedResult =
+            await tx.workoutResult.update({
+              where: {
+                id:
+                  existingResult.id,
+              },
+
+              data: {
+                workoutVariant: {
+                  connect: {
+                    id:
+                      workoutVariant.id,
+                  },
+                },
+
+                prescriptionCategory:
+                  prescriptionCategory
+                    ? {
+                        connect: {
+                          id:
+                            prescriptionCategory.id,
+                        },
+                      }
+                    : {
+                        disconnect: true,
+                      },
+
+                performedAt,
+
+                timeSeconds:
+                  resultType.key ===
+                  'TIME'
+                    ? finalResultDto.timeSeconds
+                    : null,
+
+                rounds:
+                  resultType.key ===
+                  'ROUNDS_REPS'
+                    ? finalResultDto.rounds
+                    : null,
+
+                reps:
+                  resultType.key ===
+                    'ROUNDS_REPS' ||
+                  resultType.key ===
+                    'REPS'
+                    ? finalResultDto.reps
+                    : null,
+
+                load:
+                  resultType.key ===
+                  'LOAD'
+                    ? finalResultDto.load
+                    : null,
+
+                weightUnit:
+                  resultType.key ===
+                  'LOAD'
+                    ? finalResultDto.weightUnit
+                    : null,
+
+                notes:
+                  dto.notes !==
+                  undefined
+                    ? dto.notes.trim() ||
+                      null
+                    : existingResult.notes,
+
+                performedMovements:
+                  finalMovements.length >
+                  0
+                    ? {
+                        create:
+                          finalMovements.map(
+                            (movement) => ({
+                              workoutMovement:
+                                {
+                                  connect: {
+                                    id:
+                                      movement.workoutMovementId,
+                                  },
+                                },
+
+                              reps:
+                                movement.reps,
+
+                              load:
+                                movement.load,
+
+                              weightUnit:
+                                movement.weightUnit,
+
+                              distance:
+                                movement.distance,
+
+                              calories:
+                                movement.calories,
+
+                              durationSeconds:
+                                movement.durationSeconds,
+
+                              notes:
+                                movement.notes,
+                            }),
+                          ),
+                      }
+                    : undefined,
+              },
+            });
+
+          const generatedMovementResults =
+            await this.buildGeneratedMovementResults(
+              tx,
+              finalMovements,
+              workoutMovementMap,
+              athleteProfile.id,
+              updatedResult.id,
+              performedAt,
+            );
+
+          if (
+            generatedMovementResults.length >
+            0
+          ) {
+            await tx.movementResult.createMany({
+              data:
+                generatedMovementResults,
+            });
+          }
+
+          return tx.workoutResult.findUniqueOrThrow({
+            where: {
+              id:
+                updatedResult.id,
+            },
+
+            include:
+              resultInclude,
+          });
+        },
+      );
+
+    return this.mapWorkoutResult(
+      result,
+    );
   }
 
   private async buildGeneratedMovementResults(
