@@ -20,7 +20,7 @@ type ResultType = {
 type ProgressResult =
   TrendResult;
 
-type WorkoutProgress = {
+type WorkoutProgressTrack = {
   workout: {
     id: string;
     name: string;
@@ -30,6 +30,11 @@ type WorkoutProgress = {
       key: string;
       name: string;
     };
+  };
+
+  level: {
+    key: string;
+    name: string;
   };
 
   resultType: ResultType;
@@ -54,13 +59,17 @@ type ProgressResponse = {
     totalResults: number;
     uniqueWorkouts: number;
     rxResults: number;
-    scaledResults: number;
     rxRate: number;
+    levelBreakdown: {
+      key: string;
+      name: string;
+      count: number;
+    }[];
     benchmarkWorkouts: number;
   };
 
-  workouts:
-    WorkoutProgress[];
+  tracks:
+    WorkoutProgressTrack[];
 };
 
 async function getProgress(): Promise<ProgressResponse> {
@@ -75,12 +84,12 @@ async function getProgress(): Promise<ProgressResponse> {
         totalResults: 0,
         uniqueWorkouts: 0,
         rxResults: 0,
-        scaledResults: 0,
         rxRate: 0,
+        levelBreakdown: [],
         benchmarkWorkouts: 0,
       },
 
-      workouts: [],
+      tracks: [],
     };
   }
 
@@ -129,7 +138,7 @@ export default async function ProgressPage() {
 
   const {
     summary,
-    workouts,
+    tracks,
   } = progress;
 
   function getWorkoutTypeName(
@@ -224,7 +233,7 @@ export default async function ProgressPage() {
   }
 
   function getImprovement(
-    workout: WorkoutProgress,
+    workout: WorkoutProgressTrack,
   ) {
     if (
       workout.attemptCount < 2
@@ -604,14 +613,9 @@ export default async function ProgressPage() {
               </div>
 
               <p className="mt-1 text-xs text-muted">
+                {summary.rxResults}{' '}
                 {t(
-                  'summary.rxBreakdown',
-                  {
-                    rx:
-                      summary.rxResults,
-                    scaled:
-                      summary.scaledResults,
-                  },
+                  'summary.rxResults',
                 )}
               </p>
             </Card>
@@ -630,6 +634,39 @@ export default async function ProgressPage() {
               </p>
             </Card>
           </section>
+
+          {summary.levelBreakdown.length > 0 && (
+            <section className="mt-5">
+              <Card className="p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                  {t(
+                    'summary.levelBreakdown',
+                  )}
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {summary.levelBreakdown.map(
+                    (level) => (
+                      <Badge
+                        key={
+                          level.key
+                        }
+                        variant={
+                          level.key ===
+                          'RX'
+                            ? 'accent'
+                            : undefined
+                        }
+                      >
+                        {level.name}:{' '}
+                        {level.count}
+                      </Badge>
+                    ),
+                  )}
+                </div>
+              </Card>
+            </section>
+          )}
 
           <section className="mt-12">
             <div>
@@ -653,19 +690,16 @@ export default async function ProgressPage() {
             </div>
 
             <div className="mt-6 space-y-5">
-              {workouts.map(
-                (workout) => {
+              {tracks.map(
+                (track) => {
                   const improvement =
                     getImprovement(
-                      workout,
+                      track,
                     );
 
                   return (
                     <Card
-                      key={
-                        workout
-                          .workout.id
-                      }
+                      key={`${track.workout.id}:${track.level.key}`}
                       className="overflow-hidden"
                     >
                       <div className="p-5 sm:p-6">
@@ -673,17 +707,17 @@ export default async function ProgressPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <Link
-                                href={`/workouts/${workout.workout.id}`}
+                                href={`/workouts/${track.workout.id}`}
                                 className="text-lg font-bold transition hover:text-accent"
                               >
                                 {
-                                  workout
+                                  track
                                     .workout
                                     .name
                                 }
                               </Link>
 
-                              {workout
+                              {track
                                 .workout
                                 .isBenchmark && (
                                 <Badge>
@@ -696,21 +730,21 @@ export default async function ProgressPage() {
 
                             <p className="mt-1 text-sm text-muted">
                               {getWorkoutTypeName(
-                                workout
+                                track
                                   .workout
                                   .type
                                   .key,
-                                workout
+                                track
                                   .workout
                                   .type
                                   .name,
                               )}
                               {' · '}
                               {getResultTypeName(
-                                workout
+                                track
                                   .resultType
                                   .key,
-                                workout
+                                track
                                   .resultType
                                   .name,
                               )}
@@ -721,7 +755,7 @@ export default async function ProgressPage() {
                                 'attemptCount',
                                 {
                                   count:
-                                    workout.attemptCount,
+                                    track.attemptCount,
                                 },
                               )}
                             </p>
@@ -781,13 +815,13 @@ export default async function ProgressPage() {
 
                             <p className="mt-2 text-xl font-bold">
                               {formatResult(
-                                workout.firstResult,
+                                track.firstResult,
                               )}
                             </p>
 
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
-                                workout
+                                track
                                   .firstResult
                                   .performedAt,
                               )}
@@ -803,14 +837,14 @@ export default async function ProgressPage() {
 
                             <p className="mt-2 text-xl font-black text-accent">
                               {formatResult(
-                                workout.personalBest,
+                                track.personalBest,
                               )}
                             </p>
 
-                            {workout.personalBest && (
+                            {track.personalBest && (
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
-                                  workout
+                                  track
                                     .personalBest
                                     .performedAt,
                                 )}
@@ -827,13 +861,13 @@ export default async function ProgressPage() {
 
                             <p className="mt-2 text-xl font-bold">
                               {formatResult(
-                                workout.latestResult,
+                                track.latestResult,
                               )}
                             </p>
 
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
-                                workout
+                                track
                                   .latestResult
                                   .performedAt,
                               )}
@@ -858,10 +892,10 @@ export default async function ProgressPage() {
 
                           <WorkoutTrendChart
                             resultType={
-                              workout.resultType
+                              track.resultType
                             }
                             history={
-                              workout.history
+                              track.history
                             }
                           />
                         </div>

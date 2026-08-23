@@ -348,7 +348,9 @@
       "workoutsTracked": "Entrenamientos seguidos",
       "rxRate": "Porcentaje Rx",
       "rxBreakdown": "{rx} Rx · {scaled} Escalado",
-      "benchmarksTracked": "Benchmarks seguidos"
+      "benchmarksTracked": "Benchmarks seguidos",
+      "rxResults": "resultados RX",
+      "levelBreakdown": "Resultados por nivel"
     },
     "workouts": {
       "eyebrow": "Progreso por entrenamiento",

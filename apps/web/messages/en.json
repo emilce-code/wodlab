@@ -348,7 +348,9 @@
       "workoutsTracked": "Workouts tracked",
       "rxRate": "Rx rate",
       "rxBreakdown": "{rx} Rx · {scaled} Scaled",
-      "benchmarksTracked": "Benchmarks tracked"
+      "benchmarksTracked": "Benchmarks tracked",
+      "rxResults": "RX results",
+      "levelBreakdown": "Results by level"
     },
     "workouts": {
       "eyebrow": "Workout progress",

@@ -334,29 +334,44 @@ export class WorkoutsService {
       const workoutId =
         result.workout.id;
 
+      const levelKey =
+        result.workoutVariant
+          ?.level.key;
+
+      if (!levelKey) {
+        continue;
+      }
+
+      const groupKey =
+        `${workoutId}:${levelKey}`;
+
       const current =
-        groupedResults.get(workoutId) ??
+        groupedResults.get(groupKey) ??
         [];
 
       current.push(result);
 
       groupedResults.set(
-        workoutId,
+        groupKey,
         current,
       );
     }
 
-    const workouts =
+    const tracks =
       Array.from(
         groupedResults.values(),
-      ).map((workoutResults) => {
+      ).map((trackResults) => {
         const latestResult =
-          workoutResults[0];
+          trackResults[0];
 
         const oldestResult =
-          workoutResults[
-            workoutResults.length - 1
+          trackResults[
+            trackResults.length - 1
           ];
+
+        const level =
+          latestResult.workoutVariant
+            .level;
 
         const resultType =
           latestResult.workout.type
@@ -365,7 +380,7 @@ export class WorkoutsService {
 
         const personalBest =
           this.getPersonalBest(
-            workoutResults,
+            trackResults,
             resultType.key,
           );
 
@@ -392,6 +407,14 @@ export class WorkoutsService {
             },
           },
 
+          level: {
+            key:
+              level.key,
+
+            name:
+              level.name,
+          },
+
           resultType: {
             key:
               resultType.key,
@@ -401,7 +424,7 @@ export class WorkoutsService {
           },
 
           attemptCount:
-            workoutResults.length,
+            trackResults.length,
 
           personalBest,
 
@@ -411,7 +434,7 @@ export class WorkoutsService {
             oldestResult,
 
           history:
-            [...workoutResults]
+            [...trackResults]
               .sort(
                 (a, b) =>
                   new Date(
@@ -424,7 +447,7 @@ export class WorkoutsService {
         };
       });
 
-    workouts.sort(
+    tracks.sort(
       (a, b) =>
         new Date(
           b.latestResult.performedAt,
@@ -433,6 +456,14 @@ export class WorkoutsService {
           a.latestResult.performedAt,
         ).getTime(),
     );
+
+    const uniqueWorkoutIds =
+      new Set(
+        mappedResults.map(
+          (result) =>
+            result.workout.id,
+        ),
+      );
 
     const totalResults =
       mappedResults.length;
@@ -500,18 +531,29 @@ export class WorkoutsService {
       levelCounts.get('RX')
         ?.count ?? 0;
 
+    const benchmarkWorkoutIds =
+      new Set(
+        mappedResults
+          .filter(
+            (result) =>
+              result.workout
+                .isBenchmark,
+          )
+          .map(
+            (result) =>
+              result.workout.id,
+          ),
+      );
+
     const benchmarkWorkouts =
-      workouts.filter(
-        (item) =>
-          item.workout.isBenchmark,
-      ).length;
+      benchmarkWorkoutIds.size;
 
     return {
       summary: {
         totalResults,
 
         uniqueWorkouts:
-          workouts.length,
+          uniqueWorkoutIds.size,
 
         rxResults,
 
@@ -529,7 +571,7 @@ export class WorkoutsService {
         benchmarkWorkouts,
       },
 
-      workouts,
+      tracks,
     };
   }
 
