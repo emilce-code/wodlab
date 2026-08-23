@@ -1,22 +1,11 @@
 'use client';
 
-import {
-  FormEvent,
-  useRef,
-  useState,
-} from 'react';
-import {
-  useLocale,
-  useTranslations,
-} from 'next-intl';
+import { FormEvent, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
-import {
-  useRouter,
-} from '@/i18n/navigation';
+import { useRouter } from '@/i18n/navigation';
 
-type WeightUnit =
-  | 'KG'
-  | 'LB';
+type WeightUnit = 'KG' | 'LB';
 
 type ResultType = {
   key: string;
@@ -65,19 +54,22 @@ type MovementPerformance = {
   reps: string;
   load: string;
   weightUnit: WeightUnit;
+  distance: string;
+  durationMinutes: string;
+  durationSeconds: string;
+  calories: string;
 };
 
-type MovementPerformanceState =
-  Record<
-    string,
-    MovementPerformance
-  >;
+type MovementPerformanceState = Record<string, MovementPerformance>;
 
 type SubmittedMovement = {
   workoutMovementId: string;
-  reps: number;
-  load: number;
-  weightUnit: WeightUnit;
+  reps?: number;
+  load?: number;
+  weightUnit?: WeightUnit;
+  distance?: number;
+  durationSeconds?: number;
+  calories?: number;
 };
 
 type Props = {
@@ -85,46 +77,24 @@ type Props = {
   resultType: ResultType;
   variants: WorkoutVariant[];
   prescriptionCategories: PrescriptionCategory[];
-
-  preferredWeightUnit?:
-    WeightUnit;
-
-  preferredWorkoutLevelKey?:
-    | string
-    | null;
-
-  preferredPrescriptionCategoryKey?:
-    | string
-    | null;
+  preferredWeightUnit?: WeightUnit;
+  preferredWorkoutLevelKey?: string | null;
+  preferredPrescriptionCategoryKey?: string | null;
 };
 
 function getLocalDateValue() {
   const now = new Date();
-
-  const year =
-    now.getFullYear();
-
-  const month = String(
-    now.getMonth() + 1,
-  ).padStart(2, '0');
-
-  const day = String(
-    now.getDate(),
-  ).padStart(2, '0');
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
 }
 
 function getLocalTimeValue() {
   const now = new Date();
-
-  const hours = String(
-    now.getHours(),
-  ).padStart(2, '0');
-
-  const minutes = String(
-    now.getMinutes(),
-  ).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
 
   return `${hours}:${minutes}`;
 }
@@ -138,211 +108,110 @@ export default function LogResultForm({
   preferredWorkoutLevelKey = null,
   preferredPrescriptionCategoryKey = null,
 }: Props) {
-  const t =
-    useTranslations(
-      'workouts.logResult',
-    );
+  const t = useTranslations('workouts.logResult');
+  const resultTypeT = useTranslations('resultTypes');
+  const movementBuilderT = useTranslations(
+    'workouts.create.movementBuilder',
+  );
+  const sectionBuilderT = useTranslations('workouts.create.sectionBuilder');
 
-  const resultTypeT =
-    useTranslations(
-      'resultTypes',
-    );
+  const locale = useLocale();
+  const router = useRouter();
 
-  const movementBuilderT =
-    useTranslations(
-      'workouts.create.movementBuilder',
-    );
+  const dateInputRef = useRef<HTMLInputElement>(null);
+  const timeInputRef = useRef<HTMLInputElement>(null);
 
-  const sectionBuilderT =
-    useTranslations(
-      'workouts.create.sectionBuilder',
-    );
-
-  const locale =
-    useLocale();
-
-  const router =
-    useRouter();
-
-  const dateInputRef =
-    useRef<HTMLInputElement>(
-      null,
-    );
-
-  const timeInputRef =
-    useRef<HTMLInputElement>(
-      null,
-    );
-
-  const preferredVariant =
-    preferredWorkoutLevelKey
-      ? variants.find(
-          (variant) =>
-            variant.level.key ===
-            preferredWorkoutLevelKey,
-        )
-      : undefined;
+  const preferredVariant = preferredWorkoutLevelKey
+    ? variants.find(
+        (variant) => variant.level.key === preferredWorkoutLevelKey,
+      )
+    : undefined;
 
   const defaultVariant =
     preferredVariant ??
-    variants.find(
-      (variant) =>
-        variant.level.key ===
-        'RX',
-    ) ??
+    variants.find((variant) => variant.level.key === 'RX') ??
     variants[0];
 
   const defaultPrescriptionCategoryKey =
     preferredPrescriptionCategoryKey &&
     prescriptionCategories.some(
-      (category) =>
-        category.key ===
-        preferredPrescriptionCategoryKey,
+      (category) => category.key === preferredPrescriptionCategoryKey,
     )
       ? preferredPrescriptionCategoryKey
       : '';
 
-  const [
-    workoutVariantId,
-    setWorkoutVariantId,
-  ] = useState(
+  const [workoutVariantId, setWorkoutVariantId] = useState(
     defaultVariant?.id ?? '',
   );
 
-  const [
-    prescriptionCategoryKey,
-    setPrescriptionCategoryKey,
-  ] = useState(
+  const [prescriptionCategoryKey, setPrescriptionCategoryKey] = useState(
     defaultPrescriptionCategoryKey,
   );
 
-  const [
-    minutes,
-    setMinutes,
-  ] = useState('');
+  const [minutes, setMinutes] = useState('');
+  const [seconds, setSeconds] = useState('');
+  const [rounds, setRounds] = useState('');
+  const [reps, setReps] = useState('');
+  const [load, setLoad] = useState('');
+  const [weightUnit, setWeightUnit] =
+    useState<WeightUnit>(preferredWeightUnit);
 
-  const [
-    seconds,
-    setSeconds,
-  ] = useState('');
+  const [movementPerformances, setMovementPerformances] =
+    useState<MovementPerformanceState>({});
 
-  const [
-    rounds,
-    setRounds,
-  ] = useState('');
+  const [performedDate, setPerformedDate] = useState(getLocalDateValue);
+  const [performedTime, setPerformedTime] = useState(getLocalTimeValue);
+  const [notes, setNotes] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [
-    reps,
-    setReps,
-  ] = useState('');
+  const resultTypeKey = resultType.key.toLowerCase();
 
-  const [
-    load,
-    setLoad,
-  ] = useState('');
-
-  const [
-    weightUnit,
-    setWeightUnit,
-  ] = useState<WeightUnit>(
-    preferredWeightUnit,
-  );
-
-  const [
-    movementPerformances,
-    setMovementPerformances,
-  ] = useState<MovementPerformanceState>(
-    {},
-  );
-
-  const [
-    performedDate,
-    setPerformedDate,
-  ] = useState(
-    getLocalDateValue,
-  );
-
-  const [
-    performedTime,
-    setPerformedTime,
-  ] = useState(
-    getLocalTimeValue,
-  );
-
-  const [
-    notes,
-    setNotes,
-  ] = useState('');
-
-  const [
-    error,
-    setError,
-  ] = useState<
-    string | null
-  >(null);
-
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false);
-
-  const resultTypeKey =
-    resultType.key.toLowerCase();
-
-  const localizedResultType =
-    resultTypeT.has(
-      resultTypeKey,
-    )
-      ? resultTypeT(
-          resultTypeKey,
-        )
-      : resultType.name;
+  const localizedResultType = resultTypeT.has(resultTypeKey)
+    ? resultTypeT(resultTypeKey)
+    : resultType.name;
 
   const selectedVariant =
-    variants.find(
-      (variant) =>
-        variant.id ===
-        workoutVariantId,
-    ) ?? null;
+    variants.find((variant) => variant.id === workoutVariantId) ?? null;
 
-  const weightMovements =
-    selectedVariant
-      ? selectedVariant.sections.flatMap(
-          (section) =>
-            section.movements.filter(
-              (item) =>
-                item.movement.measurementTypes.some(
-                  (
-                    measurementType,
-                  ) =>
-                    measurementType.key ===
-                    'WEIGHT',
-                ),
+  const trackableMovements = selectedVariant
+    ? selectedVariant.sections.flatMap((section) =>
+        section.movements.filter((item) =>
+          item.movement.measurementTypes.some((measurementType) =>
+            ['WEIGHT', 'REPS', 'DISTANCE', 'DURATION', 'CALORIES'].includes(
+              measurementType.key,
             ),
-        )
-      : [];
+          ),
+        ),
+      )
+    : [];
 
-  function optionalNumber(
-    value: string,
-  ): number | undefined {
+  function optionalNumber(value: string): number | undefined {
     if (!value.trim()) {
       return undefined;
     }
 
-    return Number(value);
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  function getMeasurementKeys(item: WorkoutMovement) {
+    return new Set(item.movement.measurementTypes.map((type) => type.key));
   }
 
   function getMovementPerformance(
     workoutMovementId: string,
   ): MovementPerformance {
     return (
-      movementPerformances[
-        workoutMovementId
-      ] ?? {
+      movementPerformances[workoutMovementId] ?? {
         reps: '',
         load: '',
-        weightUnit:
-          preferredWeightUnit,
+        weightUnit: preferredWeightUnit,
+        distance: '',
+        durationMinutes: '',
+        durationSeconds: '',
+        calories: '',
       }
     );
   }
@@ -351,258 +220,280 @@ export default function LogResultForm({
     workoutMovementId: string,
     changes: Partial<MovementPerformance>,
   ) {
-    setMovementPerformances(
-      (current) => ({
-        ...current,
+    setMovementPerformances((current) => ({
+      ...current,
 
-        [workoutMovementId]: {
-          ...getMovementPerformance(
-            workoutMovementId,
-          ),
-          ...changes,
-        },
-      }),
-    );
-  }
-
-  function getSubmittedMovements():
-    SubmittedMovement[] {
-    return weightMovements.flatMap(
-      (item) => {
-        const performance =
-          getMovementPerformance(
-            item.id,
-          );
-
-        if (
-          !performance.reps.trim() ||
-          !performance.load.trim()
-        ) {
-          return [];
-        }
-
-        return [
-          {
-            workoutMovementId:
-              item.id,
-
-            reps:
-              Number(
-                performance.reps,
-              ),
-
-            load:
-              Number(
-                performance.load,
-              ),
-
-            weightUnit:
-              performance.weightUnit,
-          },
-        ];
+      [workoutMovementId]: {
+        ...getMovementPerformance(workoutMovementId),
+        ...changes,
       },
+    }));
+  }
+
+  function getMovementDurationSeconds(performance: MovementPerformance) {
+    const durationMinutes = optionalNumber(performance.durationMinutes) ?? 0;
+    const durationSeconds = optionalNumber(performance.durationSeconds) ?? 0;
+
+    if (durationMinutes === 0 && durationSeconds === 0) {
+      return undefined;
+    }
+
+    return durationMinutes * 60 + durationSeconds;
+  }
+
+  function hasAnyMovementValue(performance: MovementPerformance) {
+    return Boolean(
+      performance.reps.trim() ||
+        performance.load.trim() ||
+        performance.distance.trim() ||
+        performance.durationMinutes.trim() ||
+        performance.durationSeconds.trim() ||
+        performance.calories.trim(),
     );
   }
 
-  function formatSelectedDate(
-    value: string,
-  ) {
+  function getSubmittedMovements(): SubmittedMovement[] {
+    return trackableMovements.flatMap((item) => {
+      const performance = getMovementPerformance(item.id);
+      const measurementKeys = getMeasurementKeys(item);
+
+      if (!hasAnyMovementValue(performance)) {
+        return [];
+      }
+
+      const submitted: SubmittedMovement = {
+        workoutMovementId: item.id,
+      };
+
+      const repsValue = optionalNumber(performance.reps);
+      const loadValue = optionalNumber(performance.load);
+      const distanceValue = optionalNumber(performance.distance);
+      const durationValue = getMovementDurationSeconds(performance);
+      const caloriesValue = optionalNumber(performance.calories);
+
+      if (
+        repsValue !== undefined &&
+        (measurementKeys.has('REPS') || measurementKeys.has('WEIGHT'))
+      ) {
+        submitted.reps = repsValue;
+      }
+
+      if (loadValue !== undefined && measurementKeys.has('WEIGHT')) {
+        submitted.load = loadValue;
+        submitted.weightUnit = performance.weightUnit;
+      }
+
+      if (
+        distanceValue !== undefined &&
+        measurementKeys.has('DISTANCE')
+      ) {
+        submitted.distance = distanceValue;
+      }
+
+      if (
+        durationValue !== undefined &&
+        measurementKeys.has('DURATION')
+      ) {
+        submitted.durationSeconds = durationValue;
+      }
+
+      if (
+        caloriesValue !== undefined &&
+        measurementKeys.has('CALORIES')
+      ) {
+        submitted.calories = caloriesValue;
+      }
+
+      const hasSubmittedMetric =
+        submitted.reps !== undefined ||
+        submitted.load !== undefined ||
+        submitted.distance !== undefined ||
+        submitted.durationSeconds !== undefined ||
+        submitted.calories !== undefined;
+
+      return hasSubmittedMetric ? [submitted] : [];
+    });
+  }
+
+  function formatSelectedDate(value: string) {
     if (!value) {
       return t('selectDate');
     }
 
-    const [
-      year,
-      month,
-      day,
-    ] = value
-      .split('-')
-      .map(Number);
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
 
-    const date = new Date(
-      year,
-      month - 1,
-      day,
-    );
-
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(date);
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(date);
   }
 
-  function formatSelectedTime(
-    value: string,
-  ) {
+  function formatSelectedTime(value: string) {
     if (!value) {
       return t('selectTime');
     }
 
-    const [
-      hours,
-      minutesValue,
-    ] = value
-      .split(':')
-      .map(Number);
-
+    const [hours, minutesValue] = value.split(':').map(Number);
     const date = new Date();
 
-    date.setHours(
-      hours,
-      minutesValue,
-      0,
-      0,
-    );
+    date.setHours(hours, minutesValue, 0, 0);
 
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        hour: 'numeric',
-        minute: '2-digit',
-      },
-    ).format(date);
+    return new Intl.DateTimeFormat(locale, {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date);
   }
 
-  function validate():
-    | string
-    | null {
-    if (!workoutVariantId) {
-      return t(
-        'validation.variantRequired',
-      );
+  function validatePositiveValue(value: string) {
+    if (!value.trim()) {
+      return true;
     }
 
-    switch (
-      resultType.key
+    const numericValue = Number(value);
+
+    return Number.isFinite(numericValue) && numericValue > 0;
+  }
+
+  function validateNonNegativeValue(value: string) {
+    if (!value.trim()) {
+      return true;
+    }
+
+    const numericValue = Number(value);
+
+    return Number.isFinite(numericValue) && numericValue >= 0;
+  }
+
+  function validateMovementPerformance(item: WorkoutMovement) {
+    const performance = getMovementPerformance(item.id);
+    const measurementKeys = getMeasurementKeys(item);
+
+    if (!hasAnyMovementValue(performance)) {
+      return null;
+    }
+
+    const hasReps = Boolean(performance.reps.trim());
+    const hasLoad = Boolean(performance.load.trim());
+
+    if (hasReps && !validatePositiveValue(performance.reps)) {
+      return `${item.movement.name}: ${t('validation.repsRequired')}`;
+    }
+
+    if (hasLoad && !validatePositiveValue(performance.load)) {
+      return `${item.movement.name}: ${t('validation.loadRequired')}`;
+    }
+
+    if (hasLoad && measurementKeys.has('WEIGHT') && !hasReps) {
+      return `${item.movement.name}: ${t('validation.repsRequired')}`;
+    }
+
+    if (
+      performance.distance.trim() &&
+      !validatePositiveValue(performance.distance)
     ) {
+      return `${item.movement.name}: distance must be greater than 0`;
+    }
+
+    if (
+      performance.calories.trim() &&
+      !validatePositiveValue(performance.calories)
+    ) {
+      return `${item.movement.name}: calories must be greater than 0`;
+    }
+
+    if (
+      !validateNonNegativeValue(performance.durationMinutes) ||
+      !validateNonNegativeValue(performance.durationSeconds)
+    ) {
+      return `${item.movement.name}: duration cannot be negative`;
+    }
+
+    const durationSeconds =
+      optionalNumber(performance.durationSeconds) ?? 0;
+
+    if (durationSeconds > 59) {
+      return `${item.movement.name}: ${t('validation.invalidSeconds')}`;
+    }
+
+    const hasDuration =
+      performance.durationMinutes.trim() ||
+      performance.durationSeconds.trim();
+
+    if (
+      hasDuration &&
+      getMovementDurationSeconds(performance) === undefined
+    ) {
+      return `${item.movement.name}: duration must be greater than 0`;
+    }
+
+    return null;
+  }
+
+  function validate(): string | null {
+    if (!workoutVariantId) {
+      return t('validation.variantRequired');
+    }
+
+    switch (resultType.key) {
       case 'TIME': {
-        const minuteValue =
-          optionalNumber(
-            minutes,
-          ) ?? 0;
+        const minuteValue = optionalNumber(minutes) ?? 0;
+        const secondValue = optionalNumber(seconds) ?? 0;
 
-        const secondValue =
-          optionalNumber(
-            seconds,
-          ) ?? 0;
-
-        if (
-          minuteValue === 0 &&
-          secondValue === 0
-        ) {
-          return t(
-            'validation.timeRequired',
-          );
+        if (minuteValue === 0 && secondValue === 0) {
+          return t('validation.timeRequired');
         }
 
-        if (
-          secondValue < 0 ||
-          secondValue > 59
-        ) {
-          return t(
-            'validation.invalidSeconds',
-          );
+        if (minuteValue < 0 || secondValue < 0 || secondValue > 59) {
+          return t('validation.invalidSeconds');
         }
 
         break;
       }
 
       case 'ROUNDS_REPS': {
-        if (
-          !rounds.trim() &&
-          !reps.trim()
-        ) {
-          return t(
-            'validation.roundsOrRepsRequired',
-          );
+        if (!rounds.trim() && !reps.trim()) {
+          return t('validation.roundsOrRepsRequired');
         }
 
         break;
       }
 
       case 'REPS': {
-        if (
-          !reps.trim()
-        ) {
-          return t(
-            'validation.repsRequired',
-          );
+        if (!reps.trim()) {
+          return t('validation.repsRequired');
         }
 
         break;
       }
 
       case 'LOAD': {
-        if (
-          !load.trim()
-        ) {
-          return t(
-            'validation.loadRequired',
-          );
+        if (!load.trim()) {
+          return t('validation.loadRequired');
         }
 
         break;
       }
     }
 
-    for (
-      const item of
-      weightMovements
-    ) {
-      const performance =
-        getMovementPerformance(
-          item.id,
-        );
+    for (const item of trackableMovements) {
+      const movementError = validateMovementPerformance(item);
 
-      const hasReps =
-        Boolean(
-          performance.reps.trim(),
-        );
-
-      const hasLoad =
-        Boolean(
-          performance.load.trim(),
-        );
-
-      if (
-        hasLoad &&
-        !hasReps
-      ) {
-        return t(
-          'validation.repsRequired',
-        );
-      }
-
-      if (
-        hasReps &&
-        !hasLoad
-      ) {
-        return t(
-          'validation.loadRequired',
-        );
+      if (movementError) {
+        return movementError;
       }
     }
 
-    if (
-      !performedDate ||
-      !performedTime
-    ) {
-      return t(
-        'validation.performedAtRequired',
-      );
+    if (!performedDate || !performedTime) {
+      return t('validation.performedAtRequired');
     }
 
     return null;
   }
 
   function getPerformedAtIso() {
-    return new Date(
-      `${performedDate}T${performedTime}`,
-    ).toISOString();
+    return new Date(`${performedDate}T${performedTime}`).toISOString();
   }
 
   function openDatePicker() {
@@ -613,35 +504,19 @@ export default function LogResultForm({
     timeInputRef.current?.showPicker();
   }
 
-  function handleVariantChange(
-    value: string,
-  ) {
-    setWorkoutVariantId(
-      value,
-    );
-
-    setMovementPerformances(
-      {},
-    );
+  function handleVariantChange(value: string) {
+    setWorkoutVariantId(value);
+    setMovementPerformances({});
   }
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     setError(null);
 
-    const validationError =
-      validate();
+    const validationError = validate();
 
-    if (
-      validationError
-    ) {
-      setError(
-        validationError,
-      );
-
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -661,183 +536,98 @@ export default function LogResultForm({
         movements?: SubmittedMovement[];
       } = {
         workoutVariantId,
-        performedAt:
-          getPerformedAtIso(),
+        performedAt: getPerformedAtIso(),
       };
 
-      if (
-        prescriptionCategoryKey
-      ) {
-        payload.prescriptionCategoryKey =
-          prescriptionCategoryKey;
+      if (prescriptionCategoryKey) {
+        payload.prescriptionCategoryKey = prescriptionCategoryKey;
       }
 
-      if (
-        notes.trim()
-      ) {
-        payload.notes =
-          notes.trim();
+      if (notes.trim()) {
+        payload.notes = notes.trim();
       }
 
-      switch (
-        resultType.key
-      ) {
+      switch (resultType.key) {
         case 'TIME':
           payload.timeSeconds =
-            (optionalNumber(
-              minutes,
-            ) ??
-              0) *
-              60 +
-            (optionalNumber(
-              seconds,
-            ) ??
-              0);
-
+            (optionalNumber(minutes) ?? 0) * 60 +
+            (optionalNumber(seconds) ?? 0);
           break;
 
         case 'ROUNDS_REPS':
-          payload.rounds =
-            optionalNumber(
-              rounds,
-            );
-
-          payload.reps =
-            optionalNumber(
-              reps,
-            );
-
+          payload.rounds = optionalNumber(rounds);
+          payload.reps = optionalNumber(reps);
           break;
 
         case 'REPS':
-          payload.reps =
-            optionalNumber(
-              reps,
-            );
-
+          payload.reps = optionalNumber(reps);
           break;
 
         case 'LOAD':
-          payload.load =
-            optionalNumber(
-              load,
-            );
-
-          payload.weightUnit =
-            weightUnit;
-
+          payload.load = optionalNumber(load);
+          payload.weightUnit = weightUnit;
           break;
       }
 
-      const submittedMovements =
-        getSubmittedMovements();
+      const submittedMovements = getSubmittedMovements();
 
-      if (
-        submittedMovements.length >
-        0
-      ) {
-        payload.movements =
-          submittedMovements;
+      if (submittedMovements.length > 0) {
+        payload.movements = submittedMovements;
       }
 
-      const response =
-        await fetch(
-          `/api/workouts/${workoutId}/results`,
-          {
-            method: 'POST',
-
-            headers: {
-              'Content-Type':
-                'application/json',
-            },
-
-            body:
-              JSON.stringify(
-                payload,
-              ),
+      const response = await fetch(
+        `/api/workouts/${workoutId}/results`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify(payload),
+        },
+      );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
-      if (
-        !response.ok
-      ) {
-        const message =
-          Array.isArray(
-            data.message,
-          )
-            ? data.message.join(
-                ', ',
-              )
-            : data.message;
+      if (!response.ok) {
+        const message = Array.isArray(data.message)
+          ? data.message.join(', ')
+          : data.message;
 
-        setError(
-          message ??
-            t(
-              'validation.saveError',
-            ),
-        );
-
+        setError(message ?? t('validation.saveError'));
         return;
       }
 
       resetForm();
-
       router.refresh();
     } catch {
-      setError(
-        t(
-          'validation.connectionError',
-        ),
-      );
+      setError(t('validation.connectionError'));
     } finally {
-      setIsSubmitting(
-        false,
-      );
+      setIsSubmitting(false);
     }
   }
 
   function resetForm() {
-    setWorkoutVariantId(
-      defaultVariant?.id ?? '',
-    );
-
-    setPrescriptionCategoryKey(
-      defaultPrescriptionCategoryKey,
-    );
+    setWorkoutVariantId(defaultVariant?.id ?? '');
+    setPrescriptionCategoryKey(defaultPrescriptionCategoryKey);
 
     setMinutes('');
     setSeconds('');
     setRounds('');
     setReps('');
     setLoad('');
+    setWeightUnit(preferredWeightUnit);
 
-    setWeightUnit(
-      preferredWeightUnit,
-    );
+    setMovementPerformances({});
 
-    setMovementPerformances(
-      {},
-    );
-
-    setPerformedDate(
-      getLocalDateValue(),
-    );
-
-    setPerformedTime(
-      getLocalTimeValue(),
-    );
+    setPerformedDate(getLocalDateValue());
+    setPerformedTime(getLocalTimeValue());
 
     setNotes('');
   }
 
   return (
     <form
-      onSubmit={
-        handleSubmit
-      }
+      onSubmit={handleSubmit}
       className="rounded-xl border border-border bg-surface p-6"
     >
       <div>
@@ -846,15 +636,11 @@ export default function LogResultForm({
         </p>
 
         <h3 className="mt-1 text-xl font-bold">
-          {
-            localizedResultType
-          }
+          {localizedResultType}
         </h3>
 
         <p className="mt-1 text-sm text-muted">
-          {t(
-            'description',
-          )}
+          {t('description')}
         </p>
       </div>
 
@@ -864,216 +650,122 @@ export default function LogResultForm({
             htmlFor="workoutVariantId"
             className="mb-1.5 block text-sm font-medium"
           >
-            {t(
-              'workoutLevel',
-            )}
+            {t('workoutLevel')}
           </label>
 
           <select
             id="workoutVariantId"
-            value={
-              workoutVariantId
-            }
-            onChange={(
-              event,
-            ) =>
-              handleVariantChange(
-                event.target
-                  .value,
-              )
-            }
+            value={workoutVariantId}
+            onChange={(event) => handleVariantChange(event.target.value)}
             className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           >
             <option value="">
-              {t(
-                'selectWorkoutLevel',
-              )}
+              {t('selectWorkoutLevel')}
             </option>
 
-            {variants.map(
-              (variant) => (
-                <option
-                  key={
-                    variant.id
-                  }
-                  value={
-                    variant.id
-                  }
-                >
-                  {
-                    variant
-                      .level.name
-                  }
-                  {variant.name
-                    ? ` · ${variant.name}`
-                    : ''}
-                </option>
-              ),
-            )}
+            {variants.map((variant) => (
+              <option key={variant.id} value={variant.id}>
+                {variant.level.name}
+                {variant.name ? ` · ${variant.name}` : ''}
+              </option>
+            ))}
           </select>
         </div>
 
-        {prescriptionCategories.length >
-          0 && (
+        {prescriptionCategories.length > 0 && (
           <div>
             <label
               htmlFor="prescriptionCategory"
               className="mb-1.5 block text-sm font-medium"
             >
-              {t(
-                'prescriptionCategory',
-              )}
+              {t('prescriptionCategory')}
 
               <span className="ml-1 font-normal text-muted">
-                {t(
-                  'optional',
-                )}
+                {t('optional')}
               </span>
             </label>
 
             <select
               id="prescriptionCategory"
-              value={
-                prescriptionCategoryKey
-              }
-              onChange={(
-                event,
-              ) =>
-                setPrescriptionCategoryKey(
-                  event.target
-                    .value,
-                )
+              value={prescriptionCategoryKey}
+              onChange={(event) =>
+                setPrescriptionCategoryKey(event.target.value)
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
               <option value="">
-                {t(
-                  'noPrescriptionCategory',
-                )}
+                {t('noPrescriptionCategory')}
               </option>
 
-              {prescriptionCategories.map(
-                (
-                  category,
-                ) => (
-                  <option
-                    key={
-                      category.key
-                    }
-                    value={
-                      category.key
-                    }
-                  >
-                    {
-                      category.name
-                    }
-                  </option>
-                ),
-              )}
+              {prescriptionCategories.map((category) => (
+                <option key={category.key} value={category.key}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
         )}
 
-        {resultType.key ===
-          'TIME' && (
+        {resultType.key === 'TIME' && (
           <>
             <NumberField
               id="minutes"
-              label={t(
-                'minutes',
-              )}
-              value={
-                minutes
-              }
-              onChange={
-                setMinutes
-              }
+              label={t('minutes')}
+              value={minutes}
+              onChange={setMinutes}
               placeholder="5"
             />
 
             <NumberField
               id="seconds"
-              label={t(
-                'seconds',
-              )}
-              value={
-                seconds
-              }
-              onChange={
-                setSeconds
-              }
+              label={t('seconds')}
+              value={seconds}
+              onChange={setSeconds}
               placeholder="58"
               max={59}
             />
           </>
         )}
 
-        {resultType.key ===
-          'ROUNDS_REPS' && (
+        {resultType.key === 'ROUNDS_REPS' && (
           <>
             <NumberField
               id="rounds"
-              label={t(
-                'rounds',
-              )}
-              value={
-                rounds
-              }
-              onChange={
-                setRounds
-              }
+              label={t('rounds')}
+              value={rounds}
+              onChange={setRounds}
               placeholder="7"
             />
 
             <NumberField
               id="reps"
-              label={t(
-                'extraReps',
-              )}
-              value={
-                reps
-              }
-              onChange={
-                setReps
-              }
+              label={t('extraReps')}
+              value={reps}
+              onChange={setReps}
               placeholder="12"
             />
           </>
         )}
 
-        {resultType.key ===
-          'REPS' && (
+        {resultType.key === 'REPS' && (
           <div className="md:col-span-2">
             <NumberField
               id="reps"
-              label={t(
-                'reps',
-              )}
-              value={
-                reps
-              }
-              onChange={
-                setReps
-              }
+              label={t('reps')}
+              value={reps}
+              onChange={setReps}
               placeholder="50"
             />
           </div>
         )}
 
-        {resultType.key ===
-          'LOAD' && (
+        {resultType.key === 'LOAD' && (
           <>
             <NumberField
               id="load"
-              label={t(
-                'load',
-              )}
-              value={
-                load
-              }
-              onChange={
-                setLoad
-              }
+              label={t('load')}
+              value={load}
+              onChange={setLoad}
               placeholder="100"
               step="0.1"
             />
@@ -1083,170 +775,195 @@ export default function LogResultForm({
                 htmlFor="weightUnit"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t(
-                  'unit',
-                )}
+                {t('unit')}
               </label>
 
               <select
                 id="weightUnit"
-                value={
-                  weightUnit
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setWeightUnit(
-                    event.target
-                      .value as
-                      WeightUnit,
-                  )
+                value={weightUnit}
+                onChange={(event) =>
+                  setWeightUnit(event.target.value as WeightUnit)
                 }
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               >
-                <option value="KG">
-                  KG
-                </option>
-
-                <option value="LB">
-                  LB
-                </option>
+                <option value="KG">KG</option>
+                <option value="LB">LB</option>
               </select>
             </div>
           </>
         )}
 
-        {weightMovements.length >
-          0 && (
+        {trackableMovements.length > 0 && (
           <div className="md:col-span-2">
             <div className="border-t border-border pt-6">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-semibold">
-                  {sectionBuilderT(
-                    'movements',
-                  )}
+                  {sectionBuilderT('movements')}
                 </p>
 
                 <span className="text-sm text-muted">
-                  {t(
-                    'optional',
-                  )}
+                  {t('optional')}
                 </span>
               </div>
 
               <div className="mt-4 space-y-4">
-                {weightMovements.map(
-                  (item) => {
-                    const performance =
-                      getMovementPerformance(
-                        item.id,
-                      );
+                {trackableMovements.map((item) => {
+                  const performance = getMovementPerformance(item.id);
+                  const measurementKeys = getMeasurementKeys(item);
 
-                    return (
-                      <div
-                        key={
-                          item.id
-                        }
-                        className="rounded-lg border border-border bg-background p-4"
-                      >
+                  const supportsWeight = measurementKeys.has('WEIGHT');
+                  const supportsReps = measurementKeys.has('REPS');
+                  const supportsDistance = measurementKeys.has('DISTANCE');
+                  const supportsDuration = measurementKeys.has('DURATION');
+                  const supportsCalories = measurementKeys.has('CALORIES');
+
+                  const showReps = supportsWeight || supportsReps;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border border-border bg-background p-4"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
                         <p className="font-semibold">
-                          {
-                            item
-                              .movement
-                              .name
-                          }
+                          {item.movement.name}
                         </p>
 
-                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {item.movement.measurementTypes.map((type) => (
+                            <span
+                              key={type.key}
+                              className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
+                            >
+                              {type.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {showReps && (
                           <NumberField
                             id={`movement-${item.id}-reps`}
-                            label={movementBuilderT(
-                              'reps',
-                            )}
-                            value={
-                              performance.reps
-                            }
-                            onChange={(
-                              value,
-                            ) =>
-                              updateMovementPerformance(
-                                item.id,
-                                {
-                                  reps:
-                                    value,
-                                },
-                              )
+                            label={movementBuilderT('reps')}
+                            value={performance.reps}
+                            onChange={(value) =>
+                              updateMovementPerformance(item.id, {
+                                reps: value,
+                              })
                             }
                             placeholder="5"
                           />
+                        )}
 
+                        {supportsWeight && (
+                          <>
+                            <NumberField
+                              id={`movement-${item.id}-load`}
+                              label={movementBuilderT('weight')}
+                              value={performance.load}
+                              onChange={(value) =>
+                                updateMovementPerformance(item.id, {
+                                  load: value,
+                                })
+                              }
+                              placeholder="100"
+                              step="0.1"
+                            />
+
+                            <div>
+                              <label
+                                htmlFor={`movement-${item.id}-unit`}
+                                className="mb-1.5 block text-sm font-medium"
+                              >
+                                {movementBuilderT('unit')}
+                              </label>
+
+                              <select
+                                id={`movement-${item.id}-unit`}
+                                value={performance.weightUnit}
+                                onChange={(event) =>
+                                  updateMovementPerformance(item.id, {
+                                    weightUnit:
+                                      event.target.value as WeightUnit,
+                                  })
+                                }
+                                className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                              >
+                                <option value="KG">KG</option>
+                                <option value="LB">LB</option>
+                              </select>
+                            </div>
+                          </>
+                        )}
+
+                        {supportsDistance && (
                           <NumberField
-                            id={`movement-${item.id}-load`}
-                            label={movementBuilderT(
-                              'weight',
-                            )}
-                            value={
-                              performance.load
+                            id={`movement-${item.id}-distance`}
+                            label={movementBuilderT('distance')}
+                            value={performance.distance}
+                            onChange={(value) =>
+                              updateMovementPerformance(item.id, {
+                                distance: value,
+                              })
                             }
-                            onChange={(
-                              value,
-                            ) =>
-                              updateMovementPerformance(
-                                item.id,
-                                {
-                                  load:
-                                    value,
-                                },
-                              )
-                            }
-                            placeholder="100"
+                            placeholder="1000"
                             step="0.1"
                           />
+                        )}
 
-                          <div>
-                            <label
-                              htmlFor={`movement-${item.id}-unit`}
-                              className="mb-1.5 block text-sm font-medium"
-                            >
-                              {movementBuilderT(
-                                'unit',
-                              )}
-                            </label>
+                        {supportsDuration && (
+                          <div className="sm:col-span-2 lg:col-span-2">
+                            <p className="mb-1.5 text-sm font-medium">
+                              {movementBuilderT('duration')}
+                            </p>
 
-                            <select
-                              id={`movement-${item.id}-unit`}
-                              value={
-                                performance.weightUnit
-                              }
-                              onChange={(
-                                event,
-                              ) =>
-                                updateMovementPerformance(
-                                  item.id,
-                                  {
-                                    weightUnit:
-                                      event.target
-                                        .value as
-                                        WeightUnit,
-                                  },
-                                )
-                              }
-                              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                            >
-                              <option value="KG">
-                                KG
-                              </option>
+                            <div className="grid grid-cols-2 gap-3">
+                              <NumberField
+                                id={`movement-${item.id}-duration-minutes`}
+                                label={t('minutes')}
+                                value={performance.durationMinutes}
+                                onChange={(value) =>
+                                  updateMovementPerformance(item.id, {
+                                    durationMinutes: value,
+                                  })
+                                }
+                                placeholder="3"
+                              />
 
-                              <option value="LB">
-                                LB
-                              </option>
-                            </select>
+                              <NumberField
+                                id={`movement-${item.id}-duration-seconds`}
+                                label={t('seconds')}
+                                value={performance.durationSeconds}
+                                onChange={(value) =>
+                                  updateMovementPerformance(item.id, {
+                                    durationSeconds: value,
+                                  })
+                                }
+                                placeholder="42"
+                                max={59}
+                              />
+                            </div>
                           </div>
-                        </div>
+                        )}
+
+                        {supportsCalories && (
+                          <NumberField
+                            id={`movement-${item.id}-calories`}
+                            label={movementBuilderT('calories')}
+                            value={performance.calories}
+                            onChange={(value) =>
+                              updateMovementPerformance(item.id, {
+                                calories: value,
+                              })
+                            }
+                            placeholder="20"
+                          />
+                        )}
                       </div>
-                    );
-                  },
-                )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1254,64 +971,40 @@ export default function LogResultForm({
 
         <div className="md:col-span-2">
           <p className="mb-1.5 text-sm font-medium">
-            {t(
-              'performedAt',
-            )}
+            {t('performedAt')}
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
-                {t(
-                  'date',
-                )}
+                {t('date')}
               </p>
 
               <button
                 type="button"
-                onClick={
-                  openDatePicker
-                }
+                onClick={openDatePicker}
                 className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
               >
                 <div>
                   <p className="text-sm font-semibold">
-                    {formatSelectedDate(
-                      performedDate,
-                    )}
+                    {formatSelectedDate(performedDate)}
                   </p>
 
                   <p className="mt-0.5 text-xs text-muted">
-                    {t(
-                      'chooseDate',
-                    )}
+                    {t('chooseDate')}
                   </p>
                 </div>
 
-                <span
-                  aria-hidden="true"
-                  className="text-lg text-muted"
-                >
+                <span aria-hidden="true" className="text-lg text-muted">
                   ◫
                 </span>
               </button>
 
               <input
-                ref={
-                  dateInputRef
-                }
+                ref={dateInputRef}
                 type="date"
-                value={
-                  performedDate
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setPerformedDate(
-                    event.target
-                      .value,
-                  )
-                }
+                value={performedDate}
+                onChange={(event) => setPerformedDate(event.target.value)}
                 className="sr-only"
                 tabIndex={-1}
               />
@@ -1319,56 +1012,34 @@ export default function LogResultForm({
 
             <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
-                {t(
-                  'time',
-                )}
+                {t('time')}
               </p>
 
               <button
                 type="button"
-                onClick={
-                  openTimePicker
-                }
+                onClick={openTimePicker}
                 className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
               >
                 <div>
                   <p className="text-sm font-semibold">
-                    {formatSelectedTime(
-                      performedTime,
-                    )}
+                    {formatSelectedTime(performedTime)}
                   </p>
 
                   <p className="mt-0.5 text-xs text-muted">
-                    {t(
-                      'chooseTime',
-                    )}
+                    {t('chooseTime')}
                   </p>
                 </div>
 
-                <span
-                  aria-hidden="true"
-                  className="text-lg text-muted"
-                >
+                <span aria-hidden="true" className="text-lg text-muted">
                   ◷
                 </span>
               </button>
 
               <input
-                ref={
-                  timeInputRef
-                }
+                ref={timeInputRef}
                 type="time"
-                value={
-                  performedTime
-                }
-                onChange={(
-                  event,
-                ) =>
-                  setPerformedTime(
-                    event.target
-                      .value,
-                  )
-                }
+                value={performedTime}
+                onChange={(event) => setPerformedTime(event.target.value)}
                 className="sr-only"
                 tabIndex={-1}
               />
@@ -1376,9 +1047,7 @@ export default function LogResultForm({
           </div>
 
           <p className="mt-2 text-xs text-muted">
-            {t(
-              'performedAtHelp',
-            )}
+            {t('performedAtHelp')}
           </p>
         </div>
 
@@ -1387,34 +1056,19 @@ export default function LogResultForm({
             htmlFor="notes"
             className="mb-1.5 block text-sm font-medium"
           >
-            {t(
-              'notes',
-            )}
+            {t('notes')}
 
             <span className="ml-1 font-normal text-muted">
-              {t(
-                'optional',
-              )}
+              {t('optional')}
             </span>
           </label>
 
           <textarea
             id="notes"
             rows={3}
-            value={
-              notes
-            }
-            onChange={(
-              event,
-            ) =>
-              setNotes(
-                event.target
-                  .value,
-              )
-            }
-            placeholder={t(
-              'notesPlaceholder',
-            )}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder={t('notesPlaceholder')}
             className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           />
         </div>
@@ -1434,19 +1088,10 @@ export default function LogResultForm({
       <div className="mt-6 flex justify-end">
         <button
           type="submit"
-          disabled={
-            isSubmitting ||
-            !workoutVariantId
-          }
+          disabled={isSubmitting || !workoutVariantId}
           className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
-          {isSubmitting
-            ? t(
-                'saving',
-              )
-            : t(
-                'save',
-              )}
+          {isSubmitting ? t('saving') : t('save')}
         </button>
       </div>
     </form>
@@ -1457,9 +1102,7 @@ type NumberFieldProps = {
   id: string;
   label: string;
   value: string;
-  onChange: (
-    value: string,
-  ) => void;
+  onChange: (value: string) => void;
   placeholder: string;
   max?: number;
   step?: string;
@@ -1490,17 +1133,8 @@ function NumberField({
         max={max}
         step={step}
         value={value}
-        onChange={(
-          event,
-        ) =>
-          onChange(
-            event.target
-              .value,
-          )
-        }
-        placeholder={
-          placeholder
-        }
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
         className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
       />
     </div>

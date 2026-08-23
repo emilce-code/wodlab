@@ -10,6 +10,49 @@ import { CreateMovementResultDto } from './dto/create-movement-result.dto';
 import { FindMovementsQueryDto } from './dto/find-movements-query.dto';
 import { MovementResponseDto } from './dto/movement-response.dto';
 
+const movementResultInclude = {
+  measurementType: {
+    select: {
+      key: true,
+      name: true,
+    },
+  },
+
+  sourceWorkoutResult: {
+    select: {
+      id: true,
+
+      workout: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+
+      workoutVariant: {
+        select: {
+          id: true,
+          name: true,
+
+          level: {
+            select: {
+              key: true,
+              name: true,
+            },
+          },
+        },
+      },
+
+      prescriptionCategory: {
+        select: {
+          key: true,
+          name: true,
+        },
+      },
+    },
+  },
+};
+
 @Injectable()
 export class MovementsService {
   constructor(
@@ -35,8 +78,11 @@ export class MovementsService {
           ...(normalizedSearch
             ? {
                 searchText: {
-                  contains: normalizedSearch,
-                  mode: 'insensitive',
+                  contains:
+                    normalizedSearch,
+
+                  mode:
+                    'insensitive',
                 },
               }
             : {}),
@@ -44,7 +90,8 @@ export class MovementsService {
           ...(category
             ? {
                 category: {
-                  key: category,
+                  key:
+                    category,
                 },
               }
             : {}),
@@ -54,16 +101,19 @@ export class MovementsService {
                 measurementTypes: {
                   some: {
                     measurementType: {
-                      key: measurementType,
+                      key:
+                        measurementType,
                     },
                   },
                 },
               }
             : {}),
 
-          ...(foundational === 'true'
+          ...(foundational ===
+          'true'
             ? {
-                isFoundational: true,
+                isFoundational:
+                  true,
               }
             : {}),
         },
@@ -73,7 +123,8 @@ export class MovementsService {
 
           measurementTypes: {
             include: {
-              measurementType: true,
+              measurementType:
+                true,
             },
           },
         },
@@ -97,7 +148,8 @@ export class MovementsService {
     const movement =
       await this.prisma.movement.findUnique({
         where: {
-          id: movementId,
+          id:
+            movementId,
         },
 
         include: {
@@ -105,12 +157,14 @@ export class MovementsService {
 
           measurementTypes: {
             include: {
-              measurementType: true,
+              measurementType:
+                true,
             },
 
             orderBy: {
               measurementType: {
-                sortOrder: 'asc',
+                sortOrder:
+                  'asc',
               },
             },
           },
@@ -131,7 +185,8 @@ export class MovementsService {
   findCategories() {
     return this.prisma.movementCategory.findMany({
       orderBy: {
-        sortOrder: 'asc',
+        sortOrder:
+          'asc',
       },
 
       select: {
@@ -144,7 +199,8 @@ export class MovementsService {
   findMeasurementTypes() {
     return this.prisma.measurementType.findMany({
       orderBy: {
-        sortOrder: 'asc',
+        sortOrder:
+          'asc',
       },
 
       select: {
@@ -162,7 +218,7 @@ export class MovementsService {
         userId,
       );
 
-    const results =
+    const rawResults =
       await this.prisma.movementResult.findMany({
         where: {
           athleteProfileId:
@@ -184,27 +240,33 @@ export class MovementsService {
             },
           },
 
-          measurementType: {
-            select: {
-              key: true,
-              name: true,
-            },
-          },
+          ...movementResultInclude,
         },
 
         orderBy: [
           {
-            performedAt: 'asc',
+            performedAt:
+              'asc',
           },
 
           {
-            createdAt: 'asc',
+            createdAt:
+              'asc',
           },
         ],
       });
 
+    const results =
+      rawResults.map(
+        (result) =>
+          this.mapMovementResult(
+            result,
+          ),
+      );
+
     if (
-      results.length === 0
+      results.length ===
+      0
     ) {
       return {
         summary: {
@@ -245,7 +307,10 @@ export class MovementsService {
         }
       >();
 
-    for (const result of results) {
+    for (
+      const result of
+      results
+    ) {
       const reps =
         result
           .measurementType
@@ -313,8 +378,8 @@ export class MovementsService {
 
             const latestResult =
               track.history[
-                track.history.length -
-                  1
+                track.history
+                  .length - 1
               ];
 
             let personalBest:
@@ -354,6 +419,7 @@ export class MovementsService {
                       ? candidate
                       : best;
                   },
+
                   null as
                     | (typeof track.history)[number]
                     | null,
@@ -364,6 +430,7 @@ export class MovementsService {
                   track
                     .measurementType
                     .key,
+
                   track.history,
                 );
             }
@@ -379,7 +446,8 @@ export class MovementsService {
                 track.reps,
 
               attemptCount:
-                track.history.length,
+                track.history
+                  .length,
 
               personalBest,
 
@@ -446,7 +514,8 @@ export class MovementsService {
     const movement =
       await this.prisma.movement.findUnique({
         where: {
-          id: movementId,
+          id:
+            movementId,
         },
 
         include: {
@@ -488,60 +557,66 @@ export class MovementsService {
       dto,
     );
 
-    return this.prisma.movementResult.create({
-      data: {
-        movementId:
-          movement.id,
+    const result =
+      await this.prisma.movementResult.create({
+        data: {
+          movementId:
+            movement.id,
 
-        athleteProfileId:
-          athleteProfile.id,
+          athleteProfileId:
+            athleteProfile.id,
 
-        measurementTypeId:
-          measurementType.id,
+          measurementTypeId:
+            measurementType.id,
 
-        performedAt:
-          new Date(
-            dto.performedAt,
-          ),
+          performedAt:
+            new Date(
+              dto.performedAt,
+            ),
 
-        reps:
-          dto.reps,
+          reps:
+            dto.reps,
 
-        load:
-          dto.load,
+          load:
+            dto.load,
 
-        weightUnit:
-          dto.load !== undefined
-            ? dto.weightUnit ??
-              athleteProfile.preferredWeightUnit
-            : undefined,
+          weightUnit:
+            dto.load !==
+            undefined
+              ? dto.weightUnit ??
+                athleteProfile
+                  .preferredWeightUnit
+              : undefined,
 
-        distance:
-          dto.distance,
+          distance:
+            dto.distance,
 
-        durationSeconds:
-          dto.durationSeconds,
+          durationSeconds:
+            dto.durationSeconds,
 
-        calories:
-          dto.calories,
+          calories:
+            dto.calories,
 
-        notes:
-          dto.notes?.trim() ||
-          undefined,
-      },
+          notes:
+            dto.notes?.trim() ||
+            undefined,
+        },
 
-      include: {
-        measurementType:
-          true,
+        include: {
+          ...movementResultInclude,
 
-        movement: {
-          select: {
-            id: true,
-            name: true,
+          movement: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-      },
-    });
+      });
+
+    return this.mapMovementResult(
+      result,
+    );
   }
 
   async findResults(
@@ -557,35 +632,37 @@ export class MovementsService {
       movementId,
     );
 
-    return this.prisma.movementResult.findMany({
-      where: {
-        movementId,
+    const results =
+      await this.prisma.movementResult.findMany({
+        where: {
+          movementId,
 
-        athleteProfileId:
-          athleteProfile.id,
-      },
+          athleteProfileId:
+            athleteProfile.id,
+        },
 
-      include: {
-        measurementType: {
-          select: {
-            key: true,
-            name: true,
+        include:
+          movementResultInclude,
+
+        orderBy: [
+          {
+            performedAt:
+              'desc',
           },
-        },
-      },
 
-      orderBy: [
-        {
-          performedAt:
-            'desc',
-        },
+          {
+            createdAt:
+              'desc',
+          },
+        ],
+      });
 
-        {
-          createdAt:
-            'desc',
-        },
-      ],
-    });
+    return results.map(
+      (result) =>
+        this.mapMovementResult(
+          result,
+        ),
+    );
   }
 
   async findResultSummary(
@@ -600,7 +677,8 @@ export class MovementsService {
     const movement =
       await this.prisma.movement.findUnique({
         where: {
-          id: movementId,
+          id:
+            movementId,
         },
 
         include: {
@@ -626,7 +704,7 @@ export class MovementsService {
       );
     }
 
-    const results =
+    const rawResults =
       await this.prisma.movementResult.findMany({
         where: {
           movementId,
@@ -635,10 +713,8 @@ export class MovementsService {
             athleteProfile.id,
         },
 
-        include: {
-          measurementType:
-            true,
-        },
+        include:
+          movementResultInclude,
 
         orderBy: [
           {
@@ -652,6 +728,14 @@ export class MovementsService {
           },
         ],
       });
+
+    const results =
+      rawResults.map(
+        (result) =>
+          this.mapMovementResult(
+            result,
+          ),
+      );
 
     const personalRecords =
       movement.measurementTypes.map(
@@ -678,7 +762,10 @@ export class MovementsService {
                 typeof matchingResults
               >();
 
-            for (const result of matchingResults) {
+            for (
+              const result of
+              matchingResults
+            ) {
               if (
                 result.reps ===
                 null
@@ -742,6 +829,7 @@ export class MovementsService {
                             ? candidate
                             : currentBest;
                         },
+
                         undefined as
                           | (typeof repResults)[number]
                           | undefined,
@@ -877,6 +965,91 @@ export class MovementsService {
 
       aliases:
         movement.aliases,
+    };
+  }
+
+  private mapMovementResult(
+    result: any,
+  ) {
+    const {
+      sourceWorkoutResult,
+      ...baseResult
+    } = result;
+
+    const source =
+      sourceWorkoutResult
+        ? {
+            type:
+              'WORKOUT' as const,
+
+            workoutResultId:
+              sourceWorkoutResult.id,
+
+            workout: {
+              id:
+                sourceWorkoutResult
+                  .workout.id,
+
+              name:
+                sourceWorkoutResult
+                  .workout.name,
+            },
+
+            workoutVariant: {
+              id:
+                sourceWorkoutResult
+                  .workoutVariant.id,
+
+              name:
+                sourceWorkoutResult
+                  .workoutVariant.name,
+
+              level: {
+                key:
+                  sourceWorkoutResult
+                    .workoutVariant
+                    .level.key,
+
+                name:
+                  sourceWorkoutResult
+                    .workoutVariant
+                    .level.name,
+              },
+            },
+
+            prescriptionCategory:
+              sourceWorkoutResult
+                .prescriptionCategory
+                ? {
+                    key:
+                      sourceWorkoutResult
+                        .prescriptionCategory
+                        .key,
+
+                    name:
+                      sourceWorkoutResult
+                        .prescriptionCategory
+                        .name,
+                  }
+                : null,
+          }
+        : {
+            type:
+              'MANUAL' as const,
+          };
+
+    return {
+      ...baseResult,
+
+      load:
+        baseResult.load !==
+        null
+          ? Number(
+              baseResult.load,
+            )
+          : null,
+
+      source,
     };
   }
 

@@ -20,6 +20,7 @@ import {
 
 import LogMovementResultForm from './components/LogMovementResultForm';
 import MovementProgressChart from './components/MovementProgressChart';
+import MovementResultSource from './components/MovementResultSource';
 
 type WeightUnit =
   | 'KG'
@@ -46,6 +47,36 @@ type Movement = {
     MeasurementType[];
 };
 
+type MovementResultSource =
+  | {
+      type: 'MANUAL';
+    }
+  | {
+      type: 'WORKOUT';
+
+      workoutResultId: string;
+
+      workout: {
+        id: string;
+        name: string;
+      };
+
+      workoutVariant: {
+        id: string;
+        name: string | null;
+
+        level: {
+          key: string;
+          name: string;
+        };
+      };
+
+      prescriptionCategory: {
+        key: string;
+        name: string;
+      } | null;
+    };
+
 type MovementResult = {
   id: string;
 
@@ -54,9 +85,13 @@ type MovementResult = {
     name: string;
   };
 
+  source: MovementResultSource;
+
   performedAt: string;
 
-  reps: number | null;
+  reps:
+    | number
+    | null;
 
   load:
     | number
@@ -205,22 +240,29 @@ export default async function MovementDetailPage({
     locale,
   ] = await Promise.all([
     getMovement(id),
+
     getMovementResults(
       id,
     ),
+
     getMovementSummary(
       id,
     ),
+
     getCurrentUser(),
+
     getTranslations(
       'movements.detail',
     ),
+
     getTranslations(
       'movementCategories',
     ),
+
     getTranslations(
       'measurementTypes',
     ),
+
     getLocale(),
   ]);
 
@@ -292,8 +334,10 @@ export default async function MovementDetailPage({
       {
         month:
           'short',
+
         day:
           'numeric',
+
         year:
           'numeric',
       },
@@ -323,10 +367,7 @@ export default async function MovementDetailPage({
         );
 
       case 'WEIGHT':
-        return `${
-          result.reps ??
-          0
-        } × ${
+        return `${result.reps ?? 0} × ${
           result.load ??
           '—'
         } ${
@@ -335,10 +376,7 @@ export default async function MovementDetailPage({
         }`.trim();
 
       case 'DISTANCE':
-        return `${
-          result.distance ??
-          0
-        } m`;
+        return `${result.distance ?? 0} m`;
 
       case 'DURATION':
         return result.durationSeconds !==
@@ -349,10 +387,7 @@ export default async function MovementDetailPage({
           : '—';
 
       case 'CALORIES':
-        return `${
-          result.calories ??
-          0
-        } cal`;
+        return `${result.calories ?? 0} cal`;
 
       default:
         return '—';
@@ -384,6 +419,7 @@ export default async function MovementDetailPage({
         className="text-sm font-medium text-muted transition hover:text-foreground"
       >
         ←{' '}
+
         {t(
           'backToMovements',
         )}
@@ -392,7 +428,9 @@ export default async function MovementDetailPage({
       <header className="mt-8">
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {getCategoryName()}
+            {
+              getCategoryName()
+            }
           </p>
 
           {currentMovement.isFoundational && (
@@ -417,6 +455,7 @@ export default async function MovementDetailPage({
               'alsoKnownAs',
             )}
             :{' '}
+
             {currentMovement.aliases.join(
               ' · ',
             )}
@@ -521,6 +560,7 @@ export default async function MovementDetailPage({
                               {
                                 result.load
                               }{' '}
+
                               {
                                 result.weightUnit
                               }
@@ -531,6 +571,18 @@ export default async function MovementDetailPage({
                                 result.performedAt,
                               )}
                             </p>
+
+                            <div className="mt-4 border-t border-border pt-4">
+                              <MovementResultSource
+                                source={
+                                  result.source
+                                }
+                                locale={
+                                  locale
+                                }
+                                compact
+                              />
+                            </div>
                           </Card>
                         );
                       },
@@ -570,6 +622,18 @@ export default async function MovementDetailPage({
                           .performedAt,
                       )}
                     </p>
+
+                    <div className="mt-4 border-t border-border pt-4">
+                      <MovementResultSource
+                        source={
+                          group.result.source
+                        }
+                        locale={
+                          locale
+                        }
+                        compact
+                      />
+                    </div>
                   </Card>,
                 ];
               },
@@ -679,9 +743,9 @@ export default async function MovementDetailPage({
                     key={
                       result.id
                     }
-                    className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between"
                   >
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-lg font-bold">
                           {formatResult(
@@ -703,6 +767,17 @@ export default async function MovementDetailPage({
                           }
                         </p>
                       )}
+
+                      <div className="mt-3">
+                        <MovementResultSource
+                          source={
+                            result.source
+                          }
+                          locale={
+                            locale
+                          }
+                        />
+                      </div>
                     </div>
 
                     <p className="shrink-0 text-sm text-muted">
