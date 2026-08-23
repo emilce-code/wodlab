@@ -70,19 +70,37 @@
   },
   "dashboard": {
     "eyebrow": "Hoy",
-    "greeting": "Buenas tardes, {name}.",
-    "readyToTrain": "¿Listo para entrenar?",
-    "todaysWorkout": "Entrenamiento de hoy",
-    "forTime": "Por tiempo",
-    "benchmark": "Benchmark",
-    "startWorkout": "Comenzar entrenamiento",
-    "recentActivity": "Actividad reciente",
-    "viewAllHistory": "Ver todo el historial",
-    "thisMonth": "Este mes",
-    "workouts": "Entrenamientos",
-    "prs": "PRs",
-    "volume": "Volumen",
-    "reps": "reps"
+    "greeting": "Hola, {name}",
+    "readyToTrain": "Así está tu entrenamiento hoy.",
+    "stats": {
+      "workouts": "Entrenamientos",
+      "movementResults": "Resultados de movimientos",
+      "personalRecords": "PRs",
+      "movementsTracked": "Movimientos seguidos",
+      "thisMonth": "Este mes",
+      "allTime": "Histórico"
+    },
+    "trainToday": {
+      "eyebrow": "Entrena hoy",
+      "title": "¿Qué vas a entrenar?",
+      "description": "Elige un entrenamiento o trabaja un movimiento individual. Tus resultados se reflejarán directamente en Historial y Progreso.",
+      "readyTitle": "¿Lista para entrenar hoy?",
+      "readyDescription": "Explora la biblioteca de entrenamientos o elige un movimiento para registrar peso, repeticiones, distancia, duración u otro resultado.",
+      "browseWorkouts": "Ver entrenamientos",
+      "browseMovements": "Ver movimientos",
+      "quickLinks": "Accesos rápidos",
+      "viewHistory": "Ver historial",
+      "viewProgress": "Ver progreso"
+    },
+    "activity": {
+      "eyebrow": "Actividad reciente",
+      "title": "Entrenamientos recientes",
+      "description": "Tus resultados más recientes de entrenamientos y movimientos en un solo lugar.",
+      "viewAll": "Ver todo el historial",
+      "emptyTitle": "Aún no registraste entrenamientos",
+      "emptyDescription": "Completa un entrenamiento o registra un resultado de movimiento y tu actividad reciente aparecerá aquí.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
   },
   "workouts": {
     "library": {

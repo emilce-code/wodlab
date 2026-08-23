@@ -65,6 +65,17 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('users/me/dashboard')
+  getDashboard(
+    @Req()
+    request: AuthenticatedRequest,
+  ) {
+    return this.usersService.getDashboard(
+      request.user.userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(
     @Req()

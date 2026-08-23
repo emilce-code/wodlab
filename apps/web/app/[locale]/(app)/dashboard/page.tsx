@@ -1,10 +1,137 @@
-import { getTranslations } from 'next-intl/server';
-import { redirect } from 'next/navigation';
+import {
+  getTranslations,
+} from 'next-intl/server';
+import {
+  redirect,
+} from 'next/navigation';
 
 import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { getCurrentUser } from '@/lib/auth';
+import {
+  Link,
+} from '@/i18n/navigation';
+import {
+  authenticatedApiFetch,
+} from '@/lib/api';
+
+type WeightUnit =
+  | 'KG'
+  | 'LB'
+  | null;
+
+type DashboardProfile = {
+  displayName: string;
+  email: string;
+  preferredWeightUnit:
+    | 'KG'
+    | 'LB';
+};
+
+type DashboardResultValue =
+  | {
+      type: 'DURATION';
+      value:
+        | number
+        | null;
+    }
+  | {
+      type: 'ROUNDS_REPS';
+      rounds:
+        | number
+        | null;
+      reps:
+        | number
+        | null;
+    }
+  | {
+      type: 'REPS';
+      value:
+        | number
+        | null;
+    }
+  | {
+      type: 'WEIGHT';
+      value:
+        | number
+        | null;
+      weightUnit:
+        WeightUnit;
+      reps?: number | null;
+    }
+  | {
+      type: 'DISTANCE';
+      value:
+        | number
+        | null;
+    }
+  | {
+      type: 'CALORIES';
+      value:
+        | number
+        | null;
+    }
+  | {
+      type: 'UNKNOWN';
+    };
+
+type DashboardActivity = {
+  id: string;
+
+  type:
+    | 'WORKOUT'
+    | 'MOVEMENT';
+
+  performedAt: string;
+  href: string;
+  title: string;
+
+  subtitle: {
+    key: string;
+    name: string;
+  };
+
+  result:
+    DashboardResultValue;
+
+  badge:
+    | {
+        key: string;
+        name: string;
+      }
+    | null;
+
+  prescriptionCategory?:
+    | {
+        key: string;
+        name: string;
+      }
+    | null;
+
+  category?:
+    | {
+        key: string;
+        name: string;
+      }
+    | null;
+};
+
+type DashboardResponse = {
+  profile:
+    DashboardProfile;
+
+  currentMonth: {
+    workoutResults: number;
+    movementResults: number;
+    personalRecords: number;
+  };
+
+  overall: {
+    movementsTracked: number;
+  };
+
+  recentActivity:
+    DashboardActivity[];
+};
 
 type Props = {
   params: Promise<{
@@ -12,252 +139,590 @@ type Props = {
   }>;
 };
 
+async function getDashboard(): Promise<
+  DashboardResponse | null
+> {
+  const response =
+    await authenticatedApiFetch(
+      '/users/me/dashboard',
+    );
+
+  if (!response?.ok) {
+    return null;
+  }
+
+  return (
+    await response.json()
+  ) as DashboardResponse;
+}
+
+function formatDuration(
+  seconds: number,
+) {
+  const hours =
+    Math.floor(
+      seconds / 3600,
+    );
+
+  const minutes =
+    Math.floor(
+      (seconds % 3600) /
+        60,
+    );
+
+  const remainingSeconds =
+    seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes
+      .toString()
+      .padStart(
+        2,
+        '0',
+      )}:${remainingSeconds
+      .toString()
+      .padStart(
+        2,
+        '0',
+      )}`;
+  }
+
+  return `${minutes}:${remainingSeconds
+    .toString()
+    .padStart(
+      2,
+      '0',
+    )}`;
+}
+
 export default async function DashboardPage({
   params,
 }: Props) {
-  const { locale } = await params;
+  const { locale } =
+    await params;
 
-  const t =
-    await getTranslations('dashboard');
+  const [
+    t,
+    workoutTypeT,
+    measurementT,
+    dashboard,
+  ] = await Promise.all([
+    getTranslations(
+      'dashboard',
+    ),
+    getTranslations(
+      'workoutTypes',
+    ),
+    getTranslations(
+      'measurementTypes',
+    ),
+    getDashboard(),
+  ]);
 
-  const user =
-    await getCurrentUser();
-
-  if (!user) {
-    redirect(`/${locale}/login`);
+  if (!dashboard) {
+    redirect(
+      `/${locale}/login`,
+    );
   }
 
-  const displayName =
-    user.athleteProfile
-      ?.displayName ??
-    user.email;
+  const {
+    profile,
+    currentMonth,
+    overall,
+    recentActivity,
+  } = dashboard;
+
+  const hasActivity =
+    recentActivity.length >
+    0;
+
+  function formatDate(
+    value: string,
+  ) {
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        month: 'short',
+        day: 'numeric',
+      },
+    ).format(
+      new Date(value),
+    );
+  }
+
+  function getSubtitle(
+    activity: DashboardActivity,
+  ) {
+    const key =
+      activity.subtitle.key.toLowerCase();
+
+    if (
+      activity.type ===
+      'WORKOUT'
+    ) {
+      return workoutTypeT.has(
+        key,
+      )
+        ? workoutTypeT(
+            key,
+          )
+        : activity.subtitle.name;
+    }
+
+    return measurementT.has(
+      key,
+    )
+      ? measurementT(
+          key,
+        )
+      : activity.subtitle.name;
+  }
+
+  function formatActivityResult(
+    value: DashboardResultValue,
+  ) {
+    switch (
+      value.type
+    ) {
+      case 'DURATION':
+        return value.value !==
+          null
+          ? formatDuration(
+              value.value,
+            )
+          : '—';
+
+      case 'ROUNDS_REPS':
+        return `${
+          value.rounds ??
+          0
+        } + ${
+          value.reps ??
+          0
+        }`;
+
+      case 'REPS':
+        return t(
+          'activity.repsValue',
+          {
+            count:
+              value.value ??
+              0,
+          },
+        );
+
+      case 'WEIGHT': {
+        const formattedWeight =
+          value.value !==
+          null
+            ? `${value.value} ${
+                value.weightUnit ??
+                ''
+              }`.trim()
+            : '—';
+
+        if (
+          value.reps !==
+            undefined &&
+          value.reps !==
+            null
+        ) {
+          return `${value.reps} × ${formattedWeight}`;
+        }
+
+        return formattedWeight;
+      }
+
+      case 'DISTANCE':
+        return `${
+          value.value ??
+          0
+        } m`;
+
+      case 'CALORIES':
+        return `${
+          value.value ??
+          0
+        } cal`;
+
+      default:
+        return '—';
+    }
+  }
 
   return (
-    <div className="space-y-10">
+    <div className="mx-auto max-w-5xl space-y-12">
       <header>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">
-          {t('eyebrow')}
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+          {t(
+            'eyebrow',
+          )}
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          {t('greeting', {
-            name: displayName,
-          })}
+        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+          {t(
+            'greeting',
+            {
+              name:
+                profile.displayName,
+            },
+          )}
         </h1>
 
         <p className="mt-2 text-muted">
-          {t('readyToTrain')}
+          {t(
+            'readyToTrain',
+          )}
         </p>
       </header>
 
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+            {t(
+              'stats.workouts',
+            )}
+          </p>
+
+          <p className="mt-3 text-3xl font-black">
+            {
+              currentMonth.workoutResults
+            }
+          </p>
+
+          <p className="mt-1 text-xs text-muted">
+            {t(
+              'stats.thisMonth',
+            )}
+          </p>
+        </Card>
+
+        <Card className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+            {t(
+              'stats.movementResults',
+            )}
+          </p>
+
+          <p className="mt-3 text-3xl font-black">
+            {
+              currentMonth.movementResults
+            }
+          </p>
+
+          <p className="mt-1 text-xs text-muted">
+            {t(
+              'stats.thisMonth',
+            )}
+          </p>
+        </Card>
+
+        <Card className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+            {t(
+              'stats.personalRecords',
+            )}
+          </p>
+
+          <p className="mt-3 text-3xl font-black text-accent">
+            {
+              currentMonth.personalRecords
+            }
+          </p>
+
+          <p className="mt-1 text-xs text-muted">
+            {t(
+              'stats.thisMonth',
+            )}
+          </p>
+        </Card>
+
+        <Card className="p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+            {t(
+              'stats.movementsTracked',
+            )}
+          </p>
+
+          <p className="mt-3 text-3xl font-black">
+            {
+              overall.movementsTracked
+            }
+          </p>
+
+          <p className="mt-1 text-xs text-muted">
+            {t(
+              'stats.allTime',
+            )}
+          </p>
+        </Card>
+      </section>
+
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">
-            {t('todaysWorkout')}
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            {t(
+              'trainToday.eyebrow',
+            )}
+          </p>
+
+          <h2 className="mt-2 text-2xl font-bold">
+            {t(
+              'trainToday.title',
+            )}
           </h2>
+
+          <p className="mt-2 max-w-2xl text-sm text-muted">
+            {t(
+              'trainToday.description',
+            )}
+          </p>
         </div>
 
-        <Card className="overflow-hidden">
-          <div className="grid gap-0 lg:grid-cols-[1fr_280px]">
+        <Card className="mt-5 overflow-hidden">
+          <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
             <div className="p-6 sm:p-8">
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                  {t('forTime')}
-                </p>
-
-                <Badge>
-                  {t('benchmark')}
-                </Badge>
-              </div>
-
-              <h3 className="mt-3 text-4xl font-black tracking-tight">
-                Fran
+              <h3 className="text-2xl font-black">
+                {t(
+                  'trainToday.readyTitle',
+                )}
               </h3>
 
-              <p className="mt-5 text-2xl font-bold tracking-wide">
-                21 — 15 — 9
+              <p className="mt-2 max-w-xl text-sm text-muted">
+                {t(
+                  'trainToday.readyDescription',
+                )}
               </p>
 
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="font-medium">
-                    Thruster
-                  </span>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/workouts"
+                  className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+                >
+                  {t(
+                    'trainToday.browseWorkouts',
+                  )}
+                </Link>
 
-                  <span className="text-muted">
-                    43 kg
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  <span className="font-medium">
-                    Pull-up
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <Button className="w-full sm:w-auto">
-                  {t('startWorkout')} →
-                </Button>
+                <Link
+                  href="/movements"
+                  className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40 hover:bg-surface-elevated"
+                >
+                  {t(
+                    'trainToday.browseMovements',
+                  )}
+                </Link>
               </div>
             </div>
 
-            <div className="hidden border-l border-border bg-surface-elevated/50 lg:block" />
+            <div className="border-t border-border bg-surface-elevated/40 p-6 lg:border-l lg:border-t-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                {t(
+                  'trainToday.quickLinks',
+                )}
+              </p>
+
+              <div className="mt-4 space-y-3">
+                <Link
+                  href="/history"
+                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
+                >
+                  <span>
+                    {t(
+                      'trainToday.viewHistory',
+                    )}
+                  </span>
+
+                  <span>
+                    →
+                  </span>
+                </Link>
+
+                <Link
+                  href="/progress"
+                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
+                >
+                  <span>
+                    {t(
+                      'trainToday.viewProgress',
+                    )}
+                  </span>
+
+                  <span>
+                    →
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
         </Card>
       </section>
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-accent">
-            {t('recentActivity')}
-          </h2>
-
-          <button
-            type="button"
-            className="text-sm font-medium text-muted transition hover:text-foreground"
-          >
-            {t('viewAllHistory')} →
-          </button>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
-          <Card>
-            <div className="divide-y divide-border">
-              <ActivityRow
-                name="Helen"
-                meta={t('forTime')}
-                result="11:24"
-                badge="Rx"
-              />
-
-              <ActivityRow
-                name="Back Squat"
-                meta="5 × 5"
-                result="100 kg"
-              />
-
-              <ActivityRow
-                name="Cindy"
-                meta="AMRAP 20"
-                result={`17 + 8 ${t('reps')}`}
-                badge="Rx"
-              />
-            </div>
-          </Card>
-
-          <Card className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-              {t('thisMonth')}
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+              {t(
+                'activity.eyebrow',
+              )}
             </p>
 
-            <div className="mt-5 space-y-5">
-              <Stat
-                label={t('workouts')}
-                value="12"
-              />
+            <h2 className="mt-2 text-2xl font-bold">
+              {t(
+                'activity.title',
+              )}
+            </h2>
 
-              <Stat
-                label={t('prs')}
-                value="4"
-                accent
-              />
+            <p className="mt-2 text-sm text-muted">
+              {t(
+                'activity.description',
+              )}
+            </p>
+          </div>
 
-              <Stat
-                label={t('volume')}
-                value="2,450"
-                suffix={t('reps')}
-              />
+          {hasActivity && (
+            <Link
+              href="/history"
+              className="text-sm font-semibold text-muted transition hover:text-foreground"
+            >
+              {t(
+                'activity.viewAll',
+              )}{' '}
+              →
+            </Link>
+          )}
+        </div>
+
+        {!hasActivity ? (
+          <Card className="mt-5 p-8 text-center">
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-accent/30 bg-accent/10 font-bold text-accent">
+              +
+            </div>
+
+            <p className="mt-4 font-semibold">
+              {t(
+                'activity.emptyTitle',
+              )}
+            </p>
+
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+              {t(
+                'activity.emptyDescription',
+              )}
+            </p>
+
+            <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href="/workouts"
+                className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+              >
+                {t(
+                  'trainToday.browseWorkouts',
+                )}
+              </Link>
+
+              <Link
+                href="/movements"
+                className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40"
+              >
+                {t(
+                  'trainToday.browseMovements',
+                )}
+              </Link>
             </div>
           </Card>
-        </div>
+        ) : (
+          <Card className="mt-5 overflow-hidden">
+            <div className="divide-y divide-border">
+              {recentActivity.map(
+                (
+                  activity,
+                ) => (
+                  <Link
+                    key={`${activity.type}:${activity.id}`}
+                    href={
+                      activity.href
+                    }
+                    className="flex flex-col gap-3 px-5 py-4 transition hover:bg-surface-elevated sm:flex-row sm:items-center"
+                  >
+                    <div
+                      className={[
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-xs font-black',
+                        activity.type ===
+                        'WORKOUT'
+                          ? 'border-accent/30 bg-accent/10 text-accent'
+                          : 'border-border bg-surface-elevated text-foreground',
+                      ].join(
+                        ' ',
+                      )}
+                    >
+                      {activity.type ===
+                      'WORKOUT'
+                        ? 'W'
+                        : 'M'}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold">
+                          {
+                            activity.title
+                          }
+                        </p>
+
+                        {activity.badge && (
+                          <Badge
+                            variant={
+                              activity.type ===
+                                'WORKOUT' &&
+                              activity.badge.key ===
+                                'RX'
+                                ? 'accent'
+                                : undefined
+                            }
+                          >
+                            {
+                              activity.badge.name
+                            }
+                          </Badge>
+                        )}
+
+                        {activity.prescriptionCategory && (
+                          <Badge>
+                            {
+                              activity.prescriptionCategory.name
+                            }
+                          </Badge>
+                        )}
+                      </div>
+
+                      <p className="mt-1 text-sm text-muted">
+                        {getSubtitle(
+                          activity,
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="sm:text-right">
+                      <p className="font-bold">
+                        {formatActivityResult(
+                          activity.result,
+                        )}
+                      </p>
+
+                      <p className="mt-1 text-xs text-muted">
+                        {formatDate(
+                          activity.performedAt,
+                        )}
+                      </p>
+                    </div>
+                  </Link>
+                ),
+              )}
+            </div>
+          </Card>
+        )}
       </section>
-    </div>
-  );
-}
-
-type ActivityRowProps = {
-  name: string;
-  meta: string;
-  result: string;
-  badge?: string;
-};
-
-function ActivityRow({
-  name,
-  meta,
-  result,
-  badge,
-}: ActivityRowProps) {
-  return (
-    <div className="flex items-center gap-4 px-5 py-4">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-sm font-bold text-accent">
-        +
-      </div>
-
-      <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-4">
-        <p className="font-medium">
-          {name}
-        </p>
-
-        <p className="text-sm text-muted">
-          {meta}
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold">
-          {result}
-        </span>
-
-        {badge && (
-          <Badge variant="accent">
-            {badge}
-          </Badge>
-        )}
-      </div>
-    </div>
-  );
-}
-
-type StatProps = {
-  label: string;
-  value: string;
-  suffix?: string;
-  accent?: boolean;
-};
-
-function Stat({
-  label,
-  value,
-  suffix,
-  accent = false,
-}: StatProps) {
-  return (
-    <div>
-      <p className="text-xs text-muted">
-        {label}
-      </p>
-
-      <div className="mt-1 flex items-baseline gap-1.5">
-        <span
-          className={[
-            'text-2xl font-bold',
-            accent
-              ? 'text-accent'
-              : '',
-          ].join(' ')}
-        >
-          {value}
-        </span>
-
-        {suffix && (
-          <span className="text-xs text-muted">
-            {suffix}
-          </span>
-        )}
-      </div>
     </div>
   );
 }

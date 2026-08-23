@@ -70,19 +70,37 @@
   },
   "dashboard": {
     "eyebrow": "Hoje",
-    "greeting": "Boa tarde, {name}.",
-    "readyToTrain": "Pronto para treinar?",
-    "todaysWorkout": "Treino de hoje",
-    "forTime": "Por tempo",
-    "benchmark": "Benchmark",
-    "startWorkout": "Começar treino",
-    "recentActivity": "Atividade recente",
-    "viewAllHistory": "Ver todo o histórico",
-    "thisMonth": "Este mês",
-    "workouts": "Treinos",
-    "prs": "PRs",
-    "volume": "Volume",
-    "reps": "reps"
+    "greeting": "Oi, {name}",
+    "readyToTrain": "Veja como está seu treino hoje.",
+    "stats": {
+      "workouts": "Treinos",
+      "movementResults": "Resultados de movimentos",
+      "personalRecords": "PRs",
+      "movementsTracked": "Movimentos acompanhados",
+      "thisMonth": "Este mês",
+      "allTime": "Histórico"
+    },
+    "trainToday": {
+      "eyebrow": "Treine hoje",
+      "title": "O que você vai treinar?",
+      "description": "Escolha um treino ou trabalhe um movimento individual. Seus resultados serão refletidos diretamente no Histórico e no Progresso.",
+      "readyTitle": "Pronta para o treino de hoje?",
+      "readyDescription": "Explore a biblioteca de treinos ou escolha um movimento para registrar carga, repetições, distância, duração ou outro resultado.",
+      "browseWorkouts": "Ver treinos",
+      "browseMovements": "Ver movimentos",
+      "quickLinks": "Acessos rápidos",
+      "viewHistory": "Ver histórico",
+      "viewProgress": "Ver progresso"
+    },
+    "activity": {
+      "eyebrow": "Atividade recente",
+      "title": "Treinos recentes",
+      "description": "Seus resultados mais recentes de treinos e movimentos em um só lugar.",
+      "viewAll": "Ver todo o histórico",
+      "emptyTitle": "Nenhum treino registrado ainda",
+      "emptyDescription": "Complete um treino ou registre um resultado de movimento e sua atividade recente aparecerá aqui.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
   },
   "workouts": {
     "library": {

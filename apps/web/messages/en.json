@@ -70,19 +70,37 @@
   },
   "dashboard": {
     "eyebrow": "Today",
-    "greeting": "Good evening, {name}.",
-    "readyToTrain": "Ready to train?",
-    "todaysWorkout": "Today's workout",
-    "forTime": "For Time",
-    "benchmark": "Benchmark",
-    "startWorkout": "Start Workout",
-    "recentActivity": "Recent activity",
-    "viewAllHistory": "View all history",
-    "thisMonth": "This month",
-    "workouts": "Workouts",
-    "prs": "PRs",
-    "volume": "Volume",
-    "reps": "reps"
+    "greeting": "Hey, {name}",
+    "readyToTrain": "Here’s where your training stands today.",
+    "stats": {
+      "workouts": "Workouts",
+      "movementResults": "Movement results",
+      "personalRecords": "PRs",
+      "movementsTracked": "Movements tracked",
+      "thisMonth": "This month",
+      "allTime": "All time"
+    },
+    "trainToday": {
+      "eyebrow": "Train today",
+      "title": "What are you training?",
+      "description": "Choose a workout or work on an individual movement. Your results will feed directly into History and Progress.",
+      "readyTitle": "Ready for today's session?",
+      "readyDescription": "Browse the workout library or choose a movement to log a lift, skill, distance, duration, or other performance.",
+      "browseWorkouts": "Browse workouts",
+      "browseMovements": "Browse movements",
+      "quickLinks": "Quick links",
+      "viewHistory": "View history",
+      "viewProgress": "View progress"
+    },
+    "activity": {
+      "eyebrow": "Recent activity",
+      "title": "Latest training",
+      "description": "Your most recent workout and movement results in one place.",
+      "viewAll": "View all history",
+      "emptyTitle": "No training logged yet",
+      "emptyDescription": "Complete a workout or log a movement result and your recent activity will appear here.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
   },
   "workouts": {
     "library": {
