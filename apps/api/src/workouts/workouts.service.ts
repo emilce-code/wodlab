@@ -61,7 +61,26 @@ const workoutInclude = {
             },
 
             include: {
-              movement: true,
+              movement: {
+                include: {
+                  measurementTypes: {
+                    orderBy: {
+                      measurementType: {
+                        sortOrder: 'asc' as const,
+                      },
+                    },
+
+                    include: {
+                      measurementType: {
+                        select: {
+                          key: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
 
               prescriptions: {
                 orderBy: {
@@ -474,16 +493,15 @@ export class WorkoutsService {
             oldestResult,
 
           history:
-            [...trackResults]
-              .sort(
-                (a, b) =>
-                  new Date(
-                    a.performedAt,
-                  ).getTime() -
-                  new Date(
-                    b.performedAt,
-                  ).getTime(),
-              ),
+            [...trackResults].sort(
+              (a, b) =>
+                new Date(
+                  a.performedAt,
+                ).getTime() -
+                new Date(
+                  b.performedAt,
+                ).getTime(),
+            ),
         };
       });
 
@@ -726,7 +744,8 @@ export class WorkoutsService {
               const existingMovement =
                 await tx.movement.findUnique({
                   where: {
-                    id: movement.movementId,
+                    id:
+                      movement.movementId,
                   },
                 });
 
@@ -738,7 +757,8 @@ export class WorkoutsService {
 
               for (
                 const prescription of
-                movement.prescriptions ?? []
+                movement.prescriptions ??
+                []
               ) {
                 const category =
                   await tx.prescriptionCategory.findUnique({
@@ -761,10 +781,12 @@ export class WorkoutsService {
         return tx.workout.create({
           data: {
             name: dto.name,
-            description: dto.description,
+            description:
+              dto.description,
 
             isBenchmark:
-              dto.isBenchmark ?? false,
+              dto.isBenchmark ??
+              false,
 
             createdByUser: {
               connect: {
@@ -912,7 +934,8 @@ export class WorkoutsService {
             },
           },
 
-          include: workoutInclude,
+          include:
+            workoutInclude,
         });
       },
     );
@@ -944,7 +967,8 @@ export class WorkoutsService {
         include: {
           type: {
             include: {
-              defaultResultType: true,
+              defaultResultType:
+                true,
             },
           },
         },
@@ -992,7 +1016,8 @@ export class WorkoutsService {
       personalBest,
 
       lastResult:
-        mappedResults[0] ?? null,
+        mappedResults[0] ??
+        null,
 
       totalResults:
         mappedResults.length,
@@ -1026,7 +1051,8 @@ export class WorkoutsService {
         include: {
           type: {
             include: {
-              defaultResultType: true,
+              defaultResultType:
+                true,
             },
           },
         },
@@ -1041,7 +1067,8 @@ export class WorkoutsService {
     const workoutVariant =
       await this.prisma.workoutVariant.findFirst({
         where: {
-          id: dto.workoutVariantId,
+          id:
+            dto.workoutVariantId,
           workoutId,
         },
 
@@ -1057,15 +1084,18 @@ export class WorkoutsService {
 
                   movement: {
                     select: {
-                      measurementTypes: {
-                        select: {
-                          measurementType: {
-                            select: {
-                              key: true,
-                            },
+                      measurementTypes:
+                        {
+                          select: {
+                            measurementType:
+                              {
+                                select:
+                                  {
+                                    key: true,
+                                  },
+                              },
                           },
                         },
-                      },
                     },
                   },
                 },
@@ -1142,10 +1172,11 @@ export class WorkoutsService {
         workoutVariant.sections.flatMap(
           (section) =>
             section.movements.map(
-              (movement) => [
-                movement.id,
-                movement,
-              ] as const,
+              (movement) =>
+                [
+                  movement.id,
+                  movement,
+                ] as const,
             ),
         ),
       );
@@ -1180,7 +1211,8 @@ export class WorkoutsService {
               data: {
                 workout: {
                   connect: {
-                    id: workout.id,
+                    id:
+                      workout.id,
                   },
                 },
 
@@ -1195,10 +1227,11 @@ export class WorkoutsService {
                   ? {
                       prescriptionCategory:
                         {
-                          connect: {
-                            id:
-                              prescriptionCategory.id,
-                          },
+                          connect:
+                            {
+                              id:
+                                prescriptionCategory.id,
+                            },
                         },
                     }
                   : {}),
@@ -1300,7 +1333,9 @@ export class WorkoutsService {
                     movement.workoutMovementId,
                   );
 
-                if (!workoutMovement) {
+                if (
+                  !workoutMovement
+                ) {
                   return false;
                 }
 
@@ -1324,7 +1359,8 @@ export class WorkoutsService {
             const weightMeasurementType =
               await tx.measurementType.findUnique({
                 where: {
-                  key: 'WEIGHT',
+                  key:
+                    'WEIGHT',
                 },
 
                 select: {
@@ -1570,6 +1606,23 @@ export class WorkoutsService {
 
                           name:
                             item.movement.name,
+
+                          measurementTypes:
+                            item.movement.measurementTypes.map(
+                              (
+                                itemMeasurementType: any,
+                              ) => ({
+                                key:
+                                  itemMeasurementType
+                                    .measurementType
+                                    .key,
+
+                                name:
+                                  itemMeasurementType
+                                    .measurementType
+                                    .name,
+                              }),
+                            ),
                         },
 
                         prescriptions:
@@ -1650,7 +1703,8 @@ export class WorkoutsService {
         if (
           dto.rounds ===
             undefined &&
-          dto.reps === undefined
+          dto.reps ===
+            undefined
         ) {
           throw new BadRequestException(
             'rounds or reps is required for rounds + reps workouts',
@@ -1662,7 +1716,8 @@ export class WorkoutsService {
 
       case 'REPS': {
         if (
-          dto.reps === undefined
+          dto.reps ===
+          undefined
         ) {
           throw new BadRequestException(
             'reps is required for repetition-based workouts',
@@ -1674,14 +1729,17 @@ export class WorkoutsService {
 
       case 'LOAD': {
         if (
-          dto.load === undefined
+          dto.load ===
+          undefined
         ) {
           throw new BadRequestException(
             'load is required for load-based workouts',
           );
         }
 
-        if (!dto.weightUnit) {
+        if (
+          !dto.weightUnit
+        ) {
           throw new BadRequestException(
             'weightUnit is required for load-based workouts',
           );
@@ -1825,8 +1883,11 @@ export class WorkoutsService {
       ...result,
 
       load:
-        result.load !== null
-          ? Number(result.load)
+        result.load !==
+        null
+          ? Number(
+              result.load,
+            )
           : null,
 
       workoutVariant,
@@ -1849,12 +1910,15 @@ export class WorkoutsService {
       );
 
     if (
-      validResults.length === 0
+      validResults.length ===
+      0
     ) {
       return null;
     }
 
-    switch (resultTypeKey) {
+    switch (
+      resultTypeKey
+    ) {
       case 'TIME': {
         return (
           [...validResults]
@@ -1876,18 +1940,23 @@ export class WorkoutsService {
           [...validResults].sort(
             (a, b) => {
               const roundDifference =
-                (b.rounds ?? 0) -
-                (a.rounds ?? 0);
+                (b.rounds ??
+                  0) -
+                (a.rounds ??
+                  0);
 
               if (
-                roundDifference !== 0
+                roundDifference !==
+                0
               ) {
                 return roundDifference;
               }
 
               return (
-                (b.reps ?? 0) -
-                (a.reps ?? 0)
+                (b.reps ??
+                  0) -
+                (a.reps ??
+                  0)
               );
             },
           )[0] ?? null
@@ -1946,13 +2015,15 @@ export class WorkoutsService {
     },
   ) {
     if (
-      result.load === null
+      result.load ===
+      null
     ) {
       return 0;
     }
 
     if (
-      result.weightUnit === 'LB'
+      result.weightUnit ===
+      'LB'
     ) {
       return (
         result.load *

@@ -16,6 +16,11 @@ type ResultType = {
   name: string;
 };
 
+type MeasurementType = {
+  key: string;
+  name: string;
+};
+
 type WorkoutPrescription = {
   id: string;
 
@@ -47,6 +52,7 @@ type WorkoutMovement = {
   movement: {
     id: string;
     name: string;
+    measurementTypes: MeasurementType[];
   };
 
   prescriptions: WorkoutPrescription[];
@@ -592,16 +598,6 @@ export default async function WorkoutPage({
       ).values(),
     );
 
-  const logResultVariants =
-    workout.variants.map(
-      (variant) => ({
-        id: variant.id,
-        name: variant.name,
-        level:
-          variant.level,
-      }),
-    );
-
   const personalBest =
     summary.personalBest;
 
@@ -910,7 +906,7 @@ export default async function WorkoutPage({
                 .defaultResultType
             }
             variants={
-              logResultVariants
+              workout.variants
             }
             prescriptionCategories={
               prescriptionCategories

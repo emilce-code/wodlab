@@ -14,9 +14,34 @@ import {
   useRouter,
 } from '@/i18n/navigation';
 
+type WeightUnit =
+  | 'KG'
+  | 'LB';
+
 type ResultType = {
   key: string;
   name: string;
+};
+
+type MeasurementType = {
+  key: string;
+  name: string;
+};
+
+type WorkoutMovement = {
+  id: string;
+
+  movement: {
+    id: string;
+    name: string;
+    measurementTypes: MeasurementType[];
+  };
+};
+
+type WorkoutSection = {
+  id: string;
+  order: number;
+  movements: WorkoutMovement[];
 };
 
 type WorkoutVariant = {
@@ -27,11 +52,32 @@ type WorkoutVariant = {
     key: string;
     name: string;
   };
+
+  sections: WorkoutSection[];
 };
 
 type PrescriptionCategory = {
   key: string;
   name: string;
+};
+
+type MovementPerformance = {
+  reps: string;
+  load: string;
+  weightUnit: WeightUnit;
+};
+
+type MovementPerformanceState =
+  Record<
+    string,
+    MovementPerformance
+  >;
+
+type SubmittedMovement = {
+  workoutMovementId: string;
+  reps: number;
+  load: number;
+  weightUnit: WeightUnit;
 };
 
 type Props = {
@@ -41,8 +87,7 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
 
   preferredWeightUnit?:
-    | 'KG'
-    | 'LB';
+    WeightUnit;
 
   preferredWorkoutLevelKey?:
     | string
@@ -101,6 +146,16 @@ export default function LogResultForm({
   const resultTypeT =
     useTranslations(
       'resultTypes',
+    );
+
+  const movementBuilderT =
+    useTranslations(
+      'workouts.create.movementBuilder',
+    );
+
+  const sectionBuilderT =
+    useTranslations(
+      'workouts.create.sectionBuilder',
     );
 
   const locale =
@@ -189,10 +244,15 @@ export default function LogResultForm({
   const [
     weightUnit,
     setWeightUnit,
-  ] = useState<
-    'KG' | 'LB'
-  >(
+  ] = useState<WeightUnit>(
     preferredWeightUnit,
+  );
+
+  const [
+    movementPerformances,
+    setMovementPerformances,
+  ] = useState<MovementPerformanceState>(
+    {},
   );
 
   const [
@@ -238,6 +298,30 @@ export default function LogResultForm({
         )
       : resultType.name;
 
+  const selectedVariant =
+    variants.find(
+      (variant) =>
+        variant.id ===
+        workoutVariantId,
+    ) ?? null;
+
+  const weightMovements =
+    selectedVariant
+      ? selectedVariant.sections.flatMap(
+          (section) =>
+            section.movements.filter(
+              (item) =>
+                item.movement.measurementTypes.some(
+                  (
+                    measurementType,
+                  ) =>
+                    measurementType.key ===
+                    'WEIGHT',
+                ),
+            ),
+        )
+      : [];
+
   function optionalNumber(
     value: string,
   ): number | undefined {
@@ -246,6 +330,78 @@ export default function LogResultForm({
     }
 
     return Number(value);
+  }
+
+  function getMovementPerformance(
+    workoutMovementId: string,
+  ): MovementPerformance {
+    return (
+      movementPerformances[
+        workoutMovementId
+      ] ?? {
+        reps: '',
+        load: '',
+        weightUnit:
+          preferredWeightUnit,
+      }
+    );
+  }
+
+  function updateMovementPerformance(
+    workoutMovementId: string,
+    changes: Partial<MovementPerformance>,
+  ) {
+    setMovementPerformances(
+      (current) => ({
+        ...current,
+
+        [workoutMovementId]: {
+          ...getMovementPerformance(
+            workoutMovementId,
+          ),
+          ...changes,
+        },
+      }),
+    );
+  }
+
+  function getSubmittedMovements():
+    SubmittedMovement[] {
+    return weightMovements.flatMap(
+      (item) => {
+        const performance =
+          getMovementPerformance(
+            item.id,
+          );
+
+        if (
+          !performance.reps.trim() ||
+          !performance.load.trim()
+        ) {
+          return [];
+        }
+
+        return [
+          {
+            workoutMovementId:
+              item.id,
+
+            reps:
+              Number(
+                performance.reps,
+              ),
+
+            load:
+              Number(
+                performance.load,
+              ),
+
+            weightUnit:
+              performance.weightUnit,
+          },
+        ];
+      },
+    );
   }
 
   function formatSelectedDate(
@@ -393,6 +549,44 @@ export default function LogResultForm({
       }
     }
 
+    for (
+      const item of
+      weightMovements
+    ) {
+      const performance =
+        getMovementPerformance(
+          item.id,
+        );
+
+      const hasReps =
+        Boolean(
+          performance.reps.trim(),
+        );
+
+      const hasLoad =
+        Boolean(
+          performance.load.trim(),
+        );
+
+      if (
+        hasLoad &&
+        !hasReps
+      ) {
+        return t(
+          'validation.repsRequired',
+        );
+      }
+
+      if (
+        hasReps &&
+        !hasLoad
+      ) {
+        return t(
+          'validation.loadRequired',
+        );
+      }
+    }
+
     if (
       !performedDate ||
       !performedTime
@@ -417,6 +611,18 @@ export default function LogResultForm({
 
   function openTimePicker() {
     timeInputRef.current?.showPicker();
+  }
+
+  function handleVariantChange(
+    value: string,
+  ) {
+    setWorkoutVariantId(
+      value,
+    );
+
+    setMovementPerformances(
+      {},
+    );
   }
 
   async function handleSubmit(
@@ -450,10 +656,9 @@ export default function LogResultForm({
         rounds?: number;
         reps?: number;
         load?: number;
-        weightUnit?:
-          | 'KG'
-          | 'LB';
+        weightUnit?: WeightUnit;
         notes?: string;
+        movements?: SubmittedMovement[];
       } = {
         workoutVariantId,
         performedAt:
@@ -522,6 +727,17 @@ export default function LogResultForm({
             weightUnit;
 
           break;
+      }
+
+      const submittedMovements =
+        getSubmittedMovements();
+
+      if (
+        submittedMovements.length >
+        0
+      ) {
+        payload.movements =
+          submittedMovements;
       }
 
       const response =
@@ -602,6 +818,10 @@ export default function LogResultForm({
       preferredWeightUnit,
     );
 
+    setMovementPerformances(
+      {},
+    );
+
     setPerformedDate(
       getLocalDateValue(),
     );
@@ -657,7 +877,7 @@ export default function LogResultForm({
             onChange={(
               event,
             ) =>
-              setWorkoutVariantId(
+              handleVariantChange(
                 event.target
                   .value,
               )
@@ -879,8 +1099,7 @@ export default function LogResultForm({
                   setWeightUnit(
                     event.target
                       .value as
-                      | 'KG'
-                      | 'LB',
+                      WeightUnit,
                   )
                 }
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
@@ -895,6 +1114,142 @@ export default function LogResultForm({
               </select>
             </div>
           </>
+        )}
+
+        {weightMovements.length >
+          0 && (
+          <div className="md:col-span-2">
+            <div className="border-t border-border pt-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold">
+                  {sectionBuilderT(
+                    'movements',
+                  )}
+                </p>
+
+                <span className="text-sm text-muted">
+                  {t(
+                    'optional',
+                  )}
+                </span>
+              </div>
+
+              <div className="mt-4 space-y-4">
+                {weightMovements.map(
+                  (item) => {
+                    const performance =
+                      getMovementPerformance(
+                        item.id,
+                      );
+
+                    return (
+                      <div
+                        key={
+                          item.id
+                        }
+                        className="rounded-lg border border-border bg-background p-4"
+                      >
+                        <p className="font-semibold">
+                          {
+                            item
+                              .movement
+                              .name
+                          }
+                        </p>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          <NumberField
+                            id={`movement-${item.id}-reps`}
+                            label={movementBuilderT(
+                              'reps',
+                            )}
+                            value={
+                              performance.reps
+                            }
+                            onChange={(
+                              value,
+                            ) =>
+                              updateMovementPerformance(
+                                item.id,
+                                {
+                                  reps:
+                                    value,
+                                },
+                              )
+                            }
+                            placeholder="5"
+                          />
+
+                          <NumberField
+                            id={`movement-${item.id}-load`}
+                            label={movementBuilderT(
+                              'weight',
+                            )}
+                            value={
+                              performance.load
+                            }
+                            onChange={(
+                              value,
+                            ) =>
+                              updateMovementPerformance(
+                                item.id,
+                                {
+                                  load:
+                                    value,
+                                },
+                              )
+                            }
+                            placeholder="100"
+                            step="0.1"
+                          />
+
+                          <div>
+                            <label
+                              htmlFor={`movement-${item.id}-unit`}
+                              className="mb-1.5 block text-sm font-medium"
+                            >
+                              {movementBuilderT(
+                                'unit',
+                              )}
+                            </label>
+
+                            <select
+                              id={`movement-${item.id}-unit`}
+                              value={
+                                performance.weightUnit
+                              }
+                              onChange={(
+                                event,
+                              ) =>
+                                updateMovementPerformance(
+                                  item.id,
+                                  {
+                                    weightUnit:
+                                      event.target
+                                        .value as
+                                        WeightUnit,
+                                  },
+                                )
+                              }
+                              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                            >
+                              <option value="KG">
+                                KG
+                              </option>
+
+                              <option value="LB">
+                                LB
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         <div className="md:col-span-2">

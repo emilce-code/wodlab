@@ -39,6 +39,11 @@ export class WorkoutMovementResponseDto {
   movement: {
     id: string;
     name: string;
+
+    measurementTypes: {
+      key: string;
+      name: string;
+    }[];
   };
 
   prescriptions: WorkoutPrescriptionResponseDto[];
