@@ -39,7 +39,18 @@ type Props = {
   resultType: ResultType;
   variants: WorkoutVariant[];
   prescriptionCategories: PrescriptionCategory[];
-  preferredWeightUnit?: 'KG' | 'LB';
+
+  preferredWeightUnit?:
+    | 'KG'
+    | 'LB';
+
+  preferredWorkoutLevelKey?:
+    | string
+    | null;
+
+  preferredPrescriptionCategoryKey?:
+    | string
+    | null;
 };
 
 function getLocalDateValue() {
@@ -79,6 +90,8 @@ export default function LogResultForm({
   variants,
   prescriptionCategories,
   preferredWeightUnit = 'KG',
+  preferredWorkoutLevelKey = null,
+  preferredPrescriptionCategoryKey = null,
 }: Props) {
   const t =
     useTranslations(
@@ -106,13 +119,33 @@ export default function LogResultForm({
       null,
     );
 
+  const preferredVariant =
+    preferredWorkoutLevelKey
+      ? variants.find(
+          (variant) =>
+            variant.level.key ===
+            preferredWorkoutLevelKey,
+        )
+      : undefined;
+
   const defaultVariant =
+    preferredVariant ??
     variants.find(
       (variant) =>
         variant.level.key ===
         'RX',
     ) ??
     variants[0];
+
+  const defaultPrescriptionCategoryKey =
+    preferredPrescriptionCategoryKey &&
+    prescriptionCategories.some(
+      (category) =>
+        category.key ===
+        preferredPrescriptionCategoryKey,
+    )
+      ? preferredPrescriptionCategoryKey
+      : '';
 
   const [
     workoutVariantId,
@@ -124,7 +157,9 @@ export default function LogResultForm({
   const [
     prescriptionCategoryKey,
     setPrescriptionCategoryKey,
-  ] = useState('');
+  ] = useState(
+    defaultPrescriptionCategoryKey,
+  );
 
   const [
     minutes,
@@ -549,13 +584,22 @@ export default function LogResultForm({
   }
 
   function resetForm() {
+    setWorkoutVariantId(
+      defaultVariant?.id ?? '',
+    );
+
+    setPrescriptionCategoryKey(
+      defaultPrescriptionCategoryKey,
+    );
+
     setMinutes('');
     setSeconds('');
     setRounds('');
     setReps('');
     setLoad('');
-    setPrescriptionCategoryKey(
-      '',
+
+    setWeightUnit(
+      preferredWeightUnit,
     );
 
     setPerformedDate(

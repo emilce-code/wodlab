@@ -149,6 +149,18 @@ type PrescriptionCategory = {
   name: string;
 };
 
+type AthletePreferences = {
+  preferredWeightUnit:
+    | 'KG'
+    | 'LB';
+
+  preferredWorkoutLevelKey:
+    string | null;
+
+  preferredPrescriptionCategoryKey:
+    string | null;
+};
+
 type Props = {
   params: Promise<{
     id: string;
@@ -204,8 +216,8 @@ async function getWorkoutResultSummary(
   return (await response.json()) as WorkoutResultSummary;
 }
 
-async function getPreferredWeightUnit(): Promise<
-  'KG' | 'LB'
+async function getAthletePreferences(): Promise<
+  AthletePreferences
 > {
   const response =
     await authenticatedApiFetch(
@@ -213,7 +225,16 @@ async function getPreferredWeightUnit(): Promise<
     );
 
   if (!response?.ok) {
-    return 'KG';
+    return {
+      preferredWeightUnit:
+        'KG',
+
+      preferredWorkoutLevelKey:
+        null,
+
+      preferredPrescriptionCategoryKey:
+        null,
+    };
   }
 
   const profile =
@@ -221,12 +242,32 @@ async function getPreferredWeightUnit(): Promise<
       preferredWeightUnit?:
         | 'KG'
         | 'LB';
+
+      preferredWorkoutLevel?: {
+        key: string;
+      } | null;
+
+      preferredPrescriptionCategory?: {
+        key: string;
+      } | null;
     };
 
-  return (
-    profile.preferredWeightUnit ??
-    'KG'
-  );
+  return {
+    preferredWeightUnit:
+      profile.preferredWeightUnit ??
+      'KG',
+
+    preferredWorkoutLevelKey:
+      profile.preferredWorkoutLevel
+        ?.key ??
+      null,
+
+    preferredPrescriptionCategoryKey:
+      profile
+        .preferredPrescriptionCategory
+        ?.key ??
+      null,
+  };
 }
 
 export default async function WorkoutPage({
@@ -239,7 +280,7 @@ export default async function WorkoutPage({
     workout,
     results,
     summary,
-    preferredWeightUnit,
+    athletePreferences,
     t,
     workoutTypeT,
     resultTypeT,
@@ -248,7 +289,7 @@ export default async function WorkoutPage({
     getWorkout(id),
     getWorkoutResults(id),
     getWorkoutResultSummary(id),
-    getPreferredWeightUnit(),
+    getAthletePreferences(),
     getTranslations(
       'workouts.detail',
     ),
@@ -875,7 +916,16 @@ export default async function WorkoutPage({
               prescriptionCategories
             }
             preferredWeightUnit={
-              preferredWeightUnit
+              athletePreferences
+                .preferredWeightUnit
+            }
+            preferredWorkoutLevelKey={
+              athletePreferences
+                .preferredWorkoutLevelKey
+            }
+            preferredPrescriptionCategoryKey={
+              athletePreferences
+                .preferredPrescriptionCategoryKey
             }
           />
         </section>
