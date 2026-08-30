@@ -26,11 +26,11 @@ export default function MovementLibrary({
     useState('');
 
   const [
-    movements,
-    setMovements,
+    searchResults,
+    setSearchResults,
   ] =
     useState<Movement[]>(
-      initialMovements,
+      [],
     );
 
   const [
@@ -43,78 +43,105 @@ export default function MovementLibrary({
       null,
     );
 
+  const normalizedSearch =
+    search.trim();
+
+  const hasSearch =
+    normalizedSearch.length >
+    0;
+
+  const displayedMovements =
+    hasSearch
+      ? searchResults
+      : initialMovements;
+
+  const displayedIsSearching =
+    hasSearch &&
+    isSearching;
+
+  const displayedError =
+    hasSearch
+      ? error
+      : null;
+
   useEffect(() => {
-    const normalizedSearch =
-      search.trim();
-
     if (!normalizedSearch) {
-      setMovements(
-        initialMovements,
-      );
-
-      setIsSearching(false);
-      setError(null);
-
       return;
     }
 
     const controller =
       new AbortController();
 
-    const timeout = setTimeout(
-      async () => {
-        setIsSearching(true);
-        setError(null);
+    const timeout =
+      window.setTimeout(
+        async () => {
+          setIsSearching(true);
+          setError(null);
 
-        try {
-          const response =
-            await fetch(
-              `/api/movements?search=${encodeURIComponent(
-                normalizedSearch,
-              )}`,
-              {
-                signal:
-                  controller.signal,
-              },
+          try {
+            const response =
+              await fetch(
+                `/api/movements?search=${encodeURIComponent(
+                  normalizedSearch,
+                )}`,
+                {
+                  signal:
+                    controller.signal,
+                },
+              );
+
+            if (
+              !response.ok
+            ) {
+              throw new Error(
+                'Unable to search movements',
+              );
+            }
+
+            const data =
+              (await response.json()) as Movement[];
+
+            setSearchResults(
+              data,
             );
+          } catch (error) {
+            if (
+              error instanceof
+                DOMException &&
+              error.name ===
+                'AbortError'
+            ) {
+              return;
+            }
 
-          if (!response.ok) {
-            throw new Error(
-              'Unable to search movements',
+            setError(
+              t(
+                'searchError',
+              ),
             );
+          } finally {
+            if (
+              !controller.signal
+                .aborted
+            ) {
+              setIsSearching(
+                false,
+              );
+            }
           }
-
-          const data =
-            (await response.json()) as Movement[];
-
-          setMovements(data);
-        } catch (error) {
-          if (
-            error instanceof
-              DOMException &&
-            error.name ===
-              'AbortError'
-          ) {
-            return;
-          }
-
-          setError(
-            t('searchError'),
-          );
-        } finally {
-          setIsSearching(false);
-        }
-      },
-      300,
-    );
+        },
+        300,
+      );
 
     return () => {
-      clearTimeout(timeout);
+      window.clearTimeout(
+        timeout,
+      );
+
       controller.abort();
     };
   }, [
-    search,
-    initialMovements,
+    normalizedSearch,
     t,
   ]);
 
@@ -129,9 +156,12 @@ export default function MovementLibrary({
           <input
             type="search"
             value={search}
-            onChange={(event) =>
+            onChange={(
+              event,
+            ) =>
               setSearch(
-                event.target.value,
+                event.target
+                  .value,
               )
             }
             placeholder={t(
@@ -145,13 +175,20 @@ export default function MovementLibrary({
         </div>
 
         <div className="mt-3 flex min-h-5 items-center">
-          {isSearching ? (
+          {displayedIsSearching ? (
             <p className="text-sm text-muted">
-              {t('searching')}
+              {t(
+                'searching',
+              )}
             </p>
-          ) : error ? (
-            <p className="text-sm text-red-500">
-              {error}
+          ) : displayedError ? (
+            <p
+              role="alert"
+              className="text-sm text-red-500"
+            >
+              {
+                displayedError
+              }
             </p>
           ) : (
             <p className="text-sm text-muted">
@@ -159,7 +196,7 @@ export default function MovementLibrary({
                 'movementCount',
                 {
                   count:
-                    movements.length,
+                    displayedMovements.length,
                 },
               )}
             </p>
@@ -167,12 +204,14 @@ export default function MovementLibrary({
         </div>
       </div>
 
-      {movements.length ===
+      {displayedMovements.length ===
         0 &&
-      !isSearching ? (
+      !displayedIsSearching ? (
         <div className="mt-5 rounded-xl border border-dashed border-border px-6 py-16 text-center">
           <p className="font-semibold">
-            {t('emptyTitle')}
+            {t(
+              'emptyTitle',
+            )}
           </p>
 
           <p className="mt-2 text-sm text-muted">
@@ -183,8 +222,10 @@ export default function MovementLibrary({
         </div>
       ) : (
         <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {movements.map(
-            (movement) => (
+          {displayedMovements.map(
+            (
+              movement,
+            ) => (
               <MovementCard
                 key={
                   movement.id

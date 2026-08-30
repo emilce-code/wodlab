@@ -1,25 +1,18 @@
 'use client';
 
-import {
-  useEffect,
-  useState,
-} from 'react';
-import {
-  useTranslations,
-} from 'next-intl';
-
-type Props = {
-  name: string;
-};
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 type DayPart =
   | 'morning'
   | 'afternoon'
   | 'evening';
 
-function getDayPart(
-  hour: number,
-): DayPart {
+type Props = {
+  name: string;
+};
+
+function getDayPart(hour: number): DayPart {
   if (hour < 12) {
     return 'morning';
   }
@@ -31,50 +24,47 @@ function getDayPart(
   return 'evening';
 }
 
+function subscribeToDayPart(
+  onChange: (dayPart: DayPart) => void,
+) {
+  const updateDayPart = () => {
+    onChange(getDayPart(new Date().getHours()));
+  };
+
+  const timeoutId = window.setTimeout(
+    updateDayPart,
+    0,
+  );
+
+  const intervalId = window.setInterval(
+    updateDayPart,
+    60_000,
+  );
+
+  return () => {
+    window.clearTimeout(timeoutId);
+    window.clearInterval(intervalId);
+  };
+}
+
 export default function TimeAwareGreeting({
   name,
 }: Props) {
-  const t =
-    useTranslations(
-      'dashboard.greeting',
-    );
+  const t = useTranslations('dashboard');
 
-  const [
-    dayPart,
-    setDayPart,
-  ] = useState<
-    DayPart | null
-  >(null);
+  const [dayPart, setDayPart] =
+    useState<DayPart>('morning');
 
-  useEffect(() => {
-    setDayPart(
-      getDayPart(
-        new Date().getHours(),
-      ),
-    );
-  }, []);
-
-  if (!dayPart) {
-    return (
-      <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-        {t(
-          'default',
-          {
-            name,
-          },
-        )}
-      </h1>
-    );
-  }
+  useEffect(
+    () => subscribeToDayPart(setDayPart),
+    [],
+  );
 
   return (
-    <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-      {t(
-        dayPart,
-        {
-          name,
-        },
-      )}
+    <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
+      {t(`greeting.${dayPart}`, {
+        name,
+      })}
     </h1>
   );
 }

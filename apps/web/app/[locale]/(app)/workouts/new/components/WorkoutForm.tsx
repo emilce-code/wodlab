@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  useEffect,
   useState,
 } from 'react';
 import { useTranslations } from 'next-intl';
@@ -125,7 +124,20 @@ export default function WorkoutForm({
     setVariants,
   ] = useState<
     WorkoutVariantFormState[]
-  >([]);
+  >(() => {
+    const defaultLevel =
+      workoutLevels.find(
+        (level) =>
+          level.key === 'RX',
+      ) ??
+      workoutLevels[0];
+
+    return [
+      createEmptyVariant(
+        defaultLevel?.key ?? '',
+      ),
+    ];
+  });
 
   const [
     isSubmitting,
@@ -136,21 +148,6 @@ export default function WorkoutForm({
     useState<string | null>(
       null,
     );
-
-  useEffect(() => {
-    const defaultLevel =
-      workoutLevels.find(
-        (level) =>
-          level.key === 'RX',
-      ) ??
-      workoutLevels[0];
-
-    setVariants([
-      createEmptyVariant(
-        defaultLevel?.key ?? '',
-      ),
-    ]);
-  }, [workoutLevels]);
 
   function getWorkoutTypeName(
     type: WorkoutType,

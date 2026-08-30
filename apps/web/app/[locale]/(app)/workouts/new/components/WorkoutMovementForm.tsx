@@ -101,10 +101,27 @@ export default function WorkoutMovementForm({
     null,
   );
 
-  useEffect(() => {
-    const normalizedSearch =
-      search.trim();
+  const normalizedSearch =
+    search.trim();
 
+  const hasSearchQuery =
+    normalizedSearch.length >= 2;
+
+  const displayedResults =
+    hasSearchQuery
+      ? results
+      : [];
+
+  const displayedIsSearching =
+    hasSearchQuery &&
+    isSearching;
+
+  const displayedSearchError =
+    hasSearchQuery
+      ? searchError
+      : null;
+
+  useEffect(() => {
     if (
       movement.movementId &&
       normalizedSearch ===
@@ -116,8 +133,6 @@ export default function WorkoutMovementForm({
     if (
       normalizedSearch.length < 2
     ) {
-      setResults([]);
-      setSearchError(null);
       return;
     }
 
@@ -178,7 +193,7 @@ export default function WorkoutMovementForm({
       controller.abort();
     };
   }, [
-    search,
+    normalizedSearch,
     movement.movementId,
     movement.movementName,
     t,
@@ -435,12 +450,13 @@ export default function WorkoutMovementForm({
                 className="w-full rounded-lg border border-border bg-surface py-2.5 pl-10 pr-3 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               />
 
-              {(isSearching ||
-                searchError ||
-                results.length >
+              {(displayedIsSearching ||
+                displayedSearchError ||
+                hasSearchQuery ||
+                displayedResults.length >
                   0) && (
                 <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-border bg-surface shadow-xl">
-                  {isSearching && (
+                  {displayedIsSearching && (
                     <div className="px-4 py-3 text-sm text-muted">
                       {t(
                         'searching',
@@ -448,18 +464,18 @@ export default function WorkoutMovementForm({
                     </div>
                   )}
 
-                  {!isSearching &&
-                    searchError && (
+                  {!displayedIsSearching &&
+                    displayedSearchError && (
                       <div className="px-4 py-3 text-sm text-red-500">
                         {
-                          searchError
+                          displayedSearchError
                         }
                       </div>
                     )}
 
-                  {!isSearching &&
-                    !searchError &&
-                    results.length ===
+                  {!displayedIsSearching &&
+                    !displayedSearchError &&
+                    displayedResults.length ===
                       0 &&
                     search
                       .trim()
@@ -472,8 +488,8 @@ export default function WorkoutMovementForm({
                       </div>
                     )}
 
-                  {!isSearching &&
-                    results.map(
+                  {!displayedIsSearching &&
+                    displayedResults.map(
                       (option) => (
                         <button
                           key={

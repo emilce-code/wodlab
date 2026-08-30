@@ -4,6 +4,7 @@ import {
   useLocale,
   useTranslations,
 } from 'next-intl';
+
 import type {
   PrescriptionCategory,
   ResultType,
@@ -203,7 +204,7 @@ export default function WorkoutTrendChart({
     }
   }
 
-  function LineTrendChart({
+  function renderLineTrendChart({
     points,
     lowerIsBetter,
   }: {
@@ -215,7 +216,9 @@ export default function WorkoutTrendChart({
     ) {
       return (
         <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center text-sm text-muted">
-          {t('notEnoughData')}
+          {t(
+            'notEnoughData',
+          )}
         </div>
       );
     }
@@ -488,7 +491,7 @@ export default function WorkoutTrendChart({
     );
   }
 
-  function RoundsRepsTimeline() {
+  function renderRoundsRepsTimeline() {
     if (
       history.length === 0
     ) {
@@ -588,21 +591,16 @@ export default function WorkoutTrendChart({
     resultType.key ===
     'ROUNDS_REPS'
   ) {
-    return (
-      <RoundsRepsTimeline />
-    );
+    return renderRoundsRepsTimeline();
   }
 
   const points =
     getChartPoints();
 
-  return (
-    <LineTrendChart
-      points={points}
-      lowerIsBetter={
-        resultType.key ===
-        'TIME'
-      }
-    />
-  );
+  return renderLineTrendChart({
+    points,
+    lowerIsBetter:
+      resultType.key ===
+      'TIME',
+  });
 }

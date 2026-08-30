@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import Badge from '@/components/ui/Badge';
@@ -183,19 +183,27 @@ export default function HistoryList({ results }: Props) {
     new Set(),
   );
 
-  function getWorkoutTypeName(key: string, fallback: string) {
-    const translationKey = key.toLowerCase();
+  const getWorkoutTypeName = useCallback(
+    (key: string, fallback: string) => {
+      const translationKey = key.toLowerCase();
 
-    return typeT.has(translationKey) ? typeT(translationKey) : fallback;
-  }
+      return typeT.has(translationKey)
+        ? typeT(translationKey)
+        : fallback;
+    },
+    [typeT],
+  );
 
-  function getResultTypeName(key: string, fallback: string) {
-    const translationKey = key.toLowerCase();
+  const getResultTypeName = useCallback(
+    (key: string, fallback: string) => {
+      const translationKey = key.toLowerCase();
 
-    return resultTypeT.has(translationKey)
-      ? resultTypeT(translationKey)
-      : fallback;
-  }
+      return resultTypeT.has(translationKey)
+        ? resultTypeT(translationKey)
+        : fallback;
+    },
+    [resultTypeT],
+  );
 
   function formatWorkoutResult(result: WorkoutTrainingHistoryItem) {
     return formatWorkoutResultValue(
@@ -286,7 +294,7 @@ export default function HistoryList({ results }: Props) {
         locale,
       ),
     );
-  }, [workoutResults, locale]);
+  }, [workoutResults, locale, getWorkoutTypeName]);
 
   const resultTypes = useMemo(() => {
     const types = new Map<string, string>();
@@ -301,7 +309,7 @@ export default function HistoryList({ results }: Props) {
         locale,
       ),
     );
-  }, [workoutResults, locale]);
+  }, [workoutResults, locale, getResultTypeName]);
 
   const workoutLevels = useMemo(() => {
     const levels = new Map<string, string>();
