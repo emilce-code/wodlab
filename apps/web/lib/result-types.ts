@@ -116,9 +116,34 @@ export type WorkoutResultForEdit = {
 
 export type MeasurementResultValues = {
   reps: number | null;
-  load: number | null;
+  load: number | string | null;
   weightUnit: WeightUnit | null;
   distance: number | null;
   durationSeconds: number | null;
   calories: number | null;
+};
+
+export type MovementResultSource =
+  | {
+      type: 'MANUAL';
+    }
+  | {
+      type: 'WORKOUT';
+      workoutResultId: string;
+      workout: {
+        id: string;
+        name: string;
+      };
+      workoutVariant: WorkoutResultVariant;
+      prescriptionCategory: PrescriptionCategory | null;
+    };
+
+export type MovementResult = MeasurementResultValues & {
+  id: string;
+  measurementType: MeasurementType;
+  source: MovementResultSource;
+  performedAt: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
 };

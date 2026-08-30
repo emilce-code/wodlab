@@ -5,20 +5,26 @@ import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { Link } from '@/i18n/navigation';
 import { authenticatedApiFetch } from '@/lib/api';
-
-import LogResultForm, {
+import {
+  formatDate,
+  formatDuration,
+  formatPerformedMovement,
+  formatWorkoutResult,
+} from '@/lib/result-formatters';
+import type {
+  MeasurementType,
   PrescriptionCategory,
   ResultType,
   WeightUnit,
+  WorkoutResult,
   WorkoutResultForEdit,
+  WorkoutResultSummary,
+} from '@/lib/result-types';
+
+import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
 } from './components/LogResultForm';
 import WorkoutResultActions from './components/WorkoutResultActions';
-
-type MeasurementType = {
-  key: string;
-  name: string;
-};
 
 type WorkoutPrescription = {
   id: string;
@@ -91,71 +97,6 @@ type Workout = {
     defaultResultType: ResultType | null;
   };
   variants: WorkoutVariant[];
-};
-
-type PerformedMovement = {
-  id: string;
-  workoutMovementId: string;
-  reps: number | null;
-  load: number | null;
-  weightUnit: WeightUnit | null;
-  distance: number | null;
-  calories: number | null;
-  durationSeconds: number | null;
-  notes: string | null;
-  workoutMovement: {
-    id: string;
-    order: number;
-    section: {
-      id: string;
-      order: number;
-    };
-    movement: {
-      id: string;
-      name: string;
-    };
-  } | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type WorkoutResult = {
-  id: string;
-  workoutId: string;
-  athleteProfileId: string;
-  resultTypeId: string;
-  resultType: {
-    key: string;
-    name: string;
-  };
-  performedAt: string;
-  timeSeconds: number | null;
-  rounds: number | null;
-  reps: number | null;
-  load: number | null;
-  weightUnit: WeightUnit | null;
-  workoutVariant: {
-    id: string;
-    name: string | null;
-    level: {
-      key: string;
-      name: string;
-    };
-  } | null;
-  prescriptionCategory: {
-    key: string;
-    name: string;
-  } | null;
-  performedMovements: PerformedMovement[];
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type WorkoutResultSummary = {
-  personalBest: WorkoutResult | null;
-  lastResult: WorkoutResult | null;
-  totalResults: number;
 };
 
 type AthletePreferences = {
@@ -265,13 +206,6 @@ export default async function WorkoutPage({ params }: Props) {
     notFound();
   }
 
-  function formatDuration(totalSeconds: number) {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${minutes}:${String(seconds).padStart(2, '0')}`;
-  }
-
   function getWorkoutTypeName(type: {
     key: string;
     name: string;
@@ -373,78 +307,9 @@ export default async function WorkoutPage({ params }: Props) {
   }
 
   function formatResult(result: WorkoutResult) {
-    switch (result.resultType.key) {
-      case 'TIME':
-        return result.timeSeconds !== null
-          ? formatDuration(result.timeSeconds)
-          : '—';
-
-      case 'ROUNDS_REPS':
-        return `${result.rounds ?? 0} + ${result.reps ?? 0}`;
-
-      case 'REPS':
-        return result.reps !== null
-          ? t('repsValue', {
-              count: result.reps,
-            })
-          : '—';
-
-      case 'LOAD':
-        return result.load !== null
-          ? `${result.load} ${result.weightUnit ?? ''}`.trim()
-          : '—';
-
-      default:
-        return '—';
-    }
-  }
-
-  function formatDate(value: string) {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(value));
-  }
-
-  function formatPerformedMovement(
-    movement: PerformedMovement,
-  ) {
-    const values: string[] = [];
-
-    if (movement.reps !== null) {
-      values.push(
-        t('repsValue', {
-          count: movement.reps,
-        }),
-      );
-    }
-
-    if (movement.load !== null) {
-      values.push(
-        `${movement.load}${
-          movement.weightUnit
-            ? ` ${movement.weightUnit}`
-            : ''
-        }`,
-      );
-    }
-
-    if (movement.distance !== null) {
-      values.push(`${movement.distance} m`);
-    }
-
-    if (movement.durationSeconds !== null) {
-      values.push(
-        formatDuration(movement.durationSeconds),
-      );
-    }
-
-    if (movement.calories !== null) {
-      values.push(`${movement.calories} cal`);
-    }
-
-    return values.join(' · ');
+    return formatWorkoutResult(result, {
+      formatReps: (count) => t('repsValue', { count }),
+    });
   }
 
   const prescriptionCategories: PrescriptionCategory[] =
@@ -814,6 +679,7 @@ export default async function WorkoutPage({ params }: Props) {
                 <p className="mt-2 text-sm text-muted">
                   {formatDate(
                     personalBest.performedAt,
+                    locale,
                   )}
                 </p>
               </>
@@ -869,7 +735,7 @@ export default async function WorkoutPage({ params }: Props) {
                 </div>
 
                 <p className="mt-2 text-sm text-muted">
-                  {formatDate(lastResult.performedAt)}
+                  {formatDate(lastResult.performedAt, locale)}
                 </p>
               </>
             ) : (
@@ -1011,6 +877,10 @@ export default async function WorkoutPage({ params }: Props) {
                               const performance =
                                 formatPerformedMovement(
                                   movement,
+                                  {
+                                    formatReps: (count) =>
+                                      t('repsValue', { count }),
+                                  },
                                 );
 
                               return (
@@ -1040,7 +910,7 @@ export default async function WorkoutPage({ params }: Props) {
 
                     <div className="shrink-0 sm:text-right">
                       <p className="text-sm text-muted">
-                        {formatDate(result.performedAt)}
+                        {formatDate(result.performedAt, locale)}
                       </p>
 
                       {workout.type.defaultResultType && (

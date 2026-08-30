@@ -4,11 +4,12 @@ import {
   useLocale,
   useTranslations,
 } from 'next-intl';
-
-type ResultType = {
-  key: string;
-  name: string;
-};
+import type {
+  PrescriptionCategory,
+  ResultType,
+  WeightUnit,
+  WorkoutResultVariant,
+} from '@/lib/result-types';
 
 export type TrendResult = {
   id: string;
@@ -18,22 +19,11 @@ export type TrendResult = {
   rounds: number | null;
   reps: number | null;
   load: number | null;
-  weightUnit: 'KG' | 'LB' | null;
+  weightUnit: WeightUnit | null;
 
-  workoutVariant: {
-    id: string;
-    name: string | null;
+  workoutVariant: WorkoutResultVariant | null;
 
-    level: {
-      key: string;
-      name: string;
-    };
-  } | null;
-
-  prescriptionCategory: {
-    key: string;
-    name: string;
-  } | null;
+  prescriptionCategory: PrescriptionCategory | null;
 
   notes: string | null;
 

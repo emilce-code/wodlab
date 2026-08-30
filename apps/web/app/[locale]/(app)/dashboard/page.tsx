@@ -5,10 +5,13 @@ import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { Link } from '@/i18n/navigation';
 import { authenticatedApiFetch } from '@/lib/api';
+import {
+  formatDuration,
+  formatWeight,
+} from '@/lib/result-formatters';
+import type { WeightUnit } from '@/lib/result-types';
 
 import TimeAwareGreeting from './components/TimeAwareGreeting';
-
-type WeightUnit = 'KG' | 'LB' | null;
 
 type DashboardProfile = {
   displayName: string;
@@ -116,20 +119,6 @@ async function getDashboard(): Promise<DashboardResponse | null> {
   return (await response.json()) as DashboardResponse;
 }
 
-function formatDuration(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds
-      .toString()
-      .padStart(2, '0')}`;
-  }
-
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
-
 export default async function DashboardPage({ params }: Props) {
   const { locale } = await params;
 
@@ -186,7 +175,7 @@ export default async function DashboardPage({ params }: Props) {
       case 'WEIGHT': {
         const formattedWeight =
           value.value !== null
-            ? `${value.value} ${value.weightUnit ?? ''}`.trim()
+            ? formatWeight(value.value, value.weightUnit)
             : '—';
 
         if (value.reps !== undefined && value.reps !== null) {

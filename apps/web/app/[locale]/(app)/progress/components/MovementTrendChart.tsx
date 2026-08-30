@@ -4,35 +4,14 @@ import {
   useLocale,
   useTranslations,
 } from 'next-intl';
+import type {
+  MeasurementResultValues,
+  MeasurementType,
+} from '@/lib/result-types';
 
-export type MovementTrendResult = {
+export type MovementTrendResult = MeasurementResultValues & {
   id: string;
   performedAt: string;
-
-  reps: number | null;
-
-  load:
-    | number
-    | string
-    | null;
-
-  weightUnit:
-    | 'KG'
-    | 'LB'
-    | null;
-
-  distance: number | null;
-
-  durationSeconds:
-    | number
-    | null;
-
-  calories: number | null;
-};
-
-type MeasurementType = {
-  key: string;
-  name: string;
 };
 
 type Props = {

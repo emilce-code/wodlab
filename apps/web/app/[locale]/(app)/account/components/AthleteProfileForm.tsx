@@ -14,10 +14,7 @@ import {
 } from '@/i18n/navigation';
 
 import Card from '@/components/ui/Card';
-
-type WeightUnit =
-  | 'KG'
-  | 'LB';
+import type { WeightUnit } from '@/lib/result-types';
 
 type WorkoutLevel = {
   id: string;

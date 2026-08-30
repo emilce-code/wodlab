@@ -11,6 +11,12 @@ import {
 import {
   authenticatedApiFetch,
 } from '@/lib/api';
+import {
+  formatDate,
+  formatDuration,
+  formatMeasurementResult,
+  formatWorkoutResult as formatWorkoutResultValue,
+} from '@/lib/result-formatters';
 
 import MovementTrendChart, {
   type MovementTrendResult,
@@ -189,26 +195,6 @@ async function getMovementProgress(): Promise<
   ) as MovementProgressResponse;
 }
 
-function formatDuration(
-  seconds: number,
-) {
-  const minutes =
-    Math.floor(
-      seconds / 60,
-    );
-
-  const remainingSeconds =
-    seconds % 60;
-
-  if (minutes === 0) {
-    return `${remainingSeconds}s`;
-  }
-
-  return `${minutes}:${remainingSeconds
-    .toString()
-    .padStart(2, '0')}`;
-}
-
 export default async function ProgressPage() {
   const [
     t,
@@ -320,21 +306,6 @@ export default async function ProgressPage() {
       : fallback;
   }
 
-  function formatDate(
-    value: string,
-  ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      },
-    ).format(
-      new Date(value),
-    );
-  }
-
   function formatWorkoutResult(
     result:
       | ProgressResult
@@ -344,50 +315,9 @@ export default async function ProgressPage() {
       return '—';
     }
 
-    switch (
-      result.resultType.key
-    ) {
-      case 'TIME':
-        return result.timeSeconds !==
-          null
-          ? formatDuration(
-              result.timeSeconds,
-            )
-          : '—';
-
-      case 'ROUNDS_REPS':
-        return `${
-          result.rounds ??
-          0
-        } + ${
-          result.reps ??
-          0
-        }`;
-
-      case 'REPS':
-        return result.reps !==
-          null
-          ? t(
-              'repsValue',
-              {
-                count:
-                  result.reps,
-              },
-            )
-          : '—';
-
-      case 'LOAD':
-        return result.load !==
-          null
-          ? `${result.load} ${
-              result.weightUnit ??
-              ''
-            }`.trim()
-          : '—';
-
-      default:
-        return '—';
-    }
+    return formatWorkoutResultValue(result, {
+      formatReps: (count) => t('repsValue', { count }),
+    });
   }
 
   function formatMovementResult(
@@ -399,48 +329,13 @@ export default async function ProgressPage() {
       return '—';
     }
 
-    switch (
-      result.measurementType.key
-    ) {
-      case 'WEIGHT':
-        return `${result.load ?? '—'} ${
-          result.weightUnit ??
-          ''
-        }`.trim();
-
-      case 'REPS':
-        return t(
-          'repsValue',
-          {
-            count:
-              result.reps ??
-              0,
-          },
-        );
-
-      case 'DISTANCE':
-        return `${
-          result.distance ??
-          0
-        } m`;
-
-      case 'DURATION':
-        return result.durationSeconds !==
-          null
-          ? formatDuration(
-              result.durationSeconds,
-            )
-          : '—';
-
-      case 'CALORIES':
-        return `${
-          result.calories ??
-          0
-        } cal`;
-
-      default:
-        return '—';
-    }
+    return formatMeasurementResult(
+      result.measurementType.key,
+      result,
+      {
+        formatReps: (count) => t('repsValue', { count }),
+      },
+    );
   }
 
   function getWorkoutImprovement(
@@ -889,6 +784,7 @@ export default async function ProgressPage() {
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
                                 track.firstResult.performedAt,
+                                locale,
                               )}
                             </p>
                           </div>
@@ -910,6 +806,7 @@ export default async function ProgressPage() {
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
                                   track.personalBest.performedAt,
+                                  locale,
                                 )}
                               </p>
                             )}
@@ -931,6 +828,7 @@ export default async function ProgressPage() {
                             <p className="mt-1 text-xs text-muted">
                               {formatDate(
                                 track.latestResult.performedAt,
+                                locale,
                               )}
                             </p>
                           </div>
@@ -1126,6 +1024,7 @@ export default async function ProgressPage() {
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
                                   track.firstResult.performedAt,
+                                  locale,
                                 )}
                               </p>
                             </div>
@@ -1147,6 +1046,7 @@ export default async function ProgressPage() {
                                 <p className="mt-1 text-xs text-muted">
                                   {formatDate(
                                     track.personalBest.performedAt,
+                                    locale,
                                   )}
                                 </p>
                               )}
@@ -1168,6 +1068,7 @@ export default async function ProgressPage() {
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
                                   track.latestResult.performedAt,
+                                  locale,
                                 )}
                               </p>
                             </div>

@@ -50,7 +50,7 @@ export function formatDuration(totalSeconds: number): string {
 }
 
 export function formatWeight(
-  load: number,
+  load: number | string,
   weightUnit: WeightUnit | null,
 ): string {
   return `${load}${

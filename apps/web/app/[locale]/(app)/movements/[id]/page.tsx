@@ -6,6 +6,10 @@ import Card from '@/components/ui/Card';
 import { Link } from '@/i18n/navigation';
 import { authenticatedApiFetch } from '@/lib/api';
 import { getCurrentUser } from '@/lib/auth';
+import {
+  formatDate,
+  formatMeasurementResult,
+} from '@/lib/result-formatters';
 
 import LogMovementResultForm from './components/LogMovementResultForm';
 import MovementProgressChart from './components/MovementProgressChart';
@@ -144,47 +148,14 @@ export default async function MovementDetailPage({ params }: Props) {
       : type.name;
   }
 
-  function formatDuration(totalSeconds: number) {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${minutes}:${String(seconds).padStart(2, '0')}`;
-  }
-
-  function formatDate(value: string) {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(value));
-  }
-
   function formatResult(result: MovementResult) {
-    switch (result.measurementType.key) {
-      case 'REPS':
-        return t('repsValue', {
-          count: result.reps ?? 0,
-        });
-
-      case 'WEIGHT':
-        return `${result.reps ?? 0} × ${result.load ?? '—'} ${
-          result.weightUnit ?? ''
-        }`.trim();
-
-      case 'DISTANCE':
-        return `${result.distance ?? 0} m`;
-
-      case 'DURATION':
-        return result.durationSeconds !== null
-          ? formatDuration(result.durationSeconds)
-          : '—';
-
-      case 'CALORIES':
-        return `${result.calories ?? 0} cal`;
-
-      default:
-        return '—';
-    }
+    return formatMeasurementResult(
+      result.measurementType.key,
+      result,
+      {
+        formatReps: (count) => t('repsValue', { count }),
+      },
+    );
   }
 
   const personalRecords = summary?.personalRecords ?? [];
@@ -286,7 +257,7 @@ export default async function MovementDetailPage({ params }: Props) {
                         </p>
 
                         <p className="mt-2 text-sm text-muted">
-                          {formatDate(result.performedAt)}
+                          {formatDate(result.performedAt, locale)}
                         </p>
 
                         <div className="mt-4 border-t border-border pt-4">
@@ -319,7 +290,7 @@ export default async function MovementDetailPage({ params }: Props) {
                   </p>
 
                   <p className="mt-2 text-sm text-muted">
-                    {formatDate(group.result.performedAt)}
+                    {formatDate(group.result.performedAt, locale)}
                   </p>
 
                   <div className="mt-4 border-t border-border pt-4">
@@ -432,7 +403,7 @@ export default async function MovementDetailPage({ params }: Props) {
 
                     <div className="shrink-0 sm:text-right">
                       <p className="text-sm text-muted">
-                        {formatDate(result.performedAt)}
+                        {formatDate(result.performedAt, locale)}
                       </p>
 
                       {result.source.type === 'MANUAL' && (

@@ -4,18 +4,20 @@ import { FormEvent, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
 import { useRouter } from '@/i18n/navigation';
+import type {
+  MeasurementType,
+  PrescriptionCategory,
+  ResultType,
+  WeightUnit,
+  WorkoutResultForEdit,
+} from '@/lib/result-types';
 
-export type WeightUnit = 'KG' | 'LB';
-
-export type ResultType = {
-  key: string;
-  name: string;
-};
-
-export type MeasurementType = {
-  key: string;
-  name: string;
-};
+export type {
+  PrescriptionCategory,
+  ResultType,
+  WeightUnit,
+  WorkoutResultForEdit,
+} from '@/lib/result-types';
 
 export type WorkoutMovement = {
   id: string;
@@ -40,45 +42,6 @@ export type WorkoutVariant = {
     name: string;
   };
   sections: WorkoutSection[];
-};
-
-export type PrescriptionCategory = {
-  key: string;
-  name: string;
-};
-
-export type WorkoutResultForEdit = {
-  id: string;
-  performedAt: string;
-  timeSeconds: number | null;
-  rounds: number | null;
-  reps: number | null;
-  load: number | null;
-  weightUnit: WeightUnit | null;
-  notes: string | null;
-  workoutVariant: {
-    id: string;
-    name: string | null;
-    level: {
-      key: string;
-      name: string;
-    };
-  } | null;
-  prescriptionCategory: {
-    key: string;
-    name: string;
-  } | null;
-  performedMovements: {
-    id: string;
-    workoutMovementId: string;
-    reps: number | null;
-    load: number | null;
-    weightUnit: WeightUnit | null;
-    distance: number | null;
-    calories: number | null;
-    durationSeconds: number | null;
-    notes: string | null;
-  }[];
 };
 
 type MovementPerformance = {

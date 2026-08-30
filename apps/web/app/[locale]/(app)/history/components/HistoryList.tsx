@@ -6,8 +6,15 @@ import { useLocale, useTranslations } from 'next-intl';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { Link } from '@/i18n/navigation';
-
-type WeightUnit = 'KG' | 'LB';
+import {
+  formatMeasurementResult,
+  formatTime,
+  formatWorkoutResult as formatWorkoutResultValue,
+} from '@/lib/result-formatters';
+import type {
+  MeasurementResultValues,
+  WeightUnit,
+} from '@/lib/result-types';
 
 type WorkoutHistoryMovement = {
   id: string;
@@ -125,24 +132,6 @@ type HistoryGroup = {
   items: TrainingHistoryItem[];
 };
 
-function formatDuration(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds
-      .toString()
-      .padStart(2, '0')}`;
-  }
-
-  if (minutes > 0) {
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
-
-  return `${remainingSeconds}s`;
-}
-
 function getDateKey(value: string) {
   const date = new Date(value);
 
@@ -209,82 +198,32 @@ export default function HistoryList({ results }: Props) {
   }
 
   function formatWorkoutResult(result: WorkoutTrainingHistoryItem) {
-    switch (result.result.type.key) {
-      case 'TIME':
-        return result.result.timeSeconds !== null
-          ? formatDuration(result.result.timeSeconds)
-          : '—';
-
-      case 'ROUNDS_REPS':
-        return `${result.result.rounds ?? 0} + ${result.result.reps ?? 0}`;
-
-      case 'REPS':
-        return result.result.reps !== null
-          ? t('repsValue', { count: result.result.reps })
-          : '—';
-
-      case 'LOAD':
-        return result.result.load !== null
-          ? `${result.result.load} ${result.result.weightUnit ?? ''}`.trim()
-          : '—';
-
-      default:
-        return '—';
-    }
+    return formatWorkoutResultValue(
+      {
+        resultType: result.result.type,
+        timeSeconds: result.result.timeSeconds,
+        rounds: result.result.rounds,
+        reps: result.result.reps,
+        load: result.result.load,
+        weightUnit: result.result.weightUnit,
+      },
+      {
+        formatReps: (count) => t('repsValue', { count }),
+      },
+    );
   }
 
   function formatMeasurement(
     measurementTypeKey: string,
-    result: {
-      reps: number | null;
-      load: number | null;
-      weightUnit: WeightUnit | null;
-      distance: number | null;
-      durationSeconds: number | null;
-      calories: number | null;
-    },
+    result: MeasurementResultValues,
   ) {
-    switch (measurementTypeKey) {
-      case 'WEIGHT': {
-        if (result.load === null) {
-          return '—';
-        }
-
-        const load = `${result.load} ${result.weightUnit ?? ''}`.trim();
-
-        return result.reps !== null
-          ? `${result.reps} × ${load}`
-          : load;
-      }
-
-      case 'REPS':
-        return result.reps !== null
-          ? t('repsValue', { count: result.reps })
-          : '—';
-
-      case 'DISTANCE':
-        return result.distance !== null ? `${result.distance} m` : '—';
-
-      case 'DURATION':
-        return result.durationSeconds !== null
-          ? formatDuration(result.durationSeconds)
-          : '—';
-
-      case 'CALORIES':
-        return result.calories !== null
-          ? `${result.calories} cal`
-          : '—';
-
-      default:
-        return '—';
-    }
-  }
-
-  function formatTime(value: string) {
-    return new Intl.DateTimeFormat(locale, {
-      hour: 'numeric',
-      minute: '2-digit',
-    }).format(new Date(value));
+    return formatMeasurementResult(
+      measurementTypeKey,
+      result,
+      {
+        formatReps: (count) => t('repsValue', { count }),
+      },
+    );
   }
 
   function formatGroupDate(date: Date) {
@@ -723,7 +662,7 @@ export default function HistoryList({ results }: Props) {
                                 </Link>
 
                                 <p className="mt-2 text-sm text-muted">
-                                  {formatTime(result.performedAt)}
+                                  {formatTime(result.performedAt, locale)}
                                 </p>
                               </div>
 
@@ -818,7 +757,7 @@ export default function HistoryList({ results }: Props) {
                                 <span>•</span>
 
                                 <span>
-                                  {formatTime(result.performedAt)}
+                                  {formatTime(result.performedAt, locale)}
                                 </span>
                               </div>
                             </div>
