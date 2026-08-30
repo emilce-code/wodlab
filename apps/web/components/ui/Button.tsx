@@ -1,13 +1,24 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type {
+  ButtonHTMLAttributes,
+  ReactNode,
+} from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'danger';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  children: ReactNode;
-  variant?: ButtonVariant;
-};
+type ButtonProps =
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    children: ReactNode;
+    variant?: ButtonVariant;
+  };
 
-const variants: Record<ButtonVariant, string> = {
+const variants: Record<
+  ButtonVariant,
+  string
+> = {
   primary:
     'bg-accent text-accent-foreground hover:bg-accent-strong',
 
@@ -16,6 +27,9 @@ const variants: Record<ButtonVariant, string> = {
 
   ghost:
     'text-muted hover:bg-surface-elevated hover:text-foreground',
+
+  danger:
+    'border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/15',
 };
 
 export default function Button({

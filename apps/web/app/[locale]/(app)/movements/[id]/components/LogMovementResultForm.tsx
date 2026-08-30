@@ -3,6 +3,8 @@
 import { FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
+import Alert from '@/components/ui/Alert';
+import Button from '@/components/ui/Button';
 import { useRouter } from '@/i18n/navigation';
 
 import {
@@ -502,39 +504,34 @@ export default function LogMovementResultForm({
       </div>
 
       {error && (
-        <div
-          role="alert"
-          className="mt-5 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500"
-        >
+        <Alert variant="error" className="mt-5">
           {error}
-        </div>
+        </Alert>
       )}
 
       {success && (
-        <div
-          role="status"
-          className="mt-5 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-accent"
-        >
+        <Alert variant="success" className="mt-5">
           {t('saved')}
-        </div>
+        </Alert>
       )}
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {isEditing && onCancel && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="inline-flex w-full items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="w-full px-5 sm:w-auto"
           >
             {t('cancel')}
-          </button>
+          </Button>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={isSubmitting || !measurementTypeKey}
-          className="inline-flex w-full items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          className="w-full px-5 sm:w-auto"
         >
           {isSubmitting
             ? isEditing
@@ -543,7 +540,7 @@ export default function LogMovementResultForm({
             : isEditing
               ? t('update')
               : t('save')}
-        </button>
+        </Button>
       </div>
     </form>
   );
