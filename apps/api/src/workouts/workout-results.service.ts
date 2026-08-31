@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
@@ -73,6 +74,22 @@ const resultInclude = {
       },
     },
   },
+} satisfies Prisma.WorkoutResultInclude;
+
+type WorkoutResultWithDetails = Prisma.WorkoutResultGetPayload<{
+  include: typeof resultInclude;
+}>;
+
+type WorkoutMovementForResult = {
+  id: string;
+  movementId: string;
+  movement: {
+    measurementTypes: {
+      measurementType: {
+        key: string;
+      };
+    }[];
+  };
 };
 
 @Injectable()
@@ -187,7 +204,7 @@ export class WorkoutResultsService {
       this.mapWorkoutResult(result),
     );
 
-    const groupedResults = new Map<string, any[]>();
+    const groupedResults = new Map<string, (typeof mappedResults)[number][]>();
 
     for (const result of mappedResults) {
       const workoutId = result.workout.id;
@@ -811,13 +828,6 @@ export class WorkoutResultsService {
       );
     }
 
-    const existingMovementMap = new Map(
-      existingResult.performedMovements.map((movement) => [
-        movement.workoutMovementId,
-        movement,
-      ]),
-    );
-
     const finalMovements =
       dto.movements !== undefined
         ? dto.movements
@@ -1080,9 +1090,9 @@ export class WorkoutResultsService {
   }
 
   private async buildGeneratedMovementResults(
-    tx: any,
+    tx: Prisma.TransactionClient,
     submittedMovements: CreateWorkoutResultDto['movements'],
-    workoutMovementMap: Map<string, any>,
+    workoutMovementMap: Map<string, WorkoutMovementForResult>,
     athleteProfileId: string,
     sourceWorkoutResultId: string,
     performedAt: Date,
@@ -1106,7 +1116,7 @@ export class WorkoutResultsService {
 
       const supportedTypes = new Set<string>(
         workoutMovement.movement.measurementTypes.map(
-          (item: any) => item.measurementType.key,
+          (item) => item.measurementType.key,
         ),
       );
 
@@ -1198,7 +1208,7 @@ export class WorkoutResultsService {
 
       const supportedTypes = new Set<string>(
         workoutMovement.movement.measurementTypes.map(
-          (item: any) => item.measurementType.key,
+          (item) => item.measurementType.key,
         ),
       );
 
@@ -1321,7 +1331,7 @@ export class WorkoutResultsService {
     }
   }
 
-  private mapWorkoutResult(result: any) {
+  private mapWorkoutResult<T extends WorkoutResultWithDetails>(result: T) {
     const workoutVariant = result.workoutVariant
       ? {
           id: result.workoutVariant.id,
@@ -1342,7 +1352,7 @@ export class WorkoutResultsService {
       : null;
 
     const performedMovements = Array.isArray(result.performedMovements)
-      ? result.performedMovements.map((performedMovement: any) => ({
+      ? result.performedMovements.map((performedMovement) => ({
           id: performedMovement.id,
           workoutMovementId: performedMovement.workoutMovementId,
           reps: performedMovement.reps,
@@ -1391,7 +1401,18 @@ export class WorkoutResultsService {
     };
   }
 
-  private getPersonalBest(results: any[], resultTypeKey: string) {
+  private getPersonalBest<
+    T extends {
+      resultType: {
+        key: string;
+      };
+      timeSeconds: number | null;
+      rounds: number | null;
+      reps: number | null;
+      load: number | null;
+      weightUnit: 'KG' | 'LB' | null;
+    },
+  >(results: T[], resultTypeKey: string) {
     const validResults = results.filter(
       (result) => result.resultType.key === resultTypeKey,
     );
@@ -1405,7 +1426,8 @@ export class WorkoutResultsService {
         return (
           [...validResults]
             .filter((result) => result.timeSeconds !== null)
-            .sort((a, b) => a.timeSeconds - b.timeSeconds)[0] ?? null
+            .sort((a, b) => (a.timeSeconds ?? 0) - (b.timeSeconds ?? 0))[0] ??
+          null
         );
 
       case 'ROUNDS_REPS':
@@ -1425,7 +1447,7 @@ export class WorkoutResultsService {
         return (
           [...validResults]
             .filter((result) => result.reps !== null)
-            .sort((a, b) => b.reps - a.reps)[0] ?? null
+            .sort((a, b) => (b.reps ?? 0) - (a.reps ?? 0))[0] ?? null
         );
 
       case 'LOAD':

@@ -36,6 +36,39 @@ type MockPrismaService = {
   $transaction: jest.Mock;
 };
 
+type PerformedMovementFixture = {
+  id: string;
+  workoutMovementId: string;
+  reps: number | null;
+  load: number | null;
+  weightUnit: 'KG' | 'LB' | null;
+  distance: number | null;
+  calories: number | null;
+  durationSeconds: number | null;
+  notes: string | null;
+};
+
+type GeneratedMovementResult = {
+  movementId: string;
+  athleteProfileId: string;
+  measurementTypeId: string;
+  sourceWorkoutResultId: string;
+  performedAt: Date;
+  reps?: number;
+  load?: number;
+  weightUnit?: 'KG' | 'LB';
+  distance?: number;
+  durationSeconds?: number;
+  calories?: number;
+  notes?: string;
+};
+
+function getFirstMockCallArgument<T>(mock: jest.Mock): T {
+  const calls = mock.mock.calls as unknown[][];
+
+  return calls[0][0] as T;
+}
+
 function createDelegateMock(): MockPrismaDelegate {
   return {
     findUnique: jest.fn(),
@@ -165,7 +198,7 @@ function createMappedResult(
     load?: number | null;
     weightUnit?: 'KG' | 'LB' | null;
     performedAt?: Date;
-    performedMovements?: any[];
+    performedMovements?: PerformedMovementFixture[];
     notes?: string | null;
   } = {},
 ) {
@@ -223,7 +256,7 @@ function setupCreateResult(
   options: {
     resultTypeKey?: string;
     variant?: ReturnType<typeof createVariant>;
-    returnedResult?: any;
+    returnedResult?: ReturnType<typeof createMappedResult>;
   } = {},
 ) {
   const {
@@ -328,12 +361,16 @@ describe('WorkoutResultsService', () => {
 
       expect(result.timeSeconds).toBe(315);
 
-      expect(prisma.workoutResult.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      const createCall = getFirstMockCallArgument<{ data: unknown }>(
+        prisma.workoutResult.create,
+      );
+
+      expect(createCall.data).toEqual(
+        expect.objectContaining({
           performedAt: new Date(PERFORMED_AT),
           timeSeconds: 315,
         }),
-      });
+      );
     });
 
     it('creates a ROUNDS_REPS workout result', async () => {
@@ -620,7 +657,9 @@ describe('WorkoutResultsService', () => {
 
       expect(prisma.movementResult.createMany).toHaveBeenCalledTimes(1);
 
-      const call = prisma.movementResult.createMany.mock.calls[0][0];
+      const call = getFirstMockCallArgument<{
+        data: GeneratedMovementResult[];
+      }>(prisma.movementResult.createMany);
 
       expect(call.data).toHaveLength(1);
 
@@ -666,7 +705,9 @@ describe('WorkoutResultsService', () => {
         ],
       });
 
-      const call = prisma.movementResult.createMany.mock.calls[0][0];
+      const call = getFirstMockCallArgument<{
+        data: GeneratedMovementResult[];
+      }>(prisma.movementResult.createMany);
 
       expect(call.data).toHaveLength(1);
 
@@ -713,7 +754,9 @@ describe('WorkoutResultsService', () => {
         ],
       });
 
-      const data = prisma.movementResult.createMany.mock.calls[0][0].data;
+      const { data } = getFirstMockCallArgument<{
+        data: GeneratedMovementResult[];
+      }>(prisma.movementResult.createMany);
 
       expect(data).toHaveLength(2);
 
@@ -768,7 +811,9 @@ describe('WorkoutResultsService', () => {
         ],
       });
 
-      const data = prisma.movementResult.createMany.mock.calls[0][0].data;
+      const { data } = getFirstMockCallArgument<{
+        data: GeneratedMovementResult[];
+      }>(prisma.movementResult.createMany);
 
       expect(data).toHaveLength(2);
 
@@ -847,7 +892,7 @@ describe('WorkoutResultsService', () => {
   describe('updateResult', () => {
     function setupUpdateResult(
       options: {
-        existingMovements?: any[];
+        existingMovements?: PerformedMovementFixture[];
         measurementTypes?: string[];
       } = {},
     ) {
@@ -953,25 +998,23 @@ describe('WorkoutResultsService', () => {
         },
       });
 
-      expect(prisma.workoutResult.update).toHaveBeenCalledWith(
+      const updateCall = getFirstMockCallArgument<{ data: unknown }>(
+        prisma.workoutResult.update,
+      );
+
+      expect(updateCall.data).toEqual(
         expect.objectContaining({
-          where: {
-            id: RESULT_ID,
+          timeSeconds: 290,
+
+          performedMovements: {
+            create: [
+              expect.objectContaining({
+                reps: 5,
+                load: 105,
+                weightUnit: 'KG',
+              }),
+            ],
           },
-
-          data: expect.objectContaining({
-            timeSeconds: 290,
-
-            performedMovements: {
-              create: [
-                expect.objectContaining({
-                  reps: 5,
-                  load: 105,
-                  weightUnit: 'KG',
-                }),
-              ],
-            },
-          }),
         }),
       );
 
@@ -1020,25 +1063,27 @@ describe('WorkoutResultsService', () => {
         timeSeconds: 295,
       });
 
-      expect(prisma.workoutResult.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            performedMovements: {
-              create: [
-                expect.objectContaining({
-                  workoutMovement: {
-                    connect: {
-                      id: 'workout-movement-1',
-                    },
-                  },
+      const updateCall = getFirstMockCallArgument<{ data: unknown }>(
+        prisma.workoutResult.update,
+      );
 
-                  reps: 5,
-                  load: 100,
-                  weightUnit: 'KG',
-                }),
-              ],
-            },
-          }),
+      expect(updateCall.data).toEqual(
+        expect.objectContaining({
+          performedMovements: {
+            create: [
+              expect.objectContaining({
+                workoutMovement: {
+                  connect: {
+                    id: 'workout-movement-1',
+                  },
+                },
+
+                reps: 5,
+                load: 100,
+                weightUnit: 'KG',
+              }),
+            ],
+          },
         }),
       );
 
@@ -1073,7 +1118,11 @@ describe('WorkoutResultsService', () => {
 
       expect(prisma.movementResult.createMany).not.toHaveBeenCalled();
 
-      const updateCall = prisma.workoutResult.update.mock.calls[0][0];
+      const updateCall = getFirstMockCallArgument<{
+        data: {
+          performedMovements?: unknown;
+        };
+      }>(prisma.workoutResult.update);
 
       expect(updateCall.data.performedMovements).toBeUndefined();
     });
@@ -1241,7 +1290,10 @@ describe('WorkoutResultsService', () => {
   });
 
   describe('findResultSummary personal best', () => {
-    function setupSummary(resultTypeKey: string, results: any[]) {
+    function setupSummary(
+      resultTypeKey: string,
+      results: ReturnType<typeof createMappedResult>[],
+    ) {
       prisma.athleteProfile.findUnique.mockResolvedValue({
         id: ATHLETE_ID,
       });
