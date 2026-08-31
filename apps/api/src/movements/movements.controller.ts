@@ -12,10 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 
-import {
-  AuthenticatedUser,
-  JwtAuthGuard,
-} from '../auth/jwt-auth.guard';
+import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
 import { FindMovementsQueryDto } from './dto/find-movements-query.dto';
@@ -80,10 +77,7 @@ export class MovementsController {
     @Param('id') movementId: string,
     @Req() request: AuthenticatedRequest,
   ) {
-    return this.movementsService.findResults(
-      movementId,
-      request.user.userId,
-    );
+    return this.movementsService.findResults(movementId, request.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

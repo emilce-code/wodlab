@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { WorkoutResponseDto } from './dto/workout-response.dto';
@@ -98,7 +99,11 @@ const workoutInclude = {
       },
     },
   },
-};
+} satisfies Prisma.WorkoutInclude;
+
+type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
+  include: typeof workoutInclude;
+}>;
 
 @Injectable()
 export class WorkoutsService {
@@ -348,7 +353,7 @@ export class WorkoutsService {
     });
   }
 
-  private mapWorkout(workout: any): WorkoutResponseDto {
+  private mapWorkout(workout: WorkoutWithDetails): WorkoutResponseDto {
     return {
       id: workout.id,
       name: workout.name,
@@ -374,7 +379,7 @@ export class WorkoutsService {
         email: workout.createdByUser.email,
       },
 
-      variants: workout.variants.map((variant: any) => ({
+      variants: workout.variants.map((variant) => ({
         id: variant.id,
         name: variant.name,
         notes: variant.notes,
@@ -384,7 +389,7 @@ export class WorkoutsService {
           name: variant.level.name,
         },
 
-        sections: variant.sections.map((section: any) => ({
+        sections: variant.sections.map((section) => ({
           id: section.id,
           order: section.order,
           rounds: section.rounds,
@@ -405,7 +410,7 @@ export class WorkoutsService {
               : null,
           },
 
-          movements: section.movements.map((item: any) => ({
+          movements: section.movements.map((item) => ({
             id: item.id,
             order: item.order,
             reps: item.reps,
@@ -423,14 +428,14 @@ export class WorkoutsService {
               name: item.movement.name,
 
               measurementTypes: item.movement.measurementTypes.map(
-                (itemMeasurementType: any) => ({
+                (itemMeasurementType) => ({
                   key: itemMeasurementType.measurementType.key,
                   name: itemMeasurementType.measurementType.name,
                 }),
               ),
             },
 
-            prescriptions: item.prescriptions.map((prescription: any) => ({
+            prescriptions: item.prescriptions.map((prescription) => ({
               id: prescription.id,
 
               category: {
@@ -454,6 +459,6 @@ export class WorkoutsService {
           })),
         })),
       })),
-    } as WorkoutResponseDto;
+    };
   }
 }

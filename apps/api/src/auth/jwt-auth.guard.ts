@@ -15,53 +15,37 @@ export type AuthenticatedUser = {
   email: string;
 };
 
-type AuthenticatedRequest =
-  Auth0AuthenticatedRequest &
-    Request & {
-      user?: AuthenticatedUser;
-    };
+type AuthenticatedRequest = Auth0AuthenticatedRequest &
+  Request & {
+    user?: AuthenticatedUser;
+  };
 
 @Injectable()
-export class JwtAuthGuard
-  implements CanActivate
-{
+export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly auth0AuthGuard: Auth0AuthGuard,
     private readonly prisma: PrismaService,
   ) {}
 
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
-    await this.auth0AuthGuard.canActivate(
-      context,
-    );
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    await this.auth0AuthGuard.canActivate(context);
 
-    const request =
-      context
-        .switchToHttp()
-        .getRequest<AuthenticatedRequest>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
-    const auth0UserId =
-      request.auth0User?.sub;
+    const auth0UserId = request.auth0User?.sub;
 
     if (!auth0UserId) {
-      throw new UnauthorizedException(
-        'Authenticated user subject is missing',
-      );
+      throw new UnauthorizedException('Authenticated user subject is missing');
     }
 
-    const user =
-      await this.prisma.user.findUnique({
-        where: {
-          auth0UserId,
-        },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: {
+        auth0UserId,
+      },
+    });
 
     if (!user) {
-      throw new UnauthorizedException(
-        'WODLY user has not been provisioned',
-      );
+      throw new UnauthorizedException('WODLY user has not been provisioned');
     }
 
     request.user = {

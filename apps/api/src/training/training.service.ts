@@ -165,10 +165,7 @@ export class TrainingService {
         },
 
         reps: movementResult.reps,
-        load:
-          movementResult.load !== null
-            ? Number(movementResult.load)
-            : null,
+        load: movementResult.load !== null ? Number(movementResult.load) : null,
         weightUnit: movementResult.weightUnit,
         distance: movementResult.distance,
         durationSeconds: movementResult.durationSeconds,

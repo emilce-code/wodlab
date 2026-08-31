@@ -7,23 +7,12 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
-  imports: [
-    ConfigModule,
-  ],
+  imports: [ConfigModule],
 
-  controllers: [
-    AuthController,
-  ],
+  controllers: [AuthController],
 
-  providers: [
-    AuthService,
-    Auth0AuthGuard,
-    JwtAuthGuard,
-  ],
+  providers: [AuthService, Auth0AuthGuard, JwtAuthGuard],
 
-  exports: [
-    Auth0AuthGuard,
-    JwtAuthGuard,
-  ],
+  exports: [Auth0AuthGuard, JwtAuthGuard],
 })
 export class AuthModule {}

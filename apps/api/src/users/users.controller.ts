@@ -10,10 +10,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 
-import {
-  AuthenticatedUser,
-  JwtAuthGuard,
-} from '../auth/jwt-auth.guard';
+import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 import {
   Auth0AuthGuard,
@@ -22,10 +19,9 @@ import {
 
 import { UsersService } from './users.service';
 
-type AuthenticatedRequest =
-  Request & {
-    user: AuthenticatedUser;
-  };
+type AuthenticatedRequest = Request & {
+  user: AuthenticatedUser;
+};
 
 type ProvisionUserDto = {
   email: string;
@@ -34,9 +30,7 @@ type ProvisionUserDto = {
 
 @Controller()
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(Auth0AuthGuard)
   @Post('users/provision')
@@ -47,20 +41,16 @@ export class UsersController {
     @Body()
     body: ProvisionUserDto,
   ) {
-    const auth0UserId =
-      request.auth0User?.sub;
+    const auth0UserId = request.auth0User?.sub;
 
     if (!auth0UserId) {
-      throw new UnauthorizedException(
-        'Authenticated user subject is missing',
-      );
+      throw new UnauthorizedException('Authenticated user subject is missing');
     }
 
     return this.usersService.findOrCreateFromAuth0({
       auth0UserId,
       email: body.email,
-      displayName:
-        body.displayName,
+      displayName: body.displayName,
     });
   }
 
@@ -70,9 +60,7 @@ export class UsersController {
     @Req()
     request: AuthenticatedRequest,
   ) {
-    return this.usersService.getDashboard(
-      request.user.userId,
-    );
+    return this.usersService.getDashboard(request.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -81,26 +69,18 @@ export class UsersController {
     @Req()
     request: AuthenticatedRequest,
   ) {
-    const user =
-      await this.usersService.findById(
-        request.user.userId,
-      );
+    const user = await this.usersService.findById(request.user.userId);
 
     if (!user) {
-      throw new NotFoundException(
-        'User not found',
-      );
+      throw new NotFoundException('User not found');
     }
 
     return {
       id: user.id,
       email: user.email,
-      athleteProfile:
-        user.athleteProfile,
-      createdAt:
-        user.createdAt,
-      updatedAt:
-        user.updatedAt,
+      athleteProfile: user.athleteProfile,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }

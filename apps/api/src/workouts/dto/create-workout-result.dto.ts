@@ -1,6 +1,4 @@
-import {
-  Type,
-} from 'class-transformer';
+import { Type } from 'class-transformer';
 
 import {
   IsArray,
@@ -14,9 +12,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import {
-  WeightUnit,
-} from '../../../generated/prisma/enums';
+import { WeightUnit } from '../../../generated/prisma/enums';
 
 export class CreateWorkoutResultMovementDto {
   @IsString()
@@ -101,9 +97,6 @@ export class CreateWorkoutResultDto {
   @ValidateNested({
     each: true,
   })
-  @Type(
-    () =>
-      CreateWorkoutResultMovementDto,
-  )
+  @Type(() => CreateWorkoutResultMovementDto)
   movements?: CreateWorkoutResultMovementDto[];
 }

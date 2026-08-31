@@ -14,24 +14,20 @@ describe('AuthController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule =
-      await Test.createTestingModule({
-        controllers: [AuthController],
-        providers: [
-          {
-            provide: AuthService,
-            useValue: authServiceMock,
-          },
-        ],
-      })
-        .overrideGuard(Auth0AuthGuard)
-        .useValue(auth0AuthGuardMock)
-        .compile();
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AuthController],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: authServiceMock,
+        },
+      ],
+    })
+      .overrideGuard(Auth0AuthGuard)
+      .useValue(auth0AuthGuardMock)
+      .compile();
 
-    controller =
-      module.get<AuthController>(
-        AuthController,
-      );
+    controller = module.get<AuthController>(AuthController);
   });
 
   afterEach(() => {

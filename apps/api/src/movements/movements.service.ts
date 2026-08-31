@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
@@ -52,142 +53,112 @@ const movementResultInclude = {
       },
     },
   },
-};
+} satisfies Prisma.MovementResultInclude;
+
+type MovementResultWithSource = Prisma.MovementResultGetPayload<{
+  include: typeof movementResultInclude;
+}>;
 
 @Injectable()
 export class MovementsService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(
-    query: FindMovementsQueryDto,
-  ): Promise<MovementResponseDto[]> {
-    const {
-      search,
-      category,
-      measurementType,
-      foundational,
-    } = query;
+  async findAll(query: FindMovementsQueryDto): Promise<MovementResponseDto[]> {
+    const { search, category, measurementType, foundational } = query;
 
-    const normalizedSearch =
-      search?.trim().toLowerCase();
+    const normalizedSearch = search?.trim().toLowerCase();
 
-    const movements =
-      await this.prisma.movement.findMany({
-        where: {
-          ...(normalizedSearch
-            ? {
-                searchText: {
-                  contains:
-                    normalizedSearch,
+    const movements = await this.prisma.movement.findMany({
+      where: {
+        ...(normalizedSearch
+          ? {
+              searchText: {
+                contains: normalizedSearch,
 
-                  mode:
-                    'insensitive',
-                },
-              }
-            : {}),
+                mode: 'insensitive',
+              },
+            }
+          : {}),
 
-          ...(category
-            ? {
-                category: {
-                  key:
-                    category,
-                },
-              }
-            : {}),
+        ...(category
+          ? {
+              category: {
+                key: category,
+              },
+            }
+          : {}),
 
-          ...(measurementType
-            ? {
-                measurementTypes: {
-                  some: {
-                    measurementType: {
-                      key:
-                        measurementType,
-                    },
+        ...(measurementType
+          ? {
+              measurementTypes: {
+                some: {
+                  measurementType: {
+                    key: measurementType,
                   },
                 },
-              }
-            : {}),
+              },
+            }
+          : {}),
 
-          ...(foundational ===
-          'true'
-            ? {
-                isFoundational:
-                  true,
-              }
-            : {}),
-        },
+        ...(foundational === 'true'
+          ? {
+              isFoundational: true,
+            }
+          : {}),
+      },
 
-        include: {
-          category: true,
+      include: {
+        category: true,
 
-          measurementTypes: {
-            include: {
-              measurementType:
-                true,
-            },
+        measurementTypes: {
+          include: {
+            measurementType: true,
           },
         },
+      },
 
-        orderBy: {
-          name: 'asc',
-        },
-      });
+      orderBy: {
+        name: 'asc',
+      },
+    });
 
-    return movements.map(
-      (movement) =>
-        this.mapMovement(
-          movement,
-        ),
-    );
+    return movements.map((movement) => this.mapMovement(movement));
   }
 
-  async findOne(
-    movementId: string,
-  ): Promise<MovementResponseDto> {
-    const movement =
-      await this.prisma.movement.findUnique({
-        where: {
-          id:
-            movementId,
-        },
+  async findOne(movementId: string): Promise<MovementResponseDto> {
+    const movement = await this.prisma.movement.findUnique({
+      where: {
+        id: movementId,
+      },
 
-        include: {
-          category: true,
+      include: {
+        category: true,
 
-          measurementTypes: {
-            include: {
-              measurementType:
-                true,
-            },
+        measurementTypes: {
+          include: {
+            measurementType: true,
+          },
 
-            orderBy: {
-              measurementType: {
-                sortOrder:
-                  'asc',
-              },
+          orderBy: {
+            measurementType: {
+              sortOrder: 'asc',
             },
           },
         },
-      });
+      },
+    });
 
     if (!movement) {
-      throw new NotFoundException(
-        'Movement not found',
-      );
+      throw new NotFoundException('Movement not found');
     }
 
-    return this.mapMovement(
-      movement,
-    );
+    return this.mapMovement(movement);
   }
 
   findCategories() {
     return this.prisma.movementCategory.findMany({
       orderBy: {
-        sortOrder:
-          'asc',
+        sortOrder: 'asc',
       },
 
       select: {
@@ -200,8 +171,7 @@ export class MovementsService {
   findMeasurementTypes() {
     return this.prisma.measurementType.findMany({
       orderBy: {
-        sortOrder:
-          'asc',
+        sortOrder: 'asc',
       },
 
       select: {
@@ -211,64 +181,46 @@ export class MovementsService {
     });
   }
 
-  async findProgress(
-    userId: string,
-  ) {
-    const athleteProfile =
-      await this.getAthleteProfile(
-        userId,
-      );
+  async findProgress(userId: string) {
+    const athleteProfile = await this.getAthleteProfile(userId);
 
-    const rawResults =
-      await this.prisma.movementResult.findMany({
-        where: {
-          athleteProfileId:
-            athleteProfile.id,
-        },
+    const rawResults = await this.prisma.movementResult.findMany({
+      where: {
+        athleteProfileId: athleteProfile.id,
+      },
 
-        include: {
-          movement: {
-            select: {
-              id: true,
-              name: true,
+      include: {
+        movement: {
+          select: {
+            id: true,
+            name: true,
 
-              category: {
-                select: {
-                  key: true,
-                  name: true,
-                },
+            category: {
+              select: {
+                key: true,
+                name: true,
               },
             },
           },
-
-          ...movementResultInclude,
         },
 
-        orderBy: [
-          {
-            performedAt:
-              'asc',
-          },
+        ...movementResultInclude,
+      },
 
-          {
-            createdAt:
-              'asc',
-          },
-        ],
-      });
+      orderBy: [
+        {
+          performedAt: 'asc',
+        },
 
-    const results =
-      rawResults.map(
-        (result) =>
-          this.mapMovementResult(
-            result,
-          ),
-      );
+        {
+          createdAt: 'asc',
+        },
+      ],
+    });
 
-    if (
-      results.length ===
-      0
-    ) {
+    const results = rawResults.map((result) => this.mapMovementResult(result));
+
+    if (results.length === 0) {
       return {
         summary: {
           totalResults: 0,
@@ -280,218 +232,131 @@ export class MovementsService {
       };
     }
 
-    const trackMap =
-      new Map<
-        string,
-        {
-          movement: {
-            id: string;
-            name: string;
+    const trackMap = new Map<
+      string,
+      {
+        movement: {
+          id: string;
+          name: string;
 
-            category: {
-              key: string;
-              name: string;
-            };
-          };
-
-          measurementType: {
+          category: {
             key: string;
             name: string;
           };
+        };
 
-          reps:
-            | number
-            | null;
+        measurementType: {
+          key: string;
+          name: string;
+        };
 
-          history:
-            typeof results;
-        }
-      >();
+        reps: number | null;
 
-    for (
-      const result of
-      results
-    ) {
-      const reps =
-        result
-          .measurementType
-          .key ===
-        'WEIGHT'
-          ? result.reps
-          : null;
+        history: typeof results;
+      }
+    >();
 
-      if (
-        result
-          .measurementType
-          .key ===
-          'WEIGHT' &&
-        reps === null
-      ) {
+    for (const result of results) {
+      const reps = result.measurementType.key === 'WEIGHT' ? result.reps : null;
+
+      if (result.measurementType.key === 'WEIGHT' && reps === null) {
         continue;
       }
 
-      const trackKey =
-        [
-          result.movementId,
-          result.measurementTypeId,
-          reps ?? 'none',
-        ].join(':');
+      const trackKey = [
+        result.movementId,
+        result.measurementTypeId,
+        reps ?? 'none',
+      ].join(':');
 
-      const existing =
-        trackMap.get(
-          trackKey,
-        );
+      const existing = trackMap.get(trackKey);
 
       if (existing) {
-        existing.history.push(
-          result,
-        );
+        existing.history.push(result);
 
         continue;
       }
 
-      trackMap.set(
-        trackKey,
-        {
-          movement:
-            result.movement,
+      trackMap.set(trackKey, {
+        movement: result.movement,
 
-          measurementType:
-            result.measurementType,
+        measurementType: result.measurementType,
 
-          reps,
+        reps,
 
-          history: [
-            result,
-          ],
-        },
-      );
+        history: [result],
+      });
     }
 
-    const tracks =
-      Array.from(
-        trackMap.values(),
-      )
-        .map(
-          (track) => {
-            const firstResult =
-              track.history[0];
+    const tracks = Array.from(trackMap.values())
+      .map((track) => {
+        const firstResult = track.history[0];
 
-            const latestResult =
-              track.history[
-                track.history
-                  .length - 1
-              ];
+        const latestResult = track.history[track.history.length - 1];
 
-            let personalBest:
-              | (typeof track.history)[number]
-              | null = null;
+        let personalBest: (typeof track.history)[number] | null = null;
 
-            if (
-              track
-                .measurementType
-                .key ===
-              'WEIGHT'
-            ) {
-              personalBest =
-                track.history.reduce(
-                  (
-                    best,
-                    candidate,
-                  ) => {
-                    if (!best) {
-                      return candidate;
-                    }
+        if (track.measurementType.key === 'WEIGHT') {
+          personalBest = track.history.reduce(
+            (best, candidate) => {
+              if (!best) {
+                return candidate;
+              }
 
-                    const bestLoad =
-                      this.getLoadInKg(
-                        best.load,
-                        best.weightUnit,
-                      );
+              const bestLoad = this.getLoadInKg(best.load, best.weightUnit);
 
-                    const candidateLoad =
-                      this.getLoadInKg(
-                        candidate.load,
-                        candidate.weightUnit,
-                      );
+              const candidateLoad = this.getLoadInKg(
+                candidate.load,
+                candidate.weightUnit,
+              );
 
-                    return candidateLoad >
-                      bestLoad
-                      ? candidate
-                      : best;
-                  },
+              return candidateLoad > bestLoad ? candidate : best;
+            },
 
-                  null as
-                    | (typeof track.history)[number]
-                    | null,
-                );
-            } else {
-              personalBest =
-                this.getBestResult(
-                  track
-                    .measurementType
-                    .key,
+            null as (typeof track.history)[number] | null,
+          );
+        } else {
+          personalBest = this.getBestResult(
+            track.measurementType.key,
 
-                  track.history,
-                );
-            }
+            track.history,
+          );
+        }
 
-            return {
-              movement:
-                track.movement,
+        return {
+          movement: track.movement,
 
-              measurementType:
-                track.measurementType,
+          measurementType: track.measurementType,
 
-              reps:
-                track.reps,
+          reps: track.reps,
 
-              attemptCount:
-                track.history
-                  .length,
+          attemptCount: track.history.length,
 
-              personalBest,
+          personalBest,
 
-              latestResult,
+          latestResult,
 
-              firstResult,
+          firstResult,
 
-              history:
-                track.history,
-            };
-          },
-        )
-        .sort(
-          (a, b) =>
-            new Date(
-              b.latestResult
-                .performedAt,
-            ).getTime() -
-            new Date(
-              a.latestResult
-                .performedAt,
-            ).getTime(),
-        );
+          history: track.history,
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.latestResult.performedAt).getTime() -
+          new Date(a.latestResult.performedAt).getTime(),
+      );
 
-    const uniqueMovements =
-      new Set(
-        results.map(
-          (result) =>
-            result.movementId,
-        ),
-      ).size;
+    const uniqueMovements = new Set(results.map((result) => result.movementId))
+      .size;
 
-    const personalRecords =
-      tracks.filter(
-        (track) =>
-          track.personalBest !==
-          null,
-      ).length;
+    const personalRecords = tracks.filter(
+      (track) => track.personalBest !== null,
+    ).length;
 
     return {
       summary: {
-        totalResults:
-          results.length,
+        totalResults: results.length,
 
         uniqueMovements,
 
@@ -507,45 +372,29 @@ export class MovementsService {
     userId: string,
     dto: CreateMovementResultDto,
   ) {
-    const athleteProfile =
-      await this.getAthleteProfile(
-        userId,
-      );
+    const athleteProfile = await this.getAthleteProfile(userId);
 
-    const movement =
-      await this.prisma.movement.findUnique({
-        where: {
-          id:
-            movementId,
-        },
+    const movement = await this.prisma.movement.findUnique({
+      where: {
+        id: movementId,
+      },
 
-        include: {
-          measurementTypes: {
-            include: {
-              measurementType:
-                true,
-            },
+      include: {
+        measurementTypes: {
+          include: {
+            measurementType: true,
           },
         },
-      });
+      },
+    });
 
     if (!movement) {
-      throw new NotFoundException(
-        'Movement not found',
-      );
+      throw new NotFoundException('Movement not found');
     }
 
-    const measurementType =
-      movement.measurementTypes
-        .map(
-          (item) =>
-            item.measurementType,
-        )
-        .find(
-          (type) =>
-            type.key ===
-            dto.measurementTypeKey,
-        );
+    const measurementType = movement.measurementTypes
+      .map((item) => item.measurementType)
+      .find((type) => type.key === dto.measurementTypeKey);
 
     if (!measurementType) {
       throw new BadRequestException(
@@ -553,71 +402,49 @@ export class MovementsService {
       );
     }
 
-    this.validateResult(
-      measurementType.key,
-      dto,
-    );
+    this.validateResult(measurementType.key, dto);
 
-    const result =
-      await this.prisma.movementResult.create({
-        data: {
-          movementId:
-            movement.id,
+    const result = await this.prisma.movementResult.create({
+      data: {
+        movementId: movement.id,
 
-          athleteProfileId:
-            athleteProfile.id,
+        athleteProfileId: athleteProfile.id,
 
-          measurementTypeId:
-            measurementType.id,
+        measurementTypeId: measurementType.id,
 
-          performedAt:
-            new Date(
-              dto.performedAt,
-            ),
+        performedAt: new Date(dto.performedAt),
 
-          reps:
-            dto.reps,
+        reps: dto.reps,
 
-          load:
-            dto.load,
+        load: dto.load,
 
-          weightUnit:
-            dto.load !==
-            undefined
-              ? dto.weightUnit ??
-                athleteProfile
-                  .preferredWeightUnit
-              : undefined,
+        weightUnit:
+          dto.load !== undefined
+            ? (dto.weightUnit ?? athleteProfile.preferredWeightUnit)
+            : undefined,
 
-          distance:
-            dto.distance,
+        distance: dto.distance,
 
-          durationSeconds:
-            dto.durationSeconds,
+        durationSeconds: dto.durationSeconds,
 
-          calories:
-            dto.calories,
+        calories: dto.calories,
 
-          notes:
-            dto.notes?.trim() ||
-            undefined,
-        },
+        notes: dto.notes?.trim() || undefined,
+      },
 
-        include: {
-          ...movementResultInclude,
+      include: {
+        ...movementResultInclude,
 
-          movement: {
-            select: {
-              id: true,
-              name: true,
-            },
+        movement: {
+          select: {
+            id: true,
+            name: true,
           },
         },
-      });
+      },
+    });
 
-    return this.mapMovementResult(
-      result,
-    );
+    return this.mapMovementResult(result);
   }
 
   async updateResult(
@@ -683,13 +510,10 @@ export class MovementsService {
 
     const finalResult: CreateMovementResultDto = {
       measurementTypeKey,
-      performedAt:
-        dto.performedAt ?? existingResult.performedAt.toISOString(),
+      performedAt: dto.performedAt ?? existingResult.performedAt.toISOString(),
 
       reps:
-        dto.reps !== undefined
-          ? dto.reps
-          : existingResult.reps ?? undefined,
+        dto.reps !== undefined ? dto.reps : (existingResult.reps ?? undefined),
 
       load:
         dto.load !== undefined
@@ -701,27 +525,27 @@ export class MovementsService {
       weightUnit:
         dto.weightUnit !== undefined
           ? dto.weightUnit
-          : existingResult.weightUnit ?? undefined,
+          : (existingResult.weightUnit ?? undefined),
 
       distance:
         dto.distance !== undefined
           ? dto.distance
-          : existingResult.distance ?? undefined,
+          : (existingResult.distance ?? undefined),
 
       durationSeconds:
         dto.durationSeconds !== undefined
           ? dto.durationSeconds
-          : existingResult.durationSeconds ?? undefined,
+          : (existingResult.durationSeconds ?? undefined),
 
       calories:
         dto.calories !== undefined
           ? dto.calories
-          : existingResult.calories ?? undefined,
+          : (existingResult.calories ?? undefined),
 
       notes:
         dto.notes !== undefined
           ? dto.notes
-          : existingResult.notes ?? undefined,
+          : (existingResult.notes ?? undefined),
     };
 
     this.validateResult(measurementType.key, finalResult);
@@ -731,30 +555,21 @@ export class MovementsService {
         ? finalResult.reps
         : null;
 
-    const load =
-      measurementType.key === 'WEIGHT'
-        ? finalResult.load
-        : null;
+    const load = measurementType.key === 'WEIGHT' ? finalResult.load : null;
 
     const weightUnit =
       measurementType.key === 'WEIGHT'
-        ? finalResult.weightUnit ?? athleteProfile.preferredWeightUnit
+        ? (finalResult.weightUnit ?? athleteProfile.preferredWeightUnit)
         : null;
 
     const distance =
-      measurementType.key === 'DISTANCE'
-        ? finalResult.distance
-        : null;
+      measurementType.key === 'DISTANCE' ? finalResult.distance : null;
 
     const durationSeconds =
-      measurementType.key === 'DURATION'
-        ? finalResult.durationSeconds
-        : null;
+      measurementType.key === 'DURATION' ? finalResult.durationSeconds : null;
 
     const calories =
-      measurementType.key === 'CALORIES'
-        ? finalResult.calories
-        : null;
+      measurementType.key === 'CALORIES' ? finalResult.calories : null;
 
     const result = await this.prisma.movementResult.update({
       where: {
@@ -793,11 +608,7 @@ export class MovementsService {
     return this.mapMovementResult(result);
   }
 
-  async deleteResult(
-    movementId: string,
-    resultId: string,
-    userId: string,
-  ) {
+  async deleteResult(movementId: string, resultId: string, userId: string) {
     const athleteProfile = await this.prisma.athleteProfile.findUnique({
       where: { userId },
       select: { id: true },
@@ -844,485 +655,303 @@ export class MovementsService {
     };
   }
 
-  async findResults(
-    movementId: string,
-    userId: string,
-  ) {
-    const athleteProfile =
-      await this.getAthleteProfile(
-        userId,
-      );
+  async findResults(movementId: string, userId: string) {
+    const athleteProfile = await this.getAthleteProfile(userId);
 
-    await this.ensureMovementExists(
-      movementId,
-    );
+    await this.ensureMovementExists(movementId);
 
-    const results =
-      await this.prisma.movementResult.findMany({
-        where: {
-          movementId,
+    const results = await this.prisma.movementResult.findMany({
+      where: {
+        movementId,
 
-          athleteProfileId:
-            athleteProfile.id,
+        athleteProfileId: athleteProfile.id,
+      },
+
+      include: movementResultInclude,
+
+      orderBy: [
+        {
+          performedAt: 'desc',
         },
 
-        include:
-          movementResultInclude,
+        {
+          createdAt: 'desc',
+        },
+      ],
+    });
 
-        orderBy: [
-          {
-            performedAt:
-              'desc',
-          },
-
-          {
-            createdAt:
-              'desc',
-          },
-        ],
-      });
-
-    return results.map(
-      (result) =>
-        this.mapMovementResult(
-          result,
-        ),
-    );
+    return results.map((result) => this.mapMovementResult(result));
   }
 
-  async findResultSummary(
-    movementId: string,
-    userId: string,
-  ) {
-    const athleteProfile =
-      await this.getAthleteProfile(
-        userId,
-      );
+  async findResultSummary(movementId: string, userId: string) {
+    const athleteProfile = await this.getAthleteProfile(userId);
 
-    const movement =
-      await this.prisma.movement.findUnique({
-        where: {
-          id:
-            movementId,
-        },
+    const movement = await this.prisma.movement.findUnique({
+      where: {
+        id: movementId,
+      },
 
-        include: {
-          measurementTypes: {
-            include: {
-              measurementType:
-                true,
-            },
+      include: {
+        measurementTypes: {
+          include: {
+            measurementType: true,
+          },
 
-            orderBy: {
-              measurementType: {
-                sortOrder:
-                  'asc',
-              },
+          orderBy: {
+            measurementType: {
+              sortOrder: 'asc',
             },
           },
         },
-      });
+      },
+    });
 
     if (!movement) {
-      throw new NotFoundException(
-        'Movement not found',
-      );
+      throw new NotFoundException('Movement not found');
     }
 
-    const rawResults =
-      await this.prisma.movementResult.findMany({
-        where: {
-          movementId,
+    const rawResults = await this.prisma.movementResult.findMany({
+      where: {
+        movementId,
 
-          athleteProfileId:
-            athleteProfile.id,
+        athleteProfileId: athleteProfile.id,
+      },
+
+      include: movementResultInclude,
+
+      orderBy: [
+        {
+          performedAt: 'desc',
         },
 
-        include:
-          movementResultInclude,
+        {
+          createdAt: 'desc',
+        },
+      ],
+    });
 
-        orderBy: [
-          {
-            performedAt:
-              'desc',
-          },
+    const results = rawResults.map((result) => this.mapMovementResult(result));
 
-          {
-            createdAt:
-              'desc',
-          },
-        ],
-      });
+    const personalRecords = movement.measurementTypes.map((item) => {
+      const type = item.measurementType;
 
-    const results =
-      rawResults.map(
-        (result) =>
-          this.mapMovementResult(
-            result,
-          ),
+      const matchingResults = results.filter(
+        (result) => result.measurementType.key === type.key,
       );
 
-    const personalRecords =
-      movement.measurementTypes.map(
-        (item) => {
-          const type =
-            item.measurementType;
+      if (type.key === 'WEIGHT') {
+        const byReps = new Map<number, typeof matchingResults>();
 
-          const matchingResults =
-            results.filter(
-              (result) =>
-                result
-                  .measurementType
-                  .key ===
-                type.key,
-            );
-
-          if (
-            type.key ===
-            'WEIGHT'
-          ) {
-            const byReps =
-              new Map<
-                number,
-                typeof matchingResults
-              >();
-
-            for (
-              const result of
-              matchingResults
-            ) {
-              if (
-                result.reps ===
-                null
-              ) {
-                continue;
-              }
-
-              const reps =
-                result.reps;
-
-              const current =
-                byReps.get(
-                  reps,
-                ) ?? [];
-
-              current.push(
-                result,
-              );
-
-              byReps.set(
-                reps,
-                current,
-              );
-            }
-
-            const records =
-              Array.from(
-                byReps.entries(),
-              )
-                .map(
-                  ([
-                    reps,
-                    repResults,
-                  ]) => {
-                    const best =
-                      repResults.reduce(
-                        (
-                          currentBest,
-                          candidate,
-                        ) => {
-                          if (
-                            !currentBest
-                          ) {
-                            return candidate;
-                          }
-
-                          const currentLoad =
-                            this.getLoadInKg(
-                              currentBest.load,
-                              currentBest.weightUnit,
-                            );
-
-                          const candidateLoad =
-                            this.getLoadInKg(
-                              candidate.load,
-                              candidate.weightUnit,
-                            );
-
-                          return candidateLoad >
-                            currentLoad
-                            ? candidate
-                            : currentBest;
-                        },
-
-                        undefined as
-                          | (typeof repResults)[number]
-                          | undefined,
-                      );
-
-                    return {
-                      reps,
-
-                      result:
-                        best ??
-                        null,
-                    };
-                  },
-                )
-                .sort(
-                  (a, b) =>
-                    a.reps -
-                    b.reps,
-                );
-
-            return {
-              measurementType: {
-                key:
-                  type.key,
-
-                name:
-                  type.name,
-              },
-
-              records,
-            };
+        for (const result of matchingResults) {
+          if (result.reps === null) {
+            continue;
           }
 
-          const best =
-            this.getBestResult(
-              type.key,
-              matchingResults,
+          const reps = result.reps;
+
+          const current = byReps.get(reps) ?? [];
+
+          current.push(result);
+
+          byReps.set(reps, current);
+        }
+
+        const records = Array.from(byReps.entries())
+          .map(([reps, repResults]) => {
+            const best = repResults.reduce(
+              (currentBest, candidate) => {
+                if (!currentBest) {
+                  return candidate;
+                }
+
+                const currentLoad = this.getLoadInKg(
+                  currentBest.load,
+                  currentBest.weightUnit,
+                );
+
+                const candidateLoad = this.getLoadInKg(
+                  candidate.load,
+                  candidate.weightUnit,
+                );
+
+                return candidateLoad > currentLoad ? candidate : currentBest;
+              },
+
+              undefined as (typeof repResults)[number] | undefined,
             );
 
-          return {
-            measurementType: {
-              key:
-                type.key,
+            return {
+              reps,
 
-              name:
-                type.name,
-            },
+              result: best ?? null,
+            };
+          })
+          .sort((a, b) => a.reps - b.reps);
 
-            result:
-              best,
-          };
+        return {
+          measurementType: {
+            key: type.key,
+
+            name: type.name,
+          },
+
+          records,
+        };
+      }
+
+      const best = this.getBestResult(type.key, matchingResults);
+
+      return {
+        measurementType: {
+          key: type.key,
+
+          name: type.name,
         },
-      );
+
+        result: best,
+      };
+    });
 
     return {
       movement: {
-        id:
-          movement.id,
+        id: movement.id,
 
-        name:
-          movement.name,
+        name: movement.name,
       },
 
-      totalResults:
-        results.length,
+      totalResults: results.length,
 
-      lastResult:
-        results[0] ??
-        null,
+      lastResult: results[0] ?? null,
 
       personalRecords,
     };
   }
 
-  private mapMovement(
-    movement: {
-      id: string;
-      name: string;
-      aliases: string[];
-      isFoundational: boolean;
-      official: boolean;
+  private mapMovement(movement: {
+    id: string;
+    name: string;
+    aliases: string[];
+    isFoundational: boolean;
+    official: boolean;
 
-      category: {
+    category: {
+      key: string;
+      name: string;
+    };
+
+    measurementTypes: {
+      measurementType: {
         key: string;
         name: string;
       };
-
-      measurementTypes: {
-        measurementType: {
-          key: string;
-          name: string;
-        };
-      }[];
-    },
-  ): MovementResponseDto {
+    }[];
+  }): MovementResponseDto {
     return {
-      id:
-        movement.id,
+      id: movement.id,
 
-      name:
-        movement.name,
+      name: movement.name,
 
       category: {
-        key:
-          movement.category
-            .key,
+        key: movement.category.key,
 
-        name:
-          movement.category
-            .name,
+        name: movement.category.name,
       },
 
-      measurementTypes:
-        movement.measurementTypes.map(
-          (item) => ({
-            key:
-              item
-                .measurementType
-                .key,
+      measurementTypes: movement.measurementTypes.map((item) => ({
+        key: item.measurementType.key,
 
-            name:
-              item
-                .measurementType
-                .name,
-          }),
-        ),
+        name: item.measurementType.name,
+      })),
 
-      isFoundational:
-        movement.isFoundational,
+      isFoundational: movement.isFoundational,
 
-      official:
-        movement.official,
+      official: movement.official,
 
-      aliases:
-        movement.aliases,
+      aliases: movement.aliases,
     };
   }
 
-  private mapMovementResult(
-    result: any,
-  ) {
-    const {
-      sourceWorkoutResult,
-      ...baseResult
-    } = result;
+  private mapMovementResult<T extends MovementResultWithSource>(result: T) {
+    const { sourceWorkoutResult, ...baseResult } = result;
 
-    const source =
-      sourceWorkoutResult
-        ? {
-            type:
-              'WORKOUT' as const,
+    const source = sourceWorkoutResult
+      ? {
+          type: 'WORKOUT' as const,
 
-            workoutResultId:
-              sourceWorkoutResult.id,
+          workoutResultId: sourceWorkoutResult.id,
 
-            workout: {
-              id:
-                sourceWorkoutResult
-                  .workout.id,
+          workout: {
+            id: sourceWorkoutResult.workout.id,
 
-              name:
-                sourceWorkoutResult
-                  .workout.name,
+            name: sourceWorkoutResult.workout.name,
+          },
+
+          workoutVariant: {
+            id: sourceWorkoutResult.workoutVariant.id,
+
+            name: sourceWorkoutResult.workoutVariant.name,
+
+            level: {
+              key: sourceWorkoutResult.workoutVariant.level.key,
+
+              name: sourceWorkoutResult.workoutVariant.level.name,
             },
+          },
 
-            workoutVariant: {
-              id:
-                sourceWorkoutResult
-                  .workoutVariant.id,
+          prescriptionCategory: sourceWorkoutResult.prescriptionCategory
+            ? {
+                key: sourceWorkoutResult.prescriptionCategory.key,
 
-              name:
-                sourceWorkoutResult
-                  .workoutVariant.name,
-
-              level: {
-                key:
-                  sourceWorkoutResult
-                    .workoutVariant
-                    .level.key,
-
-                name:
-                  sourceWorkoutResult
-                    .workoutVariant
-                    .level.name,
-              },
-            },
-
-            prescriptionCategory:
-              sourceWorkoutResult
-                .prescriptionCategory
-                ? {
-                    key:
-                      sourceWorkoutResult
-                        .prescriptionCategory
-                        .key,
-
-                    name:
-                      sourceWorkoutResult
-                        .prescriptionCategory
-                        .name,
-                  }
-                : null,
-          }
-        : {
-            type:
-              'MANUAL' as const,
-          };
+                name: sourceWorkoutResult.prescriptionCategory.name,
+              }
+            : null,
+        }
+      : {
+          type: 'MANUAL' as const,
+        };
 
     return {
       ...baseResult,
 
-      load:
-        baseResult.load !==
-        null
-          ? Number(
-              baseResult.load,
-            )
-          : null,
+      load: baseResult.load !== null ? Number(baseResult.load) : null,
 
       source,
     };
   }
 
-  private async getAthleteProfile(
-    userId: string,
-  ) {
-    const athleteProfile =
-      await this.prisma.athleteProfile.findUnique({
-        where: {
-          userId,
-        },
+  private async getAthleteProfile(userId: string) {
+    const athleteProfile = await this.prisma.athleteProfile.findUnique({
+      where: {
+        userId,
+      },
 
-        select: {
-          id: true,
+      select: {
+        id: true,
 
-          preferredWeightUnit:
-            true,
-        },
-      });
+        preferredWeightUnit: true,
+      },
+    });
 
     if (!athleteProfile) {
-      throw new NotFoundException(
-        'Athlete profile not found',
-      );
+      throw new NotFoundException('Athlete profile not found');
     }
 
     return athleteProfile;
   }
 
-  private async ensureMovementExists(
-    movementId: string,
-  ) {
-    const movement =
-      await this.prisma.movement.findUnique({
-        where: {
-          id:
-            movementId,
-        },
+  private async ensureMovementExists(movementId: string) {
+    const movement = await this.prisma.movement.findUnique({
+      where: {
+        id: movementId,
+      },
 
-        select: {
-          id: true,
-        },
-      });
+      select: {
+        id: true,
+      },
+    });
 
     if (!movement) {
-      throw new NotFoundException(
-        'Movement not found',
-      );
+      throw new NotFoundException('Movement not found');
     }
   }
 
@@ -1330,14 +959,9 @@ export class MovementsService {
     measurementTypeKey: string,
     dto: CreateMovementResultDto,
   ) {
-    switch (
-      measurementTypeKey
-    ) {
+    switch (measurementTypeKey) {
       case 'REPS':
-        if (
-          dto.reps ===
-          undefined
-        ) {
+        if (dto.reps === undefined) {
           throw new BadRequestException(
             'Reps are required for a repetitions result',
           );
@@ -1346,19 +970,11 @@ export class MovementsService {
         break;
 
       case 'WEIGHT':
-        if (
-          dto.load ===
-          undefined
-        ) {
-          throw new BadRequestException(
-            'Load is required for a weight result',
-          );
+        if (dto.load === undefined) {
+          throw new BadRequestException('Load is required for a weight result');
         }
 
-        if (
-          dto.reps ===
-          undefined
-        ) {
+        if (dto.reps === undefined) {
           throw new BadRequestException(
             'Reps are required for a weight result',
           );
@@ -1367,10 +983,7 @@ export class MovementsService {
         break;
 
       case 'DISTANCE':
-        if (
-          dto.distance ===
-          undefined
-        ) {
+        if (dto.distance === undefined) {
           throw new BadRequestException(
             'Distance is required for a distance result',
           );
@@ -1379,10 +992,7 @@ export class MovementsService {
         break;
 
       case 'DURATION':
-        if (
-          dto.durationSeconds ===
-          undefined
-        ) {
+        if (dto.durationSeconds === undefined) {
           throw new BadRequestException(
             'Duration is required for a duration result',
           );
@@ -1391,10 +1001,7 @@ export class MovementsService {
         break;
 
       case 'CALORIES':
-        if (
-          dto.calories ===
-          undefined
-        ) {
+        if (dto.calories === undefined) {
           throw new BadRequestException(
             'Calories are required for a calories result',
           );
@@ -1409,26 +1016,11 @@ export class MovementsService {
     }
   }
 
-  private getLoadInKg(
-    load: unknown,
-    weightUnit:
-      | 'KG'
-      | 'LB'
-      | null,
-  ) {
-    const value =
-      Number(
-        load ?? 0,
-      );
+  private getLoadInKg(load: unknown, weightUnit: 'KG' | 'LB' | null) {
+    const value = Number(load ?? 0);
 
-    if (
-      weightUnit ===
-      'LB'
-    ) {
-      return (
-        value *
-        0.45359237
-      );
+    if (weightUnit === 'LB') {
+      return value * 0.45359237;
     }
 
     return value;
@@ -1438,74 +1030,38 @@ export class MovementsService {
     T extends {
       reps: number | null;
       distance: number | null;
-      durationSeconds:
-        | number
-        | null;
+      durationSeconds: number | null;
       calories: number | null;
     },
-  >(
-    measurementTypeKey: string,
-    results: T[],
-  ): T | null {
-    if (
-      results.length ===
-      0
-    ) {
+  >(measurementTypeKey: string, results: T[]): T | null {
+    if (results.length === 0) {
       return null;
     }
 
-    return results.reduce(
-      (
-        best,
-        candidate,
-      ) => {
-        switch (
-          measurementTypeKey
-        ) {
-          case 'REPS':
-            return (
-              candidate.reps ??
-              0
-            ) >
-              (best.reps ??
-                0)
-              ? candidate
-              : best;
+    return results.reduce((best, candidate) => {
+      switch (measurementTypeKey) {
+        case 'REPS':
+          return (candidate.reps ?? 0) > (best.reps ?? 0) ? candidate : best;
 
-          case 'DISTANCE':
-            return (
-              candidate.distance ??
-              0
-            ) >
-              (best.distance ??
-                0)
-              ? candidate
-              : best;
+        case 'DISTANCE':
+          return (candidate.distance ?? 0) > (best.distance ?? 0)
+            ? candidate
+            : best;
 
-          case 'DURATION':
-            return (
-              candidate.durationSeconds ??
-              Number.MAX_SAFE_INTEGER
-            ) <
-              (best.durationSeconds ??
-                Number.MAX_SAFE_INTEGER)
-              ? candidate
-              : best;
+        case 'DURATION':
+          return (candidate.durationSeconds ?? Number.MAX_SAFE_INTEGER) <
+            (best.durationSeconds ?? Number.MAX_SAFE_INTEGER)
+            ? candidate
+            : best;
 
-          case 'CALORIES':
-            return (
-              candidate.calories ??
-              0
-            ) >
-              (best.calories ??
-                0)
-              ? candidate
-              : best;
+        case 'CALORIES':
+          return (candidate.calories ?? 0) > (best.calories ?? 0)
+            ? candidate
+            : best;
 
-          default:
-            return best;
-        }
-      },
-    );
+        default:
+          return best;
+      }
+    });
   }
 }

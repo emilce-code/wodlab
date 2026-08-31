@@ -14,31 +14,26 @@ describe('AthleteProfilesController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule =
-      await Test.createTestingModule({
-        controllers: [
-          AthleteProfilesController,
-        ],
-        providers: [
-          {
-            provide: AthleteProfilesService,
-            useValue:
-              athleteProfilesServiceMock,
-          },
-          {
-            provide: JwtAuthGuard,
-            useValue: jwtAuthGuardMock,
-          },
-        ],
-      })
-        .overrideGuard(JwtAuthGuard)
-        .useValue(jwtAuthGuardMock)
-        .compile();
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [AthleteProfilesController],
+      providers: [
+        {
+          provide: AthleteProfilesService,
+          useValue: athleteProfilesServiceMock,
+        },
+        {
+          provide: JwtAuthGuard,
+          useValue: jwtAuthGuardMock,
+        },
+      ],
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(jwtAuthGuardMock)
+      .compile();
 
-    controller =
-      module.get<AthleteProfilesController>(
-        AthleteProfilesController,
-      );
+    controller = module.get<AthleteProfilesController>(
+      AthleteProfilesController,
+    );
   });
 
   afterEach(() => {

@@ -7,21 +7,12 @@ import { AthleteProfilesController } from './athlete-profiles.controller';
 import { AthleteProfilesService } from './athlete-profiles.service';
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule,
-  ],
+  imports: [AuthModule, PrismaModule],
 
-  controllers: [
-    AthleteProfilesController,
-  ],
+  controllers: [AthleteProfilesController],
 
-  providers: [
-    AthleteProfilesService,
-  ],
+  providers: [AthleteProfilesService],
 
-  exports: [
-    AthleteProfilesService,
-  ],
+  exports: [AthleteProfilesService],
 })
 export class AthleteProfilesModule {}

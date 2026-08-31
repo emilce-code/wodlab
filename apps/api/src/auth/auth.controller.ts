@@ -14,9 +14,7 @@ import { ProvisionAuth0UserDto } from './dto/provision-auth0-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('provision')
   @UseGuards(Auth0AuthGuard)
@@ -27,13 +25,10 @@ export class AuthController {
     @Body()
     dto: ProvisionAuth0UserDto,
   ) {
-    const auth0UserId =
-      request.auth0User?.sub;
+    const auth0UserId = request.auth0User?.sub;
 
     if (!auth0UserId) {
-      throw new UnauthorizedException(
-        'Authenticated user subject is missing',
-      );
+      throw new UnauthorizedException('Authenticated user subject is missing');
     }
 
     return this.authService.provisionAuth0User({

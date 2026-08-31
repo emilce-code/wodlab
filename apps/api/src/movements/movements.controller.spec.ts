@@ -14,24 +14,20 @@ describe('MovementsController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule =
-      await Test.createTestingModule({
-        controllers: [MovementsController],
-        providers: [
-          {
-            provide: MovementsService,
-            useValue: movementsServiceMock,
-          },
-        ],
-      })
-        .overrideGuard(JwtAuthGuard)
-        .useValue(jwtAuthGuardMock)
-        .compile();
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [MovementsController],
+      providers: [
+        {
+          provide: MovementsService,
+          useValue: movementsServiceMock,
+        },
+      ],
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(jwtAuthGuardMock)
+      .compile();
 
-    controller =
-      module.get<MovementsController>(
-        MovementsController,
-      );
+    controller = module.get<MovementsController>(MovementsController);
   });
 
   afterEach(() => {

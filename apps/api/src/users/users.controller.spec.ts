@@ -19,34 +19,30 @@ describe('UsersController', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule =
-      await Test.createTestingModule({
-        controllers: [UsersController],
-        providers: [
-          {
-            provide: UsersService,
-            useValue: usersServiceMock,
-          },
-          {
-            provide: Auth0AuthGuard,
-            useValue: auth0AuthGuardMock,
-          },
-          {
-            provide: JwtAuthGuard,
-            useValue: jwtAuthGuardMock,
-          },
-        ],
-      })
-        .overrideGuard(Auth0AuthGuard)
-        .useValue(auth0AuthGuardMock)
-        .overrideGuard(JwtAuthGuard)
-        .useValue(jwtAuthGuardMock)
-        .compile();
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [
+        {
+          provide: UsersService,
+          useValue: usersServiceMock,
+        },
+        {
+          provide: Auth0AuthGuard,
+          useValue: auth0AuthGuardMock,
+        },
+        {
+          provide: JwtAuthGuard,
+          useValue: jwtAuthGuardMock,
+        },
+      ],
+    })
+      .overrideGuard(Auth0AuthGuard)
+      .useValue(auth0AuthGuardMock)
+      .overrideGuard(JwtAuthGuard)
+      .useValue(jwtAuthGuardMock)
+      .compile();
 
-    controller =
-      module.get<UsersController>(
-        UsersController,
-      );
+    controller = module.get<UsersController>(UsersController);
   });
 
   afterEach(() => {

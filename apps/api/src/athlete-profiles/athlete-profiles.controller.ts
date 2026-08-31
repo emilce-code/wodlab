@@ -10,18 +10,14 @@ import {
 
 import { Request } from 'express';
 
-import {
-  AuthenticatedUser,
-  JwtAuthGuard,
-} from '../auth/jwt-auth.guard';
+import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 import { AthleteProfilesService } from './athlete-profiles.service';
 import { UpdateAthleteProfileDto } from './dto/update-athlete-profile.dto';
 
-type AuthenticatedRequest =
-  Request & {
-    user: AuthenticatedUser;
-  };
+type AuthenticatedRequest = Request & {
+  user: AuthenticatedUser;
+};
 
 @Controller('athlete-profile')
 @UseGuards(JwtAuthGuard)
@@ -35,15 +31,12 @@ export class AthleteProfilesController {
     @Req()
     request: AuthenticatedRequest,
   ) {
-    const profile =
-      await this.athleteProfilesService.findByUserId(
-        request.user.userId,
-      );
+    const profile = await this.athleteProfilesService.findByUserId(
+      request.user.userId,
+    );
 
     if (!profile) {
-      throw new NotFoundException(
-        'Athlete profile not found',
-      );
+      throw new NotFoundException('Athlete profile not found');
     }
 
     return profile;
@@ -57,9 +50,6 @@ export class AthleteProfilesController {
     @Body()
     dto: UpdateAthleteProfileDto,
   ) {
-    return this.athleteProfilesService.updateByUserId(
-      request.user.userId,
-      dto,
-    );
+    return this.athleteProfilesService.updateByUserId(request.user.userId, dto);
   }
 }

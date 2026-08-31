@@ -12,8 +12,8 @@ import {
 import { Request } from 'express';
 
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
+import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
 import { WorkoutResultsService } from './workout-results.service';
 import { WorkoutsService } from './workouts.service';
@@ -42,18 +42,12 @@ export class WorkoutsController {
   }
 
   @Get('results/history')
-  findResultHistory(
-    @Req()
-    request: AuthenticatedRequest,
-  ) {
+  findResultHistory(@Req() request: AuthenticatedRequest) {
     return this.workoutResultsService.findResultHistory(request.user.userId);
   }
 
   @Get('results/progress')
-  findResultProgress(
-    @Req()
-    request: AuthenticatedRequest,
-  ) {
+  findResultProgress(@Req() request: AuthenticatedRequest) {
     return this.workoutResultsService.findResultProgress(request.user.userId);
   }
 
@@ -74,24 +68,16 @@ export class WorkoutsController {
   }
 
   @Post()
-  create(
-    @Req()
-    request: AuthenticatedRequest,
-    @Body()
-    dto: CreateWorkoutDto,
-  ) {
+  create(@Req() request: AuthenticatedRequest, @Body() dto: CreateWorkoutDto) {
     return this.workoutsService.create(request.user.userId, dto);
   }
 
   // Workout result routes
   @Post(':id/results')
   createResult(
-    @Req()
-    request: AuthenticatedRequest,
-    @Param('id')
-    id: string,
-    @Body()
-    dto: CreateWorkoutResultDto,
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: CreateWorkoutResultDto,
   ) {
     return this.workoutResultsService.createResult(
       request.user.userId,
@@ -102,14 +88,10 @@ export class WorkoutsController {
 
   @Patch(':id/results/:resultId')
   updateResult(
-    @Param('id')
-    workoutId: string,
-    @Param('resultId')
-    resultId: string,
-    @Req()
-    request: AuthenticatedRequest,
-    @Body()
-    dto: UpdateWorkoutResultDto,
+    @Param('id') workoutId: string,
+    @Param('resultId') resultId: string,
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: UpdateWorkoutResultDto,
   ) {
     return this.workoutResultsService.updateResult(
       request.user.userId,
@@ -121,12 +103,9 @@ export class WorkoutsController {
 
   @Delete(':id/results/:resultId')
   deleteResult(
-    @Param('id')
-    workoutId: string,
-    @Param('resultId')
-    resultId: string,
-    @Req()
-    request: AuthenticatedRequest,
+    @Param('id') workoutId: string,
+    @Param('resultId') resultId: string,
+    @Req() request: AuthenticatedRequest,
   ) {
     return this.workoutResultsService.deleteResult(
       request.user.userId,
@@ -137,10 +116,8 @@ export class WorkoutsController {
 
   @Get(':id/results/summary')
   findResultSummary(
-    @Req()
-    request: AuthenticatedRequest,
-    @Param('id')
-    id: string,
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
   ) {
     return this.workoutResultsService.findResultSummary(
       request.user.userId,
@@ -149,21 +126,13 @@ export class WorkoutsController {
   }
 
   @Get(':id/results')
-  findResults(
-    @Req()
-    request: AuthenticatedRequest,
-    @Param('id')
-    id: string,
-  ) {
+  findResults(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
     return this.workoutResultsService.findResults(request.user.userId, id);
   }
 
   // Dynamic route LAST
   @Get(':id')
-  findOne(
-    @Param('id')
-    id: string,
-  ) {
+  findOne(@Param('id') id: string) {
     return this.workoutsService.findOne(id);
   }
 }

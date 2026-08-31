@@ -10,9 +10,7 @@ import { UpdateAthleteProfileDto } from './dto/update-athlete-profile.dto';
 
 @Injectable()
 export class AthleteProfilesService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findByUserId(userId: string) {
     return this.prisma.athleteProfile.findUnique({
@@ -27,53 +25,36 @@ export class AthleteProfilesService {
     });
   }
 
-  async updateByUserId(
-    userId: string,
-    dto: UpdateAthleteProfileDto,
-  ) {
-    const athleteProfile =
-      await this.prisma.athleteProfile.findUnique({
-        where: {
-          userId,
-        },
+  async updateByUserId(userId: string, dto: UpdateAthleteProfileDto) {
+    const athleteProfile = await this.prisma.athleteProfile.findUnique({
+      where: {
+        userId,
+      },
 
-        select: {
-          id: true,
-        },
-      });
+      select: {
+        id: true,
+      },
+    });
 
     if (!athleteProfile) {
-      throw new NotFoundException(
-        'Athlete profile not found',
-      );
+      throw new NotFoundException('Athlete profile not found');
     }
 
-    let preferredWorkoutLevelId:
-      | string
-      | null
-      | undefined;
+    let preferredWorkoutLevelId: string | null | undefined;
 
-    if (
-      dto.preferredWorkoutLevelKey !==
-      undefined
-    ) {
-      if (
-        dto.preferredWorkoutLevelKey ===
-        null
-      ) {
+    if (dto.preferredWorkoutLevelKey !== undefined) {
+      if (dto.preferredWorkoutLevelKey === null) {
         preferredWorkoutLevelId = null;
       } else {
-        const workoutLevel =
-          await this.prisma.workoutLevel.findUnique({
-            where: {
-              key:
-                dto.preferredWorkoutLevelKey,
-            },
+        const workoutLevel = await this.prisma.workoutLevel.findUnique({
+          where: {
+            key: dto.preferredWorkoutLevelKey,
+          },
 
-            select: {
-              id: true,
-            },
-          });
+          select: {
+            id: true,
+          },
+        });
 
         if (!workoutLevel) {
           throw new BadRequestException(
@@ -81,32 +62,20 @@ export class AthleteProfilesService {
           );
         }
 
-        preferredWorkoutLevelId =
-          workoutLevel.id;
+        preferredWorkoutLevelId = workoutLevel.id;
       }
     }
 
-    let preferredPrescriptionCategoryId:
-      | string
-      | null
-      | undefined;
+    let preferredPrescriptionCategoryId: string | null | undefined;
 
-    if (
-      dto.preferredPrescriptionCategoryKey !==
-      undefined
-    ) {
-      if (
-        dto.preferredPrescriptionCategoryKey ===
-        null
-      ) {
-        preferredPrescriptionCategoryId =
-          null;
+    if (dto.preferredPrescriptionCategoryKey !== undefined) {
+      if (dto.preferredPrescriptionCategoryKey === null) {
+        preferredPrescriptionCategoryId = null;
       } else {
         const prescriptionCategory =
           await this.prisma.prescriptionCategory.findUnique({
             where: {
-              key:
-                dto.preferredPrescriptionCategoryKey,
+              key: dto.preferredPrescriptionCategoryKey,
             },
 
             select: {
@@ -120,8 +89,7 @@ export class AthleteProfilesService {
           );
         }
 
-        preferredPrescriptionCategoryId =
-          prescriptionCategory.id;
+        preferredPrescriptionCategoryId = prescriptionCategory.id;
       }
     }
 
@@ -133,28 +101,23 @@ export class AthleteProfilesService {
       data: {
         ...(dto.displayName !== undefined
           ? {
-              displayName:
-                dto.displayName.trim(),
+              displayName: dto.displayName.trim(),
             }
           : {}),
 
-        ...(dto.preferredWeightUnit !==
-        undefined
+        ...(dto.preferredWeightUnit !== undefined
           ? {
-              preferredWeightUnit:
-                dto.preferredWeightUnit,
+              preferredWeightUnit: dto.preferredWeightUnit,
             }
           : {}),
 
-        ...(preferredWorkoutLevelId !==
-        undefined
+        ...(preferredWorkoutLevelId !== undefined
           ? {
               preferredWorkoutLevelId,
             }
           : {}),
 
-        ...(preferredPrescriptionCategoryId !==
-        undefined
+        ...(preferredPrescriptionCategoryId !== undefined
           ? {
               preferredPrescriptionCategoryId,
             }

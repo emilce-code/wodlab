@@ -9,7 +9,6 @@ describe('WorkoutsController', () => {
   let controller: WorkoutsController;
 
   const workoutsServiceMock = {};
-
   const workoutResultsServiceMock = {};
 
   const jwtAuthGuardMock = {
