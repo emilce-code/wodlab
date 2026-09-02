@@ -15,6 +15,17 @@
     "scaled": "Scaled",
     "language": "Language"
   },
+  "states": {
+    "loading": {
+      "label": "Loading your training data"
+    },
+    "error": {
+      "eyebrow": "Something went wrong",
+      "title": "We couldn't load this page",
+      "description": "Your data is safe. Try loading the page again. If the problem continues, come back in a few minutes.",
+      "retry": "Try again"
+    }
+  },
   "navigation": {
     "today": "Today",
     "workouts": "Workouts",
@@ -437,6 +448,10 @@
     "eyebrow": "Progress",
     "title": "See how you're evolving",
     "description": "Track personal bests, repeated attempts, and performance trends across your workouts.",
+    "partial": {
+      "workouts": "Workout progress is temporarily unavailable. Your movement progress is still shown below.",
+      "movements": "Movement progress is temporarily unavailable. Your workout progress is still shown below."
+    },
     "benchmark": "Benchmark",
     "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
     "attemptCount": "{count, plural, =1 {1 attempt} other {# attempts}}",
@@ -658,6 +673,7 @@
       "prescriptionCategory": "Default prescription",
       "noPrescriptionPreference": "No default prescription",
       "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "preferencesUnavailable": "Some training preferences are temporarily unavailable. You can still update the available profile fields or try again later.",
       "save": "Save changes",
       "saving": "Saving...",
       "saved": "Profile saved successfully.",

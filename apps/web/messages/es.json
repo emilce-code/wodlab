@@ -15,6 +15,17 @@
     "scaled": "Escalado",
     "language": "Idioma"
   },
+  "states": {
+    "loading": {
+      "label": "Cargando tus datos de entrenamiento"
+    },
+    "error": {
+      "eyebrow": "Algo salió mal",
+      "title": "No pudimos cargar esta página",
+      "description": "Tus datos están seguros. Intenta cargar la página nuevamente. Si el problema continúa, vuelve en unos minutos.",
+      "retry": "Intentar de nuevo"
+    }
+  },
   "navigation": {
     "today": "Hoy",
     "workouts": "Entrenamientos",
@@ -437,6 +448,10 @@
     "eyebrow": "Progreso",
     "title": "Mira cómo estás evolucionando",
     "description": "Sigue tus mejores marcas, intentos repetidos y tendencias de rendimiento en tus entrenamientos.",
+    "partial": {
+      "workouts": "El progreso de entrenamientos no está disponible temporalmente. Tu progreso de movimientos todavía se muestra abajo.",
+      "movements": "El progreso de movimientos no está disponible temporalmente. Tu progreso de entrenamientos todavía se muestra abajo."
+    },
     "benchmark": "Benchmark",
     "repsValue": "{count, plural, =1 {1 repetición} other {# repeticiones}}",
     "attemptCount": "{count, plural, =1 {1 intento} other {# intentos}}",
@@ -658,6 +673,7 @@
       "prescriptionCategory": "Prescripción predeterminada",
       "noPrescriptionPreference": "Sin prescripción predeterminada",
       "prescriptionDescription": "Se utiliza cuando un entrenamiento tiene prescripciones específicas por categoría.",
+      "preferencesUnavailable": "Algunas preferencias de entrenamiento no están disponibles temporalmente. Aún puedes actualizar los campos de perfil disponibles o intentarlo más tarde.",
       "save": "Guardar cambios",
       "saving": "Guardando...",
       "saved": "Perfil guardado correctamente.",

@@ -15,6 +15,17 @@
     "scaled": "Adaptado",
     "language": "Idioma"
   },
+  "states": {
+    "loading": {
+      "label": "Carregando seus dados de treino"
+    },
+    "error": {
+      "eyebrow": "Algo deu errado",
+      "title": "Não foi possível carregar esta página",
+      "description": "Seus dados estão seguros. Tente carregar a página novamente. Se o problema continuar, volte em alguns minutos.",
+      "retry": "Tentar novamente"
+    }
+  },
   "navigation": {
     "today": "Hoje",
     "workouts": "Treinos",
@@ -437,6 +448,10 @@
     "eyebrow": "Progresso",
     "title": "Veja como você está evoluindo",
     "description": "Acompanhe suas melhores marcas, tentativas repetidas e tendências de desempenho nos seus treinos.",
+    "partial": {
+      "workouts": "O progresso de treinos está temporariamente indisponível. Seu progresso de movimentos ainda é exibido abaixo.",
+      "movements": "O progresso de movimentos está temporariamente indisponível. Seu progresso de treinos ainda é exibido abaixo."
+    },
     "benchmark": "Benchmark",
     "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
     "attemptCount": "{count, plural, =1 {1 tentativa} other {# tentativas}}",
@@ -658,6 +673,7 @@
       "prescriptionCategory": "Prescrição padrão",
       "noPrescriptionPreference": "Sem prescrição padrão",
       "prescriptionDescription": "Usada quando um treino possui prescrições específicas por categoria.",
+      "preferencesUnavailable": "Algumas preferências de treino estão temporariamente indisponíveis. Você ainda pode atualizar os campos de perfil disponíveis ou tentar novamente mais tarde.",
       "save": "Salvar alterações",
       "saving": "Salvando...",
       "saved": "Perfil salvo com sucesso.",
