@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional, IsTimeZone } from 'class-validator';
 
 export enum AthleteInsightsPeriod {
   THIRTY_DAYS = '30D',
@@ -12,4 +12,8 @@ export class FindAthleteInsightsQueryDto {
   @IsOptional()
   @IsEnum(AthleteInsightsPeriod)
   period: AthleteInsightsPeriod = AthleteInsightsPeriod.NINETY_DAYS;
+
+  @IsOptional()
+  @IsTimeZone()
+  timeZone = 'UTC';
 }

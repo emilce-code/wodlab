@@ -10,10 +10,16 @@ export type AthleteInsightsPeriodRange = {
 
 export type AthleteInsightsPeriodResponse = {
   key: AthleteInsightsPeriod;
+  timeZone: string;
   startDate: string | null;
   endDate: string;
   previousStartDate: string | null;
   previousEndDate: string | null;
+};
+
+export type AthleteConsistencyInsightsResponse = {
+  period: AthleteInsightsPeriodResponse;
+  consistency: AthleteInsightsResponse['consistency'];
 };
 
 export type AthleteInsightsComparison = {

@@ -4,6 +4,7 @@ import {
   Get,
   NotFoundException,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -18,6 +19,8 @@ import {
 } from '../auth/auth0-auth.guard';
 
 import { UsersService } from './users.service';
+import { AthleteInsightsService } from './athlete-insights.service';
+import { FindAthleteInsightsQueryDto } from './dto/find-athlete-insights-query.dto';
 
 type AuthenticatedRequest = Request & {
   user: AuthenticatedUser;
@@ -30,7 +33,10 @@ type ProvisionUserDto = {
 
 @Controller()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly athleteInsightsService: AthleteInsightsService,
+  ) {}
 
   @UseGuards(Auth0AuthGuard)
   @Post('users/provision')
@@ -61,6 +67,18 @@ export class UsersController {
     request: AuthenticatedRequest,
   ) {
     return this.usersService.getDashboard(request.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('users/me/insights/consistency')
+  getConsistencyInsights(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindAthleteInsightsQueryDto,
+  ) {
+    return this.athleteInsightsService.getConsistency(
+      request.user.userId,
+      query,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

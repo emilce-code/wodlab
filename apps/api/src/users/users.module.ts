@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AuthModule } from '../auth/auth.module';
+import { AthleteInsightsService } from './athlete-insights.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -9,7 +10,7 @@ import { UsersService } from './users.service';
 
   controllers: [UsersController],
 
-  providers: [UsersService],
+  providers: [UsersService, AthleteInsightsService],
 
   exports: [UsersService],
 })
