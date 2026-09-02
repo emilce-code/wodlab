@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Auth0AuthGuard } from '../auth/auth0-auth.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AthleteInsightsService } from './athlete-insights.service';
+import { AthletePerformanceInsightsService } from './athlete-performance-insights.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -11,6 +12,7 @@ describe('UsersController', () => {
 
   const usersServiceMock = {};
   const athleteInsightsServiceMock = {};
+  const athletePerformanceInsightsServiceMock = {};
 
   const auth0AuthGuardMock = {
     canActivate: jest.fn(() => true),
@@ -31,6 +33,10 @@ describe('UsersController', () => {
         {
           provide: AthleteInsightsService,
           useValue: athleteInsightsServiceMock,
+        },
+        {
+          provide: AthletePerformanceInsightsService,
+          useValue: athletePerformanceInsightsServiceMock,
         },
         {
           provide: Auth0AuthGuard,

@@ -22,6 +22,11 @@ export type AthleteConsistencyInsightsResponse = {
   consistency: AthleteInsightsResponse['consistency'];
 };
 
+export type AthletePerformanceInsightsResponse = {
+  period: AthleteInsightsPeriodResponse;
+  performance: AthleteInsightsResponse['performance'];
+};
+
 export type AthleteInsightsComparison = {
   current: number;
   previous: number | null;
