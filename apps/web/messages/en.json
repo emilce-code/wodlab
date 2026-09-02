@@ -132,6 +132,44 @@
       "title": "Create Workout",
       "description": "Build a workout by adding sections and movements.",
       "optional": "(optional)",
+      "draft": {
+        "title": "Continue your workout draft?",
+        "description": "We saved the workout you were creating on this device.",
+        "restore": "Restore draft",
+        "discard": "Discard"
+      },
+      "steps": {
+        "ariaLabel": "Workout creation progress",
+        "details": {
+          "title": "Details",
+          "description": "Name and type"
+        },
+        "programming": {
+          "title": "Programming",
+          "description": "Variants and movements"
+        },
+        "review": {
+          "title": "Review",
+          "description": "Check and create"
+        },
+        "back": "Back",
+        "continue": "Continue"
+      },
+      "review": {
+        "eyebrow": "Final check",
+        "title": "Review your workout",
+        "description": "Confirm the structure before creating the workout.",
+        "workout": "Workout",
+        "variants": "Variants",
+        "sections": "Sections",
+        "movements": "Movements",
+        "sectionCount": "{count, plural, =1 {1 section} other {# sections}}",
+        "section": "Section {number}",
+        "edit": "Edit programming",
+        "editDetails": "Edit details",
+        "noPrescription": "No shared prescription",
+        "categoryOverrides": "Category overrides"
+      },
       "details": {
         "eyebrow": "Workout",
         "title": "Workout details",
@@ -167,6 +205,9 @@
       "sectionBuilder": {
         "section": "Section {number}",
         "configureSection": "Configure section",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "summary": "{movements} movements",
         "remove": "Remove",
         "sectionType": "Section type",
         "selectSectionType": "Select section type",
@@ -181,6 +222,7 @@
         "movements": "Movements",
         "movementsDescription": "Add the movements included in this section.",
         "addMovement": "Add movement",
+        "addAnotherMovement": "Add another movement",
         "noMovements": "No movements yet",
         "noMovementsDescription": "Add the first movement for this section.",
         "movementNumber": "Movement {number}",
@@ -202,6 +244,7 @@
         "weight": "Weight",
         "unit": "Unit",
         "selectUnit": "Select unit",
+        "useSharedUnit": "Use shared unit ({unit})",
         "distance": "Distance",
         "calories": "Calories",
         "duration": "Duration",
@@ -223,6 +266,9 @@
         "add": "Add variation",
         "variant": "Variation {number}",
         "configure": "Configure variation",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "summary": "{sections} sections · {movements} movements",
         "remove": "Remove",
         "level": "Experience level",
         "selectLevel": "Select a level",

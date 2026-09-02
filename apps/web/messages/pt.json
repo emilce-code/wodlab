@@ -132,6 +132,44 @@
       "title": "Criar treino",
       "description": "Monte um treino adicionando seções e movimentos.",
       "optional": "(opcional)",
+      "draft": {
+        "title": "Continuar seu rascunho?",
+        "description": "Salvamos neste dispositivo o treino que você estava criando.",
+        "restore": "Restaurar rascunho",
+        "discard": "Descartar"
+      },
+      "steps": {
+        "ariaLabel": "Progresso de criação do treino",
+        "details": {
+          "title": "Detalhes",
+          "description": "Nome e tipo"
+        },
+        "programming": {
+          "title": "Programação",
+          "description": "Variações e movimentos"
+        },
+        "review": {
+          "title": "Revisão",
+          "description": "Revisar e criar"
+        },
+        "back": "Voltar",
+        "continue": "Continuar"
+      },
+      "review": {
+        "eyebrow": "Revisão final",
+        "title": "Revise seu treino",
+        "description": "Confirme a estrutura antes de criar o treino.",
+        "workout": "Treino",
+        "variants": "Variações",
+        "sections": "Seções",
+        "movements": "Movimentos",
+        "sectionCount": "{count, plural, =1 {1 seção} other {# seções}}",
+        "section": "Seção {number}",
+        "edit": "Editar programação",
+        "editDetails": "Editar detalhes",
+        "noPrescription": "Sem prescrição geral",
+        "categoryOverrides": "Valores por categoria"
+      },
       "details": {
         "eyebrow": "Treino",
         "title": "Detalhes do treino",
@@ -167,6 +205,9 @@
       "sectionBuilder": {
         "section": "Seção {number}",
         "configureSection": "Configurar seção",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "summary": "{movements} movimentos",
         "remove": "Remover",
         "sectionType": "Tipo de seção",
         "selectSectionType": "Selecione o tipo de seção",
@@ -181,6 +222,7 @@
         "movements": "Movimentos",
         "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
         "addMovement": "Adicionar movimento",
+        "addAnotherMovement": "Adicionar outro movimento",
         "noMovements": "Ainda não há movimentos",
         "noMovementsDescription": "Adicione o primeiro movimento desta seção.",
         "movementNumber": "Movimento {number}",
@@ -202,6 +244,7 @@
         "weight": "Peso",
         "unit": "Unidade",
         "selectUnit": "Selecione uma unidade",
+        "useSharedUnit": "Usar unidade geral ({unit})",
         "distance": "Distância",
         "calories": "Calorias",
         "duration": "Duração",
@@ -223,6 +266,9 @@
         "add": "Adicionar variação",
         "variant": "Variação {number}",
         "configure": "Configurar variação",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "summary": "{sections} seções · {movements} movimentos",
         "remove": "Remover",
         "level": "Nível de experiência",
         "selectLevel": "Selecione um nível",
