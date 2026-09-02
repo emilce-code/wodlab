@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetchJson } from "@/lib/api";
 
 import MovementLibrary from "./components/MovementLibrary";
@@ -15,18 +16,12 @@ export default async function MovementsPage() {
   const movements = await getMovements();
 
   return (
-    <div>
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">
-          {t("eyebrow")}
-        </p>
-
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-          {t("title")}
-        </h1>
-
-        <p className="mt-2 max-w-xl text-muted">{t("description")}</p>
-      </header>
+    <div className="mx-auto max-w-6xl">
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+      />
 
       <MovementLibrary initialMovements={movements} />
     </div>

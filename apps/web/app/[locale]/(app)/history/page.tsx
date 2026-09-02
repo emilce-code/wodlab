@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetchJson } from "@/lib/api";
 
 import HistoryList, {
@@ -25,17 +26,11 @@ export default async function HistoryPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t("eyebrow")}
-        </p>
-
-        <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">
-          {t("title")}
-        </h1>
-
-        <p className="mt-4 max-w-2xl text-muted">{t("description")}</p>
-      </header>
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+      />
 
       <HistoryList results={results} />
     </div>

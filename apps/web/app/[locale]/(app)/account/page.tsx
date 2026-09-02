@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import LogoutButton from "@/components/auth/LogoutButton";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import PageHeader from "@/components/layout/PageHeader";
 import Alert from "@/components/ui/Alert";
 import Card from "@/components/ui/Card";
 
@@ -72,17 +73,11 @@ export default async function AccountPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t("eyebrow")}
-        </p>
-
-        <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-          {t("title")}
-        </h1>
-
-        <p className="mt-2 text-muted">{t("description")}</p>
-      </header>
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+      />
 
       <Card className="mt-8 p-6">
         <div className="flex items-center gap-4">

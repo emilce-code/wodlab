@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import PageHeader from "@/components/layout/PageHeader";
 import ButtonLink from "@/components/ui/ButtonLink";
 import { authenticatedApiFetchJson } from "@/lib/api";
 
@@ -16,22 +17,15 @@ export default async function WorkoutsPage() {
   const workouts = await getWorkouts();
 
   return (
-    <div>
-      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent">
-            {t("eyebrow")}
-          </p>
-
-          <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-            {t("title")}
-          </h1>
-
-          <p className="mt-2 max-w-xl text-muted">{t("description")}</p>
-        </div>
-
-        <ButtonLink href="/workouts/new">+ {t("createWorkout")}</ButtonLink>
-      </header>
+    <div className="mx-auto max-w-6xl">
+      <PageHeader
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        description={t("description")}
+        action={
+          <ButtonLink href="/workouts/new">+ {t("createWorkout")}</ButtonLink>
+        }
+      />
 
       <WorkoutLibrary workouts={workouts} />
     </div>
