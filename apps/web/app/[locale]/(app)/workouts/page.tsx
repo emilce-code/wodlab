@@ -40,6 +40,9 @@ export default async function WorkoutsPage() {
         workouts={workouts}
         archivedWorkouts={archivedWorkouts}
         currentUserId={currentUser?.id ?? null}
+        preferredWorkoutLevelKey={
+          currentUser?.athleteProfile?.preferredWorkoutLevel?.key ?? null
+        }
       />
     </div>
   );

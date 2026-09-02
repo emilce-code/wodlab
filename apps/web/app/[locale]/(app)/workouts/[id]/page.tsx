@@ -22,6 +22,7 @@ import type {
   WorkoutResultForEdit,
   WorkoutResultSummary,
 } from "@/lib/result-types";
+import { selectWorkoutVariant } from "@/lib/workout-variants";
 
 import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
@@ -119,6 +120,9 @@ type Props = {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    variation?: string | string[];
+  }>;
 };
 
 async function getWorkout(id: string): Promise<Workout | null> {
@@ -188,8 +192,11 @@ async function getAthletePreferences(): Promise<AthletePreferences> {
   };
 }
 
-export default async function WorkoutPage({ params }: Props) {
-  const { id } = await params;
+export default async function WorkoutPage({ params, searchParams }: Props) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  const requestedLevelKey = Array.isArray(query.variation)
+    ? query.variation[0]
+    : query.variation;
 
   const [
     workout,
@@ -214,6 +221,15 @@ export default async function WorkoutPage({ params }: Props) {
   ]);
 
   if (!workout) {
+    notFound();
+  }
+
+  const selectedVariant = selectWorkoutVariant(workout.variants, {
+    preferredLevelKey: athletePreferences.preferredWorkoutLevelKey,
+    requestedLevelKey,
+  });
+
+  if (!selectedVariant) {
     notFound();
   }
 
@@ -324,6 +340,7 @@ export default async function WorkoutPage({ params }: Props) {
   const personalBest = summary.personalBest;
   const lastResult = summary.lastResult;
   const canManage = workout.createdByUser.id === currentUser?.id;
+  const displayedVariants = [selectedVariant];
 
   const formVariants: LogResultWorkoutVariant[] = workout.variants.map(
     (variant) => ({
@@ -414,8 +431,39 @@ export default async function WorkoutPage({ params }: Props) {
         </Alert>
       )}
 
+      {workout.variants.length > 1 && (
+        <nav className="mt-8" aria-label={t("variationSelectorLabel")}>
+          <p className="text-sm font-semibold">{t("variationSelectorTitle")}</p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {workout.variants.map((variant) => {
+              const isSelected = variant.id === selectedVariant.id;
+
+              return (
+                <Link
+                  key={variant.id}
+                  href={`/workouts/${workout.id}?variation=${encodeURIComponent(
+                    variant.level.key,
+                  )}`}
+                  aria-current={isSelected ? "page" : undefined}
+                  className={[
+                    "inline-flex min-h-11 items-center rounded-lg border px-4 py-2 text-sm font-semibold transition",
+                    isSelected
+                      ? "border-accent bg-accent text-accent-foreground"
+                      : "border-border bg-surface text-muted hover:bg-surface-elevated hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {variant.level.name}
+                  {variant.name ? ` · ${variant.name}` : ""}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
       <div className="mt-10 space-y-10">
-        {workout.variants.map((variant) => (
+        {displayedVariants.map((variant) => (
           <section key={variant.id}>
             <div className="mb-5 flex flex-wrap items-center gap-3">
               <Badge variant="accent">{variant.level.name}</Badge>
@@ -563,11 +611,13 @@ export default async function WorkoutPage({ params }: Props) {
           <LogResultForm
             workoutId={workout.id}
             resultType={workout.type.defaultResultType}
-            variants={formVariants}
+            variants={formVariants.filter(
+              (variant) => variant.id === selectedVariant.id,
+            )}
             prescriptionCategories={prescriptionCategories}
             preferredWeightUnit={athletePreferences.preferredWeightUnit}
             preferredWorkoutLevelKey={
-              athletePreferences.preferredWorkoutLevelKey
+              selectedVariant.level.key
             }
             preferredPrescriptionCategoryKey={
               athletePreferences.preferredPrescriptionCategoryKey

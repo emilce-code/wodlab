@@ -332,6 +332,8 @@
       "benchmark": "Benchmark",
       "inactiveTitle": "Este treino está inativo",
       "inactiveDescription": "Ele está disponível apenas como histórico. Novos resultados e alterações nos resultados existentes estão desativados.",
+      "variationSelectorLabel": "Variações do treino",
+      "variationSelectorTitle": "Escolha uma variação",
       "scaled": "Adaptado",
       "section": "Seção {number}",
       "roundCount": "{count, plural, =1 {1 round} other {# rounds}}",

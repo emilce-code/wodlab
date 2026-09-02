@@ -12,12 +12,14 @@ type Props = {
   workouts: Workout[];
   archivedWorkouts: Workout[];
   currentUserId: string | null;
+  preferredWorkoutLevelKey: string | null;
 };
 
 export default function WorkoutLibrary({
   workouts,
   archivedWorkouts,
   currentUserId,
+  preferredWorkoutLevelKey,
 }: Props) {
   const t = useTranslations("workouts.library");
   const [search, setSearch] = useState("");
@@ -133,6 +135,7 @@ export default function WorkoutLibrary({
               key={workout.id}
               workout={workout}
               canManage={workout.createdByUser.id === currentUserId}
+              preferredWorkoutLevelKey={preferredWorkoutLevelKey}
             />
           ))}
         </div>

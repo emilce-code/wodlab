@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import { selectWorkoutVariant } from '@/lib/workout-variants';
 
 import WorkoutLifecycleActions from './WorkoutLifecycleActions';
 
@@ -56,11 +57,13 @@ export type Workout = {
 type Props = {
   workout: Workout;
   canManage: boolean;
+  preferredWorkoutLevelKey: string | null;
 };
 
 export default function WorkoutCard({
   workout,
   canManage,
+  preferredWorkoutLevelKey,
 }: Props) {
   const t =
     useTranslations(
@@ -72,13 +75,9 @@ export default function WorkoutCard({
       'workoutTypes',
     );
 
-  const defaultVariant =
-    workout.variants.find(
-      (variant) =>
-        variant.level.key ===
-        'RX',
-    ) ??
-    workout.variants[0];
+  const defaultVariant = selectWorkoutVariant(workout.variants, {
+    preferredLevelKey: preferredWorkoutLevelKey,
+  });
 
   const firstSection =
     defaultVariant?.sections[0];
@@ -139,9 +138,7 @@ export default function WorkoutCard({
           </h2>
         </Link>
 
-        {firstSection
-          ?.repScheme.length >
-          0 && (
+        {firstSection && firstSection.repScheme.length > 0 && (
           <p className="mt-4 text-xl font-bold tracking-wide">
             {firstSection.repScheme.join(
               ' — ',

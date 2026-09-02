@@ -332,6 +332,8 @@
       "benchmark": "Benchmark",
       "inactiveTitle": "This workout is inactive",
       "inactiveDescription": "It is available only as historical data. New results and changes to existing results are disabled.",
+      "variationSelectorLabel": "Workout variations",
+      "variationSelectorTitle": "Choose a variation",
       "scaled": "Scaled",
       "section": "Section {number}",
       "roundCount": "{count, plural, =1 {1 round} other {# rounds}}",

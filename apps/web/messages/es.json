@@ -332,6 +332,8 @@
       "benchmark": "Benchmark",
       "inactiveTitle": "Este entrenamiento está inactivo",
       "inactiveDescription": "Solo está disponible como información histórica. No se pueden registrar nuevos resultados ni modificar los existentes.",
+      "variationSelectorLabel": "Variaciones del entrenamiento",
+      "variationSelectorTitle": "Elige una variación",
       "scaled": "Escalado",
       "section": "Sección {number}",
       "roundCount": "{count, plural, =1 {1 ronda} other {# rondas}}",

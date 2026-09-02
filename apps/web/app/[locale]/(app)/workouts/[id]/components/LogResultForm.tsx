@@ -14,6 +14,7 @@ import type {
   WeightUnit,
   WorkoutResultForEdit,
 } from "@/lib/result-types";
+import { selectWorkoutVariant } from "@/lib/workout-variants";
 
 export type {
   PrescriptionCategory,
@@ -157,14 +158,9 @@ export default function LogResultForm({
   const isEditing = Boolean(result);
   const resultDate = result ? new Date(result.performedAt) : null;
 
-  const preferredVariant = preferredWorkoutLevelKey
-    ? variants.find((variant) => variant.level.key === preferredWorkoutLevelKey)
-    : undefined;
-
-  const defaultVariant =
-    preferredVariant ??
-    variants.find((variant) => variant.level.key === "RX") ??
-    variants[0];
+  const defaultVariant = selectWorkoutVariant(variants, {
+    preferredLevelKey: preferredWorkoutLevelKey,
+  });
 
   const defaultPrescriptionCategoryKey =
     preferredPrescriptionCategoryKey &&
@@ -176,9 +172,7 @@ export default function LogResultForm({
 
   const initialTimeSeconds = result?.timeSeconds ?? 0;
 
-  const [workoutVariantId, setWorkoutVariantId] = useState(
-    result?.workoutVariant?.id ?? defaultVariant?.id ?? "",
-  );
+  const workoutVariantId = result?.workoutVariant?.id ?? defaultVariant?.id ?? "";
 
   const [prescriptionCategoryKey, setPrescriptionCategoryKey] = useState(
     result?.prescriptionCategory?.key ?? defaultPrescriptionCategoryKey,
@@ -538,18 +532,6 @@ export default function LogResultForm({
     timeInputRef.current?.showPicker();
   }
 
-  function handleVariantChange(value: string) {
-    if (value === workoutVariantId) {
-      return;
-    }
-
-    setWorkoutVariantId(value);
-
-    // WorkoutMovement IDs belong to a specific variant, so values from the
-    // previous variant must never be silently carried into another variant.
-    setMovementPerformances({});
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -663,7 +645,6 @@ export default function LogResultForm({
   }
 
   function resetForm() {
-    setWorkoutVariantId(defaultVariant?.id ?? "");
     setPrescriptionCategoryKey(defaultPrescriptionCategoryKey);
     setMinutes("");
     setSeconds("");
@@ -697,31 +678,6 @@ export default function LogResultForm({
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
-        <div>
-          <label
-            htmlFor={isEditing ? "editWorkoutVariantId" : "workoutVariantId"}
-            className="mb-1.5 block text-sm font-medium"
-          >
-            {t("workoutLevel")}
-          </label>
-
-          <select
-            id={isEditing ? "editWorkoutVariantId" : "workoutVariantId"}
-            value={workoutVariantId}
-            onChange={(event) => handleVariantChange(event.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-          >
-            <option value="">{t("selectWorkoutLevel")}</option>
-
-            {variants.map((variant) => (
-              <option key={variant.id} value={variant.id}>
-                {variant.level.name}
-                {variant.name ? ` · ${variant.name}` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {prescriptionCategories.length > 0 && (
           <div>
             <label
