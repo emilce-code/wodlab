@@ -33,7 +33,11 @@
     "progress": "Progreso",
     "movements": "Movimientos",
     "account": "Cuenta",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "more": "Más",
+    "menuTitle": "Más opciones",
+    "closeMenu": "Cerrar menú",
+    "mobileLabel": "Navegación principal"
   },
   "auth": {
     "shell": {
