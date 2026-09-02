@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import LogoutButton from "@/components/auth/LogoutButton";
@@ -60,6 +60,9 @@ export default function Sidebar({ user }: Props) {
   const pathname = usePathname();
 
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountAreaRef = useRef<HTMLDivElement>(null);
+  const accountButtonRef = useRef<HTMLButtonElement>(null);
+  const accountLinkRef = useRef<HTMLAnchorElement>(null);
 
   const displayName = user.athleteProfile?.displayName ?? user.email;
 
@@ -70,6 +73,38 @@ export default function Sidebar({ user }: Props) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  useEffect(() => {
+    if (!accountMenuOpen) {
+      return;
+    }
+
+    accountLinkRef.current?.focus();
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAccountMenuOpen(false);
+        accountButtonRef.current?.focus();
+      }
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        event.target instanceof Node &&
+        !accountAreaRef.current?.contains(event.target)
+      ) {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [accountMenuOpen]);
 
   function isActive(href: string) {
     if (href === "/dashboard") {
@@ -127,10 +162,15 @@ export default function Sidebar({ user }: Props) {
         <LanguageSwitcher />
       </div>
 
-      <div className="relative border-t border-border p-4">
+      <div ref={accountAreaRef} className="relative border-t border-border p-4">
         {accountMenuOpen && (
-          <div className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-xl">
+          <div
+            id="desktop-account-menu"
+            aria-labelledby="desktop-account-menu-button"
+            className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-xl"
+          >
             <Link
+              ref={accountLinkRef}
               href="/account"
               onClick={() => setAccountMenuOpen(false)}
               className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-foreground"
@@ -147,10 +187,16 @@ export default function Sidebar({ user }: Props) {
         )}
 
         <button
+          ref={accountButtonRef}
+          id="desktop-account-menu-button"
           type="button"
           onClick={() => setAccountMenuOpen((current) => !current)}
           aria-expanded={accountMenuOpen}
-          className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-surface-elevated"
+          aria-controls="desktop-account-menu"
+          aria-label={
+            accountMenuOpen ? t("closeAccountMenu") : t("accountMenu")
+          }
+          className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent text-xs font-bold text-accent">
             {initials}

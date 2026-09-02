@@ -37,7 +37,10 @@
     "more": "Mais",
     "menuTitle": "Mais opções",
     "closeMenu": "Fechar menu",
-    "mobileLabel": "Navegação principal"
+    "mobileLabel": "Navegação principal",
+    "skipToContent": "Pular para o conteúdo principal",
+    "accountMenu": "Abrir menu da conta",
+    "closeAccountMenu": "Fechar menu da conta"
   },
   "auth": {
     "shell": {
