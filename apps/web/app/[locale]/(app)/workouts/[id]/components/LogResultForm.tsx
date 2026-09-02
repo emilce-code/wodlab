@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
+import { formatCalendarDate, formatClockTime } from "@/lib/date-formatters";
 import type {
   MeasurementType,
   PrescriptionCategory,
@@ -379,14 +380,7 @@ export default function LogResultForm({
       return t("selectDate");
     }
 
-    const [year, month, day] = value.split("-").map(Number);
-    const date = new Date(year, month - 1, day);
-
-    return new Intl.DateTimeFormat(locale, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(date);
+    return formatCalendarDate(value, locale);
   }
 
   function formatSelectedTime(value: string) {
@@ -394,15 +388,7 @@ export default function LogResultForm({
       return t("selectTime");
     }
 
-    const [hours, minutesValue] = value.split(":").map(Number);
-    const date = new Date();
-
-    date.setHours(hours, minutesValue, 0, 0);
-
-    return new Intl.DateTimeFormat(locale, {
-      hour: "numeric",
-      minute: "2-digit",
-    }).format(date);
+    return formatClockTime(value, locale);
   }
 
   function validatePositiveValue(value: string) {

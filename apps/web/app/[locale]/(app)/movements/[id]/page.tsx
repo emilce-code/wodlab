@@ -1,24 +1,19 @@
-import { getLocale, getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { getLocale, getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
-import { authenticatedApiFetch } from '@/lib/api';
-import { getCurrentUser } from '@/lib/auth';
-import {
-  formatDate,
-  formatMeasurementResult,
-} from '@/lib/result-formatters';
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import { Link } from "@/i18n/navigation";
+import { authenticatedApiFetch } from "@/lib/api";
+import { getCurrentUser } from "@/lib/auth";
+import { formatDate } from "@/lib/date-formatters";
+import { formatMeasurementResult } from "@/lib/result-formatters";
 
-import LogMovementResultForm from './components/LogMovementResultForm';
-import MovementProgressChart from './components/MovementProgressChart';
-import MovementResultActions from './components/MovementResultActions';
-import MovementResultSource from './components/MovementResultSource';
-import {
-  MeasurementType,
-  MovementResult,
-} from './movement-result.types';
+import LogMovementResultForm from "./components/LogMovementResultForm";
+import MovementProgressChart from "./components/MovementProgressChart";
+import MovementResultActions from "./components/MovementResultActions";
+import MovementResultSource from "./components/MovementResultSource";
+import { MeasurementType, MovementResult } from "./movement-result.types";
 
 type Movement = {
   id: string;
@@ -100,25 +95,17 @@ async function getMovementSummary(
 export default async function MovementDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const [
-    movement,
-    results,
-    summary,
-    user,
-    t,
-    categoryT,
-    measurementT,
-    locale,
-  ] = await Promise.all([
-    getMovement(id),
-    getMovementResults(id),
-    getMovementSummary(id),
-    getCurrentUser(),
-    getTranslations('movements.detail'),
-    getTranslations('movementCategories'),
-    getTranslations('measurementTypes'),
-    getLocale(),
-  ]);
+  const [movement, results, summary, user, t, categoryT, measurementT, locale] =
+    await Promise.all([
+      getMovement(id),
+      getMovementResults(id),
+      getMovementSummary(id),
+      getCurrentUser(),
+      getTranslations("movements.detail"),
+      getTranslations("movementCategories"),
+      getTranslations("measurementTypes"),
+      getLocale(),
+    ]);
 
   if (!movement) {
     notFound();
@@ -126,44 +113,30 @@ export default async function MovementDetailPage({ params }: Props) {
 
   const currentMovement = movement;
 
-  const preferredWeightUnit =
-    user?.athleteProfile?.preferredWeightUnit ?? 'KG';
+  const preferredWeightUnit = user?.athleteProfile?.preferredWeightUnit ?? "KG";
 
   function getCategoryName() {
     const key = currentMovement.category.key.toLowerCase();
 
-    return categoryT.has(key)
-      ? categoryT(key)
-      : currentMovement.category.name;
+    return categoryT.has(key) ? categoryT(key) : currentMovement.category.name;
   }
 
-  function getMeasurementName(type: {
-    key: string;
-    name: string;
-  }) {
+  function getMeasurementName(type: { key: string; name: string }) {
     const key = type.key.toLowerCase();
 
-    return measurementT.has(key)
-      ? measurementT(key)
-      : type.name;
+    return measurementT.has(key) ? measurementT(key) : type.name;
   }
 
   function formatResult(result: MovementResult) {
-    return formatMeasurementResult(
-      result.measurementType.key,
-      result,
-      {
-        formatReps: (count) => t('repsValue', { count }),
-      },
-    );
+    return formatMeasurementResult(result.measurementType.key, result, {
+      formatReps: (count) => t("repsValue", { count }),
+    });
   }
 
   const personalRecords = summary?.personalRecords ?? [];
 
   const hasPersonalRecords = personalRecords.some(
-    (group) =>
-      Boolean(group.result) ||
-      (group.records?.length ?? 0) > 0,
+    (group) => Boolean(group.result) || (group.records?.length ?? 0) > 0,
   );
 
   return (
@@ -172,7 +145,7 @@ export default async function MovementDetailPage({ params }: Props) {
         href="/movements"
         className="text-sm font-medium text-muted transition hover:text-foreground"
       >
-        ← {t('backToMovements')}
+        ← {t("backToMovements")}
       </Link>
 
       <header className="mt-8">
@@ -181,11 +154,7 @@ export default async function MovementDetailPage({ params }: Props) {
             {getCategoryName()}
           </p>
 
-          {currentMovement.isFoundational && (
-            <Badge>
-              {t('foundational')}
-            </Badge>
-          )}
+          {currentMovement.isFoundational && <Badge>{t("foundational")}</Badge>}
         </div>
 
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
@@ -194,46 +163,42 @@ export default async function MovementDetailPage({ params }: Props) {
 
         {currentMovement.aliases.length > 0 && (
           <p className="mt-3 text-sm text-muted">
-            {t('alsoKnownAs')}: {currentMovement.aliases.join(' · ')}
+            {t("alsoKnownAs")}: {currentMovement.aliases.join(" · ")}
           </p>
         )}
 
         <div className="mt-5 flex flex-wrap gap-2">
           {currentMovement.measurementTypes.map((type) => (
-            <Badge key={type.key}>
-              {getMeasurementName(type)}
-            </Badge>
+            <Badge key={type.key}>{getMeasurementName(type)}</Badge>
           ))}
         </div>
       </header>
 
       <section className="mt-12">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t('personalRecords.eyebrow')}
+          {t("personalRecords.eyebrow")}
         </p>
 
         <h2 className="mt-2 text-2xl font-bold">
-          {t('personalRecords.title')}
+          {t("personalRecords.title")}
         </h2>
 
         <p className="mt-2 text-sm text-muted">
-          {t('personalRecords.description')}
+          {t("personalRecords.description")}
         </p>
 
         {!hasPersonalRecords ? (
           <Card className="mt-5 p-6">
-            <p className="font-semibold">
-              {t('personalRecords.emptyTitle')}
-            </p>
+            <p className="font-semibold">{t("personalRecords.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">
-              {t('personalRecords.emptyDescription')}
+              {t("personalRecords.emptyDescription")}
             </p>
           </Card>
         ) : (
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {personalRecords.flatMap((group) => {
-              if (group.measurementType.key === 'WEIGHT') {
+              if (group.measurementType.key === "WEIGHT") {
                 return (group.records ?? [])
                   .filter((record) => record.result !== null)
                   .map((record) => {
@@ -244,10 +209,7 @@ export default async function MovementDetailPage({ params }: Props) {
                     }
 
                     return (
-                      <Card
-                        key={`WEIGHT-${record.reps}`}
-                        className="p-5"
-                      >
+                      <Card key={`WEIGHT-${record.reps}`} className="p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                           {record.reps}RM
                         </p>
@@ -277,10 +239,7 @@ export default async function MovementDetailPage({ params }: Props) {
               }
 
               return [
-                <Card
-                  key={group.measurementType.key}
-                  className="p-5"
-                >
+                <Card key={group.measurementType.key} className="p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                     {getMeasurementName(group.measurementType)}
                   </p>
@@ -309,16 +268,12 @@ export default async function MovementDetailPage({ params }: Props) {
 
       <section className="mt-12">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t('progress.eyebrow')}
+          {t("progress.eyebrow")}
         </p>
 
-        <h2 className="mt-2 text-2xl font-bold">
-          {t('progress.title')}
-        </h2>
+        <h2 className="mt-2 text-2xl font-bold">{t("progress.title")}</h2>
 
-        <p className="mt-2 text-sm text-muted">
-          {t('progress.description')}
-        </p>
+        <p className="mt-2 text-sm text-muted">{t("progress.description")}</p>
 
         <Card className="mt-5 p-5 sm:p-6">
           <MovementProgressChart
@@ -340,17 +295,15 @@ export default async function MovementDetailPage({ params }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              {t('history.eyebrow')}
+              {t("history.eyebrow")}
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold">
-              {t('history.title')}
-            </h2>
+            <h2 className="mt-2 text-2xl font-bold">{t("history.title")}</h2>
           </div>
 
           {results.length > 0 && (
             <p className="text-sm text-muted">
-              {t('history.resultCount', {
+              {t("history.resultCount", {
                 count: results.length,
               })}
             </p>
@@ -359,22 +312,17 @@ export default async function MovementDetailPage({ params }: Props) {
 
         {results.length === 0 ? (
           <Card className="mt-5 p-6">
-            <p className="font-semibold">
-              {t('history.emptyTitle')}
-            </p>
+            <p className="font-semibold">{t("history.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">
-              {t('history.emptyDescription')}
+              {t("history.emptyDescription")}
             </p>
           </Card>
         ) : (
           <Card className="mt-5 overflow-hidden">
             <div className="divide-y divide-border">
               {results.map((result) => (
-                <div
-                  key={result.id}
-                  className="p-5"
-                >
+                <div key={result.id} className="p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -406,13 +354,11 @@ export default async function MovementDetailPage({ params }: Props) {
                         {formatDate(result.performedAt, locale)}
                       </p>
 
-                      {result.source.type === 'MANUAL' && (
+                      {result.source.type === "MANUAL" && (
                         <MovementResultActions
                           movementId={currentMovement.id}
                           result={result}
-                          measurementTypes={
-                            currentMovement.measurementTypes
-                          }
+                          measurementTypes={currentMovement.measurementTypes}
                           preferredWeightUnit={preferredWeightUnit}
                         />
                       )}

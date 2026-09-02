@@ -1,16 +1,16 @@
-import { getLocale, getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { getLocale, getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
-import { authenticatedApiFetch } from '@/lib/api';
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import { Link } from "@/i18n/navigation";
+import { authenticatedApiFetch } from "@/lib/api";
+import { formatDate } from "@/lib/date-formatters";
 import {
-  formatDate,
   formatDuration,
   formatPerformedMovement,
   formatWorkoutResult,
-} from '@/lib/result-formatters';
+} from "@/lib/result-formatters";
 import type {
   MeasurementType,
   PrescriptionCategory,
@@ -19,12 +19,12 @@ import type {
   WorkoutResult,
   WorkoutResultForEdit,
   WorkoutResultSummary,
-} from '@/lib/result-types';
+} from "@/lib/result-types";
 
 import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
-} from './components/LogResultForm';
-import WorkoutResultActions from './components/WorkoutResultActions';
+} from "./components/LogResultForm";
+import WorkoutResultActions from "./components/WorkoutResultActions";
 
 type WorkoutPrescription = {
   id: string;
@@ -150,11 +150,11 @@ async function getWorkoutResultSummary(
 }
 
 async function getAthletePreferences(): Promise<AthletePreferences> {
-  const response = await authenticatedApiFetch('/athlete-profile');
+  const response = await authenticatedApiFetch("/athlete-profile");
 
   if (!response?.ok) {
     return {
-      preferredWeightUnit: 'KG',
+      preferredWeightUnit: "KG",
       preferredWorkoutLevelKey: null,
       preferredPrescriptionCategoryKey: null,
     };
@@ -171,9 +171,8 @@ async function getAthletePreferences(): Promise<AthletePreferences> {
   };
 
   return {
-    preferredWeightUnit: profile.preferredWeightUnit ?? 'KG',
-    preferredWorkoutLevelKey:
-      profile.preferredWorkoutLevel?.key ?? null,
+    preferredWeightUnit: profile.preferredWeightUnit ?? "KG",
+    preferredWorkoutLevelKey: profile.preferredWorkoutLevel?.key ?? null,
     preferredPrescriptionCategoryKey:
       profile.preferredPrescriptionCategory?.key ?? null,
   };
@@ -196,9 +195,9 @@ export default async function WorkoutPage({ params }: Props) {
     getWorkoutResults(id),
     getWorkoutResultSummary(id),
     getAthletePreferences(),
-    getTranslations('workouts.detail'),
-    getTranslations('workoutTypes'),
-    getTranslations('resultTypes'),
+    getTranslations("workouts.detail"),
+    getTranslations("workoutTypes"),
+    getTranslations("resultTypes"),
     getLocale(),
   ]);
 
@@ -206,26 +205,19 @@ export default async function WorkoutPage({ params }: Props) {
     notFound();
   }
 
-  function getWorkoutTypeName(type: {
-    key: string;
-    name: string;
-  }) {
+  function getWorkoutTypeName(type: { key: string; name: string }) {
     const key = type.key
       .toLowerCase()
-      .replaceAll(' ', '_')
-      .replaceAll('-', '_');
+      .replaceAll(" ", "_")
+      .replaceAll("-", "_");
 
-    return workoutTypeT.has(key)
-      ? workoutTypeT(key)
-      : type.name;
+    return workoutTypeT.has(key) ? workoutTypeT(key) : type.name;
   }
 
   function getResultTypeName(type: ResultType) {
     const key = type.key.toLowerCase();
 
-    return resultTypeT.has(key)
-      ? resultTypeT(key)
-      : type.name;
+    return resultTypeT.has(key) ? resultTypeT(key) : type.name;
   }
 
   function getMovementPrescription(movement: WorkoutMovement) {
@@ -233,7 +225,7 @@ export default async function WorkoutPage({ params }: Props) {
 
     if (movement.reps !== null) {
       values.push(
-        t('repsValue', {
+        t("repsValue", {
           count: movement.reps,
         }),
       );
@@ -242,9 +234,7 @@ export default async function WorkoutPage({ params }: Props) {
     if (movement.weight !== null) {
       values.push(
         `${movement.weight}${
-          movement.weightUnit
-            ? ` ${movement.weightUnit}`
-            : ''
+          movement.weightUnit ? ` ${movement.weightUnit}` : ""
         }`,
       );
     }
@@ -258,22 +248,18 @@ export default async function WorkoutPage({ params }: Props) {
     }
 
     if (movement.durationSeconds !== null) {
-      values.push(
-        formatDuration(movement.durationSeconds),
-      );
+      values.push(formatDuration(movement.durationSeconds));
     }
 
-    return values.join(' · ');
+    return values.join(" · ");
   }
 
-  function getCategoryPrescription(
-    prescription: WorkoutPrescription,
-  ) {
+  function getCategoryPrescription(prescription: WorkoutPrescription) {
     const values: string[] = [];
 
     if (prescription.reps !== null) {
       values.push(
-        t('repsValue', {
+        t("repsValue", {
           count: prescription.reps,
         }),
       );
@@ -282,9 +268,7 @@ export default async function WorkoutPage({ params }: Props) {
     if (prescription.weight !== null) {
       values.push(
         `${prescription.weight}${
-          prescription.weightUnit
-            ? ` ${prescription.weightUnit}`
-            : ''
+          prescription.weightUnit ? ` ${prescription.weightUnit}` : ""
         }`,
       );
     }
@@ -298,44 +282,38 @@ export default async function WorkoutPage({ params }: Props) {
     }
 
     if (prescription.durationSeconds !== null) {
-      values.push(
-        formatDuration(prescription.durationSeconds),
-      );
+      values.push(formatDuration(prescription.durationSeconds));
     }
 
-    return values.join(' · ');
+    return values.join(" · ");
   }
 
   function formatResult(result: WorkoutResult) {
     return formatWorkoutResult(result, {
-      formatReps: (count) => t('repsValue', { count }),
+      formatReps: (count) => t("repsValue", { count }),
     });
   }
 
-  const prescriptionCategories: PrescriptionCategory[] =
-    Array.from(
-      new Map(
-        workout.variants.flatMap((variant) =>
-          variant.sections.flatMap((section) =>
-            section.movements.flatMap((movement) =>
-              movement.prescriptions.map(
-                (prescription) =>
-                  [
-                    prescription.category.key,
-                    prescription.category,
-                  ] as const,
-              ),
+  const prescriptionCategories: PrescriptionCategory[] = Array.from(
+    new Map(
+      workout.variants.flatMap((variant) =>
+        variant.sections.flatMap((section) =>
+          section.movements.flatMap((movement) =>
+            movement.prescriptions.map(
+              (prescription) =>
+                [prescription.category.key, prescription.category] as const,
             ),
           ),
         ),
-      ).values(),
-    );
+      ),
+    ).values(),
+  );
 
   const personalBest = summary.personalBest;
   const lastResult = summary.lastResult;
 
-  const formVariants: LogResultWorkoutVariant[] =
-    workout.variants.map((variant) => ({
+  const formVariants: LogResultWorkoutVariant[] = workout.variants.map(
+    (variant) => ({
       id: variant.id,
       name: variant.name,
       level: variant.level,
@@ -347,16 +325,14 @@ export default async function WorkoutPage({ params }: Props) {
           movement: {
             id: movement.movement.id,
             name: movement.movement.name,
-            measurementTypes:
-              movement.movement.measurementTypes,
+            measurementTypes: movement.movement.measurementTypes,
           },
         })),
       })),
-    }));
+    }),
+  );
 
-  function toEditableResult(
-    result: WorkoutResult,
-  ): WorkoutResultForEdit {
+  function toEditableResult(result: WorkoutResult): WorkoutResultForEdit {
     return {
       id: result.id,
       performedAt: result.performedAt,
@@ -367,24 +343,18 @@ export default async function WorkoutPage({ params }: Props) {
       weightUnit: result.weightUnit,
       notes: result.notes,
       workoutVariant: result.workoutVariant,
-      prescriptionCategory:
-        result.prescriptionCategory,
-      performedMovements:
-        result.performedMovements.map(
-          (movement) => ({
-            id: movement.id,
-            workoutMovementId:
-              movement.workoutMovementId,
-            reps: movement.reps,
-            load: movement.load,
-            weightUnit: movement.weightUnit,
-            distance: movement.distance,
-            calories: movement.calories,
-            durationSeconds:
-              movement.durationSeconds,
-            notes: movement.notes,
-          }),
-        ),
+      prescriptionCategory: result.prescriptionCategory,
+      performedMovements: result.performedMovements.map((movement) => ({
+        id: movement.id,
+        workoutMovementId: movement.workoutMovementId,
+        reps: movement.reps,
+        load: movement.load,
+        weightUnit: movement.weightUnit,
+        distance: movement.distance,
+        calories: movement.calories,
+        durationSeconds: movement.durationSeconds,
+        notes: movement.notes,
+      })),
     };
   }
 
@@ -394,7 +364,7 @@ export default async function WorkoutPage({ params }: Props) {
         href="/workouts"
         className="text-sm font-medium text-muted transition hover:text-foreground"
       >
-        ← {t('backToWorkouts')}
+        ← {t("backToWorkouts")}
       </Link>
 
       <header className="mt-8">
@@ -403,11 +373,7 @@ export default async function WorkoutPage({ params }: Props) {
             {getWorkoutTypeName(workout.type)}
           </p>
 
-          {workout.isBenchmark && (
-            <Badge>
-              {t('benchmark')}
-            </Badge>
-          )}
+          {workout.isBenchmark && <Badge>{t("benchmark")}</Badge>}
         </div>
 
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
@@ -415,9 +381,7 @@ export default async function WorkoutPage({ params }: Props) {
         </h1>
 
         {workout.description && (
-          <p className="mt-4 max-w-2xl text-muted">
-            {workout.description}
-          </p>
+          <p className="mt-4 max-w-2xl text-muted">{workout.description}</p>
         )}
       </header>
 
@@ -425,37 +389,27 @@ export default async function WorkoutPage({ params }: Props) {
         {workout.variants.map((variant) => (
           <section key={variant.id}>
             <div className="mb-5 flex flex-wrap items-center gap-3">
-              <Badge variant="accent">
-                {variant.level.name}
-              </Badge>
+              <Badge variant="accent">{variant.level.name}</Badge>
 
               {variant.name && (
-                <h2 className="text-xl font-bold">
-                  {variant.name}
-                </h2>
+                <h2 className="text-xl font-bold">{variant.name}</h2>
               )}
             </div>
 
             {variant.notes && (
-              <p className="mb-5 text-sm text-muted">
-                {variant.notes}
-              </p>
+              <p className="mb-5 text-sm text-muted">{variant.notes}</p>
             )}
 
             <div className="space-y-6">
               {variant.sections.map((section, index) => {
-                const prescriptionType =
-                  getWorkoutTypeName(section.type);
+                const prescriptionType = getWorkoutTypeName(section.type);
 
                 return (
-                  <Card
-                    key={section.id}
-                    className="overflow-hidden"
-                  >
+                  <Card key={section.id} className="overflow-hidden">
                     <div className="p-6 sm:p-8">
                       {variant.sections.length > 1 && (
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-                          {t('section', {
+                          {t("section", {
                             number: index + 1,
                           })}
                         </p>
@@ -468,7 +422,7 @@ export default async function WorkoutPage({ params }: Props) {
 
                         {section.rounds !== null && (
                           <Badge>
-                            {t('roundCount', {
+                            {t("roundCount", {
                               count: section.rounds,
                             })}
                           </Badge>
@@ -476,16 +430,14 @@ export default async function WorkoutPage({ params }: Props) {
 
                         {section.durationSeconds !== null && (
                           <Badge>
-                            {formatDuration(
-                              section.durationSeconds,
-                            )}
+                            {formatDuration(section.durationSeconds)}
                           </Badge>
                         )}
                       </div>
 
                       {section.repScheme.length > 0 && (
                         <p className="mt-6 text-3xl font-black tracking-wide sm:text-4xl">
-                          {section.repScheme.join(' — ')}
+                          {section.repScheme.join(" — ")}
                         </p>
                       )}
 
@@ -521,43 +473,33 @@ export default async function WorkoutPage({ params }: Props) {
 
                               {item.prescriptions.length > 0 && (
                                 <div className="mt-3 space-y-2">
-                                  {item.prescriptions.map(
-                                    (prescription) => {
-                                      const value =
-                                        getCategoryPrescription(
-                                          prescription,
-                                        );
+                                  {item.prescriptions.map((prescription) => {
+                                    const value =
+                                      getCategoryPrescription(prescription);
 
-                                      return (
-                                        <div
-                                          key={prescription.id}
-                                          className="flex flex-wrap items-center gap-2 text-sm"
-                                        >
-                                          <Badge>
-                                            {
-                                              prescription
-                                                .category.name
-                                            }
-                                          </Badge>
+                                    return (
+                                      <div
+                                        key={prescription.id}
+                                        className="flex flex-wrap items-center gap-2 text-sm"
+                                      >
+                                        <Badge>
+                                          {prescription.category.name}
+                                        </Badge>
 
-                                          {value && (
-                                            <span className="font-medium text-muted">
-                                              {value}
-                                            </span>
-                                          )}
+                                        {value && (
+                                          <span className="font-medium text-muted">
+                                            {value}
+                                          </span>
+                                        )}
 
-                                          {prescription.notes && (
-                                            <span className="text-muted">
-                                              ·{' '}
-                                              {
-                                                prescription.notes
-                                              }
-                                            </span>
-                                          )}
-                                        </div>
-                                      );
-                                    },
-                                  )}
+                                        {prescription.notes && (
+                                          <span className="text-muted">
+                                            · {prescription.notes}
+                                          </span>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
@@ -565,22 +507,16 @@ export default async function WorkoutPage({ params }: Props) {
                         })}
                       </div>
 
-                      {(section.restSeconds !== null ||
-                        section.notes) && (
+                      {(section.restSeconds !== null || section.notes) && (
                         <div className="mt-6 border-t border-border pt-5 text-sm text-muted">
                           {section.restSeconds !== null && (
                             <p>
-                              {t('rest')}:{' '}
-                              {formatDuration(
-                                section.restSeconds,
-                              )}
+                              {t("rest")}: {formatDuration(section.restSeconds)}
                             </p>
                           )}
 
                           {section.notes && (
-                            <p className="mt-2">
-                              {section.notes}
-                            </p>
+                            <p className="mt-2">{section.notes}</p>
                           )}
                         </div>
                       )}
@@ -597,22 +533,15 @@ export default async function WorkoutPage({ params }: Props) {
         <section className="mt-12">
           <LogResultForm
             workoutId={workout.id}
-            resultType={
-              workout.type.defaultResultType
-            }
+            resultType={workout.type.defaultResultType}
             variants={formVariants}
-            prescriptionCategories={
-              prescriptionCategories
-            }
-            preferredWeightUnit={
-              athletePreferences.preferredWeightUnit
-            }
+            prescriptionCategories={prescriptionCategories}
+            preferredWeightUnit={athletePreferences.preferredWeightUnit}
             preferredWorkoutLevelKey={
               athletePreferences.preferredWorkoutLevelKey
             }
             preferredPrescriptionCategoryKey={
-              athletePreferences
-                .preferredPrescriptionCategoryKey
+              athletePreferences.preferredPrescriptionCategoryKey
             }
           />
         </section>
@@ -621,16 +550,14 @@ export default async function WorkoutPage({ params }: Props) {
       <section className="mt-12">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {t('performance.eyebrow')}
+            {t("performance.eyebrow")}
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold">
-            {t('performance.title')}
-          </h2>
+          <h2 className="mt-2 text-2xl font-bold">{t("performance.title")}</h2>
 
           {summary.totalResults > 0 && (
             <p className="mt-2 text-sm text-muted">
-              {t('performance.resultCount', {
+              {t("performance.resultCount", {
                 count: summary.totalResults,
               })}
             </p>
@@ -640,7 +567,7 @@ export default async function WorkoutPage({ params }: Props) {
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <Card className="p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-              {t('performance.personalBest')}
+              {t("performance.personalBest")}
             </p>
 
             {personalBest ? (
@@ -653,44 +580,30 @@ export default async function WorkoutPage({ params }: Props) {
                   {personalBest.workoutVariant && (
                     <Badge
                       variant={
-                        personalBest.workoutVariant
-                          .level.key === 'RX'
-                          ? 'accent'
+                        personalBest.workoutVariant.level.key === "RX"
+                          ? "accent"
                           : undefined
                       }
                     >
-                      {
-                        personalBest.workoutVariant
-                          .level.name
-                      }
+                      {personalBest.workoutVariant.level.name}
                     </Badge>
                   )}
 
                   {personalBest.prescriptionCategory && (
-                    <Badge>
-                      {
-                        personalBest
-                          .prescriptionCategory.name
-                      }
-                    </Badge>
+                    <Badge>{personalBest.prescriptionCategory.name}</Badge>
                   )}
                 </div>
 
                 <p className="mt-2 text-sm text-muted">
-                  {formatDate(
-                    personalBest.performedAt,
-                    locale,
-                  )}
+                  {formatDate(personalBest.performedAt, locale)}
                 </p>
               </>
             ) : (
               <>
-                <p className="mt-4 text-3xl font-black">
-                  —
-                </p>
+                <p className="mt-4 text-3xl font-black">—</p>
 
                 <p className="mt-2 text-sm text-muted">
-                  {t('performance.noResults')}
+                  {t("performance.noResults")}
                 </p>
               </>
             )}
@@ -698,7 +611,7 @@ export default async function WorkoutPage({ params }: Props) {
 
           <Card className="p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-              {t('performance.lastResult')}
+              {t("performance.lastResult")}
             </p>
 
             {lastResult ? (
@@ -711,26 +624,17 @@ export default async function WorkoutPage({ params }: Props) {
                   {lastResult.workoutVariant && (
                     <Badge
                       variant={
-                        lastResult.workoutVariant
-                          .level.key === 'RX'
-                          ? 'accent'
+                        lastResult.workoutVariant.level.key === "RX"
+                          ? "accent"
                           : undefined
                       }
                     >
-                      {
-                        lastResult.workoutVariant
-                          .level.name
-                      }
+                      {lastResult.workoutVariant.level.name}
                     </Badge>
                   )}
 
                   {lastResult.prescriptionCategory && (
-                    <Badge>
-                      {
-                        lastResult
-                          .prescriptionCategory.name
-                      }
-                    </Badge>
+                    <Badge>{lastResult.prescriptionCategory.name}</Badge>
                   )}
                 </div>
 
@@ -740,12 +644,10 @@ export default async function WorkoutPage({ params }: Props) {
               </>
             ) : (
               <>
-                <p className="mt-4 text-3xl font-black">
-                  —
-                </p>
+                <p className="mt-4 text-3xl font-black">—</p>
 
                 <p className="mt-2 text-sm text-muted">
-                  {t('performance.noResults')}
+                  {t("performance.noResults")}
                 </p>
               </>
             )}
@@ -756,13 +658,11 @@ export default async function WorkoutPage({ params }: Props) {
           <div className="mt-5">
             <Card className="p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {getResultTypeName(
-                  results[0].resultType,
-                )}
+                {getResultTypeName(results[0].resultType)}
               </p>
 
               <p className="mt-2 text-sm text-muted">
-                {t('performance.resultCount', {
+                {t("performance.resultCount", {
                   count: results.length,
                 })}
               </p>
@@ -776,12 +676,12 @@ export default async function WorkoutPage({ params }: Props) {
             disabled
             className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground opacity-50"
           >
-            {t('performance.startWorkout')}
+            {t("performance.startWorkout")}
           </button>
         </div>
 
         <p className="mt-3 text-xs text-muted">
-          {t('performance.liveTrackingLater')}
+          {t("performance.liveTrackingLater")}
         </p>
       </section>
 
@@ -789,17 +689,15 @@ export default async function WorkoutPage({ params }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              {t('history.eyebrow')}
+              {t("history.eyebrow")}
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold">
-              {t('history.title')}
-            </h2>
+            <h2 className="mt-2 text-2xl font-bold">{t("history.title")}</h2>
           </div>
 
           {results.length > 0 && (
             <p className="text-sm text-muted">
-              {t('performance.resultCount', {
+              {t("performance.resultCount", {
                 count: results.length,
               })}
             </p>
@@ -808,22 +706,17 @@ export default async function WorkoutPage({ params }: Props) {
 
         {results.length === 0 ? (
           <Card className="mt-5 p-6">
-            <p className="font-semibold">
-              {t('history.emptyTitle')}
-            </p>
+            <p className="font-semibold">{t("history.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">
-              {t('history.emptyDescription')}
+              {t("history.emptyDescription")}
             </p>
           </Card>
         ) : (
           <Card className="mt-5 overflow-hidden">
             <div className="divide-y divide-border">
               {results.map((result) => (
-                <div
-                  key={result.id}
-                  className="p-5 sm:p-6"
-                >
+                <div key={result.id} className="p-5 sm:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
@@ -834,33 +727,22 @@ export default async function WorkoutPage({ params }: Props) {
                         {result.workoutVariant && (
                           <Badge
                             variant={
-                              result.workoutVariant
-                                .level.key === 'RX'
-                                ? 'accent'
+                              result.workoutVariant.level.key === "RX"
+                                ? "accent"
                                 : undefined
                             }
                           >
-                            {
-                              result.workoutVariant
-                                .level.name
-                            }
+                            {result.workoutVariant.level.name}
                           </Badge>
                         )}
 
                         {result.prescriptionCategory && (
-                          <Badge>
-                            {
-                              result
-                                .prescriptionCategory.name
-                            }
-                          </Badge>
+                          <Badge>{result.prescriptionCategory.name}</Badge>
                         )}
                       </div>
 
                       <p className="mt-2 text-sm text-muted">
-                        {getResultTypeName(
-                          result.resultType,
-                        )}
+                        {getResultTypeName(result.resultType)}
                       </p>
 
                       {result.notes && (
@@ -869,41 +751,35 @@ export default async function WorkoutPage({ params }: Props) {
                         </p>
                       )}
 
-                      {result.performedMovements.length >
-                        0 && (
+                      {result.performedMovements.length > 0 && (
                         <div className="mt-4 space-y-2 border-t border-border pt-4">
-                          {result.performedMovements.map(
-                            (movement) => {
-                              const performance =
-                                formatPerformedMovement(
-                                  movement,
-                                  {
-                                    formatReps: (count) =>
-                                      t('repsValue', { count }),
-                                  },
-                                );
+                          {result.performedMovements.map((movement) => {
+                            const performance = formatPerformedMovement(
+                              movement,
+                              {
+                                formatReps: (count) =>
+                                  t("repsValue", { count }),
+                              },
+                            );
 
-                              return (
-                                <div
-                                  key={movement.id}
-                                  className="flex flex-wrap items-center justify-between gap-3 text-sm"
-                                >
-                                  <span className="font-medium">
-                                    {movement
-                                      .workoutMovement
-                                      ?.movement.name ??
-                                      'Movement'}
+                            return (
+                              <div
+                                key={movement.id}
+                                className="flex flex-wrap items-center justify-between gap-3 text-sm"
+                              >
+                                <span className="font-medium">
+                                  {movement.workoutMovement?.movement.name ??
+                                    "Movement"}
+                                </span>
+
+                                {performance && (
+                                  <span className="text-muted">
+                                    {performance}
                                   </span>
-
-                                  {performance && (
-                                    <span className="text-muted">
-                                      {performance}
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            },
-                          )}
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -917,20 +793,12 @@ export default async function WorkoutPage({ params }: Props) {
                         <div className="mt-3">
                           <WorkoutResultActions
                             workoutId={workout.id}
-                            result={toEditableResult(
-                              result,
-                            )}
-                            resultType={
-                              workout.type
-                                .defaultResultType
-                            }
+                            result={toEditableResult(result)}
+                            resultType={workout.type.defaultResultType}
                             variants={formVariants}
-                            prescriptionCategories={
-                              prescriptionCategories
-                            }
+                            prescriptionCategories={prescriptionCategories}
                             preferredWeightUnit={
-                              athletePreferences
-                                .preferredWeightUnit
+                              athletePreferences.preferredWeightUnit
                             }
                           />
                         </div>

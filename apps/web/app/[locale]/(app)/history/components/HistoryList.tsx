@@ -7,9 +7,9 @@ import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import { Link } from "@/i18n/navigation";
+import { formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 import {
   formatMeasurementResult,
-  formatTime,
   formatWorkoutResult as formatWorkoutResultValue,
 } from "@/lib/result-formatters";
 import type { MeasurementResultValues, WeightUnit } from "@/lib/result-types";
@@ -241,12 +241,11 @@ export default function HistoryList({ results }: Props) {
       return t("dates.yesterday");
     }
 
-    return new Intl.DateTimeFormat(locale, {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-      year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
-    }).format(date);
+    return formatWeekdayDate(
+      date,
+      locale,
+      date.getFullYear() !== today.getFullYear(),
+    );
   }
 
   function toggleWorkout(workoutResultId: string) {

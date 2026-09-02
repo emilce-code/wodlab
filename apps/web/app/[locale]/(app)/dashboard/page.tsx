@@ -5,6 +5,7 @@ import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetchJson } from "@/lib/api";
+import { formatShortDate } from "@/lib/date-formatters";
 import { formatDuration, formatWeight } from "@/lib/result-formatters";
 import type { WeightUnit } from "@/lib/result-types";
 
@@ -118,13 +119,6 @@ export default async function DashboardPage({ params }: Props) {
 
   const hasActivity = recentActivity.length > 0;
   const latestActivity = recentActivity[0] ?? null;
-
-  function formatDate(value: string) {
-    return new Intl.DateTimeFormat(locale, {
-      month: "short",
-      day: "numeric",
-    }).format(new Date(value));
-  }
 
   function getSubtitle(activity: DashboardActivity) {
     const key = activity.subtitle.key.toLowerCase();
@@ -323,7 +317,7 @@ export default async function DashboardPage({ params }: Props) {
                       )}
 
                       <span className="text-xs text-muted">
-                        {formatDate(latestActivity.performedAt)}
+                        {formatShortDate(latestActivity.performedAt, locale)}
                       </span>
                     </div>
 
@@ -472,7 +466,7 @@ export default async function DashboardPage({ params }: Props) {
                     </p>
 
                     <p className="mt-1 text-xs text-muted">
-                      {formatDate(activity.performedAt)}
+                      {formatShortDate(activity.performedAt, locale)}
                     </p>
                   </div>
                 </Link>

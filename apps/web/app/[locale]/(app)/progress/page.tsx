@@ -7,8 +7,8 @@ import Card from "@/components/ui/Card";
 import Alert from "@/components/ui/Alert";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetchJson } from "@/lib/api";
+import { formatDate } from "@/lib/date-formatters";
 import {
-  formatDate,
   formatDuration,
   formatMeasurementResult,
   formatWorkoutResult as formatWorkoutResultValue,
