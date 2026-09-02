@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 import ButtonLink from "@/components/ui/ButtonLink";
 import { authenticatedApiFetchJson } from "@/lib/api";
+import { getCurrentUser } from "@/lib/auth";
 
 import WorkoutLibrary from "./components/WorkoutLibrary";
 import type { Workout } from "./components/WorkoutCard";
@@ -11,10 +12,18 @@ async function getWorkouts(): Promise<Workout[]> {
   return authenticatedApiFetchJson<Workout[]>("/workouts");
 }
 
+async function getArchivedWorkouts(): Promise<Workout[]> {
+  return authenticatedApiFetchJson<Workout[]>("/workouts/archived");
+}
+
 export default async function WorkoutsPage() {
   const t = await getTranslations("workouts.library");
 
-  const workouts = await getWorkouts();
+  const [workouts, archivedWorkouts, currentUser] = await Promise.all([
+    getWorkouts(),
+    getArchivedWorkouts(),
+    getCurrentUser(),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -27,7 +36,11 @@ export default async function WorkoutsPage() {
         }
       />
 
-      <WorkoutLibrary workouts={workouts} />
+      <WorkoutLibrary
+        workouts={workouts}
+        archivedWorkouts={archivedWorkouts}
+        currentUserId={currentUser?.id ?? null}
+      />
     </div>
   );
 }

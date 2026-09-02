@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import Alert from "@/components/ui/Alert";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetch } from "@/lib/api";
+import { getCurrentUser } from "@/lib/auth";
 import { formatDate } from "@/lib/date-formatters";
 import {
   formatDuration,
@@ -25,6 +27,7 @@ import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
 } from "./components/LogResultForm";
 import WorkoutResultActions from "./components/WorkoutResultActions";
+import WorkoutLifecycleActions from "../components/WorkoutLifecycleActions";
 
 type WorkoutPrescription = {
   id: string;
@@ -91,6 +94,13 @@ type Workout = {
   name: string;
   description: string | null;
   isBenchmark: boolean;
+  isActive: boolean;
+  deactivatedAt: string | null;
+  resultCount: number;
+  createdByUser: {
+    id: string;
+    email: string;
+  };
   type: {
     key: string;
     name: string;
@@ -190,6 +200,7 @@ export default async function WorkoutPage({ params }: Props) {
     workoutTypeT,
     resultTypeT,
     locale,
+    currentUser,
   ] = await Promise.all([
     getWorkout(id),
     getWorkoutResults(id),
@@ -199,6 +210,7 @@ export default async function WorkoutPage({ params }: Props) {
     getTranslations("workoutTypes"),
     getTranslations("resultTypes"),
     getLocale(),
+    getCurrentUser(),
   ]);
 
   if (!workout) {
@@ -311,6 +323,7 @@ export default async function WorkoutPage({ params }: Props) {
 
   const personalBest = summary.personalBest;
   const lastResult = summary.lastResult;
+  const canManage = workout.createdByUser.id === currentUser?.id;
 
   const formVariants: LogResultWorkoutVariant[] = workout.variants.map(
     (variant) => ({
@@ -383,7 +396,23 @@ export default async function WorkoutPage({ params }: Props) {
         {workout.description && (
           <p className="mt-4 max-w-2xl text-muted">{workout.description}</p>
         )}
+
+        {canManage && (
+          <div className="mt-5 max-w-2xl">
+            <WorkoutLifecycleActions
+              workout={workout}
+              redirectAfterDelete
+            />
+          </div>
+        )}
       </header>
+
+      {!workout.isActive && (
+        <Alert className="mt-8">
+          <p className="font-semibold">{t("inactiveTitle")}</p>
+          <p className="mt-1 text-muted">{t("inactiveDescription")}</p>
+        </Alert>
+      )}
 
       <div className="mt-10 space-y-10">
         {workout.variants.map((variant) => (
@@ -529,7 +558,7 @@ export default async function WorkoutPage({ params }: Props) {
         ))}
       </div>
 
-      {workout.type.defaultResultType && (
+      {workout.isActive && workout.type.defaultResultType && (
         <section className="mt-12">
           <LogResultForm
             workoutId={workout.id}
@@ -670,19 +699,23 @@ export default async function WorkoutPage({ params }: Props) {
           </div>
         )}
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            disabled
-            className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground opacity-50"
-          >
-            {t("performance.startWorkout")}
-          </button>
-        </div>
+        {workout.isActive && (
+          <>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                disabled
+                className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground opacity-50"
+              >
+                {t("performance.startWorkout")}
+              </button>
+            </div>
 
-        <p className="mt-3 text-xs text-muted">
-          {t("performance.liveTrackingLater")}
-        </p>
+            <p className="mt-3 text-xs text-muted">
+              {t("performance.liveTrackingLater")}
+            </p>
+          </>
+        )}
       </section>
 
       <section className="mt-12">
@@ -789,7 +822,7 @@ export default async function WorkoutPage({ params }: Props) {
                         {formatDate(result.performedAt, locale)}
                       </p>
 
-                      {workout.type.defaultResultType && (
+                      {workout.isActive && workout.type.defaultResultType && (
                         <div className="mt-3">
                           <WorkoutResultActions
                             workoutId={workout.id}

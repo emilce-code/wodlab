@@ -7,11 +7,21 @@ import { Link } from '@/i18n/navigation';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 
+import WorkoutLifecycleActions from './WorkoutLifecycleActions';
+
 export type Workout = {
   id: string;
   name: string;
   description: string | null;
   isBenchmark: boolean;
+  isActive: boolean;
+  deactivatedAt: string | null;
+  resultCount: number;
+
+  createdByUser: {
+    id: string;
+    email: string;
+  };
 
   type: {
     key: string;
@@ -45,10 +55,12 @@ export type Workout = {
 
 type Props = {
   workout: Workout;
+  canManage: boolean;
 };
 
 export default function WorkoutCard({
   workout,
+  canManage,
 }: Props) {
   const t =
     useTranslations(
@@ -97,11 +109,7 @@ export default function WorkoutCard({
   }
 
   return (
-    <Link
-      href={`/workouts/${workout.id}`}
-      className="group block h-full"
-    >
-      <Card className="flex h-full flex-col p-6 transition duration-200 group-hover:-translate-y-0.5 group-hover:border-accent/40">
+    <Card className="group flex h-full flex-col p-6 transition duration-200 hover:-translate-y-0.5 hover:border-accent/40">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
@@ -125,9 +133,11 @@ export default function WorkoutCard({
           )}
         </div>
 
-        <h2 className="mt-4 text-2xl font-black tracking-tight transition-colors group-hover:text-accent">
-          {workout.name}
-        </h2>
+        <Link href={`/workouts/${workout.id}`} className="mt-4 block">
+          <h2 className="text-2xl font-black tracking-tight transition-colors group-hover:text-accent">
+            {workout.name}
+          </h2>
+        </Link>
 
         {firstSection
           ?.repScheme.length >
@@ -183,12 +193,16 @@ export default function WorkoutCard({
           </p>
         )}
 
-        <div className="mt-auto pt-8">
-          <span className="text-sm font-semibold text-muted transition-colors group-hover:text-accent">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-8">
+          <Link
+            href={`/workouts/${workout.id}`}
+            className="text-sm font-semibold text-muted transition-colors group-hover:text-accent"
+          >
             {t('viewWorkout')} →
-          </span>
+          </Link>
+
+          {canManage && <WorkoutLifecycleActions workout={workout} />}
         </div>
       </Card>
-    </Link>
   );
 }
