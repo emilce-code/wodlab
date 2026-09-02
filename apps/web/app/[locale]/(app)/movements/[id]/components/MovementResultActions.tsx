@@ -121,6 +121,7 @@ export default function MovementResultActions({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
+            isLoading={isDeleting}
             variant="danger"
             className="min-h-10 px-4 py-2"
           >

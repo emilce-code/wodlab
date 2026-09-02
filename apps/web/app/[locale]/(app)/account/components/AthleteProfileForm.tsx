@@ -1,20 +1,15 @@
-'use client';
+"use client";
 
-import {
-  FormEvent,
-  useState,
-} from 'react';
+import { FormEvent, useState } from "react";
 
-import {
-  useTranslations,
-} from 'next-intl';
+import { useTranslations } from "next-intl";
 
-import {
-  useRouter,
-} from '@/i18n/navigation';
+import { useRouter } from "@/i18n/navigation";
 
-import Card from '@/components/ui/Card';
-import type { WeightUnit } from '@/lib/result-types';
+import Alert from "@/components/ui/Alert";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import type { WeightUnit } from "@/lib/result-types";
 
 type WorkoutLevel = {
   id: string;
@@ -34,23 +29,18 @@ type PrescriptionCategory = {
 
 type Profile = {
   displayName: string;
-  preferredWeightUnit:
-    WeightUnit;
+  preferredWeightUnit: WeightUnit;
 
-  preferredWorkoutLevelKey:
-    string;
+  preferredWorkoutLevelKey: string;
 
-  preferredPrescriptionCategoryKey:
-    string;
+  preferredPrescriptionCategoryKey: string;
 };
 
 type Props = {
   email: string;
   profile: Profile;
-  workoutLevels:
-    WorkoutLevel[];
-  prescriptionCategories:
-    PrescriptionCategory[];
+  workoutLevels: WorkoutLevel[];
+  prescriptionCategories: PrescriptionCategory[];
 };
 
 export default function AthleteProfileForm({
@@ -59,73 +49,39 @@ export default function AthleteProfileForm({
   workoutLevels,
   prescriptionCategories,
 }: Props) {
-  const t =
-    useTranslations(
-      'account.profile',
-    );
+  const t = useTranslations("account.profile");
 
-  const router =
-    useRouter();
+  const router = useRouter();
 
-  const [
-    displayName,
-    setDisplayName,
-  ] = useState(
-    profile.displayName,
-  );
+  const [displayName, setDisplayName] = useState(profile.displayName);
 
-  const [
-    preferredWeightUnit,
-    setPreferredWeightUnit,
-  ] = useState<WeightUnit>(
+  const [preferredWeightUnit, setPreferredWeightUnit] = useState<WeightUnit>(
     profile.preferredWeightUnit,
   );
 
-  const [
-    preferredWorkoutLevelKey,
-    setPreferredWorkoutLevelKey,
-  ] = useState(
+  const [preferredWorkoutLevelKey, setPreferredWorkoutLevelKey] = useState(
     profile.preferredWorkoutLevelKey,
   );
 
   const [
     preferredPrescriptionCategoryKey,
     setPreferredPrescriptionCategoryKey,
-  ] = useState(
-    profile.preferredPrescriptionCategoryKey,
-  );
+  ] = useState(profile.preferredPrescriptionCategoryKey);
 
-  const [
-    isSubmitting,
-    setIsSubmitting,
-  ] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [
-    error,
-    setError,
-  ] = useState<
-    string | null
-  >(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [
-    success,
-    setSuccess,
-  ] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError(null);
     setSuccess(false);
 
     if (!displayName.trim()) {
-      setError(
-        t(
-          'validation.displayNameRequired',
-        ),
-      );
+      setError(t("validation.displayNameRequired"));
 
       return;
     }
@@ -133,54 +89,33 @@ export default function AthleteProfileForm({
     setIsSubmitting(true);
 
     try {
-      const response =
-        await fetch(
-          '/api/athlete-profile',
-          {
-            method: 'PATCH',
+      const response = await fetch("/api/athlete-profile", {
+        method: "PATCH",
 
-            headers: {
-              'Content-Type':
-                'application/json',
-            },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            body:
-              JSON.stringify({
-                displayName:
-                  displayName.trim(),
+        body: JSON.stringify({
+          displayName: displayName.trim(),
 
-                preferredWeightUnit,
+          preferredWeightUnit,
 
-                preferredWorkoutLevelKey:
-                  preferredWorkoutLevelKey ||
-                  null,
+          preferredWorkoutLevelKey: preferredWorkoutLevelKey || null,
 
-                preferredPrescriptionCategoryKey:
-                  preferredPrescriptionCategoryKey ||
-                  null,
-              }),
-          },
-        );
+          preferredPrescriptionCategoryKey:
+            preferredPrescriptionCategoryKey || null,
+        }),
+      });
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        const message =
-          Array.isArray(
-            data.message,
-          )
-            ? data.message.join(
-                ', ',
-              )
-            : data.message;
+        const message = Array.isArray(data.message)
+          ? data.message.join(", ")
+          : data.message;
 
-        setError(
-          message ??
-            t(
-              'validation.saveError',
-            ),
-        );
+        setError(message ?? t("validation.saveError"));
 
         return;
       }
@@ -189,53 +124,32 @@ export default function AthleteProfileForm({
 
       router.refresh();
     } catch {
-      setError(
-        t(
-          'validation.connectionError',
-        ),
-      );
+      setError(t("validation.connectionError"));
     } finally {
-      setIsSubmitting(
-        false,
-      );
+      setIsSubmitting(false);
     }
   }
 
   return (
     <Card className="p-6">
-      <form
-        onSubmit={
-          handleSubmit
-        }
-      >
+      <form onSubmit={handleSubmit}>
         <div className="grid gap-5">
           <div>
             <label
               htmlFor="displayName"
               className="mb-1.5 block text-sm font-medium"
             >
-              {t(
-                'displayName',
-              )}
+              {t("displayName")}
             </label>
 
             <input
               id="displayName"
               type="text"
-              value={
-                displayName
-              }
-              onChange={(
-                event,
-              ) => {
-                setDisplayName(
-                  event.target
-                    .value,
-                );
+              value={displayName}
+              onChange={(event) => {
+                setDisplayName(event.target.value);
 
-                setSuccess(
-                  false,
-                );
+                setSuccess(false);
               }}
               autoComplete="name"
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
@@ -243,11 +157,8 @@ export default function AthleteProfileForm({
           </div>
 
           <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t('email')}
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
+              {t("email")}
             </label>
 
             <input
@@ -258,24 +169,14 @@ export default function AthleteProfileForm({
               className="w-full cursor-not-allowed rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-muted opacity-80"
             />
 
-            <p className="mt-1.5 text-xs text-muted">
-              {t(
-                'emailDescription',
-              )}
-            </p>
+            <p className="mt-1.5 text-xs text-muted">{t("emailDescription")}</p>
           </div>
 
           <div className="border-t border-border pt-5">
-            <p className="text-sm font-bold">
-              {t(
-                'trainingPreferences',
-              )}
-            </p>
+            <p className="text-sm font-bold">{t("trainingPreferences")}</p>
 
             <p className="mt-1 text-sm text-muted">
-              {t(
-                'trainingPreferencesDescription',
-              )}
+              {t("trainingPreferencesDescription")}
             </p>
           </div>
 
@@ -285,42 +186,22 @@ export default function AthleteProfileForm({
                 htmlFor="preferredWeightUnit"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t(
-                  'weightUnit',
-                )}
+                {t("weightUnit")}
               </label>
 
               <select
                 id="preferredWeightUnit"
-                value={
-                  preferredWeightUnit
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setPreferredWeightUnit(
-                    event
-                      .target
-                      .value as WeightUnit,
-                  );
+                value={preferredWeightUnit}
+                onChange={(event) => {
+                  setPreferredWeightUnit(event.target.value as WeightUnit);
 
-                  setSuccess(
-                    false,
-                  );
+                  setSuccess(false);
                 }}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               >
-                <option value="KG">
-                  {t(
-                    'kilograms',
-                  )}
-                </option>
+                <option value="KG">{t("kilograms")}</option>
 
-                <option value="LB">
-                  {t(
-                    'pounds',
-                  )}
-                </option>
+                <option value="LB">{t("pounds")}</option>
               </select>
             </div>
 
@@ -329,52 +210,26 @@ export default function AthleteProfileForm({
                 htmlFor="preferredWorkoutLevel"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t(
-                  'workoutLevel',
-                )}
+                {t("workoutLevel")}
               </label>
 
               <select
                 id="preferredWorkoutLevel"
-                value={
-                  preferredWorkoutLevelKey
-                }
-                onChange={(
-                  event,
-                ) => {
-                  setPreferredWorkoutLevelKey(
-                    event.target
-                      .value,
-                  );
+                value={preferredWorkoutLevelKey}
+                onChange={(event) => {
+                  setPreferredWorkoutLevelKey(event.target.value);
 
-                  setSuccess(
-                    false,
-                  );
+                  setSuccess(false);
                 }}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               >
-                <option value="">
-                  {t(
-                    'noWorkoutLevelPreference',
-                  )}
-                </option>
+                <option value="">{t("noWorkoutLevelPreference")}</option>
 
-                {workoutLevels.map(
-                  (level) => (
-                    <option
-                      key={
-                        level.key
-                      }
-                      value={
-                        level.key
-                      }
-                    >
-                      {
-                        level.name
-                      }
-                    </option>
-                  ),
-                )}
+                {workoutLevels.map((level) => (
+                  <option key={level.key} value={level.key}>
+                    {level.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -384,99 +239,41 @@ export default function AthleteProfileForm({
               htmlFor="preferredPrescriptionCategory"
               className="mb-1.5 block text-sm font-medium"
             >
-              {t(
-                'prescriptionCategory',
-              )}
+              {t("prescriptionCategory")}
             </label>
 
             <select
               id="preferredPrescriptionCategory"
-              value={
-                preferredPrescriptionCategoryKey
-              }
-              onChange={(
-                event,
-              ) => {
-                setPreferredPrescriptionCategoryKey(
-                  event.target
-                    .value,
-                );
+              value={preferredPrescriptionCategoryKey}
+              onChange={(event) => {
+                setPreferredPrescriptionCategoryKey(event.target.value);
 
-                setSuccess(
-                  false,
-                );
+                setSuccess(false);
               }}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              <option value="">
-                {t(
-                  'noPrescriptionPreference',
-                )}
-              </option>
+              <option value="">{t("noPrescriptionPreference")}</option>
 
-              {prescriptionCategories.map(
-                (
-                  category,
-                ) => (
-                  <option
-                    key={
-                      category.key
-                    }
-                    value={
-                      category.key
-                    }
-                  >
-                    {
-                      category.name
-                    }
-                  </option>
-                ),
-              )}
+              {prescriptionCategories.map((category) => (
+                <option key={category.key} value={category.key}>
+                  {category.name}
+                </option>
+              ))}
             </select>
 
             <p className="mt-1.5 text-xs text-muted">
-              {t(
-                'prescriptionDescription',
-              )}
+              {t("prescriptionDescription")}
             </p>
           </div>
 
-          {error && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-500"
-            >
-              {error}
-            </div>
-          )}
+          {error && <Alert variant="error">{error}</Alert>}
 
-          {success && (
-            <div
-              role="status"
-              className="rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-accent"
-            >
-              {t(
-                'saved',
-              )}
-            </div>
-          )}
+          {success && <Alert variant="success">{t("saved")}</Alert>}
 
           <div className="flex justify-end border-t border-border pt-5">
-            <button
-              type="submit"
-              disabled={
-                isSubmitting
-              }
-              className="inline-flex min-w-32 items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-bold text-accent-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSubmitting
-                ? t(
-                    'saving',
-                  )
-                : t(
-                    'save',
-                  )}
-            </button>
+            <Button type="submit" isLoading={isSubmitting} className="min-w-32">
+              {isSubmitting ? t("saving") : t("save")}
+            </Button>
           </div>
         </div>
       </form>

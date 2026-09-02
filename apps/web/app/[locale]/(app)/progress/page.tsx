@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 
 import Badge from "@/components/ui/Badge";
+import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import Alert from "@/components/ui/Alert";
 import { Link } from "@/i18n/navigation";
@@ -361,19 +362,13 @@ export default async function ProgressPage() {
           </p>
 
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/workouts"
-              className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
-            >
+            <ButtonLink href="/workouts" className="px-5">
               {t("empty.browseWorkouts")}
-            </Link>
+            </ButtonLink>
 
-            <Link
-              href="/movements"
-              className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-semibold transition hover:border-accent/40"
-            >
+            <ButtonLink href="/movements" variant="secondary" className="px-5">
               {t("empty.browseMovements")}
-            </Link>
+            </ButtonLink>
           </div>
         </div>
       ) : (

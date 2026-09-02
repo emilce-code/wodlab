@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/i18n/navigation";
+import Button from "@/components/ui/Button";
 
 import type { PrescriptionCategory, WorkoutLevel, WorkoutType } from "../page";
 
@@ -744,20 +745,21 @@ export default function WorkoutForm({
             </div>
 
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={discardDraft}
-                className="inline-flex flex-1 items-center justify-center rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold transition hover:bg-surface-elevated sm:flex-none"
+                variant="secondary"
+                className="flex-1 bg-background sm:flex-none"
               >
                 {t("draft.discard")}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={restoreDraft}
-                className="inline-flex flex-1 items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong sm:flex-none"
+                className="flex-1 sm:flex-none"
               >
                 {t("draft.restore")}
-              </button>
+              </Button>
             </div>
           </div>
         </section>
@@ -949,14 +951,14 @@ export default function WorkoutForm({
               </p>
             </div>
 
-            <button
+            <Button
               type="button"
               onClick={addVariant}
               disabled={!canAddVariant}
-              className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
+              variant="secondary"
             >
               + {t("variants.add")}
-            </button>
+            </Button>
           </div>
 
           <div
@@ -1198,37 +1200,39 @@ export default function WorkoutForm({
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             {currentStep !== "details" ? (
-              <button
+              <Button
                 type="button"
                 onClick={goToPreviousStep}
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-surface-elevated disabled:cursor-not-allowed disabled:opacity-50"
+                variant="secondary"
+                className="px-5"
               >
                 {t("steps.back")}
-              </button>
+              </Button>
             ) : null}
 
             {currentStep === "review" ? (
-              <button
+              <Button
                 key="create-workout"
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-50"
+                isLoading={isSubmitting}
+                className="px-5"
               >
                 {isSubmitting ? t("creating") : t("create")}
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 key="continue-workout-form"
                 type="button"
                 onClick={(event) => {
                   event.preventDefault();
                   goToNextStep();
                 }}
-                className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+                className="px-5"
               >
                 {t("steps.continue")}
-              </button>
+              </Button>
             )}
           </div>
         </div>

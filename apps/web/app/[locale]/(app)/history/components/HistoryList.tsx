@@ -1,20 +1,18 @@
-'use client';
+"use client";
 
-import { useCallback, useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useCallback, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
+import Badge from "@/components/ui/Badge";
+import ButtonLink from "@/components/ui/ButtonLink";
+import Card from "@/components/ui/Card";
+import { Link } from "@/i18n/navigation";
 import {
   formatMeasurementResult,
   formatTime,
   formatWorkoutResult as formatWorkoutResultValue,
-} from '@/lib/result-formatters';
-import type {
-  MeasurementResultValues,
-  WeightUnit,
-} from '@/lib/result-types';
+} from "@/lib/result-formatters";
+import type { MeasurementResultValues, WeightUnit } from "@/lib/result-types";
 
 type WorkoutHistoryMovement = {
   id: string;
@@ -45,7 +43,7 @@ type GroupedWorkoutMovement = {
 
 export type WorkoutTrainingHistoryItem = {
   id: string;
-  type: 'WORKOUT';
+  type: "WORKOUT";
   performedAt: string;
 
   workout: {
@@ -91,7 +89,7 @@ export type WorkoutTrainingHistoryItem = {
 
 export type MovementTrainingHistoryItem = {
   id: string;
-  type: 'MOVEMENT';
+  type: "MOVEMENT";
   performedAt: string;
 
   movement: {
@@ -117,14 +115,13 @@ export type MovementTrainingHistoryItem = {
 };
 
 export type TrainingHistoryItem =
-  | WorkoutTrainingHistoryItem
-  | MovementTrainingHistoryItem;
+  WorkoutTrainingHistoryItem | MovementTrainingHistoryItem;
 
 type Props = {
   results: TrainingHistoryItem[];
 };
 
-type EntryFilter = 'ALL' | 'WORKOUT' | 'MOVEMENT';
+type EntryFilter = "ALL" | "WORKOUT" | "MOVEMENT";
 
 type HistoryGroup = {
   key: string;
@@ -137,9 +134,9 @@ function getDateKey(value: string) {
 
   return [
     date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0'),
-  ].join('-');
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 }
 
 function startOfDay(date: Date) {
@@ -169,16 +166,16 @@ function groupWorkoutMovements(
 }
 
 export default function HistoryList({ results }: Props) {
-  const t = useTranslations('history');
-  const typeT = useTranslations('workoutTypes');
-  const resultTypeT = useTranslations('resultTypes');
+  const t = useTranslations("history");
+  const typeT = useTranslations("workoutTypes");
+  const resultTypeT = useTranslations("resultTypes");
   const locale = useLocale();
 
-  const [search, setSearch] = useState('');
-  const [entryFilter, setEntryFilter] = useState<EntryFilter>('ALL');
-  const [workoutType, setWorkoutType] = useState('ALL');
-  const [resultType, setResultType] = useState('ALL');
-  const [levelFilter, setLevelFilter] = useState('ALL');
+  const [search, setSearch] = useState("");
+  const [entryFilter, setEntryFilter] = useState<EntryFilter>("ALL");
+  const [workoutType, setWorkoutType] = useState("ALL");
+  const [resultType, setResultType] = useState("ALL");
+  const [levelFilter, setLevelFilter] = useState("ALL");
   const [expandedWorkoutIds, setExpandedWorkoutIds] = useState<Set<string>>(
     new Set(),
   );
@@ -187,9 +184,7 @@ export default function HistoryList({ results }: Props) {
     (key: string, fallback: string) => {
       const translationKey = key.toLowerCase();
 
-      return typeT.has(translationKey)
-        ? typeT(translationKey)
-        : fallback;
+      return typeT.has(translationKey) ? typeT(translationKey) : fallback;
     },
     [typeT],
   );
@@ -216,7 +211,7 @@ export default function HistoryList({ results }: Props) {
         weightUnit: result.result.weightUnit,
       },
       {
-        formatReps: (count) => t('repsValue', { count }),
+        formatReps: (count) => t("repsValue", { count }),
       },
     );
   }
@@ -225,13 +220,9 @@ export default function HistoryList({ results }: Props) {
     measurementTypeKey: string,
     result: MeasurementResultValues,
   ) {
-    return formatMeasurementResult(
-      measurementTypeKey,
-      result,
-      {
-        formatReps: (count) => t('repsValue', { count }),
-      },
-    );
+    return formatMeasurementResult(measurementTypeKey, result, {
+      formatReps: (count) => t("repsValue", { count }),
+    });
   }
 
   function formatGroupDate(date: Date) {
@@ -243,18 +234,18 @@ export default function HistoryList({ results }: Props) {
     );
 
     if (differenceInDays === 0) {
-      return t('dates.today');
+      return t("dates.today");
     }
 
     if (differenceInDays === 1) {
-      return t('dates.yesterday');
+      return t("dates.yesterday");
     }
 
     return new Intl.DateTimeFormat(locale, {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+      year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
     }).format(date);
   }
 
@@ -276,7 +267,7 @@ export default function HistoryList({ results }: Props) {
     () =>
       results.filter(
         (result): result is WorkoutTrainingHistoryItem =>
-          result.type === 'WORKOUT',
+          result.type === "WORKOUT",
       ),
     [results],
   );
@@ -319,11 +310,11 @@ export default function HistoryList({ results }: Props) {
     });
 
     return Array.from(levels.entries()).sort((a, b) => {
-      if (a[0] === 'RX') {
+      if (a[0] === "RX") {
         return -1;
       }
 
-      if (b[0] === 'RX') {
+      if (b[0] === "RX") {
         return 1;
       }
 
@@ -335,14 +326,12 @@ export default function HistoryList({ results }: Props) {
     const normalizedSearch = search.trim().toLowerCase();
 
     return results.filter((result) => {
-      if (entryFilter !== 'ALL' && result.type !== entryFilter) {
+      if (entryFilter !== "ALL" && result.type !== entryFilter) {
         return false;
       }
 
       const entryName =
-        result.type === 'WORKOUT'
-          ? result.workout.name
-          : result.movement.name;
+        result.type === "WORKOUT" ? result.workout.name : result.movement.name;
 
       if (
         normalizedSearch &&
@@ -351,42 +340,27 @@ export default function HistoryList({ results }: Props) {
         return false;
       }
 
-      if (result.type === 'MOVEMENT') {
+      if (result.type === "MOVEMENT") {
         return (
-          workoutType === 'ALL' &&
-          resultType === 'ALL' &&
-          levelFilter === 'ALL'
+          workoutType === "ALL" && resultType === "ALL" && levelFilter === "ALL"
         );
       }
 
-      if (
-        workoutType !== 'ALL' &&
-        result.workout.type.key !== workoutType
-      ) {
+      if (workoutType !== "ALL" && result.workout.type.key !== workoutType) {
         return false;
       }
 
-      if (
-        resultType !== 'ALL' &&
-        result.result.type.key !== resultType
-      ) {
+      if (resultType !== "ALL" && result.result.type.key !== resultType) {
         return false;
       }
 
-      if (levelFilter !== 'ALL' && result.level.key !== levelFilter) {
+      if (levelFilter !== "ALL" && result.level.key !== levelFilter) {
         return false;
       }
 
       return true;
     });
-  }, [
-    results,
-    search,
-    entryFilter,
-    workoutType,
-    resultType,
-    levelFilter,
-  ]);
+  }, [results, search, entryFilter, workoutType, resultType, levelFilter]);
 
   const groupedResults = useMemo(() => {
     const groups = new Map<string, HistoryGroup>();
@@ -420,18 +394,18 @@ export default function HistoryList({ results }: Props) {
   }, [filteredResults]);
 
   const hasActiveFilters =
-    search.trim() !== '' ||
-    entryFilter !== 'ALL' ||
-    workoutType !== 'ALL' ||
-    resultType !== 'ALL' ||
-    levelFilter !== 'ALL';
+    search.trim() !== "" ||
+    entryFilter !== "ALL" ||
+    workoutType !== "ALL" ||
+    resultType !== "ALL" ||
+    levelFilter !== "ALL";
 
   function clearFilters() {
-    setSearch('');
-    setEntryFilter('ALL');
-    setWorkoutType('ALL');
-    setResultType('ALL');
-    setLevelFilter('ALL');
+    setSearch("");
+    setEntryFilter("ALL");
+    setWorkoutType("ALL");
+    setResultType("ALL");
+    setLevelFilter("ALL");
   }
 
   if (results.length === 0) {
@@ -441,20 +415,15 @@ export default function HistoryList({ results }: Props) {
           +
         </div>
 
-        <p className="mt-4 font-semibold">
-          {t('empty.title')}
-        </p>
+        <p className="mt-4 font-semibold">{t("empty.title")}</p>
 
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-          {t('empty.description')}
+          {t("empty.description")}
         </p>
 
-        <Link
-          href="/workouts"
-          className="mt-5 inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
-        >
-          {t('empty.browseWorkouts')}
-        </Link>
+        <ButtonLink href="/workouts" className="mt-5 px-5">
+          {t("empty.browseWorkouts")}
+        </ButtonLink>
       </div>
     );
   }
@@ -468,7 +437,7 @@ export default function HistoryList({ results }: Props) {
               htmlFor="historySearch"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t('filters.search')}
+              {t("filters.search")}
             </label>
 
             <input
@@ -476,7 +445,7 @@ export default function HistoryList({ results }: Props) {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={t('filters.searchPlaceholder')}
+              placeholder={t("filters.searchPlaceholder")}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
           </div>
@@ -486,7 +455,7 @@ export default function HistoryList({ results }: Props) {
               htmlFor="entryType"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t('activity.label')}
+              {t("activity.label")}
             </label>
 
             <select
@@ -497,9 +466,9 @@ export default function HistoryList({ results }: Props) {
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              <option value="ALL">{t('activity.all')}</option>
-              <option value="WORKOUT">{t('activity.workouts')}</option>
-              <option value="MOVEMENT">{t('activity.movements')}</option>
+              <option value="ALL">{t("activity.all")}</option>
+              <option value="WORKOUT">{t("activity.workouts")}</option>
+              <option value="MOVEMENT">{t("activity.movements")}</option>
             </select>
           </div>
 
@@ -508,7 +477,7 @@ export default function HistoryList({ results }: Props) {
               htmlFor="workoutType"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t('filters.workoutType')}
+              {t("filters.workoutType")}
             </label>
 
             <select
@@ -517,9 +486,7 @@ export default function HistoryList({ results }: Props) {
               onChange={(event) => setWorkoutType(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              <option value="ALL">
-                {t('filters.allWorkoutTypes')}
-              </option>
+              <option value="ALL">{t("filters.allWorkoutTypes")}</option>
 
               {workoutTypes.map(([key, name]) => (
                 <option key={key} value={key}>
@@ -534,7 +501,7 @@ export default function HistoryList({ results }: Props) {
               htmlFor="resultType"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t('filters.resultType')}
+              {t("filters.resultType")}
             </label>
 
             <select
@@ -543,9 +510,7 @@ export default function HistoryList({ results }: Props) {
               onChange={(event) => setResultType(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              <option value="ALL">
-                {t('filters.allResultTypes')}
-              </option>
+              <option value="ALL">{t("filters.allResultTypes")}</option>
 
               {resultTypes.map(([key, name]) => (
                 <option key={key} value={key}>
@@ -560,7 +525,7 @@ export default function HistoryList({ results }: Props) {
               htmlFor="levelFilter"
               className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted"
             >
-              {t('filters.workoutLevel')}
+              {t("filters.workoutLevel")}
             </label>
 
             <select
@@ -569,9 +534,7 @@ export default function HistoryList({ results }: Props) {
               onChange={(event) => setLevelFilter(event.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             >
-              <option value="ALL">
-                {t('filters.allWorkoutLevels')}
-              </option>
+              <option value="ALL">{t("filters.allWorkoutLevels")}</option>
 
               {workoutLevels.map(([key, name]) => (
                 <option key={key} value={key}>
@@ -584,7 +547,7 @@ export default function HistoryList({ results }: Props) {
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
           <p className="text-sm text-muted">
-            {t('filters.showing', {
+            {t("filters.showing", {
               filtered: filteredResults.length,
               total: results.length,
             })}
@@ -596,7 +559,7 @@ export default function HistoryList({ results }: Props) {
               onClick={clearFilters}
               className="text-sm font-semibold text-accent transition hover:text-accent-strong"
             >
-              {t('filters.clear')}
+              {t("filters.clear")}
             </button>
           )}
         </div>
@@ -604,12 +567,10 @@ export default function HistoryList({ results }: Props) {
 
       {filteredResults.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-border px-6 py-12 text-center">
-          <p className="font-semibold">
-            {t('noMatches.title')}
-          </p>
+          <p className="font-semibold">{t("noMatches.title")}</p>
 
           <p className="mt-2 text-sm text-muted">
-            {t('noMatches.description')}
+            {t("noMatches.description")}
           </p>
 
           <button
@@ -617,7 +578,7 @@ export default function HistoryList({ results }: Props) {
             onClick={clearFilters}
             className="mt-5 inline-flex items-center justify-center rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-semibold transition hover:border-accent/40"
           >
-            {t('filters.clear')}
+            {t("filters.clear")}
           </button>
         </div>
       ) : (
@@ -640,12 +601,9 @@ export default function HistoryList({ results }: Props) {
                 <div className="absolute bottom-4 left-[5px] top-4 hidden w-px bg-border sm:block" />
 
                 {group.items.map((result) => {
-                  if (result.type === 'MOVEMENT') {
+                  if (result.type === "MOVEMENT") {
                     return (
-                      <div
-                        key={`movement-${result.id}`}
-                        className="relative"
-                      >
+                      <div key={`movement-${result.id}`} className="relative">
                         <div className="absolute left-[-21px] top-7 z-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block" />
 
                         <Card className="overflow-hidden">
@@ -653,12 +611,10 @@ export default function HistoryList({ results }: Props) {
                             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <Badge>
-                                    {result.measurementType.name}
-                                  </Badge>
+                                  <Badge>{result.measurementType.name}</Badge>
 
                                   <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                                    {t('labels.movement')}
+                                    {t("labels.movement")}
                                   </span>
                                 </div>
 
@@ -676,7 +632,7 @@ export default function HistoryList({ results }: Props) {
 
                               <div className="sm:text-right">
                                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                                  {t('labels.standaloneResult')}
+                                  {t("labels.standaloneResult")}
                                 </p>
 
                                 <p className="mt-1 text-2xl font-black tracking-tight">
@@ -715,10 +671,7 @@ export default function HistoryList({ results }: Props) {
                   );
 
                   return (
-                    <div
-                      key={`workout-${result.id}`}
-                      className="relative"
-                    >
+                    <div key={`workout-${result.id}`} className="relative">
                       <div className="absolute left-[-21px] top-7 z-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block" />
 
                       <Card className="overflow-hidden">
@@ -726,9 +679,7 @@ export default function HistoryList({ results }: Props) {
                           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                <Badge>
-                                  {result.level.name}
-                                </Badge>
+                                <Badge>{result.level.name}</Badge>
 
                                 {result.prescriptionCategory && (
                                   <Badge>
@@ -737,13 +688,11 @@ export default function HistoryList({ results }: Props) {
                                 )}
 
                                 {result.workout.isBenchmark && (
-                                  <Badge>
-                                    {t('labels.benchmark')}
-                                  </Badge>
+                                  <Badge>{t("labels.benchmark")}</Badge>
                                 )}
 
                                 <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                                  {t('labels.workout')}
+                                  {t("labels.workout")}
                                 </span>
                               </div>
 
@@ -788,7 +737,7 @@ export default function HistoryList({ results }: Props) {
                             <div className="mt-5 border-t border-border pt-5">
                               <div className="flex items-center justify-between gap-3">
                                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                                  {t('labels.movementResults')}
+                                  {t("labels.movementResults")}
                                 </p>
 
                                 <span className="text-xs text-muted">
@@ -819,15 +768,15 @@ export default function HistoryList({ results }: Props) {
                                             >
                                               <span className="text-xs text-muted">
                                                 {
-                                                  movementResult
-                                                    .measurementType.name
+                                                  movementResult.measurementType
+                                                    .name
                                                 }
                                               </span>
 
                                               <span className="font-bold">
                                                 {formatMeasurement(
-                                                  movementResult
-                                                    .measurementType.key,
+                                                  movementResult.measurementType
+                                                    .key,
                                                   movementResult,
                                                 )}
                                               </span>
@@ -864,15 +813,13 @@ export default function HistoryList({ results }: Props) {
                               {hiddenMovementCount > 0 && (
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    toggleWorkout(result.id)
-                                  }
+                                  onClick={() => toggleWorkout(result.id)}
                                   aria-expanded={isExpanded}
                                   className="mt-3 flex min-h-10 w-full items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-accent transition hover:border-accent/40 hover:bg-accent/5"
                                 >
                                   {isExpanded
-                                    ? t('labels.showLess')
-                                    : t('labels.showMore', {
+                                    ? t("labels.showLess")
+                                    : t("labels.showMore", {
                                         count: hiddenMovementCount,
                                       })}
                                 </button>

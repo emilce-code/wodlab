@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { Link } from "@/i18n/navigation";
+import ButtonLink from "@/components/ui/ButtonLink";
 import { authenticatedApiFetchJson } from "@/lib/api";
 
 import WorkoutLibrary from "./components/WorkoutLibrary";
@@ -30,12 +30,7 @@ export default async function WorkoutsPage() {
           <p className="mt-2 max-w-xl text-muted">{t("description")}</p>
         </div>
 
-        <Link
-          href="/workouts/new"
-          className="inline-flex items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
-        >
-          + {t("createWorkout")}
-        </Link>
+        <ButtonLink href="/workouts/new">+ {t("createWorkout")}</ButtonLink>
       </header>
 
       <WorkoutLibrary workouts={workouts} />
