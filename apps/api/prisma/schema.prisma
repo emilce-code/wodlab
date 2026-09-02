@@ -167,10 +167,14 @@ model Workout {
   createdByUserId String
   createdByUser   User             @relation(fields: [createdByUserId], references: [id])
   isBenchmark     Boolean          @default(false)
+  isActive        Boolean          @default(true)
+  deactivatedAt   DateTime?
   variants        WorkoutVariant[]
   results         WorkoutResult[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+
+  @@index([isActive, createdAt])
 }
 
 model WorkoutSection {

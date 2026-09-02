@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -124,6 +128,7 @@ function createWorkout(resultTypeKey = 'TIME') {
   return {
     id: WORKOUT_ID,
     name: 'Test Workout',
+    isActive: true,
 
     type: {
       id: 'workout-type-1',
@@ -343,6 +348,24 @@ describe('WorkoutResultsService', () => {
   });
 
   describe('createResult', () => {
+    it('rejects new results for an inactive workout', async () => {
+      prisma.athleteProfile.findUnique.mockResolvedValue({ id: ATHLETE_ID });
+      prisma.workout.findUnique.mockResolvedValue({
+        ...createWorkout('TIME'),
+        isActive: false,
+      });
+
+      await expect(
+        service.createResult(USER_ID, WORKOUT_ID, {
+          workoutVariantId: VARIANT_ID,
+          performedAt: PERFORMED_AT,
+          timeSeconds: 300,
+        }),
+      ).rejects.toThrow(
+        new ConflictException('Inactive workouts cannot accept new results'),
+      );
+    });
+
     it('creates a TIME workout result', async () => {
       setupCreateResult(prisma, {
         resultTypeKey: 'TIME',
@@ -890,6 +913,22 @@ describe('WorkoutResultsService', () => {
   });
 
   describe('updateResult', () => {
+    it('rejects edits to results from an inactive workout', async () => {
+      setupUpdateResult();
+      prisma.workout.findUnique.mockResolvedValue({
+        ...createWorkout('TIME'),
+        isActive: false,
+      });
+
+      await expect(
+        service.updateResult(USER_ID, WORKOUT_ID, RESULT_ID, {
+          timeSeconds: 300,
+        }),
+      ).rejects.toThrow(
+        new ConflictException('Inactive workout results are read-only'),
+      );
+    });
+
     function setupUpdateResult(
       options: {
         existingMovements?: PerformedMovementFixture[];
@@ -1204,6 +1243,10 @@ describe('WorkoutResultsService', () => {
         id: RESULT_ID,
       });
 
+      prisma.workout.findUnique.mockResolvedValue({
+        isActive: true,
+      });
+
       prisma.movementResult.deleteMany.mockResolvedValue({
         count: 1,
       });
@@ -1286,6 +1329,19 @@ describe('WorkoutResultsService', () => {
       ).rejects.toThrow(new NotFoundException('Athlete profile not found'));
 
       expect(prisma.workoutResult.findFirst).not.toHaveBeenCalled();
+    });
+
+    it('rejects deletion from an inactive workout', async () => {
+      setupDeleteResult();
+      prisma.workout.findUnique.mockResolvedValue({ isActive: false });
+
+      await expect(
+        service.deleteResult(USER_ID, WORKOUT_ID, RESULT_ID),
+      ).rejects.toThrow(
+        new ConflictException('Inactive workout results are read-only'),
+      );
+
+      expect(prisma.workoutResult.delete).not.toHaveBeenCalled();
     });
   });
 

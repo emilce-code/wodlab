@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -477,6 +478,12 @@ export class WorkoutResultsService {
       throw new NotFoundException('Workout not found');
     }
 
+    if (!workout.isActive) {
+      throw new ConflictException(
+        'Inactive workouts cannot accept new results',
+      );
+    }
+
     const workoutVariant = await this.prisma.workoutVariant.findFirst({
       where: {
         id: dto.workoutVariantId,
@@ -749,6 +756,10 @@ export class WorkoutResultsService {
 
     if (!workout) {
       throw new NotFoundException('Workout not found');
+    }
+
+    if (!workout.isActive) {
+      throw new ConflictException('Inactive workout results are read-only');
     }
 
     const workoutVariantId =
@@ -1061,6 +1072,23 @@ export class WorkoutResultsService {
 
     if (!existingResult) {
       throw new NotFoundException('Workout result not found');
+    }
+
+    const workout = await this.prisma.workout.findUnique({
+      where: {
+        id: workoutId,
+      },
+      select: {
+        isActive: true,
+      },
+    });
+
+    if (!workout) {
+      throw new NotFoundException('Workout not found');
+    }
+
+    if (!workout.isActive) {
+      throw new ConflictException('Inactive workout results are read-only');
     }
 
     return this.prisma.$transaction(async (tx) => {

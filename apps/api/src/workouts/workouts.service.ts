@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -99,6 +101,12 @@ const workoutInclude = {
       },
     },
   },
+
+  _count: {
+    select: {
+      results: true,
+    },
+  },
 } satisfies Prisma.WorkoutInclude;
 
 type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
@@ -160,6 +168,10 @@ export class WorkoutsService {
 
   async findAll(): Promise<WorkoutResponseDto[]> {
     const workouts = await this.prisma.workout.findMany({
+      where: {
+        isActive: true,
+      },
+
       include: workoutInclude,
 
       orderBy: {
@@ -170,7 +182,22 @@ export class WorkoutsService {
     return workouts.map((workout) => this.mapWorkout(workout));
   }
 
-  async findOne(id: string): Promise<WorkoutResponseDto> {
+  async findArchived(userId: string): Promise<WorkoutResponseDto[]> {
+    const workouts = await this.prisma.workout.findMany({
+      where: {
+        createdByUserId: userId,
+        isActive: false,
+      },
+      include: workoutInclude,
+      orderBy: {
+        deactivatedAt: 'desc',
+      },
+    });
+
+    return workouts.map((workout) => this.mapWorkout(workout));
+  }
+
+  async findOne(id: string, userId: string): Promise<WorkoutResponseDto> {
     const workout = await this.prisma.workout.findUnique({
       where: {
         id,
@@ -183,7 +210,94 @@ export class WorkoutsService {
       throw new NotFoundException('Workout not found');
     }
 
+    if (!workout.isActive && workout.createdByUserId !== userId) {
+      const historicalResult = await this.prisma.workoutResult.findFirst({
+        where: {
+          workoutId: id,
+          athleteProfile: {
+            userId,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!historicalResult) {
+        throw new NotFoundException('Workout not found');
+      }
+    }
+
     return this.mapWorkout(workout);
+  }
+
+  async delete(userId: string, id: string) {
+    const workout = await this.findOwnedWorkout(id, userId);
+
+    if (workout._count.results > 0) {
+      throw new ConflictException(
+        'Workouts with results cannot be deleted and must be deactivated',
+      );
+    }
+
+    await this.prisma.workout.delete({
+      where: {
+        id,
+      },
+    });
+
+    return {
+      id,
+      deleted: true,
+    };
+  }
+
+  async deactivate(userId: string, id: string): Promise<WorkoutResponseDto> {
+    const workout = await this.findOwnedWorkout(id, userId);
+
+    if (workout._count.results === 0) {
+      throw new ConflictException(
+        'Workouts without results must be deleted instead of deactivated',
+      );
+    }
+
+    if (!workout.isActive) {
+      return this.mapWorkout(workout);
+    }
+
+    const updatedWorkout = await this.prisma.workout.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: false,
+        deactivatedAt: new Date(),
+      },
+      include: workoutInclude,
+    });
+
+    return this.mapWorkout(updatedWorkout);
+  }
+
+  async reactivate(userId: string, id: string): Promise<WorkoutResponseDto> {
+    const workout = await this.findOwnedWorkout(id, userId);
+
+    if (workout.isActive) {
+      return this.mapWorkout(workout);
+    }
+
+    const updatedWorkout = await this.prisma.workout.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: true,
+        deactivatedAt: null,
+      },
+      include: workoutInclude,
+    });
+
+    return this.mapWorkout(updatedWorkout);
   }
 
   async create(userId: string, dto: CreateWorkoutDto) {
@@ -353,12 +467,34 @@ export class WorkoutsService {
     });
   }
 
+  private async findOwnedWorkout(id: string, userId: string) {
+    const workout = await this.prisma.workout.findUnique({
+      where: {
+        id,
+      },
+      include: workoutInclude,
+    });
+
+    if (!workout) {
+      throw new NotFoundException('Workout not found');
+    }
+
+    if (workout.createdByUserId !== userId) {
+      throw new ForbiddenException('Only the workout creator can manage it');
+    }
+
+    return workout;
+  }
+
   private mapWorkout(workout: WorkoutWithDetails): WorkoutResponseDto {
     return {
       id: workout.id,
       name: workout.name,
       description: workout.description,
       isBenchmark: workout.isBenchmark,
+      isActive: workout.isActive,
+      deactivatedAt: workout.deactivatedAt,
+      resultCount: workout._count.results,
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
 

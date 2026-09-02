@@ -61,6 +61,11 @@ export class WorkoutsController {
     return this.workoutsService.findPrescriptionCategories();
   }
 
+  @Get('archived')
+  findArchived(@Req() request: AuthenticatedRequest) {
+    return this.workoutsService.findArchived(request.user.userId);
+  }
+
   // Collection routes
   @Get()
   findAll() {
@@ -70,6 +75,21 @@ export class WorkoutsController {
   @Post()
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateWorkoutDto) {
     return this.workoutsService.create(request.user.userId, dto);
+  }
+
+  @Patch(':id/deactivate')
+  deactivate(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.workoutsService.deactivate(request.user.userId, id);
+  }
+
+  @Patch(':id/reactivate')
+  reactivate(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.workoutsService.reactivate(request.user.userId, id);
+  }
+
+  @Delete(':id')
+  delete(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.workoutsService.delete(request.user.userId, id);
   }
 
   // Workout result routes
@@ -132,7 +152,7 @@ export class WorkoutsController {
 
   // Dynamic route LAST
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.workoutsService.findOne(id);
+  findOne(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.workoutsService.findOne(id, request.user.userId);
   }
 }

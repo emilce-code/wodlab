@@ -80,6 +80,9 @@ export class WorkoutResponseDto {
   name: string;
   description: string | null;
   isBenchmark: boolean;
+  isActive: boolean;
+  deactivatedAt: Date | null;
+  resultCount: number;
   createdAt: Date;
   updatedAt: Date;
 
