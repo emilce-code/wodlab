@@ -27,6 +27,11 @@ export type AthletePerformanceInsightsResponse = {
   performance: AthleteInsightsResponse['performance'];
 };
 
+export type AthleteBalanceInsightsResponse = {
+  period: AthleteInsightsPeriodResponse;
+  balance: AthleteInsightsResponse['balance'];
+};
+
 export type AthleteInsightsComparison = {
   current: number;
   previous: number | null;
@@ -40,6 +45,15 @@ export type AthleteInsightsBreakdownItem = {
   count: number;
   percentage: number;
 };
+
+export type AthleteInsightsUnderrepresentedArea =
+  AthleteInsightsBreakdownItem & {
+    dimension:
+      | 'WORKOUT_TYPE'
+      | 'MOVEMENT_CATEGORY'
+      | 'WORKOUT_LEVEL'
+      | 'PRESCRIPTION_CATEGORY';
+  };
 
 export type AthleteInsightsTrendDirection =
   'IMPROVING' | 'STABLE' | 'DECLINING';
@@ -81,5 +95,6 @@ export type AthleteInsightsResponse = {
     movementCategories: AthleteInsightsBreakdownItem[];
     workoutLevels: AthleteInsightsBreakdownItem[];
     prescriptionCategories: AthleteInsightsBreakdownItem[];
+    underrepresentedAreas: AthleteInsightsUnderrepresentedArea[];
   };
 };

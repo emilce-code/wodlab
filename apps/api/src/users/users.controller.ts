@@ -20,6 +20,7 @@ import {
 
 import { UsersService } from './users.service';
 import { AthleteInsightsService } from './athlete-insights.service';
+import { AthleteBalanceInsightsService } from './athlete-balance-insights.service';
 import { AthletePerformanceInsightsService } from './athlete-performance-insights.service';
 import { FindAthleteInsightsQueryDto } from './dto/find-athlete-insights-query.dto';
 
@@ -37,8 +38,21 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly athleteInsightsService: AthleteInsightsService,
+    private readonly athleteBalanceInsightsService: AthleteBalanceInsightsService,
     private readonly athletePerformanceInsightsService: AthletePerformanceInsightsService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('users/me/insights/balance')
+  getBalanceInsights(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindAthleteInsightsQueryDto,
+  ) {
+    return this.athleteBalanceInsightsService.getBalance(
+      request.user.userId,
+      query,
+    );
+  }
 
   @UseGuards(Auth0AuthGuard)
   @Post('users/provision')
