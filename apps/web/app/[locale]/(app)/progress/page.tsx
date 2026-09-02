@@ -17,6 +17,7 @@ import {
 import MovementTrendChart, {
   type MovementTrendResult,
 } from "./components/MovementTrendChart";
+import AthleteInsightsDashboard from "./components/AthleteInsightsDashboard";
 import WorkoutTrendChart, {
   type TrendResult,
 } from "./components/WorkoutTrendChart";
@@ -335,6 +336,8 @@ export default async function ProgressPage() {
         title={t("title")}
         description={t("description")}
       />
+
+      <AthleteInsightsDashboard />
 
       {(workoutProgressFailed || movementProgressFailed) && (
         <Alert className="mt-8">

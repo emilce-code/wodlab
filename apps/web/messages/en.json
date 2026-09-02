@@ -455,6 +455,70 @@
     "eyebrow": "Progress",
     "title": "See how you're evolving",
     "description": "Track personal bests, repeated attempts, and performance trends across your workouts.",
+    "insights": {
+      "eyebrow": "Athlete insights",
+      "title": "Your training at a glance",
+      "description": "Understand your consistency, performance direction, and training balance for the selected period.",
+      "periodLabel": "Insights period",
+      "periods": {
+        "30D": "30 days",
+        "90D": "90 days",
+        "6M": "6 months",
+        "1Y": "1 year",
+        "ALL": "All time"
+      },
+      "comparison": {
+        "allTime": "All-time total",
+        "noChange": "No change from the previous period",
+        "more": "+{value} from the previous period",
+        "less": "-{value} from the previous period"
+      },
+      "metrics": {
+        "sessions": "Training sessions",
+        "activeDays": "Active days",
+        "weeklyAverage": "Weekly average",
+        "personalRecords": "Personal records"
+      },
+      "streaks": {
+        "current": "Current streak",
+        "longest": "Longest streak in this period",
+        "days": "{count, plural, =1 {1 day} other {# days}}"
+      },
+      "performance": {
+        "title": "Performance direction",
+        "description": "Tracks with at least two attempts in this period.",
+        "improving": "{count} improving",
+        "stable": "{count} stable",
+        "declining": "{count} declining",
+        "attempts": "{count, plural, =1 {1 attempt} other {# attempts}}",
+        "change": "{value}% improvement",
+        "scoreImproved": "Score improved",
+        "notEnoughData": "Log another attempt on the same workout or movement to unlock trend insights."
+      },
+      "directions": {
+        "IMPROVING": "Improving",
+        "STABLE": "Stable",
+        "DECLINING": "Declining"
+      },
+      "balance": {
+        "workoutTypes": "Workout types",
+        "movementCategories": "Movement categories",
+        "levels": "Workout levels",
+        "prescriptions": "Prescription categories",
+        "empty": "No activity in this category for the selected period.",
+        "opportunities": "Balance opportunities",
+        "opportunitiesDescription": "Areas representing less than 10% of your tracked training in this period."
+      },
+      "empty": {
+        "title": "No insights for this period yet",
+        "description": "Choose a longer period or log a workout or movement result to start building athlete insights."
+      },
+      "error": {
+        "title": "Insights are temporarily unavailable",
+        "description": "Your existing progress data is still available below.",
+        "retry": "Try again"
+      }
+    },
     "partial": {
       "workouts": "Workout progress is temporarily unavailable. Your movement progress is still shown below.",
       "movements": "Movement progress is temporarily unavailable. Your workout progress is still shown below."

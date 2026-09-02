@@ -455,6 +455,70 @@
     "eyebrow": "Progreso",
     "title": "Mira cómo estás evolucionando",
     "description": "Sigue tus mejores marcas, intentos repetidos y tendencias de rendimiento en tus entrenamientos.",
+    "insights": {
+      "eyebrow": "Análisis del atleta",
+      "title": "Tu entrenamiento de un vistazo",
+      "description": "Comprende tu constancia, la dirección de tu rendimiento y el equilibrio de tu entrenamiento en el período seleccionado.",
+      "periodLabel": "Período de análisis",
+      "periods": {
+        "30D": "30 días",
+        "90D": "90 días",
+        "6M": "6 meses",
+        "1Y": "1 año",
+        "ALL": "Todo"
+      },
+      "comparison": {
+        "allTime": "Total histórico",
+        "noChange": "Sin cambios frente al período anterior",
+        "more": "+{value} frente al período anterior",
+        "less": "-{value} frente al período anterior"
+      },
+      "metrics": {
+        "sessions": "Sesiones de entrenamiento",
+        "activeDays": "Días activos",
+        "weeklyAverage": "Promedio semanal",
+        "personalRecords": "Récords personales"
+      },
+      "streaks": {
+        "current": "Racha actual",
+        "longest": "Racha más larga del período",
+        "days": "{count, plural, =1 {1 día} other {# días}}"
+      },
+      "performance": {
+        "title": "Dirección del rendimiento",
+        "description": "Tendencias con al menos dos intentos en este período.",
+        "improving": "{count} mejorando",
+        "stable": "{count} estables",
+        "declining": "{count} bajando",
+        "attempts": "{count, plural, =1 {1 intento} other {# intentos}}",
+        "change": "{value}% de mejora",
+        "scoreImproved": "Puntuación mejorada",
+        "notEnoughData": "Registra otro intento del mismo entrenamiento o movimiento para desbloquear tendencias."
+      },
+      "directions": {
+        "IMPROVING": "Mejorando",
+        "STABLE": "Estable",
+        "DECLINING": "Bajando"
+      },
+      "balance": {
+        "workoutTypes": "Tipos de entrenamiento",
+        "movementCategories": "Categorías de movimientos",
+        "levels": "Niveles de entrenamiento",
+        "prescriptions": "Categorías de prescripción",
+        "empty": "No hay actividad en esta categoría durante el período seleccionado.",
+        "opportunities": "Oportunidades de equilibrio",
+        "opportunitiesDescription": "Áreas que representan menos del 10% de tu entrenamiento registrado en este período."
+      },
+      "empty": {
+        "title": "Aún no hay análisis para este período",
+        "description": "Elige un período más largo o registra un resultado para comenzar a generar análisis."
+      },
+      "error": {
+        "title": "Los análisis no están disponibles temporalmente",
+        "description": "Tus datos de progreso actuales siguen disponibles abajo.",
+        "retry": "Intentar de nuevo"
+      }
+    },
     "partial": {
       "workouts": "El progreso de entrenamientos no está disponible temporalmente. Tu progreso de movimientos todavía se muestra abajo.",
       "movements": "El progreso de movimientos no está disponible temporalmente. Tu progreso de entrenamientos todavía se muestra abajo."
