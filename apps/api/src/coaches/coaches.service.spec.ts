@@ -12,6 +12,7 @@ function delegate() {
     findFirst: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
+    delete: jest.fn(),
     update: jest.fn(),
     upsert: jest.fn(),
   };
@@ -134,5 +135,86 @@ describe('CoachesService', () => {
         feedback: 'Great work',
       }),
     ).rejects.toThrow(new NotFoundException('Completed assignment not found'));
+  });
+
+  it('returns one week of training with coach management permissions', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.coachAthleteRelationship.findFirst.mockResolvedValue({
+      id: 'relationship-1',
+      status: 'ACTIVE',
+    });
+    prisma.scheduledWorkout.findMany.mockResolvedValue([
+      {
+        id: 'assignment-1',
+        status: 'PLANNED',
+        workoutResultId: null,
+        assignedByCoachProfileId: 'coach-1',
+      },
+      {
+        id: 'assignment-2',
+        status: 'COMPLETED',
+        workoutResultId: 'result-1',
+        assignedByCoachProfileId: 'coach-1',
+      },
+    ]);
+
+    const result = await service.getWeeklyPlan(
+      'user-1',
+      'athlete-1',
+      '2026-09-07',
+    );
+
+    expect(result.assignments[0].canManage).toBe(true);
+    expect(result.assignments[1].canManage).toBe(false);
+    expect(result.assignments[1].createdByCurrentCoach).toBe(true);
+
+    const call = firstCall<{
+      where: {
+        athleteProfileId: string;
+        scheduledDate: { gte: Date; lt: Date };
+      };
+    }>(prisma.scheduledWorkout.findMany);
+    expect(call.where.athleteProfileId).toBe('athlete-1');
+    expect(call.where.scheduledDate.gte.toISOString()).toBe(
+      '2026-09-07T00:00:00.000Z',
+    );
+    expect(call.where.scheduledDate.lt.toISOString()).toBe(
+      '2026-09-14T00:00:00.000Z',
+    );
+  });
+
+  it('rejects an invalid weekly plan date', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.coachAthleteRelationship.findFirst.mockResolvedValue({
+      id: 'relationship-1',
+      status: 'ACTIVE',
+    });
+
+    await expect(
+      service.getWeeklyPlan('user-1', 'athlete-1', '2026-02-31'),
+    ).rejects.toThrow(new BadRequestException('Invalid week start date'));
+  });
+
+  it('removes a planned assignment owned by the active coach', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.scheduledWorkout.findFirst.mockResolvedValue({
+      id: 'assignment-1',
+    });
+    prisma.scheduledWorkout.delete.mockResolvedValue({ id: 'assignment-1' });
+
+    await service.removeAssignment('user-1', 'assignment-1');
+
+    expect(prisma.scheduledWorkout.delete).toHaveBeenCalledWith({
+      where: { id: 'assignment-1' },
+    });
+  });
+
+  it('preserves assignments not owned or no longer planned', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.scheduledWorkout.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.removeAssignment('user-1', 'assignment-1'),
+    ).rejects.toThrow(new NotFoundException('Planned assignment not found'));
   });
 });

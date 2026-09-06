@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CoachesService } from './coaches.service';
 import { AssignWorkoutDto } from './dto/assign-workout.dto';
 import { CreateCoachProfileDto } from './dto/create-coach-profile.dto';
+import { FindWeeklyPlanQueryDto } from './dto/find-weekly-plan-query.dto';
 import { InviteAthleteDto } from './dto/invite-athlete.dto';
 import { RespondInvitationDto } from './dto/respond-invitation.dto';
 import { ReviewAssignmentDto } from './dto/review-assignment.dto';
@@ -95,6 +97,27 @@ export class CoachesController {
       athleteProfileId,
       dto,
     );
+  }
+
+  @Get('athletes/:athleteProfileId/weekly-plan')
+  getWeeklyPlan(
+    @Req() request: AuthenticatedRequest,
+    @Param('athleteProfileId') athleteProfileId: string,
+    @Query() query: FindWeeklyPlanQueryDto,
+  ) {
+    return this.coachesService.getWeeklyPlan(
+      request.user.userId,
+      athleteProfileId,
+      query.weekStart,
+    );
+  }
+
+  @Delete('assignments/:id')
+  removeAssignment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.coachesService.removeAssignment(request.user.userId, id);
   }
 
   @Patch('assignments/:id/review')

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Alert from "@/components/ui/Alert";
@@ -8,7 +8,8 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { formatCalendarDate } from "@/lib/date-formatters";
-import type { TrainingCalendarWorkout } from "@/lib/scheduled-workouts";
+
+import CoachWeeklyPlanner from "./CoachWeeklyPlanner";
 
 type AthleteOverview = {
   id: string;
@@ -52,33 +53,15 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
   const t = useTranslations("coach");
   const locale = useLocale();
   const [athlete, setAthlete] = useState<AthleteOverview | null>(null);
-  const [workouts, setWorkouts] = useState<TrainingCalendarWorkout[]>([]);
-  const [prescriptionCategories, setPrescriptionCategories] = useState<
-    { key: string; name: string }[]
-  >([]);
-  const [workoutId, setWorkoutId] = useState("");
-  const [variantId, setVariantId] = useState("");
-  const [date, setDate] = useState("");
-  const [notes, setNotes] = useState("");
-  const [prescriptionCategoryKey, setPrescriptionCategoryKey] = useState("");
   const [feedback, setFeedback] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [athleteResponse, workoutsResponse] = await Promise.all([
-        fetch(`/api/coach/athletes/${athleteId}`),
-        fetch("/api/coach/assignment-options"),
-      ]);
-      if (!athleteResponse.ok || !workoutsResponse.ok) throw new Error();
+      const athleteResponse = await fetch(`/api/coach/athletes/${athleteId}`);
+      if (!athleteResponse.ok) throw new Error();
       setAthlete((await athleteResponse.json()) as AthleteOverview);
-      const options = (await workoutsResponse.json()) as {
-        workouts: TrainingCalendarWorkout[];
-        prescriptionCategories: { key: string; name: string }[];
-      };
-      setWorkouts(options.workouts);
-      setPrescriptionCategories(options.prescriptionCategories);
     } catch {
       setError(t("loadAthleteError"));
     }
@@ -86,24 +69,11 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
 
   useEffect(() => {
     let active = true;
-    Promise.all([
-      fetch(`/api/coach/athletes/${athleteId}`),
-      fetch("/api/coach/assignment-options"),
-    ])
-      .then(async ([athleteResponse, workoutsResponse]) => {
-        if (!athleteResponse.ok || !workoutsResponse.ok) throw new Error();
-        const [athleteData, workoutData] = await Promise.all([
-          athleteResponse.json() as Promise<AthleteOverview>,
-          workoutsResponse.json() as Promise<{
-            workouts: TrainingCalendarWorkout[];
-            prescriptionCategories: { key: string; name: string }[];
-          }>,
-        ]);
-        if (active) {
-          setAthlete(athleteData);
-          setWorkouts(workoutData.workouts);
-          setPrescriptionCategories(workoutData.prescriptionCategories);
-        }
+    fetch(`/api/coach/athletes/${athleteId}`)
+      .then(async (athleteResponse) => {
+        if (!athleteResponse.ok) throw new Error();
+        const athleteData = (await athleteResponse.json()) as AthleteOverview;
+        if (active) setAthlete(athleteData);
       })
       .catch(() => {
         if (active) setError(t("loadAthleteError"));
@@ -112,40 +82,6 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
       active = false;
     };
   }, [athleteId, t]);
-
-  const selectedWorkout = workouts.find((workout) => workout.id === workoutId);
-
-  function chooseWorkout(id: string) {
-    const workout = workouts.find((item) => item.id === id);
-    setWorkoutId(id);
-    setVariantId(workout?.variants[0]?.id ?? "");
-  }
-
-  async function assign(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitting(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/coach/athletes/${athleteId}/assignments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workoutId,
-          workoutVariantId: variantId,
-          scheduledDate: date,
-          ...(prescriptionCategoryKey ? { prescriptionCategoryKey } : {}),
-          ...(notes.trim() ? { coachNotes: notes.trim() } : {}),
-        }),
-      });
-      if (!response.ok) {
-        setError(response.status === 409 ? t("duplicateAssignment") : t("assignmentError"));
-        return;
-      }
-      setWorkoutId(""); setVariantId(""); setDate(""); setNotes(""); setPrescriptionCategoryKey("");
-      await load();
-    } catch { setError(t("connectionError")); }
-    finally { setSubmitting(false); }
-  }
 
   async function review(id: string) {
     const value = feedback[id]?.trim();
@@ -177,17 +113,7 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
         <p className="mt-1 text-sm text-muted">{athlete.user.email} · {athlete.preferredWeightUnit}</p>
       </Card>
 
-      <Card className="p-6">
-        <h2 className="text-xl font-bold">{t("assignTitle")}</h2>
-        <form onSubmit={assign} className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="text-sm font-medium">{t("workout")}<select required value={workoutId} onChange={(event) => chooseWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"><option value="">{t("selectWorkout")}</option>{workouts.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}</select></label>
-          <label className="text-sm font-medium">{t("variation")}<select required value={variantId} onChange={(event) => setVariantId(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"><option value="">{t("selectVariation")}</option>{selectedWorkout?.variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.level.name}{variant.name ? ` · ${variant.name}` : ""}</option>)}</select></label>
-          <label className="text-sm font-medium">{t("trainingDate")}<input type="date" required min={new Date().toISOString().slice(0, 10)} value={date} onChange={(event) => setDate(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base" /></label>
-          <label className="text-sm font-medium">{t("prescription")}<select value={prescriptionCategoryKey} onChange={(event) => setPrescriptionCategoryKey(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"><option value="">{t("noPrescription")}</option>{prescriptionCategories.map((category) => <option key={category.key} value={category.key}>{category.name}</option>)}</select></label>
-          <label className="text-sm font-medium">{t("coachNotes")}<input value={notes} maxLength={1000} onChange={(event) => setNotes(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3" /></label>
-          <Button type="submit" isLoading={submitting} className="sm:w-fit">{t("assign")}</Button>
-        </form>
-      </Card>
+      <CoachWeeklyPlanner athleteId={athleteId} onChanged={load} />
 
       <section>
         <h2 className="text-xl font-bold">{t("assignmentsTitle")}</h2>

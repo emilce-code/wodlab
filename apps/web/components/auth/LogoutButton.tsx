@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-import {
-  useRouter,
-} from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 
 type Props = {
   className?: string;
@@ -15,44 +12,38 @@ export default function LogoutButton({
   className = '',
   children = 'Log out',
 }: Props) {
-  const router =
-    useRouter();
+  const locale = useLocale();
 
   const [
     isLoggingOut,
     setIsLoggingOut,
   ] = useState(false);
 
-  async function handleLogout() {
+  function handleLogout() {
     if (isLoggingOut) {
       return;
     }
 
     setIsLoggingOut(true);
 
-    try {
-      const response =
-        await fetch(
-          '/api/auth/logout',
-          {
-            method: 'POST',
-          },
-        );
+    const returnTo = new URL(
+      `/${locale}/login`,
+      window.location.origin,
+    );
 
-      if (!response.ok) {
-        throw new Error(
-          'Unable to log out',
-        );
-      }
+    const logoutUrl = new URL(
+      '/auth/logout',
+      window.location.origin,
+    );
 
-      router.replace(
-        '/login',
-      );
+    logoutUrl.searchParams.set(
+      'returnTo',
+      returnTo.toString(),
+    );
 
-      router.refresh();
-    } catch {
-      setIsLoggingOut(false);
-    }
+    window.location.assign(
+      logoutUrl.toString(),
+    );
   }
 
   return (

@@ -142,7 +142,37 @@
     "markReviewed": "Save feedback",
     "reviewError": "We couldn't save the feedback.",
     "recentResults": "Recent results",
-    "connectionError": "We couldn't connect to the server."
+    "connectionError": "We couldn't connect to the server.",
+    "weeklyPlan": {
+      "title": "Weekly programming",
+      "description": "Plan the athlete's training one week at a time.",
+      "previous": "Previous week",
+      "next": "Next week",
+      "copyPrevious": "Copy previous week",
+      "restDay": "No training planned",
+      "planned": "Planned",
+      "completed": "Completed",
+      "remove": "Remove",
+      "removeConfirm": "Remove {workout} from this athlete's plan?",
+      "removeError": "We couldn't remove this assignment.",
+      "addTitle": "Add training for {date}",
+      "workout": "Workout",
+      "selectWorkout": "Select a workout",
+      "variation": "Variation",
+      "selectVariation": "Select a variation",
+      "prescription": "Prescription",
+      "noPrescription": "No prescription",
+      "notes": "Coach notes (optional)",
+      "add": "Add to week",
+      "saved": "Workout added to the weekly plan.",
+      "duplicateError": "This variation is already scheduled for that date.",
+      "saveError": "We couldn't add this workout.",
+      "loadError": "We couldn't load the weekly plan.",
+      "connectionError": "We couldn't connect to the server.",
+      "nothingToCopy": "The previous week has no coach assignments to copy.",
+      "copied": "Copied {count} assignments from the previous week.",
+      "copyError": "We couldn't copy the previous week."
+    }
   },
   "auth": {
     "shell": {

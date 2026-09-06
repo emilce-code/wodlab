@@ -142,7 +142,37 @@
     "markReviewed": "Salvar feedback",
     "reviewError": "Não foi possível salvar o feedback.",
     "recentResults": "Resultados recentes",
-    "connectionError": "Não foi possível conectar ao servidor."
+    "connectionError": "Não foi possível conectar ao servidor.",
+    "weeklyPlan": {
+      "title": "Programação semanal",
+      "description": "Planeje o treinamento do atleta uma semana de cada vez.",
+      "previous": "Semana anterior",
+      "next": "Próxima semana",
+      "copyPrevious": "Copiar semana anterior",
+      "restDay": "Nenhum treino planejado",
+      "planned": "Planejado",
+      "completed": "Concluído",
+      "remove": "Remover",
+      "removeConfirm": "Remover {workout} do plano deste atleta?",
+      "removeError": "Não foi possível remover esta atribuição.",
+      "addTitle": "Adicionar treino para {date}",
+      "workout": "Treino",
+      "selectWorkout": "Selecione um treino",
+      "variation": "Variação",
+      "selectVariation": "Selecione uma variação",
+      "prescription": "Prescrição",
+      "noPrescription": "Sem prescrição",
+      "notes": "Notas do coach (opcional)",
+      "add": "Adicionar à semana",
+      "saved": "Treino adicionado ao plano semanal.",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "saveError": "Não foi possível adicionar este treino.",
+      "loadError": "Não foi possível carregar o plano semanal.",
+      "connectionError": "Não foi possível conectar ao servidor.",
+      "nothingToCopy": "A semana anterior não tem atribuições do coach para copiar.",
+      "copied": "{count} atribuições foram copiadas da semana anterior.",
+      "copyError": "Não foi possível copiar a semana anterior."
+    }
   },
   "auth": {
     "shell": {

@@ -197,6 +197,13 @@ approval, assign workout variations, monitor completion, and attach feedback to
 completed assignments. Athletes control their coaching relationships and see
 coach instructions in their training plan.
 
+### Coach programming and weekly planning
+
+Coaches can open an athlete's weekly plan, move between training weeks, assign
+workout variations to individual days, add prescription categories and coaching
+notes, remove their own planned assignments, and copy their programming from the
+previous week. Completed training remains read-only historical data.
+
 ## Future features
 
 Possible future capabilities include:

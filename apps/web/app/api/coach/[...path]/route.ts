@@ -7,7 +7,8 @@ type Context = { params: Promise<{ path: string[] }> };
 async function proxy(request: NextRequest, context: Context, method: string) {
   const { path } = await context.params;
   const body = method === "GET" || method === "DELETE" ? undefined : await request.text();
-  const response = await authenticatedApiFetch(`/coach/${path.join("/")}`, {
+  const apiPath = `/coach/${path.join("/")}${request.nextUrl.search}`;
+  const response = await authenticatedApiFetch(apiPath, {
     method,
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body,

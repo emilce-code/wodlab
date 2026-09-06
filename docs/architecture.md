@@ -239,6 +239,12 @@ data access and assignment operations require an active relationship at the API
 service layer. Coach assignments extend scheduled workouts with the assigning
 coach, programming instructions, review feedback, and review timestamp.
 
+Weekly coach programming reuses `ScheduledWorkout` rather than introducing a
+second planning model. The weekly endpoint applies a bounded seven-day query and
+marks only planned, result-free assignments created by the current coach as
+manageable. Removal is independently authorized by the API. The web proxy
+forwards query strings so date-bounded coach requests reach the API unchanged.
+
 ## Authentication
 
 The architecture should support both web and future mobile clients.

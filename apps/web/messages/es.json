@@ -142,7 +142,37 @@
     "markReviewed": "Guardar comentario",
     "reviewError": "No pudimos guardar el comentario.",
     "recentResults": "Resultados recientes",
-    "connectionError": "No pudimos conectarnos con el servidor."
+    "connectionError": "No pudimos conectarnos con el servidor.",
+    "weeklyPlan": {
+      "title": "Programación semanal",
+      "description": "Planifica el entrenamiento del atleta semana por semana.",
+      "previous": "Semana anterior",
+      "next": "Semana siguiente",
+      "copyPrevious": "Copiar semana anterior",
+      "restDay": "Sin entrenamiento planificado",
+      "planned": "Planificado",
+      "completed": "Completado",
+      "remove": "Quitar",
+      "removeConfirm": "¿Quitar {workout} del plan de este atleta?",
+      "removeError": "No pudimos quitar esta asignación.",
+      "addTitle": "Agregar entrenamiento para {date}",
+      "workout": "Entrenamiento",
+      "selectWorkout": "Selecciona un entrenamiento",
+      "variation": "Variación",
+      "selectVariation": "Selecciona una variación",
+      "prescription": "Prescripción",
+      "noPrescription": "Sin prescripción",
+      "notes": "Notas del coach (opcional)",
+      "add": "Agregar a la semana",
+      "saved": "Entrenamiento agregado al plan semanal.",
+      "duplicateError": "Esta variación ya está programada para esa fecha.",
+      "saveError": "No pudimos agregar este entrenamiento.",
+      "loadError": "No pudimos cargar el plan semanal.",
+      "connectionError": "No pudimos conectarnos con el servidor.",
+      "nothingToCopy": "La semana anterior no tiene asignaciones del coach para copiar.",
+      "copied": "Se copiaron {count} asignaciones de la semana anterior.",
+      "copyError": "No pudimos copiar la semana anterior."
+    }
   },
   "auth": {
     "shell": {

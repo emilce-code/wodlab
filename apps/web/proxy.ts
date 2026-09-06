@@ -10,23 +10,35 @@ const intlMiddleware =
 export async function proxy(
   request: NextRequest,
 ) {
-  // Auth0 needs to handle its own /auth/* routes,
-  // including login, callback and logout.
+  const authResponse =
+    await auth0.middleware(
+      request,
+    );
+
   if (
     request.nextUrl.pathname.startsWith(
       '/auth/',
+    ) ||
+    request.nextUrl.pathname.startsWith(
+      '/api/',
     )
   ) {
-    return auth0.middleware(request);
+    return authResponse;
   }
 
-  // All other application routes continue
-  // through next-intl.
-  return intlMiddleware(request);
+  const intlResponse =
+    intlMiddleware(request);
+
+  for (const cookie of
+    authResponse.cookies.getAll()) {
+    intlResponse.cookies.set(cookie);
+  }
+
+  return intlResponse;
 }
 
 export const config = {
   matcher: [
-    '/((?!api|_next|_vercel|.*\\..*).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\..*).*)',
   ],
 };

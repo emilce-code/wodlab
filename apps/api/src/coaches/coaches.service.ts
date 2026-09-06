@@ -326,6 +326,90 @@ export class CoachesService {
     }
   }
 
+  async getWeeklyPlan(
+    userId: string,
+    athleteProfileId: string,
+    weekStartValue: string,
+  ) {
+    const coach = await this.requireActiveRelationship(
+      userId,
+      athleteProfileId,
+    );
+    const weekStart = this.parseDate(weekStartValue);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+
+    const assignments = await this.prisma.scheduledWorkout.findMany({
+      where: {
+        athleteProfileId,
+        scheduledDate: { gte: weekStart, lt: weekEnd },
+      },
+      orderBy: [{ scheduledDate: 'asc' }, { createdAt: 'asc' }],
+      include: {
+        workout: { select: { id: true, name: true } },
+        workoutVariant: {
+          select: {
+            id: true,
+            name: true,
+            level: { select: { key: true, name: true } },
+          },
+        },
+        prescriptionCategory: {
+          select: { key: true, name: true },
+        },
+        assignedByCoachProfile: {
+          select: { id: true, displayName: true },
+        },
+        workoutResult: { select: { id: true } },
+      },
+    });
+
+    return {
+      weekStart: weekStartValue,
+      assignments: assignments.map((assignment) => {
+        const createdByCurrentCoach =
+          assignment.assignedByCoachProfileId === coach.id;
+
+        return {
+          ...assignment,
+          createdByCurrentCoach,
+          canManage:
+            createdByCurrentCoach &&
+            assignment.status === 'PLANNED' &&
+            !assignment.workoutResultId,
+        };
+      }),
+    };
+  }
+
+  async removeAssignment(userId: string, scheduledWorkoutId: string) {
+    const coach = await this.getCoach(userId);
+    const assignment = await this.prisma.scheduledWorkout.findFirst({
+      where: {
+        id: scheduledWorkoutId,
+        assignedByCoachProfileId: coach.id,
+        status: 'PLANNED',
+        workoutResultId: null,
+        athleteProfile: {
+          coachRelationships: {
+            some: {
+              coachProfileId: coach.id,
+              status: CoachAthleteStatus.ACTIVE,
+            },
+          },
+        },
+      },
+    });
+
+    if (!assignment) {
+      throw new NotFoundException('Planned assignment not found');
+    }
+
+    return this.prisma.scheduledWorkout.delete({
+      where: { id: assignment.id },
+    });
+  }
+
   async reviewAssignment(
     userId: string,
     scheduledWorkoutId: string,
@@ -382,5 +466,18 @@ export class CoachesService {
     if (!relationship)
       throw new ForbiddenException('Active coach relationship required');
     return coach;
+  }
+
+  private parseDate(value: string) {
+    const date = new Date(`${value}T00:00:00.000Z`);
+
+    if (
+      Number.isNaN(date.getTime()) ||
+      date.toISOString().slice(0, 10) !== value
+    ) {
+      throw new BadRequestException('Invalid week start date');
+    }
+
+    return date;
   }
 }

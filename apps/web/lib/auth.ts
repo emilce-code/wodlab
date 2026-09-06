@@ -69,7 +69,7 @@ async function provisionCurrentUser() {
       : email.split('@')[0];
 
   return authenticatedApiFetch(
-    '/users/provision',
+    '/auth/provision',
     {
       method: 'POST',
 
