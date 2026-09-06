@@ -23,6 +23,11 @@ enum WeightUnit {
   LB
 }
 
+enum ScheduledWorkoutStatus {
+  PLANNED
+  COMPLETED
+}
+
 model User {
   id              String          @id @default(cuid())
   auth0UserId     String          @unique
@@ -44,6 +49,7 @@ model AthleteProfile {
   preferredPrescriptionCategory   PrescriptionCategory? @relation("AthletePreferredPrescriptionCategory", fields: [preferredPrescriptionCategoryId], references: [id])
   workoutResults                  WorkoutResult[]
   movementResults                 MovementResult[]
+  scheduledWorkouts               ScheduledWorkout[]
   user                            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                       DateTime              @default(now())
   updatedAt                       DateTime              @updatedAt
@@ -159,20 +165,21 @@ model ResultType {
 }
 
 model Workout {
-  id              String           @id @default(cuid())
-  name            String
-  description     String?
-  typeId          String
-  type            WorkoutType      @relation(fields: [typeId], references: [id])
-  createdByUserId String
-  createdByUser   User             @relation(fields: [createdByUserId], references: [id])
-  isBenchmark     Boolean          @default(false)
-  isActive        Boolean          @default(true)
-  deactivatedAt   DateTime?
-  variants        WorkoutVariant[]
-  results         WorkoutResult[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  typeId            String
+  type              WorkoutType        @relation(fields: [typeId], references: [id])
+  createdByUserId   String
+  createdByUser     User               @relation(fields: [createdByUserId], references: [id])
+  isBenchmark       Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  deactivatedAt     DateTime?
+  variants          WorkoutVariant[]
+  results           WorkoutResult[]
+  scheduledWorkouts ScheduledWorkout[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   @@index([isActive, createdAt])
 }
@@ -247,6 +254,7 @@ model WorkoutResult {
 
   performedMovements       WorkoutResultMovement[]
   generatedMovementResults MovementResult[]        @relation("WorkoutResultGeneratedMovementResults")
+  scheduledWorkout         ScheduledWorkout?       @relation("ScheduledWorkoutCompletion")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -297,8 +305,9 @@ model WorkoutVariant {
   name      String?
   notes     String?
 
-  sections WorkoutSection[]
-  results  WorkoutResult[]
+  sections          WorkoutSection[]
+  results           WorkoutResult[]
+  scheduledWorkouts ScheduledWorkout[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -314,6 +323,7 @@ model PrescriptionCategory {
   sortOrder           Int                           @default(0)
   prescriptions       WorkoutMovementPrescription[]
   results             WorkoutResult[]
+  scheduledWorkouts   ScheduledWorkout[]
   preferredByAthletes AthleteProfile[]              @relation("AthletePreferredPrescriptionCategory")
   createdAt           DateTime                      @default(now())
   updatedAt           DateTime                      @updatedAt
@@ -338,4 +348,34 @@ model WorkoutMovementPrescription {
   updatedAt DateTime @updatedAt
 
   @@unique([workoutMovementId, prescriptionCategoryId])
+}
+
+model ScheduledWorkout {
+  id String @id @default(cuid())
+
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+
+  workoutId String
+  workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  workoutVariantId String
+  workoutVariant   WorkoutVariant @relation(fields: [workoutVariantId], references: [id], onDelete: Cascade)
+
+  prescriptionCategoryId String?
+  prescriptionCategory   PrescriptionCategory? @relation(fields: [prescriptionCategoryId], references: [id], onDelete: SetNull)
+
+  workoutResultId String?        @unique
+  workoutResult   WorkoutResult? @relation("ScheduledWorkoutCompletion", fields: [workoutResultId], references: [id], onDelete: SetNull)
+
+  scheduledDate DateTime               @db.Date
+  status        ScheduledWorkoutStatus @default(PLANNED)
+  completedAt   DateTime?
+  notes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([athleteProfileId, status, scheduledDate])
+  @@index([workoutId, scheduledDate])
 }
