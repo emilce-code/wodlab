@@ -132,6 +132,8 @@
       "browseWorkouts": "Explorar treinos",
       "logMovement": "Registrar movimento",
       "logResult": "Começar e registrar resultado",
+      "completed": "Concluído",
+      "viewResult": "Ver resultado",
       "benchmark": "Benchmark"
     },
     "upcoming": {

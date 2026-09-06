@@ -16,6 +16,7 @@ type MockPrismaDelegate = {
   create: jest.Mock;
   createMany: jest.Mock;
   update: jest.Mock;
+  updateMany: jest.Mock;
   delete: jest.Mock;
   deleteMany: jest.Mock;
   count: jest.Mock;
@@ -35,6 +36,7 @@ type MockPrismaService = {
   workoutMovement: MockPrismaDelegate;
   workoutResult: MockPrismaDelegate;
   workoutResultMovement: MockPrismaDelegate;
+  scheduledWorkout: MockPrismaDelegate;
   workoutType: MockPrismaDelegate;
   workoutVariant: MockPrismaDelegate;
   $transaction: jest.Mock;
@@ -82,6 +84,7 @@ function createDelegateMock(): MockPrismaDelegate {
     create: jest.fn(),
     createMany: jest.fn(),
     update: jest.fn(),
+    updateMany: jest.fn(),
     delete: jest.fn(),
     deleteMany: jest.fn(),
     count: jest.fn(),
@@ -103,6 +106,7 @@ function createPrismaMock(): MockPrismaService {
     workoutMovement: createDelegateMock(),
     workoutResult: createDelegateMock(),
     workoutResultMovement: createDelegateMock(),
+    scheduledWorkout: createDelegateMock(),
     workoutType: createDelegateMock(),
     workoutVariant: createDelegateMock(),
     $transaction: jest.fn(),
@@ -121,6 +125,7 @@ const ATHLETE_ID = 'athlete-1';
 const WORKOUT_ID = 'workout-1';
 const VARIANT_ID = 'variant-1';
 const RESULT_ID = 'result-1';
+const SCHEDULED_WORKOUT_ID = 'scheduled-workout-1';
 
 const PERFORMED_AT = '2026-08-30T12:00:00.000Z';
 
@@ -286,6 +291,7 @@ function setupCreateResult(
   });
 
   prisma.workoutResult.findUniqueOrThrow.mockResolvedValue(returnedResult);
+  prisma.scheduledWorkout.updateMany.mockResolvedValue({ count: 1 });
 }
 
 describe('WorkoutResultsService', () => {
@@ -393,6 +399,104 @@ describe('WorkoutResultsService', () => {
           performedAt: new Date(PERFORMED_AT),
           timeSeconds: 315,
         }),
+      );
+    });
+
+    it('completes a linked planned workout in the result transaction', async () => {
+      setupCreateResult(prisma, {
+        resultTypeKey: 'TIME',
+        returnedResult: createMappedResult({
+          resultTypeKey: 'TIME',
+          timeSeconds: 315,
+        }),
+      });
+      prisma.scheduledWorkout.findFirst.mockResolvedValue({
+        id: SCHEDULED_WORKOUT_ID,
+        athleteProfileId: ATHLETE_ID,
+        workoutId: WORKOUT_ID,
+        workoutVariantId: VARIANT_ID,
+        workoutResultId: null,
+        status: 'PLANNED',
+      });
+
+      await service.createResult(USER_ID, WORKOUT_ID, {
+        workoutVariantId: VARIANT_ID,
+        scheduledWorkoutId: SCHEDULED_WORKOUT_ID,
+        performedAt: PERFORMED_AT,
+        timeSeconds: 315,
+      });
+
+      expect(prisma.scheduledWorkout.updateMany).toHaveBeenCalledWith({
+        where: {
+          id: SCHEDULED_WORKOUT_ID,
+          athleteProfileId: ATHLETE_ID,
+          status: 'PLANNED',
+          workoutResultId: null,
+        },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date(PERFORMED_AT),
+          workoutResultId: RESULT_ID,
+        },
+      });
+    });
+
+    it('rejects a scheduled workout owned by another athlete', async () => {
+      setupCreateResult(prisma);
+      prisma.scheduledWorkout.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.createResult(USER_ID, WORKOUT_ID, {
+          workoutVariantId: VARIANT_ID,
+          scheduledWorkoutId: SCHEDULED_WORKOUT_ID,
+          timeSeconds: 300,
+        }),
+      ).rejects.toThrow(new NotFoundException('Scheduled workout not found'));
+    });
+
+    it('rejects a scheduled workout for another variation', async () => {
+      setupCreateResult(prisma);
+      prisma.scheduledWorkout.findFirst.mockResolvedValue({
+        id: SCHEDULED_WORKOUT_ID,
+        athleteProfileId: ATHLETE_ID,
+        workoutId: WORKOUT_ID,
+        workoutVariantId: 'variant-2',
+        workoutResultId: null,
+        status: 'PLANNED',
+      });
+
+      await expect(
+        service.createResult(USER_ID, WORKOUT_ID, {
+          workoutVariantId: VARIANT_ID,
+          scheduledWorkoutId: SCHEDULED_WORKOUT_ID,
+          timeSeconds: 300,
+        }),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Scheduled workout does not match the selected workout variation',
+        ),
+      );
+    });
+
+    it('rejects a scheduled workout that is already completed', async () => {
+      setupCreateResult(prisma);
+      prisma.scheduledWorkout.findFirst.mockResolvedValue({
+        id: SCHEDULED_WORKOUT_ID,
+        athleteProfileId: ATHLETE_ID,
+        workoutId: WORKOUT_ID,
+        workoutVariantId: VARIANT_ID,
+        workoutResultId: RESULT_ID,
+        status: 'COMPLETED',
+      });
+
+      await expect(
+        service.createResult(USER_ID, WORKOUT_ID, {
+          workoutVariantId: VARIANT_ID,
+          scheduledWorkoutId: SCHEDULED_WORKOUT_ID,
+          timeSeconds: 300,
+        }),
+      ).rejects.toThrow(
+        new ConflictException('Scheduled workout is already completed'),
       );
     });
 
@@ -1264,6 +1368,18 @@ describe('WorkoutResultsService', () => {
       setupDeleteResult();
 
       const result = await service.deleteResult(USER_ID, WORKOUT_ID, RESULT_ID);
+
+      expect(prisma.scheduledWorkout.updateMany).toHaveBeenCalledWith({
+        where: {
+          workoutResultId: RESULT_ID,
+          athleteProfileId: ATHLETE_ID,
+        },
+        data: {
+          status: 'PLANNED',
+          completedAt: null,
+          workoutResultId: null,
+        },
+      });
 
       expect(prisma.movementResult.deleteMany).toHaveBeenCalledWith({
         where: {

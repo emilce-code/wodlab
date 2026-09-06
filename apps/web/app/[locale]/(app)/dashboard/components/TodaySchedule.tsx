@@ -34,7 +34,13 @@ function itemDate(item: ScheduledWorkout) {
 function workoutHref(item: ScheduledWorkout) {
   return `/workouts/${item.workout.id}?variation=${encodeURIComponent(
     item.workoutVariant.level.key,
-  )}#log-result` as const;
+  )}&scheduledWorkout=${encodeURIComponent(item.id)}#log-result` as const;
+}
+
+function completedWorkoutHref(item: ScheduledWorkout) {
+  return `/workouts/${item.workout.id}?variation=${encodeURIComponent(
+    item.workoutVariant.level.key,
+  )}#performance` as const;
 }
 
 function WorkoutSummary({ item }: { item: ScheduledWorkout }) {
@@ -268,7 +274,6 @@ export default function TodaySchedule() {
         const query = new URLSearchParams({
           from: today,
           to: dateValue(addDays(new Date(), 30)),
-          status: "PLANNED",
         });
         const response = await fetch(`/api/scheduled-workouts?${query}`, {
           signal: controller.signal,
@@ -292,7 +297,9 @@ export default function TodaySchedule() {
 
   const items = schedule?.items ?? [];
   const todayItems = items.filter((item) => itemDate(item) === today);
-  const upcomingItems = items.filter((item) => itemDate(item) > today);
+  const upcomingItems = items.filter(
+    (item) => itemDate(item) > today && item.status === "PLANNED",
+  );
 
   function updateItem(updated: ScheduledWorkout) {
     setSchedule((current) =>
@@ -366,13 +373,25 @@ export default function TodaySchedule() {
             {todayItems.map((item) => (
               <Card key={item.id} className="flex min-w-0 flex-col p-5 sm:p-6">
                 <div className="flex-1">
+                  {item.status === "COMPLETED" && (
+                    <Badge variant="accent" className="mb-4">
+                      {t("completed")}
+                    </Badge>
+                  )}
                   <WorkoutSummary item={item} />
                 </div>
                 <ButtonLink
-                  href={workoutHref(item)}
+                  href={
+                    item.status === "COMPLETED"
+                      ? completedWorkoutHref(item)
+                      : workoutHref(item)
+                  }
+                  variant={item.status === "COMPLETED" ? "secondary" : "primary"}
                   className="mt-5 w-full sm:w-auto"
                 >
-                  {t("logResult")}
+                  {item.status === "COMPLETED"
+                    ? t("viewResult")
+                    : t("logResult")}
                 </ButtonLink>
               </Card>
             ))}

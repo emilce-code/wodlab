@@ -81,6 +81,7 @@ type SubmittedMovement = {
 
 type Props = {
   workoutId: string;
+  scheduledWorkoutId?: string;
   resultType: ResultType;
   variants: WorkoutVariant[];
   prescriptionCategories: PrescriptionCategory[];
@@ -143,6 +144,7 @@ function buildMovementPerformanceState(
 
 export default function LogResultForm({
   workoutId,
+  scheduledWorkoutId,
   resultType,
   variants,
   prescriptionCategories,
@@ -627,6 +629,7 @@ export default function LogResultForm({
     try {
       const payload: {
         workoutVariantId: string;
+        scheduledWorkoutId?: string;
         prescriptionCategoryKey?: string;
         performedAt: string;
         timeSeconds?: number;
@@ -640,6 +643,10 @@ export default function LogResultForm({
         workoutVariantId,
         performedAt: getPerformedAtIso(),
       };
+
+      if (!isEditing && scheduledWorkoutId) {
+        payload.scheduledWorkoutId = scheduledWorkoutId;
+      }
 
       if (isEditing) {
         payload.prescriptionCategoryKey = prescriptionCategoryKey;

@@ -58,6 +58,10 @@ export class CreateWorkoutResultDto {
 
   @IsOptional()
   @IsString()
+  scheduledWorkoutId?: string;
+
+  @IsOptional()
+  @IsString()
   prescriptionCategoryKey?: string;
 
   @IsOptional()

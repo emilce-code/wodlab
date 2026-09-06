@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import type { Prisma } from '../../generated/prisma/client';
+import { ScheduledWorkoutStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
@@ -524,6 +525,33 @@ export class WorkoutResultsService {
       throw new NotFoundException('Workout variant not found for this workout');
     }
 
+    const scheduledWorkout = dto.scheduledWorkoutId
+      ? await this.prisma.scheduledWorkout.findFirst({
+          where: {
+            id: dto.scheduledWorkoutId,
+            athleteProfileId: athleteProfile.id,
+          },
+        })
+      : null;
+
+    if (dto.scheduledWorkoutId && !scheduledWorkout) {
+      throw new NotFoundException('Scheduled workout not found');
+    }
+
+    if (scheduledWorkout?.status === ScheduledWorkoutStatus.COMPLETED) {
+      throw new ConflictException('Scheduled workout is already completed');
+    }
+
+    if (
+      scheduledWorkout &&
+      (scheduledWorkout.workoutId !== workoutId ||
+        scheduledWorkout.workoutVariantId !== workoutVariant.id)
+    ) {
+      throw new BadRequestException(
+        'Scheduled workout does not match the selected workout variation',
+      );
+    }
+
     const prescriptionCategory = dto.prescriptionCategoryKey
       ? await this.prisma.prescriptionCategory.findUnique({
           where: {
@@ -659,6 +687,26 @@ export class WorkoutResultsService {
         await tx.movementResult.createMany({
           data: generatedMovementResults,
         });
+      }
+
+      if (scheduledWorkout) {
+        const completedSchedule = await tx.scheduledWorkout.updateMany({
+          where: {
+            id: scheduledWorkout.id,
+            athleteProfileId: athleteProfile.id,
+            status: ScheduledWorkoutStatus.PLANNED,
+            workoutResultId: null,
+          },
+          data: {
+            status: ScheduledWorkoutStatus.COMPLETED,
+            completedAt: performedAt,
+            workoutResultId: createdResult.id,
+          },
+        });
+
+        if (completedSchedule.count !== 1) {
+          throw new ConflictException('Scheduled workout is already completed');
+        }
       }
 
       return tx.workoutResult.findUniqueOrThrow({
@@ -1092,6 +1140,18 @@ export class WorkoutResultsService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      await tx.scheduledWorkout.updateMany({
+        where: {
+          workoutResultId: existingResult.id,
+          athleteProfileId: athleteProfile.id,
+        },
+        data: {
+          status: ScheduledWorkoutStatus.PLANNED,
+          completedAt: null,
+          workoutResultId: null,
+        },
+      });
+
       await tx.movementResult.deleteMany({
         where: {
           sourceWorkoutResultId: existingResult.id,

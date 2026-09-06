@@ -132,6 +132,8 @@
       "browseWorkouts": "Browse workouts",
       "logMovement": "Log a movement",
       "logResult": "Start and log result",
+      "completed": "Completed",
+      "viewResult": "View result",
       "benchmark": "Benchmark"
     },
     "upcoming": {

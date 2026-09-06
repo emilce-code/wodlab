@@ -123,6 +123,7 @@ type Props = {
   }>;
   searchParams: Promise<{
     variation?: string | string[];
+    scheduledWorkout?: string | string[];
   }>;
 };
 
@@ -198,6 +199,9 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
   const requestedLevelKey = Array.isArray(query.variation)
     ? query.variation[0]
     : query.variation;
+  const scheduledWorkoutId = Array.isArray(query.scheduledWorkout)
+    ? query.scheduledWorkout[0]
+    : query.scheduledWorkout;
 
   const [
     workout,
@@ -628,6 +632,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         <section id="log-result" className="mt-12 scroll-mt-6">
           <LogResultForm
             workoutId={workout.id}
+            scheduledWorkoutId={scheduledWorkoutId}
             resultType={workout.type.defaultResultType}
             variants={formVariants.filter(
               (variant) => variant.id === selectedVariant.id,
