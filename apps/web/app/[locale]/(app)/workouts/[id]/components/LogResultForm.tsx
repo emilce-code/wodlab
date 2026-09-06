@@ -3,6 +3,7 @@
 import { FormEvent, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import NumberField from "@/components/results/ResultNumberField";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
@@ -59,6 +60,14 @@ type MovementPerformance = {
 };
 
 type MovementPerformanceState = Record<string, MovementPerformance>;
+
+type ScoreField = "minutes" | "seconds" | "rounds" | "reps" | "load";
+
+type ValidationIssue = {
+  message: string;
+  field?: ScoreField;
+  section?: "movements" | "details";
+};
 
 type SubmittedMovement = {
   workoutMovementId: string;
@@ -147,7 +156,6 @@ export default function LogResultForm({
   const t = useTranslations("workouts.logResult");
   const resultTypeT = useTranslations("resultTypes");
   const movementBuilderT = useTranslations("workouts.create.movementBuilder");
-  const sectionBuilderT = useTranslations("workouts.create.sectionBuilder");
 
   const locale = useLocale();
   const router = useRouter();
@@ -226,11 +234,20 @@ export default function LogResultForm({
   );
 
   const [notes, setNotes] = useState(result?.notes ?? "");
+  const [movementDetailsOpen, setMovementDetailsOpen] = useState(
+    Boolean(result?.performedMovements.length),
+  );
+  const [resultDetailsOpen, setResultDetailsOpen] = useState(
+    isEditing || Boolean(result?.notes),
+  );
   const [error, setError] = useState<string | null>(null);
+  const [scoreErrors, setScoreErrors] = useState<
+    Partial<Record<ScoreField, string>>
+  >({});
+  const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resultTypeKey = resultType.key.toLowerCase();
-
   const localizedResultType = resultTypeT.has(resultTypeKey)
     ? resultTypeT(resultTypeKey)
     : resultType.name;
@@ -291,6 +308,15 @@ export default function LogResultForm({
         ...changes,
       },
     }));
+  }
+
+  function updateScoreField(
+    field: ScoreField,
+    setter: (value: string) => void,
+    value: string,
+  ) {
+    setter(value);
+    setScoreErrors((current) => ({ ...current, [field]: undefined }));
   }
 
   function getMovementDurationSeconds(performance: MovementPerformance) {
@@ -465,9 +491,9 @@ export default function LogResultForm({
     return null;
   }
 
-  function validate(): string | null {
+  function validate(): ValidationIssue | null {
     if (!workoutVariantId) {
-      return t("validation.variantRequired");
+      return { message: t("validation.variantRequired") };
     }
 
     switch (resultType.key) {
@@ -476,11 +502,18 @@ export default function LogResultForm({
         const secondValue = optionalNumber(seconds) ?? 0;
 
         if (minuteValue === 0 && secondValue === 0) {
-          return t("validation.timeRequired");
+          return { message: t("validation.timeRequired"), field: "minutes" };
         }
 
-        if (minuteValue < 0 || secondValue < 0 || secondValue > 59) {
-          return t("validation.invalidSeconds");
+        if (minuteValue < 0) {
+          return { message: t("validation.timeRequired"), field: "minutes" };
+        }
+
+        if (secondValue < 0 || secondValue > 59) {
+          return {
+            message: t("validation.invalidSeconds"),
+            field: "seconds",
+          };
         }
 
         break;
@@ -488,19 +521,34 @@ export default function LogResultForm({
 
       case "ROUNDS_REPS":
         if (!rounds.trim() && !reps.trim()) {
-          return t("validation.roundsOrRepsRequired");
+          return {
+            message: t("validation.roundsOrRepsRequired"),
+            field: "rounds",
+          };
+        }
+        if (!validateNonNegativeValue(rounds)) {
+          return {
+            message: t("validation.roundsOrRepsRequired"),
+            field: "rounds",
+          };
+        }
+        if (!validateNonNegativeValue(reps)) {
+          return {
+            message: t("validation.roundsOrRepsRequired"),
+            field: "reps",
+          };
         }
         break;
 
       case "REPS":
-        if (!reps.trim()) {
-          return t("validation.repsRequired");
+        if (!reps.trim() || !validatePositiveValue(reps)) {
+          return { message: t("validation.repsRequired"), field: "reps" };
         }
         break;
 
       case "LOAD":
-        if (!load.trim()) {
-          return t("validation.loadRequired");
+        if (!load.trim() || !validatePositiveValue(load)) {
+          return { message: t("validation.loadRequired"), field: "load" };
         }
         break;
     }
@@ -509,12 +557,15 @@ export default function LogResultForm({
       const movementError = validateMovementPerformance(item);
 
       if (movementError) {
-        return movementError;
+        return { message: movementError, section: "movements" };
       }
     }
 
     if (!performedDate || !performedTime) {
-      return t("validation.performedAtRequired");
+      return {
+        message: t("validation.performedAtRequired"),
+        section: "details",
+      };
     }
 
     return null;
@@ -535,11 +586,39 @@ export default function LogResultForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setScoreErrors({});
+    setSuccess(false);
 
     const validationError = validate();
 
     if (validationError) {
-      setError(validationError);
+      setError(validationError.message);
+
+      if (validationError.field) {
+        setScoreErrors({ [validationError.field]: validationError.message });
+      }
+
+      if (validationError.section === "movements") {
+        setMovementDetailsOpen(true);
+      }
+
+      if (validationError.section === "details") {
+        setResultDetailsOpen(true);
+      }
+
+      requestAnimationFrame(() => {
+        const fieldId = validationError.field
+          ? isEditing
+            ? `edit${validationError.field[0].toUpperCase()}${validationError.field.slice(1)}`
+            : validationError.field
+          : null;
+        const sectionId =
+          validationError.section === "movements"
+            ? "workout-movement-results"
+            : "workout-result-details";
+
+        document.getElementById(fieldId ?? sectionId)?.focus();
+      });
       return;
     }
 
@@ -633,6 +712,7 @@ export default function LogResultForm({
 
       if (!isEditing) {
         resetForm();
+        setSuccess(true);
       }
 
       router.refresh();
@@ -656,12 +736,16 @@ export default function LogResultForm({
     setPerformedDate(getLocalDateValue());
     setPerformedTime(getLocalTimeValue());
     setNotes("");
+    setMovementDetailsOpen(false);
+    setResultDetailsOpen(false);
+    setScoreErrors({});
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-border bg-surface p-6"
+      className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6"
+      noValidate
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
@@ -679,138 +763,200 @@ export default function LogResultForm({
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         {prescriptionCategories.length > 0 && (
-          <div>
-            <label
-              htmlFor={
-                isEditing ? "editPrescriptionCategory" : "prescriptionCategory"
-              }
-              className="mb-1.5 block text-sm font-medium"
-            >
+          <fieldset className="md:col-span-2">
+            <legend className="text-sm font-medium">
               {t("prescriptionCategory")}
-
               <span className="ml-1 font-normal text-muted">
                 {t("optional")}
               </span>
-            </label>
+            </legend>
 
-            <select
-              id={
-                isEditing ? "editPrescriptionCategory" : "prescriptionCategory"
-              }
-              value={prescriptionCategoryKey}
-              onChange={(event) =>
-                setPrescriptionCategoryKey(event.target.value)
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-            >
-              <option value="">{t("noPrescriptionCategory")}</option>
-
-              {prescriptionCategories.map((category) => (
-                <option key={category.key} value={category.key}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {resultType.key === "TIME" && (
-          <>
-            <NumberField
-              id={isEditing ? "editMinutes" : "minutes"}
-              label={t("minutes")}
-              value={minutes}
-              onChange={setMinutes}
-              placeholder="5"
-            />
-
-            <NumberField
-              id={isEditing ? "editSeconds" : "seconds"}
-              label={t("seconds")}
-              value={seconds}
-              onChange={setSeconds}
-              placeholder="58"
-              max={59}
-            />
-          </>
-        )}
-
-        {resultType.key === "ROUNDS_REPS" && (
-          <>
-            <NumberField
-              id={isEditing ? "editRounds" : "rounds"}
-              label={t("rounds")}
-              value={rounds}
-              onChange={setRounds}
-              placeholder="7"
-            />
-
-            <NumberField
-              id={isEditing ? "editReps" : "reps"}
-              label={t("extraReps")}
-              value={reps}
-              onChange={setReps}
-              placeholder="12"
-            />
-          </>
-        )}
-
-        {resultType.key === "REPS" && (
-          <div className="md:col-span-2">
-            <NumberField
-              id={isEditing ? "editReps" : "reps"}
-              label={t("reps")}
-              value={reps}
-              onChange={setReps}
-              placeholder="50"
-            />
-          </div>
-        )}
-
-        {resultType.key === "LOAD" && (
-          <>
-            <NumberField
-              id={isEditing ? "editLoad" : "load"}
-              label={t("load")}
-              value={load}
-              onChange={setLoad}
-              placeholder="100"
-              step="0.1"
-            />
-
-            <div>
-              <label
-                htmlFor={isEditing ? "editWeightUnit" : "weightUnit"}
-                className="mb-1.5 block text-sm font-medium"
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                aria-pressed={!prescriptionCategoryKey}
+                onClick={() => setPrescriptionCategoryKey("")}
+                className={[
+                  "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                  !prescriptionCategoryKey
+                    ? "border-accent bg-accent text-accent-foreground"
+                    : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
+                ].join(" ")}
               >
-                {t("unit")}
-              </label>
+                {t("noPrescriptionCategory")}
+              </button>
 
-              <select
-                id={isEditing ? "editWeightUnit" : "weightUnit"}
-                value={weightUnit}
-                onChange={(event) =>
-                  setWeightUnit(event.target.value as WeightUnit)
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-              >
-                <option value="KG">KG</option>
-                <option value="LB">LB</option>
-              </select>
+              {prescriptionCategories.map((category) => {
+                const selected = prescriptionCategoryKey === category.key;
+
+                return (
+                  <button
+                    key={category.key}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setPrescriptionCategoryKey(category.key)}
+                    className={[
+                      "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                      selected
+                        ? "border-accent bg-accent text-accent-foreground"
+                        : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {category.name}
+                  </button>
+                );
+              })}
             </div>
-          </>
+          </fieldset>
         )}
+
+        <section className="md:col-span-2 rounded-xl border border-accent/20 bg-accent/5 p-4 sm:p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+            {t("score")}
+          </p>
+
+          <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
+            {resultType.key === "TIME" && (
+              <>
+                <NumberField
+                  id={isEditing ? "editMinutes" : "minutes"}
+                  label={t("minutes")}
+                  value={minutes}
+                  onChange={(value) =>
+                    updateScoreField("minutes", setMinutes, value)
+                  }
+                  error={scoreErrors.minutes}
+                  placeholder="5"
+                />
+
+                <NumberField
+                  id={isEditing ? "editSeconds" : "seconds"}
+                  label={t("seconds")}
+                  value={seconds}
+                  onChange={(value) =>
+                    updateScoreField("seconds", setSeconds, value)
+                  }
+                  error={scoreErrors.seconds}
+                  placeholder="58"
+                  max={59}
+                />
+              </>
+            )}
+
+            {resultType.key === "ROUNDS_REPS" && (
+              <>
+                <NumberField
+                  id={isEditing ? "editRounds" : "rounds"}
+                  label={t("rounds")}
+                  value={rounds}
+                  onChange={(value) =>
+                    updateScoreField("rounds", setRounds, value)
+                  }
+                  error={scoreErrors.rounds}
+                  placeholder="7"
+                />
+
+                <NumberField
+                  id={isEditing ? "editReps" : "reps"}
+                  label={t("extraReps")}
+                  value={reps}
+                  onChange={(value) =>
+                    updateScoreField("reps", setReps, value)
+                  }
+                  error={scoreErrors.reps}
+                  placeholder="12"
+                />
+              </>
+            )}
+
+            {resultType.key === "REPS" && (
+              <NumberField
+                id={isEditing ? "editReps" : "reps"}
+                label={t("reps")}
+                value={reps}
+                onChange={(value) =>
+                  updateScoreField("reps", setReps, value)
+                }
+                error={scoreErrors.reps}
+                placeholder="50"
+                className="sm:col-span-2"
+              />
+            )}
+
+            {resultType.key === "LOAD" && (
+              <>
+                <NumberField
+                  id={isEditing ? "editLoad" : "load"}
+                  label={t("load")}
+                  value={load}
+                  onChange={(value) =>
+                    updateScoreField("load", setLoad, value)
+                  }
+                  error={scoreErrors.load}
+                  placeholder="100"
+                  step="0.1"
+                  suffix={weightUnit}
+                />
+
+                <fieldset>
+                  <legend className="mb-1.5 text-sm font-medium">
+                    {t("unit")}
+                  </legend>
+
+                  <div className="inline-flex rounded-lg border border-border bg-background p-1">
+                    {(["KG", "LB"] as const).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        aria-pressed={weightUnit === unit}
+                        onClick={() => setWeightUnit(unit)}
+                        className={[
+                          "min-h-10 min-w-16 rounded-md px-4 py-2 text-sm font-semibold transition",
+                          weightUnit === unit
+                            ? "bg-accent text-accent-foreground"
+                            : "text-muted hover:text-foreground",
+                        ].join(" ")}
+                      >
+                        {unit}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              </>
+            )}
+          </div>
+        </section>
 
         {trackableMovements.length > 0 && (
-          <div className="md:col-span-2">
-            <div className="border-t border-border pt-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-semibold">{sectionBuilderT("movements")}</p>
+          <section className="md:col-span-2 rounded-xl border border-border bg-background">
+            <button
+              type="button"
+              aria-expanded={movementDetailsOpen}
+              aria-controls="workout-movement-results"
+              onClick={() => setMovementDetailsOpen((open) => !open)}
+              className="flex min-h-12 w-full items-center justify-between gap-4 px-4 py-3 text-left"
+            >
+              <span>
+                <span className="block text-sm font-semibold">
+                  {t("movementDetails")}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {t("movementDetailsDescription", {
+                    count: trackableMovements.length,
+                  })}
+                </span>
+              </span>
+              <span aria-hidden="true" className="text-muted">
+                {movementDetailsOpen ? "−" : "+"}
+              </span>
+            </button>
 
-                <span className="text-sm text-muted">{t("optional")}</span>
-              </div>
-
-              <div className="mt-4 space-y-4">
+            {movementDetailsOpen && (
+              <div
+                id="workout-movement-results"
+                tabIndex={-1}
+                className="space-y-4 border-t border-border p-4"
+              >
                 {trackableMovements.map((item) => {
                   const performance = getMovementPerformance(item.id);
                   const measurementKeys = getMeasurementKeys(item);
@@ -983,15 +1129,62 @@ export default function LogResultForm({
                   );
                 })}
               </div>
-            </div>
-          </div>
+            )}
+          </section>
         )}
 
-        <div className="md:col-span-2">
-          <p className="mb-1.5 text-sm font-medium">{t("performedAt")}</p>
+        <section className="md:col-span-2 rounded-xl border border-border bg-background">
+          <button
+            type="button"
+            aria-expanded={resultDetailsOpen}
+            aria-controls="workout-result-details"
+            onClick={() => setResultDetailsOpen((open) => !open)}
+            className="flex min-h-12 w-full items-center justify-between gap-4 px-4 py-3 text-left"
+          >
+            <span>
+              <span className="block text-sm font-semibold">
+                {t("resultDetails")}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                {t("resultDetailsSummary", {
+                  date: formatSelectedDate(performedDate),
+                  time: formatSelectedTime(performedTime),
+                })}
+              </span>
+            </span>
+            <span aria-hidden="true" className="text-muted">
+              {resultDetailsOpen ? "−" : "+"}
+            </span>
+          </button>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
+          {resultDetailsOpen && (
+            <div
+              id="workout-result-details"
+              tabIndex={-1}
+              className="border-t border-border p-4"
+            >
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm font-medium">{t("performedAt")}</p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPerformedDate(getLocalDateValue())}
+                    className="text-xs font-semibold text-accent hover:underline"
+                  >
+                    {t("today")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPerformedTime(getLocalTimeValue())}
+                    className="text-xs font-semibold text-accent hover:underline"
+                  >
+                    {t("now")}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
                 {t("date")}
               </p>
@@ -1022,9 +1215,9 @@ export default function LogResultForm({
                 className="sr-only"
                 tabIndex={-1}
               />
-            </div>
+                </div>
 
-            <div>
+                <div>
               <p className="mb-1.5 text-xs font-medium text-muted">
                 {t("time")}
               </p>
@@ -1055,31 +1248,37 @@ export default function LogResultForm({
                 className="sr-only"
                 tabIndex={-1}
               />
+                </div>
+              </div>
+
+              <p className="mt-2 text-xs text-muted">
+                {t("performedAtHelp")}
+              </p>
+
+              <div className="mt-5">
+                <label
+                  htmlFor={isEditing ? "editWorkoutNotes" : "notes"}
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("notes")}
+
+                  <span className="ml-1 font-normal text-muted">
+                    {t("optional")}
+                  </span>
+                </label>
+
+                <textarea
+                  id={isEditing ? "editWorkoutNotes" : "notes"}
+                  rows={3}
+                  value={notes}
+                  onChange={(event) => setNotes(event.target.value)}
+                  placeholder={t("notesPlaceholder")}
+                  className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                />
+              </div>
             </div>
-          </div>
-
-          <p className="mt-2 text-xs text-muted">{t("performedAtHelp")}</p>
-        </div>
-
-        <div className="md:col-span-2">
-          <label
-            htmlFor={isEditing ? "editWorkoutNotes" : "notes"}
-            className="mb-1.5 block text-sm font-medium"
-          >
-            {t("notes")}
-
-            <span className="ml-1 font-normal text-muted">{t("optional")}</span>
-          </label>
-
-          <textarea
-            id={isEditing ? "editWorkoutNotes" : "notes"}
-            rows={3}
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            placeholder={t("notesPlaceholder")}
-            className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-          />
-        </div>
+          )}
+        </section>
       </div>
 
       {error && (
@@ -1088,74 +1287,42 @@ export default function LogResultForm({
         </Alert>
       )}
 
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        {isEditing && onCancel && (
+      {success && (
+        <Alert variant="success" className="mt-5">
+          {t("saved")}
+        </Alert>
+      )}
+
+      <div className="sticky bottom-20 z-10 -mx-2 mt-6 rounded-xl border border-border bg-surface/95 p-3 shadow-lg backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          {isEditing && onCancel && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="w-full px-5 sm:w-auto"
+            >
+              {t("cancel")}
+            </Button>
+          )}
+
           <Button
-            type="button"
-            variant="secondary"
-            onClick={onCancel}
-            disabled={isSubmitting}
+            type="submit"
+            disabled={isSubmitting || !workoutVariantId}
+            isLoading={isSubmitting}
             className="w-full px-5 sm:w-auto"
           >
-            {t("cancel")}
+            {isSubmitting
+              ? isEditing
+                ? t("updating")
+                : t("saving")
+              : isEditing
+                ? t("update")
+                : t("save")}
           </Button>
-        )}
-
-        <Button
-          type="submit"
-          disabled={isSubmitting || !workoutVariantId}
-          isLoading={isSubmitting}
-          className="w-full px-5 sm:w-auto"
-        >
-          {isSubmitting
-            ? isEditing
-              ? t("updating")
-              : t("saving")
-            : isEditing
-              ? t("update")
-              : t("save")}
-        </Button>
+        </div>
       </div>
     </form>
-  );
-}
-
-type NumberFieldProps = {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-  max?: number;
-  step?: string;
-};
-
-function NumberField({
-  id,
-  label,
-  value,
-  onChange,
-  placeholder,
-  max,
-  step,
-}: NumberFieldProps) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
-        {label}
-      </label>
-
-      <input
-        id={id}
-        type="number"
-        min="0"
-        max={max}
-        step={step}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-      />
-    </div>
   );
 }
