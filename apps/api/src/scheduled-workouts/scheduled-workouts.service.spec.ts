@@ -50,6 +50,7 @@ describe('ScheduledWorkoutsService', () => {
       id: 'scheduled-1',
       workoutId: 'workout-1',
       workoutVariantId: 'variant-1',
+      scheduledDate: new Date('2026-09-07T00:00:00.000Z'),
       status: ScheduledWorkoutStatus.PLANNED,
     });
     prismaMock.scheduledWorkout.update.mockResolvedValue({
@@ -201,6 +202,17 @@ describe('ScheduledWorkoutsService', () => {
     );
   });
 
+  it('rejects rescheduling into a duplicate variation and date', async () => {
+    prismaMock.scheduledWorkout.count.mockResolvedValue(1);
+
+    await expect(
+      service.update('user-1', 'scheduled-1', {
+        scheduledDate: '2026-09-10',
+      }),
+    ).rejects.toThrow(ConflictException);
+    expect(prismaMock.scheduledWorkout.update).not.toHaveBeenCalled();
+  });
+
   it('does not expose another athlete scheduled workout', async () => {
     prismaMock.scheduledWorkout.findFirst.mockResolvedValue(null);
 
@@ -226,6 +238,7 @@ describe('ScheduledWorkoutsService', () => {
       id: 'scheduled-1',
       workoutId: 'workout-1',
       workoutVariantId: 'variant-1',
+      scheduledDate: new Date('2026-09-07T00:00:00.000Z'),
       status: ScheduledWorkoutStatus.COMPLETED,
     });
 

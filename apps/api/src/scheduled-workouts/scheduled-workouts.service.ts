@@ -146,20 +146,50 @@ export class ScheduledWorkoutsService {
         : await this.resolvePrescriptionCategoryId(
             dto.prescriptionCategoryKey ?? undefined,
           );
-
-    return this.prisma.scheduledWorkout.update({
-      where: { id: scheduledWorkout.id },
-      data: {
-        workoutVariantId: dto.workoutVariantId,
-        prescriptionCategoryId,
-        scheduledDate: dto.scheduledDate
-          ? this.parseDate(dto.scheduledDate)
-          : undefined,
-        notes:
-          dto.notes === undefined ? undefined : this.normalizeNotes(dto.notes),
+    const scheduledDate = dto.scheduledDate
+      ? this.parseDate(dto.scheduledDate)
+      : scheduledWorkout.scheduledDate;
+    const duplicateCount = await this.prisma.scheduledWorkout.count({
+      where: {
+        id: { not: scheduledWorkout.id },
+        athleteProfileId,
+        workoutVariantId,
+        scheduledDate,
       },
-      include: scheduledWorkoutInclude,
     });
+
+    if (duplicateCount > 0) {
+      throw new ConflictException(
+        'This workout variation is already scheduled for that date',
+      );
+    }
+
+    try {
+      return await this.prisma.scheduledWorkout.update({
+        where: { id: scheduledWorkout.id },
+        data: {
+          workoutVariantId: dto.workoutVariantId,
+          prescriptionCategoryId,
+          scheduledDate: dto.scheduledDate ? scheduledDate : undefined,
+          notes:
+            dto.notes === undefined
+              ? undefined
+              : this.normalizeNotes(dto.notes),
+        },
+        include: scheduledWorkoutInclude,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'This workout variation is already scheduled for that date',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async remove(userId: string, scheduledWorkoutId: string) {
@@ -243,6 +273,7 @@ export class ScheduledWorkoutsService {
         id: true,
         workoutId: true,
         workoutVariantId: true,
+        scheduledDate: true,
         status: true,
       },
     });
