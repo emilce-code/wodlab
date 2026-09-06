@@ -12,8 +12,8 @@ import NavigationIcon, { type NavigationIconName } from "./NavigationIcon";
 const navigation = [
   { key: "today", href: "/dashboard", icon: "today" },
   { key: "workouts", href: "/workouts", icon: "workouts" },
+  { key: "training", href: "/training", icon: "training" },
   { key: "history", href: "/history", icon: "history" },
-  { key: "progress", href: "/progress", icon: "progress" },
 ] as const satisfies readonly {
   key: string;
   href: string;
@@ -28,7 +28,9 @@ export default function MobileNavigation() {
   const firstMenuLinkRef = useRef<HTMLAnchorElement>(null);
 
   const moreSectionActive =
-    pathname.startsWith("/movements") || pathname.startsWith("/account");
+    pathname.startsWith("/progress") ||
+    pathname.startsWith("/movements") ||
+    pathname.startsWith("/account");
 
   useEffect(() => {
     if (!moreMenuOpen) {
@@ -98,6 +100,18 @@ export default function MobileNavigation() {
             <div className="mt-3 grid gap-2">
               <Link
                 ref={firstMenuLinkRef}
+                href="/progress"
+                onClick={() => closeMoreMenu()}
+                aria-current={
+                  pathname.startsWith("/progress") ? "page" : undefined
+                }
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <NavigationIcon name="progress" className="h-5 w-5" />
+                {t("progress")}
+              </Link>
+
+              <Link
                 href="/movements"
                 onClick={() => closeMoreMenu()}
                 aria-current={

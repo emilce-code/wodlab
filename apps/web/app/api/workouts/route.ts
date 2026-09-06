@@ -1,22 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import { authenticatedApiFetch } from '@/lib/api';
+import { authenticatedApiFetch } from "@/lib/api";
+
+export async function GET() {
+  const response = await authenticatedApiFetch("/workouts");
+
+  if (!response) {
+    return NextResponse.json(
+      {
+        message: "Unable to connect to API",
+      },
+      {
+        status: 503,
+      },
+    );
+  }
+
+  const data = await response.json();
+
+  return NextResponse.json(data, {
+    status: response.status,
+  });
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
-  const response = await authenticatedApiFetch('/workouts', {
-    method: 'POST',
+  const response = await authenticatedApiFetch("/workouts", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
   });
 
   if (!response) {
     return NextResponse.json(
-      { message: 'Unable to connect to API' },
-      { status: 503 },
+      {
+        message: "Unable to connect to API",
+      },
+      {
+        status: 503,
+      },
     );
   }
 

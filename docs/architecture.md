@@ -95,6 +95,7 @@ The database stores:
 - Workout components
 - Workout performances
 - Personal records
+- Scheduled workout sessions and their optional completed results
 
 ## Future mobile application
 
@@ -164,6 +165,7 @@ src/
 ├── workouts/
 ├── workout-performances/
 ├── personal-records/
+├── scheduled-workouts/
 ├── prisma/
 └── health/
 
@@ -217,6 +219,19 @@ GET    /workout-performances/:id
 GET    /personal-records
 
 Exact contracts should be defined as features are implemented.
+
+Implemented scheduling routes include:
+
+```text
+POST   /scheduled-workouts
+GET    /scheduled-workouts
+PATCH  /scheduled-workouts/:id
+DELETE /scheduled-workouts/:id
+```
+
+Scheduled sessions are athlete-owned. Result creation validates the associated
+schedule and completes it in the same database transaction. Deleting the linked
+result reopens the scheduled session so planning and history remain consistent.
 
 ## Authentication
 

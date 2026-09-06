@@ -1,6 +1,7 @@
 export type NavigationIconName =
   | "today"
   | "workouts"
+  | "training"
   | "history"
   | "progress"
   | "more"
@@ -25,6 +26,13 @@ const paths: Record<NavigationIconName, React.ReactNode> = {
     <>
       <path d="M6 7v10M3 9v6M18 7v10M21 9v6" />
       <path d="M6 12h12" />
+    </>
+  ),
+  training: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M16 3v4M8 3v4M3 10h18" />
+      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
     </>
   ),
   history: (

@@ -21,6 +21,11 @@ const navigation = [
     icon: "workouts",
   },
   {
+    key: "training",
+    href: "/training",
+    icon: "training",
+  },
+  {
     key: "history",
     href: "/history",
     icon: "history",

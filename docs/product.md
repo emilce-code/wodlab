@@ -172,12 +172,28 @@ Examples:
 - Snatch 1RM
 - Fran best time
 
+### Training planning
+
+Users can:
+
+- Schedule a workout variation for a specific date
+- Review today's and upcoming training
+- Use monthly calendar and agenda views
+- Reschedule or remove planned sessions
+- Open a planned session directly into result logging
+- Automatically mark a scheduled session complete when its result is saved
+- Revisit completed sessions and their results
+
+### Performance insights
+
+Users can review consistency, performance, and training-balance insights across
+selectable periods.
+
 ## Future features
 
 Possible future capabilities include:
 
-- Advanced performance analytics
-- Movement-level trends
+- Deeper training-volume analytics
 - Training volume analysis
 - Workout pacing recommendations
 - Workout parsing from text
