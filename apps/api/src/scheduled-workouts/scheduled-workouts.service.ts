@@ -48,18 +48,45 @@ export class ScheduledWorkoutsService {
     const prescriptionCategoryId = await this.resolvePrescriptionCategoryId(
       dto.prescriptionCategoryKey,
     );
-
-    return this.prisma.scheduledWorkout.create({
-      data: {
+    const scheduledDate = this.parseDate(dto.scheduledDate);
+    const duplicateCount = await this.prisma.scheduledWorkout.count({
+      where: {
         athleteProfileId,
-        workoutId: dto.workoutId,
         workoutVariantId: dto.workoutVariantId,
-        prescriptionCategoryId,
-        scheduledDate: this.parseDate(dto.scheduledDate),
-        notes: this.normalizeNotes(dto.notes),
+        scheduledDate,
       },
-      include: scheduledWorkoutInclude,
     });
+
+    if (duplicateCount > 0) {
+      throw new ConflictException(
+        'This workout variation is already scheduled for that date',
+      );
+    }
+
+    try {
+      return await this.prisma.scheduledWorkout.create({
+        data: {
+          athleteProfileId,
+          workoutId: dto.workoutId,
+          workoutVariantId: dto.workoutVariantId,
+          prescriptionCategoryId,
+          scheduledDate,
+          notes: this.normalizeNotes(dto.notes),
+        },
+        include: scheduledWorkoutInclude,
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'This workout variation is already scheduled for that date',
+        );
+      }
+
+      throw error;
+    }
   }
 
   async findAll(userId: string, query: FindScheduledWorkoutsQueryDto) {

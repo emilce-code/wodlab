@@ -119,6 +119,21 @@
       "viewHistory": "View history",
       "viewProgress": "View progress"
     },
+    "schedule": {
+      "eyebrow": "Today's plan",
+      "title": "Your training today",
+      "description": "Start a scheduled workout or choose something to train today.",
+      "loading": "Loading today's training plan...",
+      "errorTitle": "We couldn't load today's plan",
+      "errorDescription": "You can still browse the workout library and log your training.",
+      "emptyTitle": "Nothing scheduled for today",
+      "emptyDescription": "Choose a workout now. In the next step, you'll be able to add it directly to your training plan.",
+      "chooseWorkout": "Choose a workout",
+      "browseWorkouts": "Browse workouts",
+      "logMovement": "Log a movement",
+      "logResult": "Start and log result",
+      "benchmark": "Benchmark"
+    },
     "activity": {
       "eyebrow": "Recent activity",
       "title": "Latest training",
@@ -166,6 +181,30 @@
       "reactivateSubmitting": "Reactivating...",
       "actionError": "Unable to update the workout.",
       "connectionError": "Unable to update the workout. Please try again."
+    },
+    "schedule": {
+      "title": "Schedule workout",
+      "collapsedDescription": "Add the {variation} variation to your training plan.",
+      "eyebrow": "Plan your training",
+      "selectedVariation": "Selected variation: {variation}",
+      "date": "Training date",
+      "today": "Use today",
+      "prescription": "Prescription",
+      "noPrescription": "No specific prescription",
+      "notes": "Planning notes",
+      "notesPlaceholder": "Pacing goal, focus, reminder...",
+      "optional": "(optional)",
+      "save": "Add to training plan",
+      "scheduled": "Added to training plan",
+      "saving": "Scheduling...",
+      "cancel": "Cancel",
+      "dateRequired": "Select a training date.",
+      "saveError": "Unable to schedule this workout.",
+      "connectionError": "Unable to schedule this workout. Please try again.",
+      "duplicateError": "This workout variation is already scheduled for that date.",
+      "successTitle": "Workout scheduled",
+      "successDescription": "The workout was added to your training plan.",
+      "backToDashboard": "Back to dashboard"
     },
     "create": {
       "backToLibrary": "Workout Library",

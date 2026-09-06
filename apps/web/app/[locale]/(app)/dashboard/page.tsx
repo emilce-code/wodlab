@@ -10,6 +10,7 @@ import { formatDuration, formatWeight } from "@/lib/result-formatters";
 import type { WeightUnit } from "@/lib/result-types";
 
 import TimeAwareGreeting from "./components/TimeAwareGreeting";
+import TodaySchedule from "./components/TodaySchedule";
 
 type DashboardProfile = {
   displayName: string;
@@ -118,7 +119,6 @@ export default async function DashboardPage({ params }: Props) {
   const { profile, currentMonth, overall, recentActivity } = dashboard;
 
   const hasActivity = recentActivity.length > 0;
-  const latestActivity = recentActivity[0] ?? null;
 
   function getSubtitle(activity: DashboardActivity) {
     const key = activity.subtitle.key.toLowerCase();
@@ -165,12 +165,6 @@ export default async function DashboardPage({ params }: Props) {
       default:
         return "—";
     }
-  }
-
-  function getContinueLabel(activity: DashboardActivity) {
-    return activity.type === "WORKOUT"
-      ? t("trainToday.openWorkout")
-      : t("trainToday.openMovement");
   }
 
   return (
@@ -233,135 +227,7 @@ export default async function DashboardPage({ params }: Props) {
         </Card>
       </section>
 
-      <section>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {t("trainToday.eyebrow")}
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold">{t("trainToday.title")}</h2>
-
-          <p className="mt-2 max-w-2xl text-sm text-muted">
-            {t("trainToday.description")}
-          </p>
-        </div>
-
-        <Card className="mt-5 overflow-hidden">
-          <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
-            <div className="p-6 sm:p-8">
-              <h3 className="text-2xl font-black">
-                {t("trainToday.readyTitle")}
-              </h3>
-
-              <p className="mt-2 max-w-xl text-sm text-muted">
-                {t("trainToday.readyDescription")}
-              </p>
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink href="/workouts" className="px-5">
-                  {t("trainToday.browseWorkouts")}
-                </ButtonLink>
-
-                <ButtonLink
-                  href="/movements"
-                  variant="secondary"
-                  className="px-5"
-                >
-                  {t("trainToday.browseMovements")}
-                </ButtonLink>
-              </div>
-            </div>
-
-            <div className="border-t border-border bg-surface-elevated/40 p-6 lg:border-l lg:border-t-0">
-              {latestActivity ? (
-                <>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                    {t("trainToday.continueTraining")}
-                  </p>
-
-                  <div className="mt-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="truncate text-lg font-bold">
-                          {latestActivity.title}
-                        </p>
-
-                        <p className="mt-1 text-sm text-muted">
-                          {getSubtitle(latestActivity)}
-                        </p>
-                      </div>
-
-                      <span className="shrink-0 font-bold text-accent">
-                        {formatActivityResult(latestActivity.result)}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      {latestActivity.badge && (
-                        <Badge
-                          variant={
-                            latestActivity.type === "WORKOUT" &&
-                            latestActivity.badge.key === "RX"
-                              ? "accent"
-                              : undefined
-                          }
-                        >
-                          {latestActivity.badge.name}
-                        </Badge>
-                      )}
-
-                      {latestActivity.prescriptionCategory && (
-                        <Badge>
-                          {latestActivity.prescriptionCategory.name}
-                        </Badge>
-                      )}
-
-                      <span className="text-xs text-muted">
-                        {formatShortDate(latestActivity.performedAt, locale)}
-                      </span>
-                    </div>
-
-                    <Link
-                      href={latestActivity.href}
-                      className="mt-5 flex min-h-11 w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-sm font-semibold transition hover:border-accent/40 hover:bg-surface"
-                    >
-                      <span>{getContinueLabel(latestActivity)}</span>
-
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                    {t("trainToday.quickLinks")}
-                  </p>
-
-                  <div className="mt-4 space-y-3">
-                    <Link
-                      href="/history"
-                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
-                    >
-                      <span>{t("trainToday.viewHistory")}</span>
-
-                      <span>→</span>
-                    </Link>
-
-                    <Link
-                      href="/progress"
-                      className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm font-medium transition hover:border-accent/40 hover:bg-background"
-                    >
-                      <span>{t("trainToday.viewProgress")}</span>
-
-                      <span>→</span>
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </Card>
-      </section>
+      <TodaySchedule />
 
       <section>
         <div className="flex flex-wrap items-end justify-between gap-4">

@@ -19,6 +19,7 @@ describe('ScheduledWorkoutsService', () => {
     prescriptionCategory: { findUnique: jest.fn() },
     scheduledWorkout: {
       create: jest.fn(),
+      count: jest.fn(),
       findMany: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
@@ -43,6 +44,7 @@ describe('ScheduledWorkoutsService', () => {
       id: 'prescription-1',
     });
     prismaMock.scheduledWorkout.create.mockResolvedValue({ id: 'scheduled-1' });
+    prismaMock.scheduledWorkout.count.mockResolvedValue(0);
     prismaMock.scheduledWorkout.findMany.mockResolvedValue([]);
     prismaMock.scheduledWorkout.findFirst.mockResolvedValue({
       id: 'scheduled-1',
@@ -117,6 +119,23 @@ describe('ScheduledWorkoutsService', () => {
         scheduledDate: '2026-09-07',
       }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('rejects the same variation scheduled twice on the same date', async () => {
+    prismaMock.scheduledWorkout.count.mockResolvedValue(1);
+
+    await expect(
+      service.create('user-1', {
+        workoutId: 'workout-1',
+        workoutVariantId: 'variant-1',
+        scheduledDate: '2026-09-07',
+      }),
+    ).rejects.toThrow(
+      new ConflictException(
+        'This workout variation is already scheduled for that date',
+      ),
+    );
+    expect(prismaMock.scheduledWorkout.create).not.toHaveBeenCalled();
   });
 
   it('lists the athlete schedule using date and status filters', async () => {

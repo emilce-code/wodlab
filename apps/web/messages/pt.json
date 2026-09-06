@@ -119,6 +119,21 @@
       "viewHistory": "Ver histórico",
       "viewProgress": "Ver progresso"
     },
+    "schedule": {
+      "eyebrow": "Plano de hoje",
+      "title": "Seu treino de hoje",
+      "description": "Comece um treino programado ou escolha o que treinar hoje.",
+      "loading": "Carregando o plano de treino de hoje...",
+      "errorTitle": "Não foi possível carregar o plano de hoje",
+      "errorDescription": "Você ainda pode explorar a biblioteca e registrar seu treino.",
+      "emptyTitle": "Nada programado para hoje",
+      "emptyDescription": "Escolha um treino agora. Na próxima etapa, você poderá adicioná-lo diretamente ao seu plano.",
+      "chooseWorkout": "Escolher treino",
+      "browseWorkouts": "Explorar treinos",
+      "logMovement": "Registrar movimento",
+      "logResult": "Começar e registrar resultado",
+      "benchmark": "Benchmark"
+    },
     "activity": {
       "eyebrow": "Atividade recente",
       "title": "Treinos recentes",
@@ -166,6 +181,30 @@
       "reactivateSubmitting": "Reativando...",
       "actionError": "Não foi possível atualizar o treino.",
       "connectionError": "Não foi possível atualizar o treino. Tente novamente."
+    },
+    "schedule": {
+      "title": "Programar treino",
+      "collapsedDescription": "Adicione a variação {variation} ao seu plano de treino.",
+      "eyebrow": "Planeje seu treino",
+      "selectedVariation": "Variação selecionada: {variation}",
+      "date": "Data do treino",
+      "today": "Usar hoje",
+      "prescription": "Prescrição",
+      "noPrescription": "Sem prescrição específica",
+      "notes": "Notas de planejamento",
+      "notesPlaceholder": "Meta de ritmo, foco, lembrete...",
+      "optional": "(opcional)",
+      "save": "Adicionar ao plano",
+      "scheduled": "Adicionado ao plano",
+      "saving": "Programando...",
+      "cancel": "Cancelar",
+      "dateRequired": "Selecione uma data de treino.",
+      "saveError": "Não foi possível programar este treino.",
+      "connectionError": "Não foi possível programar este treino. Tente novamente.",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "successTitle": "Treino programado",
+      "successDescription": "O treino foi adicionado ao seu plano.",
+      "backToDashboard": "Voltar ao início"
     },
     "create": {
       "backToLibrary": "Biblioteca de treinos",

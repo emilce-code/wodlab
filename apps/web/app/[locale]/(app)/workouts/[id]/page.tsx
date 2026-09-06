@@ -28,6 +28,7 @@ import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
 } from "./components/LogResultForm";
 import WorkoutResultActions from "./components/WorkoutResultActions";
+import ScheduleWorkoutForm from "./components/ScheduleWorkoutForm";
 import WorkoutLifecycleActions from "../components/WorkoutLifecycleActions";
 
 type WorkoutPrescription = {
@@ -462,6 +463,23 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         </nav>
       )}
 
+      {workout.isActive && (
+        <ScheduleWorkoutForm
+          workoutId={workout.id}
+          workoutName={workout.name}
+          workoutVariantId={selectedVariant.id}
+          workoutVariantLabel={
+            selectedVariant.name
+              ? `${selectedVariant.level.name} · ${selectedVariant.name}`
+              : selectedVariant.level.name
+          }
+          prescriptionCategories={prescriptionCategories}
+          preferredPrescriptionCategoryKey={
+            athletePreferences.preferredPrescriptionCategoryKey
+          }
+        />
+      )}
+
       <div className="mt-10 space-y-10">
         {displayedVariants.map((variant) => (
           <section key={variant.id}>
@@ -607,7 +625,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
       </div>
 
       {workout.isActive && workout.type.defaultResultType && (
-        <section className="mt-12">
+        <section id="log-result" className="mt-12 scroll-mt-6">
           <LogResultForm
             workoutId={workout.id}
             resultType={workout.type.defaultResultType}

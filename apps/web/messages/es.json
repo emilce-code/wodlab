@@ -119,6 +119,21 @@
       "viewHistory": "Ver historial",
       "viewProgress": "Ver progreso"
     },
+    "schedule": {
+      "eyebrow": "Plan de hoy",
+      "title": "Tu entrenamiento de hoy",
+      "description": "Comienza un entrenamiento programado o elige qué entrenar hoy.",
+      "loading": "Cargando el plan de entrenamiento de hoy...",
+      "errorTitle": "No pudimos cargar el plan de hoy",
+      "errorDescription": "Aun puedes explorar la biblioteca y registrar tu entrenamiento.",
+      "emptyTitle": "No tienes nada programado para hoy",
+      "emptyDescription": "Elige un entrenamiento ahora. En el siguiente paso podrás agregarlo directamente a tu plan.",
+      "chooseWorkout": "Elegir entrenamiento",
+      "browseWorkouts": "Explorar entrenamientos",
+      "logMovement": "Registrar movimiento",
+      "logResult": "Comenzar y registrar resultado",
+      "benchmark": "Benchmark"
+    },
     "activity": {
       "eyebrow": "Actividad reciente",
       "title": "Entrenamientos recientes",
@@ -166,6 +181,30 @@
       "reactivateSubmitting": "Reactivando...",
       "actionError": "No se pudo actualizar el entrenamiento.",
       "connectionError": "No se pudo actualizar el entrenamiento. Inténtalo de nuevo."
+    },
+    "schedule": {
+      "title": "Programar entrenamiento",
+      "collapsedDescription": "Agrega la variante {variation} a tu plan de entrenamiento.",
+      "eyebrow": "Planifica tu entrenamiento",
+      "selectedVariation": "Variante seleccionada: {variation}",
+      "date": "Fecha de entrenamiento",
+      "today": "Usar hoy",
+      "prescription": "Prescripción",
+      "noPrescription": "Sin prescripción específica",
+      "notes": "Notas de planificación",
+      "notesPlaceholder": "Objetivo de ritmo, enfoque, recordatorio...",
+      "optional": "(opcional)",
+      "save": "Agregar al plan",
+      "scheduled": "Agregado al plan",
+      "saving": "Programando...",
+      "cancel": "Cancelar",
+      "dateRequired": "Selecciona una fecha de entrenamiento.",
+      "saveError": "No se pudo programar este entrenamiento.",
+      "connectionError": "No se pudo programar este entrenamiento. Inténtalo de nuevo.",
+      "duplicateError": "Esta variante ya está programada para esa fecha.",
+      "successTitle": "Entrenamiento programado",
+      "successDescription": "El entrenamiento fue agregado a tu plan.",
+      "backToDashboard": "Volver al inicio"
     },
     "create": {
       "backToLibrary": "Biblioteca de entrenamientos",
