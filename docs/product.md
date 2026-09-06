@@ -189,6 +189,14 @@ Users can:
 Users can review consistency, performance, and training-balance insights across
 selectable periods.
 
+### Coach foundation
+
+Users can optionally create a coach profile while retaining their athlete
+profile. Coaches can invite registered athletes, access data only after athlete
+approval, assign workout variations, monitor completion, and attach feedback to
+completed assignments. Athletes control their coaching relationships and see
+coach instructions in their training plan.
+
 ## Future features
 
 Possible future capabilities include:
@@ -197,7 +205,6 @@ Possible future capabilities include:
 - Training volume analysis
 - Workout pacing recommendations
 - Workout parsing from text
-- Coach accounts
 - CrossFit box management
 - Class programming
 - Athlete groups

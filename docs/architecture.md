@@ -159,6 +159,7 @@ Expected modules may include:
 
 src/
 ├── auth/
+├── coaches/
 ├── users/
 ├── athlete-profiles/
 ├── movements/
@@ -232,6 +233,11 @@ DELETE /scheduled-workouts/:id
 Scheduled sessions are athlete-owned. Result creation validates the associated
 schedule and completes it in the same database transaction. Deleting the linked
 result reopens the scheduled session so planning and history remain consistent.
+
+Coach access is represented by an explicit `CoachAthleteRelationship`. Athlete
+data access and assignment operations require an active relationship at the API
+service layer. Coach assignments extend scheduled workouts with the assigning
+coach, programming instructions, review feedback, and review timestamp.
 
 ## Authentication
 

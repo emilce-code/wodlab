@@ -6,6 +6,13 @@ export type ScheduledWorkout = {
   status: ScheduledWorkoutStatus;
   completedAt: string | null;
   notes: string | null;
+  coachNotes?: string | null;
+  coachFeedback?: string | null;
+  reviewedAt?: string | null;
+  assignedByCoachProfile?: {
+    id: string;
+    displayName: string;
+  } | null;
   workout: {
     id: string;
     name: string;

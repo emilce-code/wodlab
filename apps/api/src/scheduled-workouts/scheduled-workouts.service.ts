@@ -36,6 +36,9 @@ const scheduledWorkoutInclude = {
   workoutResult: {
     select: { id: true, performedAt: true },
   },
+  assignedByCoachProfile: {
+    select: { id: true, displayName: true },
+  },
 } satisfies Prisma.ScheduledWorkoutInclude;
 
 @Injectable()

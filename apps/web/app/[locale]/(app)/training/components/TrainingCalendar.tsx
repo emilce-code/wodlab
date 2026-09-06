@@ -70,6 +70,24 @@ function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
         {item.workout.type.name}
         {item.workoutVariant.name ? ` · ${item.workoutVariant.name}` : ""}
       </p>
+      {item.assignedByCoachProfile ? (
+        <p className="mt-2 text-sm font-semibold text-accent">
+          {t("assignedBy", {
+            coach: item.assignedByCoachProfile.displayName,
+          })}
+        </p>
+      ) : null}
+      {item.coachNotes ? (
+        <p className="mt-3 rounded-lg border border-accent/20 bg-accent/5 p-3 text-sm">
+          {item.coachNotes}
+        </p>
+      ) : null}
+      {item.coachFeedback ? (
+        <p className="mt-3 rounded-lg border border-accent/30 bg-accent/10 p-3 text-sm">
+          <span className="font-semibold">{t("coachFeedback")}</span>{" "}
+          {item.coachFeedback}
+        </p>
+      ) : null}
       {item.notes ? (
         <p className="mt-3 break-words text-sm text-muted">{item.notes}</p>
       ) : null}
