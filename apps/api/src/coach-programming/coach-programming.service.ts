@@ -1,0 +1,347 @@
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
+import { CreateCoachGroupDto } from './dto/create-coach-group.dto';
+import { CreateProgramTemplateDto } from './dto/create-program-template.dto';
+
+const groupInclude = {
+  members: {
+    orderBy: { createdAt: 'asc' },
+    include: {
+      athleteProfile: {
+        select: {
+          id: true,
+          displayName: true,
+          user: { select: { email: true } },
+        },
+      },
+    },
+  },
+} satisfies Prisma.CoachGroupInclude;
+
+const templateInclude = {
+  items: {
+    orderBy: [{ dayOffset: 'asc' }, { sortOrder: 'asc' }],
+    include: {
+      workout: { select: { id: true, name: true, isActive: true } },
+      workoutVariant: {
+        select: {
+          id: true,
+          name: true,
+          level: { select: { key: true, name: true } },
+        },
+      },
+      prescriptionCategory: { select: { key: true, name: true } },
+    },
+  },
+} satisfies Prisma.ProgramTemplateInclude;
+
+@Injectable()
+export class CoachProgrammingService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getWorkspace(userId: string) {
+    const coach = await this.getCoach(userId);
+    const [groups, templates, relationships, workouts, categories] =
+      await Promise.all([
+        this.prisma.coachGroup.findMany({
+          where: { coachProfileId: coach.id },
+          orderBy: { name: 'asc' },
+          include: groupInclude,
+        }),
+        this.prisma.programTemplate.findMany({
+          where: { coachProfileId: coach.id },
+          orderBy: { name: 'asc' },
+          include: templateInclude,
+        }),
+        this.prisma.coachAthleteRelationship.findMany({
+          where: { coachProfileId: coach.id, status: 'ACTIVE' },
+          orderBy: { athleteProfile: { displayName: 'asc' } },
+          select: {
+            athleteProfile: {
+              select: {
+                id: true,
+                displayName: true,
+                user: { select: { email: true } },
+              },
+            },
+          },
+        }),
+        this.prisma.workout.findMany({
+          where: { isActive: true },
+          orderBy: { name: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            variants: {
+              orderBy: { level: { sortOrder: 'asc' } },
+              select: {
+                id: true,
+                name: true,
+                level: { select: { key: true, name: true } },
+              },
+            },
+          },
+        }),
+        this.prisma.prescriptionCategory.findMany({
+          orderBy: { sortOrder: 'asc' },
+          select: { key: true, name: true },
+        }),
+      ]);
+
+    return {
+      groups,
+      templates,
+      athletes: relationships.map((item) => item.athleteProfile),
+      workouts,
+      prescriptionCategories: categories,
+    };
+  }
+
+  async createGroup(userId: string, dto: CreateCoachGroupDto) {
+    const coach = await this.getCoach(userId);
+    const name = dto.name.trim();
+    if (!name) throw new BadRequestException('Group name is required');
+
+    try {
+      return await this.prisma.coachGroup.create({
+        data: {
+          coachProfileId: coach.id,
+          name,
+          description: dto.description?.trim() || null,
+        },
+        include: groupInclude,
+      });
+    } catch (error) {
+      this.rethrowNameConflict(error, 'A group with this name already exists');
+    }
+  }
+
+  async deleteGroup(userId: string, groupId: string) {
+    const coach = await this.getCoach(userId);
+    const group = await this.requireGroup(coach.id, groupId);
+    return this.prisma.coachGroup.delete({ where: { id: group.id } });
+  }
+
+  async addGroupMember(
+    userId: string,
+    groupId: string,
+    athleteProfileId: string,
+  ) {
+    const coach = await this.getCoach(userId);
+    await this.requireGroup(coach.id, groupId);
+    const relationship = await this.prisma.coachAthleteRelationship.findFirst({
+      where: {
+        coachProfileId: coach.id,
+        athleteProfileId,
+        status: 'ACTIVE',
+      },
+    });
+    if (!relationship) {
+      throw new ForbiddenException('Active coach relationship required');
+    }
+
+    return this.prisma.coachGroupMember.upsert({
+      where: { groupId_athleteProfileId: { groupId, athleteProfileId } },
+      create: { groupId, athleteProfileId },
+      update: {},
+    });
+  }
+
+  async removeGroupMember(
+    userId: string,
+    groupId: string,
+    athleteProfileId: string,
+  ) {
+    const coach = await this.getCoach(userId);
+    await this.requireGroup(coach.id, groupId);
+    const member = await this.prisma.coachGroupMember.findUnique({
+      where: { groupId_athleteProfileId: { groupId, athleteProfileId } },
+    });
+    if (!member) throw new NotFoundException('Group member not found');
+    return this.prisma.coachGroupMember.delete({ where: { id: member.id } });
+  }
+
+  async createTemplate(userId: string, dto: CreateProgramTemplateDto) {
+    const coach = await this.getCoach(userId);
+    const name = dto.name.trim();
+    if (!name) throw new BadRequestException('Template name is required');
+    if (dto.items.length === 0) {
+      throw new BadRequestException('At least one template item is required');
+    }
+
+    const items = await Promise.all(
+      dto.items.map(async (item, sortOrder) => {
+        const variant = await this.prisma.workoutVariant.findFirst({
+          where: {
+            id: item.workoutVariantId,
+            workoutId: item.workoutId,
+            workout: { isActive: true },
+          },
+        });
+        if (!variant) {
+          throw new NotFoundException('Active workout variation not found');
+        }
+        const category = item.prescriptionCategoryKey
+          ? await this.prisma.prescriptionCategory.findUnique({
+              where: { key: item.prescriptionCategoryKey },
+            })
+          : null;
+        if (item.prescriptionCategoryKey && !category) {
+          throw new NotFoundException('Prescription category not found');
+        }
+        return {
+          dayOffset: item.dayOffset,
+          workoutId: item.workoutId,
+          workoutVariantId: item.workoutVariantId,
+          prescriptionCategoryId: category?.id,
+          coachNotes: item.coachNotes?.trim() || null,
+          sortOrder,
+        };
+      }),
+    );
+
+    try {
+      return await this.prisma.programTemplate.create({
+        data: {
+          coachProfileId: coach.id,
+          name,
+          description: dto.description?.trim() || null,
+          items: { create: items },
+        },
+        include: templateInclude,
+      });
+    } catch (error) {
+      this.rethrowNameConflict(
+        error,
+        'A program template with this name already exists',
+      );
+    }
+  }
+
+  async deleteTemplate(userId: string, templateId: string) {
+    const coach = await this.getCoach(userId);
+    const template = await this.requireTemplate(coach.id, templateId);
+    return this.prisma.programTemplate.delete({ where: { id: template.id } });
+  }
+
+  async applyTemplate(
+    userId: string,
+    templateId: string,
+    dto: ApplyProgramTemplateDto,
+  ) {
+    const coach = await this.getCoach(userId);
+    const weekStart = this.parseDate(dto.weekStart);
+    const [group, template] = await Promise.all([
+      this.prisma.coachGroup.findFirst({
+        where: { id: dto.groupId, coachProfileId: coach.id },
+        include: {
+          members: {
+            where: {
+              athleteProfile: {
+                coachRelationships: {
+                  some: { coachProfileId: coach.id, status: 'ACTIVE' },
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.programTemplate.findFirst({
+        where: { id: templateId, coachProfileId: coach.id },
+        include: { items: { include: { workout: true } } },
+      }),
+    ]);
+    if (!group) throw new NotFoundException('Coach group not found');
+    if (!template) throw new NotFoundException('Program template not found');
+    if (group.members.length === 0) {
+      throw new BadRequestException('The coach group has no active athletes');
+    }
+    if (template.items.some((item) => !item.workout.isActive)) {
+      throw new BadRequestException(
+        'The template contains an inactive workout',
+      );
+    }
+
+    const data = group.members.flatMap((member) =>
+      template.items.map((item) => ({
+        athleteProfileId: member.athleteProfileId,
+        workoutId: item.workoutId,
+        workoutVariantId: item.workoutVariantId,
+        prescriptionCategoryId: item.prescriptionCategoryId,
+        scheduledDate: this.addDays(weekStart, item.dayOffset),
+        assignedByCoachProfileId: coach.id,
+        coachNotes: item.coachNotes,
+      })),
+    );
+    const result = await this.prisma.scheduledWorkout.createMany({
+      data,
+      skipDuplicates: true,
+    });
+
+    return {
+      requested: data.length,
+      created: result.count,
+      skipped: data.length - result.count,
+    };
+  }
+
+  private async getCoach(userId: string) {
+    const coach = await this.prisma.coachProfile.findUnique({
+      where: { userId },
+    });
+    if (!coach) throw new ForbiddenException('Coach profile required');
+    return coach;
+  }
+
+  private async requireGroup(coachProfileId: string, groupId: string) {
+    const group = await this.prisma.coachGroup.findFirst({
+      where: { id: groupId, coachProfileId },
+    });
+    if (!group) throw new NotFoundException('Coach group not found');
+    return group;
+  }
+
+  private async requireTemplate(coachProfileId: string, templateId: string) {
+    const template = await this.prisma.programTemplate.findFirst({
+      where: { id: templateId, coachProfileId },
+    });
+    if (!template) throw new NotFoundException('Program template not found');
+    return template;
+  }
+
+  private parseDate(value: string) {
+    const date = new Date(`${value}T00:00:00.000Z`);
+    if (
+      Number.isNaN(date.getTime()) ||
+      date.toISOString().slice(0, 10) !== value
+    ) {
+      throw new BadRequestException('Invalid week start date');
+    }
+    return date;
+  }
+
+  private addDays(date: Date, days: number) {
+    const result = new Date(date);
+    result.setUTCDate(result.getUTCDate() + days);
+    return result;
+  }
+
+  private rethrowNameConflict(error: unknown, message: string): never {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      throw new ConflictException(message);
+    }
+    throw error;
+  }
+}

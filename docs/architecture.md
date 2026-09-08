@@ -245,6 +245,12 @@ marks only planned, result-free assignments created by the current coach as
 manageable. Removal is independently authorized by the API. The web proxy
 forwards query strings so date-bounded coach requests reach the API unchanged.
 
+Coach groups and reusable program templates live in the `coach-programming`
+module. Group membership is limited to athletes with an active coaching
+relationship. Applying a template creates ordinary `ScheduledWorkout` records
+with the coach as assigner and relies on the schedule uniqueness constraint plus
+`createMany({ skipDuplicates: true })` to preserve existing athlete plans.
+
 ## Authentication
 
 The architecture should support both web and future mobile clients.

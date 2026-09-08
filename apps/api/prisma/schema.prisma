@@ -58,21 +58,24 @@ model AthleteProfile {
   movementResults                 MovementResult[]
   scheduledWorkouts               ScheduledWorkout[]
   coachRelationships              CoachAthleteRelationship[]
+  coachGroupMemberships           CoachGroupMember[]
   user                            User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                       DateTime                   @default(now())
   updatedAt                       DateTime                   @updatedAt
 }
 
 model CoachProfile {
-  id            String                     @id @default(cuid())
-  userId        String                     @unique
-  displayName   String
-  bio           String?
-  user          User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  relationships CoachAthleteRelationship[]
-  assignments   ScheduledWorkout[]         @relation("CoachAssignments")
-  createdAt     DateTime                   @default(now())
-  updatedAt     DateTime                   @updatedAt
+  id               String                     @id @default(cuid())
+  userId           String                     @unique
+  displayName      String
+  bio              String?
+  user             User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relationships    CoachAthleteRelationship[]
+  assignments      ScheduledWorkout[]         @relation("CoachAssignments")
+  groups           CoachGroup[]
+  programTemplates ProgramTemplate[]
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
 }
 
 model CoachAthleteRelationship {
@@ -88,6 +91,65 @@ model CoachAthleteRelationship {
   @@unique([coachProfileId, athleteProfileId])
   @@index([athleteProfileId, status])
   @@index([coachProfileId, status])
+}
+
+model CoachGroup {
+  id             String             @id @default(cuid())
+  coachProfileId String
+  coachProfile   CoachProfile       @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  members        CoachGroupMember[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([coachProfileId, name])
+  @@index([coachProfileId])
+}
+
+model CoachGroupMember {
+  id               String         @id @default(cuid())
+  groupId          String
+  group            CoachGroup     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  athleteProfileId String
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+
+  @@unique([groupId, athleteProfileId])
+  @@index([athleteProfileId])
+}
+
+model ProgramTemplate {
+  id             String                @id @default(cuid())
+  coachProfileId String
+  coachProfile   CoachProfile          @relation(fields: [coachProfileId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  items          ProgramTemplateItem[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@unique([coachProfileId, name])
+  @@index([coachProfileId])
+}
+
+model ProgramTemplateItem {
+  id                     String                @id @default(cuid())
+  programTemplateId      String
+  programTemplate        ProgramTemplate       @relation(fields: [programTemplateId], references: [id], onDelete: Cascade)
+  dayOffset              Int
+  workoutId              String
+  workout                Workout               @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  workoutVariantId       String
+  workoutVariant         WorkoutVariant        @relation(fields: [workoutVariantId], references: [id], onDelete: Cascade)
+  prescriptionCategoryId String?
+  prescriptionCategory   PrescriptionCategory? @relation(fields: [prescriptionCategoryId], references: [id], onDelete: SetNull)
+  coachNotes             String?
+  sortOrder              Int                   @default(0)
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+
+  @@index([programTemplateId, dayOffset, sortOrder])
 }
 
 model MovementCategory {
@@ -200,21 +262,22 @@ model ResultType {
 }
 
 model Workout {
-  id                String             @id @default(cuid())
-  name              String
-  description       String?
-  typeId            String
-  type              WorkoutType        @relation(fields: [typeId], references: [id])
-  createdByUserId   String
-  createdByUser     User               @relation(fields: [createdByUserId], references: [id])
-  isBenchmark       Boolean            @default(false)
-  isActive          Boolean            @default(true)
-  deactivatedAt     DateTime?
-  variants          WorkoutVariant[]
-  results           WorkoutResult[]
-  scheduledWorkouts ScheduledWorkout[]
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id                   String                @id @default(cuid())
+  name                 String
+  description          String?
+  typeId               String
+  type                 WorkoutType           @relation(fields: [typeId], references: [id])
+  createdByUserId      String
+  createdByUser        User                  @relation(fields: [createdByUserId], references: [id])
+  isBenchmark          Boolean               @default(false)
+  isActive             Boolean               @default(true)
+  deactivatedAt        DateTime?
+  variants             WorkoutVariant[]
+  results              WorkoutResult[]
+  scheduledWorkouts    ScheduledWorkout[]
+  programTemplateItems ProgramTemplateItem[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@index([isActive, createdAt])
 }
@@ -340,9 +403,10 @@ model WorkoutVariant {
   name      String?
   notes     String?
 
-  sections          WorkoutSection[]
-  results           WorkoutResult[]
-  scheduledWorkouts ScheduledWorkout[]
+  sections             WorkoutSection[]
+  results              WorkoutResult[]
+  scheduledWorkouts    ScheduledWorkout[]
+  programTemplateItems ProgramTemplateItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -351,17 +415,18 @@ model WorkoutVariant {
 }
 
 model PrescriptionCategory {
-  id                  String                        @id @default(cuid())
-  key                 String                        @unique
-  name                String
-  description         String?
-  sortOrder           Int                           @default(0)
-  prescriptions       WorkoutMovementPrescription[]
-  results             WorkoutResult[]
-  scheduledWorkouts   ScheduledWorkout[]
-  preferredByAthletes AthleteProfile[]              @relation("AthletePreferredPrescriptionCategory")
-  createdAt           DateTime                      @default(now())
-  updatedAt           DateTime                      @updatedAt
+  id                   String                        @id @default(cuid())
+  key                  String                        @unique
+  name                 String
+  description          String?
+  sortOrder            Int                           @default(0)
+  prescriptions        WorkoutMovementPrescription[]
+  results              WorkoutResult[]
+  scheduledWorkouts    ScheduledWorkout[]
+  programTemplateItems ProgramTemplateItem[]
+  preferredByAthletes  AthleteProfile[]              @relation("AthletePreferredPrescriptionCategory")
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
 }
 
 model WorkoutMovementPrescription {

@@ -204,6 +204,13 @@ workout variations to individual days, add prescription categories and coaching
 notes, remove their own planned assignments, and copy their programming from the
 previous week. Completed training remains read-only historical data.
 
+### Coach groups and program templates
+
+Coaches can organize actively connected athletes into groups, build reusable
+seven-day program templates, and assign a complete template to every athlete in
+a group for a selected week. Existing assignments are preserved and reported as
+skipped instead of being overwritten.
+
 ## Future features
 
 Possible future capabilities include:

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CoachesModule } from './coaches/coaches.module';
+import { CoachProgrammingModule } from './coach-programming/coach-programming.module';
 
 import { AthleteProfilesModule } from './athlete-profiles/athlete-profiles.module';
 import { AuthModule } from './auth/auth.module';
@@ -22,6 +23,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
     HealthModule,
     AuthModule,
     CoachesModule,
+    CoachProgrammingModule,
     UsersModule,
     AthleteProfilesModule,
     MovementsModule,
