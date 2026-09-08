@@ -218,6 +218,13 @@ state. The dashboard highlights overdue sessions and completed assignments that
 still need review. Athletes can attach contextual comments to scheduled sessions,
 and coaches can respond with feedback that remains visible in training history.
 
+### Coach analytics and group insights
+
+Coaches can compare completion, overdue training, recorded repetition and load
+volume, weekly adherence, workout-type distribution, movement-category
+distribution, and frequently assigned workouts. Analytics can be scoped by date
+range, athlete, or coach-owned group, with drill-down links to athlete details.
+
 ## Future features
 
 Possible future capabilities include:

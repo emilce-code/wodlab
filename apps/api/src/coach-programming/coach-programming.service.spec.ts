@@ -218,4 +218,81 @@ describe('CoachProgrammingService', () => {
       new ForbiddenException('Active coach relationship required'),
     );
   });
+
+  it('calculates coach analytics from assigned and completed training', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.scheduledWorkout.findMany.mockResolvedValue([
+      {
+        status: 'COMPLETED',
+        scheduledDate: new Date('2026-09-07T00:00:00.000Z'),
+        athleteProfile: { id: 'athlete-1', displayName: 'Alex' },
+        workout: {
+          id: 'workout-1',
+          name: 'Fran',
+          type: { key: 'FOR_TIME', name: 'For time' },
+        },
+        workoutResult: {
+          reps: 45,
+          load: null,
+          weightUnit: null,
+          performedMovements: [
+            {
+              reps: 45,
+              load: 100,
+              weightUnit: 'LB',
+              workoutMovement: {
+                movement: {
+                  category: { key: 'WEIGHTLIFTING', name: 'Weightlifting' },
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        status: 'PLANNED',
+        scheduledDate: new Date('2099-09-08T00:00:00.000Z'),
+        athleteProfile: { id: 'athlete-1', displayName: 'Alex' },
+        workout: {
+          id: 'workout-2',
+          name: 'Helen',
+          type: { key: 'ROUNDS', name: 'Rounds' },
+        },
+        workoutResult: null,
+      },
+    ]);
+
+    const result = await service.getAnalytics('user-1', {
+      from: '2026-09-01',
+      to: '2099-09-30',
+    });
+
+    expect(result.summary).toEqual({
+      assigned: 2,
+      completed: 1,
+      overdue: 0,
+      completionRate: 50,
+      totalReps: 45,
+      totalLoadKg: 45.4,
+    });
+    expect(result.athletes[0]).toEqual(
+      expect.objectContaining({ name: 'Alex', completionRate: 50 }),
+    );
+    expect(result.movementCategories).toEqual([
+      { key: 'WEIGHTLIFTING', name: 'Weightlifting', count: 1 },
+    ]);
+  });
+
+  it('rejects an inverted analytics date range', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+
+    await expect(
+      service.getAnalytics('user-1', {
+        from: '2026-09-30',
+        to: '2026-09-01',
+      }),
+    ).rejects.toThrow(
+      new BadRequestException('The start date must be before the end date'),
+    );
+  });
 });

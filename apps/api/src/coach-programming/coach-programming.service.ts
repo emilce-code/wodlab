@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
 import { CreateCoachGroupDto } from './dto/create-coach-group.dto';
 import { CreateProgramTemplateDto } from './dto/create-program-template.dto';
+import { FindCoachAnalyticsQueryDto } from './dto/find-coach-analytics-query.dto';
 import { FindCoachMonitoringQueryDto } from './dto/find-coach-monitoring-query.dto';
 
 const groupInclude = {
@@ -192,6 +193,211 @@ export class CoachProgrammingService {
     );
 
     return { summary, items };
+  }
+
+  async getAnalytics(userId: string, query: FindCoachAnalyticsQueryDto) {
+    const coach = await this.getCoach(userId);
+    const from = this.parseDate(query.from);
+    const to = this.parseDate(query.to);
+    if (from > to) {
+      throw new BadRequestException(
+        'The start date must be before the end date',
+      );
+    }
+
+    const athleteIds = await this.resolveAnalyticsAthleteIds(
+      coach.id,
+      query.groupId,
+      query.athleteProfileId,
+    );
+    const assignments = await this.prisma.scheduledWorkout.findMany({
+      where: {
+        assignedByCoachProfileId: coach.id,
+        athleteProfileId: athleteIds ? { in: athleteIds } : undefined,
+        scheduledDate: { gte: from, lte: to },
+      },
+      orderBy: { scheduledDate: 'asc' },
+      include: {
+        athleteProfile: { select: { id: true, displayName: true } },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+            type: { select: { key: true, name: true } },
+          },
+        },
+        workoutResult: {
+          select: {
+            reps: true,
+            load: true,
+            weightUnit: true,
+            performedMovements: {
+              select: {
+                reps: true,
+                load: true,
+                weightUnit: true,
+                workoutMovement: {
+                  select: {
+                    movement: {
+                      select: {
+                        category: { select: { key: true, name: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const today = this.parseDate(new Date().toISOString().slice(0, 10));
+    const athletes = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        assigned: number;
+        completed: number;
+        overdue: number;
+        totalReps: number;
+        totalLoadKg: number;
+      }
+    >();
+    const weeks = new Map<string, { assigned: number; completed: number }>();
+    const workoutTypes = new Map<
+      string,
+      { key: string; name: string; count: number }
+    >();
+    const movementCategories = new Map<
+      string,
+      { key: string; name: string; count: number }
+    >();
+    const workouts = new Map<
+      string,
+      { id: string; name: string; count: number }
+    >();
+    let completed = 0;
+    let overdue = 0;
+    let totalReps = 0;
+    let totalLoadKg = 0;
+
+    for (const assignment of assignments) {
+      const done = assignment.status === 'COMPLETED';
+      const late = !done && assignment.scheduledDate < today;
+      if (done) completed += 1;
+      if (late) overdue += 1;
+
+      const athlete = athletes.get(assignment.athleteProfile.id) ?? {
+        id: assignment.athleteProfile.id,
+        name: assignment.athleteProfile.displayName,
+        assigned: 0,
+        completed: 0,
+        overdue: 0,
+        totalReps: 0,
+        totalLoadKg: 0,
+      };
+      athlete.assigned += 1;
+      if (done) athlete.completed += 1;
+      if (late) athlete.overdue += 1;
+
+      const weekStart = this.weekStart(assignment.scheduledDate);
+      const week = weeks.get(weekStart) ?? { assigned: 0, completed: 0 };
+      week.assigned += 1;
+      if (done) week.completed += 1;
+      weeks.set(weekStart, week);
+
+      const type = workoutTypes.get(assignment.workout.type.key) ?? {
+        ...assignment.workout.type,
+        count: 0,
+      };
+      type.count += 1;
+      workoutTypes.set(type.key, type);
+
+      const workout = workouts.get(assignment.workout.id) ?? {
+        id: assignment.workout.id,
+        name: assignment.workout.name,
+        count: 0,
+      };
+      workout.count += 1;
+      workouts.set(workout.id, workout);
+
+      const result = assignment.workoutResult;
+      if (result) {
+        const performedMovements = result.performedMovements;
+        if (performedMovements.length === 0) {
+          const resultReps = result.reps ?? 0;
+          const resultLoad = this.toKilograms(result.load, result.weightUnit);
+          athlete.totalReps += resultReps;
+          athlete.totalLoadKg += resultLoad;
+          totalReps += resultReps;
+          totalLoadKg += resultLoad;
+        }
+
+        for (const movement of performedMovements) {
+          const reps = movement.reps ?? 0;
+          const load = this.toKilograms(movement.load, movement.weightUnit);
+          athlete.totalReps += reps;
+          athlete.totalLoadKg += load;
+          totalReps += reps;
+          totalLoadKg += load;
+          const category = movement.workoutMovement.movement.category;
+          const distribution = movementCategories.get(category.key) ?? {
+            ...category,
+            count: 0,
+          };
+          distribution.count += 1;
+          movementCategories.set(category.key, distribution);
+        }
+      }
+      athletes.set(athlete.id, athlete);
+    }
+
+    const addRate = <T extends { assigned: number; completed: number }>(
+      value: T,
+    ) => ({
+      ...value,
+      completionRate:
+        value.assigned === 0
+          ? 0
+          : Math.round((value.completed / value.assigned) * 100),
+    });
+
+    return {
+      range: { from: query.from, to: query.to },
+      summary: {
+        assigned: assignments.length,
+        completed,
+        overdue,
+        completionRate:
+          assignments.length === 0
+            ? 0
+            : Math.round((completed / assignments.length) * 100),
+        totalReps,
+        totalLoadKg: Math.round(totalLoadKg * 10) / 10,
+      },
+      athletes: [...athletes.values()]
+        .map(addRate)
+        .sort(
+          (left, right) =>
+            right.completionRate - left.completionRate ||
+            left.name.localeCompare(right.name),
+        ),
+      weekly: [...weeks.entries()].map(([weekStart, value]) => ({
+        weekStart,
+        ...addRate(value),
+      })),
+      workoutTypes: [...workoutTypes.values()].sort(
+        (left, right) => right.count - left.count,
+      ),
+      movementCategories: [...movementCategories.values()].sort(
+        (left, right) => right.count - left.count,
+      ),
+      workouts: [...workouts.values()]
+        .sort((left, right) => right.count - left.count)
+        .slice(0, 10),
+    };
   }
 
   async createGroup(userId: string, dto: CreateCoachGroupDto) {
@@ -388,6 +594,47 @@ export class CoachProgrammingService {
     });
     if (!coach) throw new ForbiddenException('Coach profile required');
     return coach;
+  }
+
+  private async resolveAnalyticsAthleteIds(
+    coachProfileId: string,
+    groupId?: string,
+    athleteProfileId?: string,
+  ) {
+    if (athleteProfileId) {
+      const relationship = await this.prisma.coachAthleteRelationship.findFirst(
+        {
+          where: { coachProfileId, athleteProfileId, status: 'ACTIVE' },
+        },
+      );
+      if (!relationship) {
+        throw new ForbiddenException('Active coach relationship required');
+      }
+      return [athleteProfileId];
+    }
+    if (!groupId) return undefined;
+    const group = await this.prisma.coachGroup.findFirst({
+      where: { id: groupId, coachProfileId },
+      select: { members: { select: { athleteProfileId: true } } },
+    });
+    if (!group) throw new NotFoundException('Coach group not found');
+    return group.members.map((member) => member.athleteProfileId);
+  }
+
+  private weekStart(value: Date) {
+    const date = new Date(value);
+    const day = date.getUTCDay();
+    date.setUTCDate(date.getUTCDate() - (day === 0 ? 6 : day - 1));
+    return date.toISOString().slice(0, 10);
+  }
+
+  private toKilograms(
+    value: Prisma.Decimal | number | null,
+    unit: 'KG' | 'LB' | null,
+  ) {
+    if (value === null) return 0;
+    const amount = Number(value);
+    return unit === 'LB' ? amount * 0.45359237 : amount;
   }
 
   private async requireGroup(coachProfileId: string, groupId: string) {

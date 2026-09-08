@@ -188,6 +188,14 @@ export default function CoachWorkspace() {
           </Card>
 
           <Card className="p-6">
+            <h2 className="text-xl font-bold">{t("analyticsTitle")}</h2>
+            <p className="mt-2 text-sm text-muted">{t("analyticsDescription")}</p>
+            <ButtonLink href="/coach/analytics" className="mt-4">
+              {t("openAnalytics")}
+            </ButtonLink>
+          </Card>
+
+          <Card className="p-6">
             <h2 className="text-xl font-bold">{t("inviteTitle")}</h2>
             <p className="mt-2 text-sm text-muted">{t("inviteDescription")}</p>
             <form onSubmit={invite} className="mt-5 flex flex-col gap-3 sm:flex-row">

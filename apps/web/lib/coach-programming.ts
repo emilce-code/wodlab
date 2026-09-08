@@ -89,3 +89,34 @@ export type CoachMonitoringResponse = {
   };
   items: CoachMonitoringItem[];
 };
+
+export type CoachAnalyticsResponse = {
+  range: { from: string; to: string };
+  summary: {
+    assigned: number;
+    completed: number;
+    overdue: number;
+    completionRate: number;
+    totalReps: number;
+    totalLoadKg: number;
+  };
+  athletes: {
+    id: string;
+    name: string;
+    assigned: number;
+    completed: number;
+    overdue: number;
+    totalReps: number;
+    totalLoadKg: number;
+    completionRate: number;
+  }[];
+  weekly: {
+    weekStart: string;
+    assigned: number;
+    completed: number;
+    completionRate: number;
+  }[];
+  workoutTypes: { key: string; name: string; count: number }[];
+  movementCategories: { key: string; name: string; count: number }[];
+  workouts: { id: string; name: string; count: number }[];
+};

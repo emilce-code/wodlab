@@ -18,6 +18,7 @@ import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
 import { CreateCoachGroupDto } from './dto/create-coach-group.dto';
 import { CreateProgramTemplateDto } from './dto/create-program-template.dto';
 import { FindCoachMonitoringQueryDto } from './dto/find-coach-monitoring-query.dto';
+import { FindCoachAnalyticsQueryDto } from './dto/find-coach-analytics-query.dto';
 
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
@@ -37,6 +38,14 @@ export class CoachProgrammingController {
     @Query() query: FindCoachMonitoringQueryDto,
   ) {
     return this.service.getMonitoring(request.user.userId, query);
+  }
+
+  @Get('analytics')
+  getAnalytics(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindCoachAnalyticsQueryDto,
+  ) {
+    return this.service.getAnalytics(request.user.userId, query);
   }
 
   @Post('groups')

@@ -345,3 +345,11 @@ the `scheduled-workouts` module, which verifies assignment ownership. Coach
 feedback continues through the coach module, which verifies an active coaching
 relationship and assignment ownership. The web application proxies these APIs
 without duplicating authorization rules.
+
+## Coach analytics
+
+Coach analytics are calculated from coach-owned scheduled assignments within the
+modular API. Group and athlete filters are authorized before querying. Aggregates
+are derived server-side from assignment completion and linked workout-result
+details, while the web dashboard receives a compact presentation contract and
+renders dependency-free, accessible visual summaries.
