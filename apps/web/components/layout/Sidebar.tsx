@@ -48,6 +48,11 @@ const secondaryNavigation = [
     href: "/movements",
     icon: "movements",
   },
+  {
+    key: "calculators",
+    href: "/calculators",
+    icon: "calculator",
+  },
 ] as const satisfies readonly {
   key: string;
   href: string;

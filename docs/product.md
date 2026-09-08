@@ -225,6 +225,15 @@ volume, weekly adherence, workout-type distribution, movement-category
 distribution, and frequently assigned workouts. Analytics can be scoped by date
 range, athlete, or coach-owned group, with drill-down links to athlete details.
 
+### Training calculators and percentage prescriptions
+
+Athletes can calculate weight percentages in KG or LB, apply equipment-aware
+rounding, reverse-calculate the percentage represented by a performed weight,
+and view per-side barbell loading. Workout creators can prescribe a percentage
+of the same movement's exact rep max. When the athlete has that RM recorded,
+the workout displays a personalized target in the athlete's preferred unit;
+otherwise it clearly identifies the missing RM.
+
 ## Future features
 
 Possible future capabilities include:

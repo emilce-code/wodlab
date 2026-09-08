@@ -19,6 +19,9 @@ export class WorkoutPrescriptionResponseDto {
   reps: number | null;
   weight: number | null;
   weightUnit: 'KG' | 'LB' | null;
+  percentage: number | null;
+  referenceRepMax: number | null;
+  referenceMovement: { id: string; name: string } | null;
   distance: number | null;
   calories: number | null;
   durationSeconds: number | null;

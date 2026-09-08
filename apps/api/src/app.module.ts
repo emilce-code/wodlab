@@ -10,6 +10,7 @@ import { MovementsModule } from './movements/movements.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ScheduledWorkoutsModule } from './scheduled-workouts/scheduled-workouts.module';
 import { TrainingModule } from './training/training.module';
+import { TrainingCalculatorsModule } from './training-calculators/training-calculators.module';
 import { UsersModule } from './users/users.module';
 import { WorkoutsModule } from './workouts/workouts.module';
 
@@ -30,6 +31,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
     WorkoutsModule,
     ScheduledWorkoutsModule,
     TrainingModule,
+    TrainingCalculatorsModule,
   ],
 })
 export class AppModule {}

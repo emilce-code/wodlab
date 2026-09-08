@@ -31,6 +31,7 @@ export default function MobileNavigation() {
     pathname.startsWith("/progress") ||
     pathname.startsWith("/coach") ||
     pathname.startsWith("/movements") ||
+    pathname.startsWith("/calculators") ||
     pathname.startsWith("/account");
 
   useEffect(() => {
@@ -103,7 +104,9 @@ export default function MobileNavigation() {
                 ref={firstMenuLinkRef}
                 href="/coach"
                 onClick={() => closeMoreMenu()}
-                aria-current={pathname.startsWith("/coach") ? "page" : undefined}
+                aria-current={
+                  pathname.startsWith("/coach") ? "page" : undefined
+                }
                 className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <NavigationIcon name="coach" className="h-5 w-5" />
@@ -144,6 +147,18 @@ export default function MobileNavigation() {
               >
                 <NavigationIcon name="account" className="h-5 w-5" />
                 {t("account")}
+              </Link>
+
+              <Link
+                href="/calculators"
+                onClick={() => closeMoreMenu()}
+                aria-current={
+                  pathname.startsWith("/calculators") ? "page" : undefined
+                }
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <NavigationIcon name="calculator" className="h-5 w-5" />
+                {t("calculators")}
               </Link>
             </div>
 

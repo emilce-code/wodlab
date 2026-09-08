@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  Max,
 } from 'class-validator';
 
 import { WeightUnit } from '../../../generated/prisma/enums';
@@ -26,6 +27,22 @@ export class CreateWorkoutPrescriptionDto {
   @IsOptional()
   @IsEnum(WeightUnit)
   weightUnit?: WeightUnit;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(200)
+  percentage?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  referenceRepMax?: number;
+
+  @IsOptional()
+  @IsString()
+  referenceMovementId?: string;
 
   @IsOptional()
   @IsInt()

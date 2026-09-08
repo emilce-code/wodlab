@@ -353,3 +353,12 @@ modular API. Group and athlete filters are authorized before querying. Aggregate
 are derived server-side from assignment completion and linked workout-result
 details, while the web dashboard receives a compact presentation contract and
 renders dependency-free, accessible visual summaries.
+
+## Training calculator boundary
+
+Standalone percentage and plate-loading arithmetic remains in the web client.
+Personalized workout targets are calculated by the authenticated
+`training-calculators` API module from structured workout prescriptions and
+the athlete's strongest exact-repetition movement result. Unit normalization
+and authorization remain server-side; persisted historical results are never
+rewritten when a newer rep max is recorded.

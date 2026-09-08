@@ -164,22 +164,23 @@ model MovementCategory {
 }
 
 model Movement {
-  id               String                    @id @default(cuid())
-  name             String                    @unique
-  searchText       String                    @default("")
-  categoryId       String
-  category         MovementCategory          @relation(fields: [categoryId], references: [id])
-  measurementTypes MovementMeasurementType[]
-  workoutMovements WorkoutMovement[]
-  movementResults  MovementResult[]
-  isFoundational   Boolean                   @default(false)
-  official         Boolean                   @default(true)
-  baseMovementId   String?
-  baseMovement     Movement?                 @relation("MovementVariants", fields: [baseMovementId], references: [id])
-  variants         Movement[]                @relation("MovementVariants")
-  aliases          String[]
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
+  id                      String                        @id @default(cuid())
+  name                    String                        @unique
+  searchText              String                        @default("")
+  categoryId              String
+  category                MovementCategory              @relation(fields: [categoryId], references: [id])
+  measurementTypes        MovementMeasurementType[]
+  workoutMovements        WorkoutMovement[]
+  movementResults         MovementResult[]
+  percentagePrescriptions WorkoutMovementPrescription[] @relation("PrescriptionReferenceMovement")
+  isFoundational          Boolean                       @default(false)
+  official                Boolean                       @default(true)
+  baseMovementId          String?
+  baseMovement            Movement?                     @relation("MovementVariants", fields: [baseMovementId], references: [id])
+  variants                Movement[]                    @relation("MovementVariants")
+  aliases                 String[]
+  createdAt               DateTime                      @default(now())
+  updatedAt               DateTime                      @updatedAt
 }
 
 model MeasurementType {
@@ -436,18 +437,23 @@ model WorkoutMovementPrescription {
   prescriptionCategoryId String
   prescriptionCategory   PrescriptionCategory @relation(fields: [prescriptionCategoryId], references: [id])
 
-  reps            Int?
-  weight          Decimal?
-  weightUnit      WeightUnit?
-  distance        Int?
-  calories        Int?
-  durationSeconds Int?
-  notes           String?
+  reps                Int?
+  weight              Decimal?
+  weightUnit          WeightUnit?
+  percentage          Decimal?    @db.Decimal(5, 2)
+  referenceRepMax     Int?
+  referenceMovementId String?
+  referenceMovement   Movement?   @relation("PrescriptionReferenceMovement", fields: [referenceMovementId], references: [id], onDelete: SetNull)
+  distance            Int?
+  calories            Int?
+  durationSeconds     Int?
+  notes               String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([workoutMovementId, prescriptionCategoryId])
+  @@index([referenceMovementId])
 }
 
 model ScheduledWorkout {

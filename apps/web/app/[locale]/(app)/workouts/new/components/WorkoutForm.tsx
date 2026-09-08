@@ -592,6 +592,16 @@ export default function WorkoutForm({
 
                   weightUnit: prescription.weightUnit || undefined,
 
+                  percentage: optionalNumber(prescription.percentage),
+
+                  referenceRepMax: prescription.percentage
+                    ? optionalNumber(prescription.referenceRepMax)
+                    : undefined,
+
+                  referenceMovementId: prescription.percentage
+                    ? movement.movementId
+                    : undefined,
+
                   distance: optionalNumber(prescription.distance),
 
                   calories: optionalNumber(prescription.calories),
@@ -605,6 +615,7 @@ export default function WorkoutForm({
                     prescription.reps !== undefined ||
                     prescription.weight !== undefined ||
                     prescription.weightUnit !== undefined ||
+                    prescription.percentage !== undefined ||
                     prescription.distance !== undefined ||
                     prescription.calories !== undefined ||
                     prescription.durationSeconds !== undefined ||

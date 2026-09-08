@@ -93,6 +93,7 @@ const workoutInclude = {
 
                 include: {
                   prescriptionCategory: true,
+                  referenceMovement: { select: { id: true, name: true } },
                 },
               },
             },
@@ -441,6 +442,15 @@ export class WorkoutsService {
                             reps: prescription.reps,
                             weight: prescription.weight,
                             weightUnit: prescription.weightUnit,
+                            percentage: prescription.percentage,
+                            referenceRepMax: prescription.referenceRepMax,
+                            referenceMovement: prescription.referenceMovementId
+                              ? {
+                                  connect: {
+                                    id: prescription.referenceMovementId,
+                                  },
+                                }
+                              : undefined,
                             distance: prescription.distance,
                             calories: prescription.calories,
                             durationSeconds: prescription.durationSeconds,
@@ -587,6 +597,12 @@ export class WorkoutsService {
                   : null,
 
               weightUnit: prescription.weightUnit,
+              percentage:
+                prescription.percentage !== null
+                  ? Number(prescription.percentage)
+                  : null,
+              referenceRepMax: prescription.referenceRepMax,
+              referenceMovement: prescription.referenceMovement,
               distance: prescription.distance,
               calories: prescription.calories,
               durationSeconds: prescription.durationSeconds,

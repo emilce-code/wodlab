@@ -23,6 +23,7 @@ import type {
   WorkoutResultSummary,
 } from "@/lib/result-types";
 import { selectWorkoutVariant } from "@/lib/workout-variants";
+import type { WorkoutPercentageTargets } from "@/lib/training-calculators";
 
 import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
@@ -40,6 +41,9 @@ type WorkoutPrescription = {
   reps: number | null;
   weight: number | null;
   weightUnit: WeightUnit | null;
+  percentage: number | null;
+  referenceRepMax: number | null;
+  referenceMovement: { id: string; name: string } | null;
   distance: number | null;
   calories: number | null;
   durationSeconds: number | null;
@@ -194,6 +198,15 @@ async function getAthletePreferences(): Promise<AthletePreferences> {
   };
 }
 
+async function getPercentageTargets(id: string) {
+  const response = await authenticatedApiFetch(
+    `/training-calculators/workouts/${id}/targets`,
+  );
+  return response?.ok
+    ? ((await response.json()) as WorkoutPercentageTargets)
+    : { preferredWeightUnit: "KG" as const, targets: [] };
+}
+
 export default async function WorkoutPage({ params, searchParams }: Props) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const requestedLevelKey = Array.isArray(query.variation)
@@ -213,6 +226,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     resultTypeT,
     locale,
     currentUser,
+    percentageTargets,
   ] = await Promise.all([
     getWorkout(id),
     getWorkoutResults(id),
@@ -223,6 +237,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     getTranslations("resultTypes"),
     getLocale(),
     getCurrentUser(),
+    getPercentageTargets(id),
   ]);
 
   if (!workout) {
@@ -290,6 +305,15 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
   function getCategoryPrescription(prescription: WorkoutPrescription) {
     const values: string[] = [];
 
+    if (
+      prescription.percentage !== null &&
+      prescription.referenceRepMax !== null
+    ) {
+      values.push(
+        `${prescription.percentage}% ${t("ofRepMax", { reps: prescription.referenceRepMax })}`,
+      );
+    }
+
     if (prescription.reps !== null) {
       values.push(
         t("repsValue", {
@@ -340,6 +364,9 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         ),
       ),
     ).values(),
+  );
+  const percentageTargetMap = new Map(
+    percentageTargets.targets.map((target) => [target.prescriptionId, target]),
   );
 
   const personalBest = summary.personalBest;
@@ -575,6 +602,8 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                                   {item.prescriptions.map((prescription) => {
                                     const value =
                                       getCategoryPrescription(prescription);
+                                    const percentageTarget =
+                                      percentageTargetMap.get(prescription.id);
 
                                     return (
                                       <div
@@ -596,6 +625,40 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                                             · {prescription.notes}
                                           </span>
                                         )}
+
+                                        {percentageTarget ? (
+                                          <div className="basis-full rounded-lg border border-accent/30 bg-accent/10 p-3">
+                                            {percentageTarget.target &&
+                                            percentageTarget.repMax ? (
+                                              <p>
+                                                <span className="font-semibold text-accent">
+                                                  {percentageTarget.target.load}{" "}
+                                                  {percentageTarget.target.weightUnit}
+                                                </span>{" "}
+                                                {t("percentageTargetFromRm", {
+                                                  percentage:
+                                                    percentageTarget.percentage,
+                                                  reps:
+                                                    percentageTarget.referenceRepMax,
+                                                  rm: percentageTarget.repMax.load,
+                                                  unit: percentageTarget.repMax
+                                                    .weightUnit,
+                                                })}
+                                              </p>
+                                            ) : (
+                                              <p>
+                                                {t("percentageTargetMissingRm", {
+                                                  reps:
+                                                    percentageTarget.referenceRepMax,
+                                                  movement:
+                                                    percentageTarget.movement
+                                                      ?.name ??
+                                                    item.movement.name,
+                                                })}
+                                              </p>
+                                            )}
+                                          </div>
+                                        ) : null}
                                       </div>
                                     );
                                   })}
