@@ -32,6 +32,10 @@ export function POST(request: NextRequest, context: Context) {
   return proxy(request, context, "POST");
 }
 
+export function PATCH(request: NextRequest, context: Context) {
+  return proxy(request, context, "PATCH");
+}
+
 export function DELETE(request: NextRequest, context: Context) {
   return proxy(request, context, "DELETE");
 }

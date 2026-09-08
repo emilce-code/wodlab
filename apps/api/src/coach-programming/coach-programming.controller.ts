@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { AddGroupMemberDto } from './dto/add-group-member.dto';
 import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
 import { CreateCoachGroupDto } from './dto/create-coach-group.dto';
 import { CreateProgramTemplateDto } from './dto/create-program-template.dto';
+import { FindCoachMonitoringQueryDto } from './dto/find-coach-monitoring-query.dto';
 
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
@@ -27,6 +29,14 @@ export class CoachProgrammingController {
   @Get('workspace')
   getWorkspace(@Req() request: AuthenticatedRequest) {
     return this.service.getWorkspace(request.user.userId);
+  }
+
+  @Get('monitoring')
+  getMonitoring(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindCoachMonitoringQueryDto,
+  ) {
+    return this.service.getMonitoring(request.user.userId, query);
   }
 
   @Post('groups')

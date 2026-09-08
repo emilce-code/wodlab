@@ -7,6 +7,8 @@ export type ScheduledWorkout = {
   completedAt: string | null;
   notes: string | null;
   coachNotes?: string | null;
+  athleteComment?: string | null;
+  athleteCommentedAt?: string | null;
   coachFeedback?: string | null;
   reviewedAt?: string | null;
   assignedByCoachProfile?: {

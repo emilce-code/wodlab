@@ -180,6 +180,14 @@ export default function CoachWorkspace() {
           </Card>
 
           <Card className="p-6">
+            <h2 className="text-xl font-bold">{t("monitoringTitle")}</h2>
+            <p className="mt-2 text-sm text-muted">{t("monitoringDescription")}</p>
+            <ButtonLink href="/coach/monitoring" className="mt-4">
+              {t("openMonitoring")}
+            </ButtonLink>
+          </Card>
+
+          <Card className="p-6">
             <h2 className="text-xl font-bold">{t("inviteTitle")}</h2>
             <p className="mt-2 text-sm text-muted">{t("inviteDescription")}</p>
             <form onSubmit={invite} className="mt-5 flex flex-col gap-3 sm:flex-row">

@@ -202,6 +202,22 @@ describe('ScheduledWorkoutsService', () => {
     );
   });
 
+  it('saves an athlete comment on an owned assignment', async () => {
+    await service.updateAthleteComment('user-1', 'scheduled-1', {
+      comment: '  Shoulder felt good today  ',
+    });
+
+    expect(prismaMock.scheduledWorkout.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'scheduled-1' },
+        data: expect.objectContaining({
+          athleteComment: 'Shoulder felt good today',
+          athleteCommentedAt: expect.any(Date) as Date,
+        }) as unknown,
+      }),
+    );
+  });
+
   it('rejects rescheduling into a duplicate variation and date', async () => {
     prismaMock.scheduledWorkout.count.mockResolvedValue(1);
 

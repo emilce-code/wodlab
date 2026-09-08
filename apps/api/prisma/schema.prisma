@@ -476,6 +476,8 @@ model ScheduledWorkout {
   assignedByCoachProfileId String?
   assignedByCoachProfile   CoachProfile? @relation("CoachAssignments", fields: [assignedByCoachProfileId], references: [id], onDelete: SetNull)
   coachNotes               String?
+  athleteComment           String?
+  athleteCommentedAt       DateTime?
   coachFeedback            String?
   reviewedAt               DateTime?
 

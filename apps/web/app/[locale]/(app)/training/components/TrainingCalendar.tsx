@@ -101,6 +101,65 @@ type SessionActionsProps = {
   onRemoved: (id: string) => void;
 };
 
+function AthleteCommentForm({
+  item,
+  onUpdated,
+}: Pick<SessionActionsProps, "item" | "onUpdated">) {
+  const t = useTranslations("training");
+  const [comment, setComment] = useState(item.athleteComment ?? "");
+  const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/scheduled-workouts/${item.id}/comment`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment }),
+      });
+      if (!response.ok) throw new Error();
+      onUpdated((await response.json()) as ScheduledWorkout);
+      setEditing(false);
+    } catch {
+      setError(t("commentError"));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!editing) {
+    return (
+      <div className="mt-4">
+        {item.athleteComment ? (
+          <p className="rounded-lg border border-border bg-surface p-3 text-sm">
+            <span className="font-semibold">{t("yourComment")}</span>{" "}
+            {item.athleteComment}
+          </p>
+        ) : null}
+        <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(true)} className="mt-2">
+          {item.athleteComment ? t("editComment") : t("addComment")}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={save} className="mt-4 rounded-lg border border-border p-3">
+      {error ? <Alert variant="error">{error}</Alert> : null}
+      <label htmlFor={`athlete-comment-${item.id}`} className="text-sm font-semibold">{t("commentLabel")}</label>
+      <textarea id={`athlete-comment-${item.id}`} maxLength={2000} value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("commentPlaceholder")} className="mt-2 min-h-24 w-full rounded-lg border border-border bg-background p-3" />
+      <div className="mt-2 flex gap-2">
+        <Button type="submit" size="sm" isLoading={submitting}>{t("saveComment")}</Button>
+        <Button type="button" size="sm" variant="secondary" onClick={() => { setComment(item.athleteComment ?? ""); setEditing(false); }}>{t("cancel")}</Button>
+      </div>
+    </form>
+  );
+}
+
 function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
   const t = useTranslations("training");
   const [editing, setEditing] = useState(false);
@@ -110,9 +169,12 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
 
   if (item.status === "COMPLETED") {
     return (
-      <ButtonLink href={workoutHref(item)} variant="secondary" size="sm">
-        {t("viewResult")}
-      </ButtonLink>
+      <div className="mt-4 border-t border-border pt-4">
+        <ButtonLink href={workoutHref(item)} variant="secondary" size="sm">
+          {t("viewResult")}
+        </ButtonLink>
+        <AthleteCommentForm item={item} onUpdated={onUpdated} />
+      </div>
     );
   }
 
@@ -203,6 +265,7 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
           </Button>
         </div>
       )}
+      <AthleteCommentForm item={item} onUpdated={onUpdated} />
     </div>
   );
 }

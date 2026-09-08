@@ -336,3 +336,12 @@ Future infrastructure may include:
 - No premature microservices
 - No premature background processing
 - No business logic tied exclusively to one frontend
+
+## Coach monitoring boundary
+
+Coach monitoring queries remain in the `coach-programming` API module and are
+scoped by the authenticated coach profile. Athlete comments are written through
+the `scheduled-workouts` module, which verifies assignment ownership. Coach
+feedback continues through the coach module, which verifies an active coaching
+relationship and assignment ownership. The web application proxies these APIs
+without duplicating authorization rules.

@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
 import { CreateCoachGroupDto } from './dto/create-coach-group.dto';
 import { CreateProgramTemplateDto } from './dto/create-program-template.dto';
+import { FindCoachMonitoringQueryDto } from './dto/find-coach-monitoring-query.dto';
 
 const groupInclude = {
   members: {
@@ -104,6 +105,93 @@ export class CoachProgrammingService {
       workouts,
       prescriptionCategories: categories,
     };
+  }
+
+  async getMonitoring(userId: string, query: FindCoachMonitoringQueryDto) {
+    const coach = await this.getCoach(userId);
+    const from = query.from ? this.parseDate(query.from) : undefined;
+    const to = query.to ? this.parseDate(query.to) : undefined;
+    if (from && to && from > to) {
+      throw new BadRequestException(
+        'The start date must be before the end date',
+      );
+    }
+
+    let athleteIds: string[] | undefined;
+    if (query.groupId) {
+      const group = await this.prisma.coachGroup.findFirst({
+        where: { id: query.groupId, coachProfileId: coach.id },
+        select: { members: { select: { athleteProfileId: true } } },
+      });
+      if (!group) throw new NotFoundException('Coach group not found');
+      athleteIds = group.members.map((member) => member.athleteProfileId);
+    }
+    if (query.athleteProfileId) {
+      const relationship = await this.prisma.coachAthleteRelationship.findFirst(
+        {
+          where: {
+            coachProfileId: coach.id,
+            athleteProfileId: query.athleteProfileId,
+            status: 'ACTIVE',
+          },
+        },
+      );
+      if (!relationship)
+        throw new ForbiddenException('Active coach relationship required');
+      athleteIds = [query.athleteProfileId];
+    }
+
+    const today = this.parseDate(new Date().toISOString().slice(0, 10));
+    const status = query.status ?? 'ALL';
+    const items = await this.prisma.scheduledWorkout.findMany({
+      where: {
+        assignedByCoachProfileId: coach.id,
+        athleteProfileId: athleteIds ? { in: athleteIds } : undefined,
+        scheduledDate: from || to ? { gte: from, lte: to } : undefined,
+        status:
+          status === 'PLANNED' || status === 'OVERDUE'
+            ? 'PLANNED'
+            : status === 'COMPLETED' || status === 'NEEDS_REVIEW'
+              ? 'COMPLETED'
+              : undefined,
+        ...(status === 'OVERDUE'
+          ? { scheduledDate: { lt: today, gte: from, lte: to } }
+          : {}),
+        ...(status === 'NEEDS_REVIEW' ? { reviewedAt: null } : {}),
+      },
+      orderBy: [{ scheduledDate: 'desc' }, { createdAt: 'desc' }],
+      include: {
+        athleteProfile: { select: { id: true, displayName: true } },
+        workout: { select: { id: true, name: true } },
+        workoutVariant: {
+          select: {
+            id: true,
+            name: true,
+            level: { select: { key: true, name: true } },
+          },
+        },
+        prescriptionCategory: { select: { key: true, name: true } },
+        workoutResult: { select: { id: true, performedAt: true } },
+      },
+    });
+
+    const summary = items.reduce(
+      (result, item) => {
+        result.total += 1;
+        if (item.status === 'COMPLETED') {
+          result.completed += 1;
+          if (!item.reviewedAt) result.needsReview += 1;
+        } else if (item.scheduledDate < today) {
+          result.overdue += 1;
+        } else {
+          result.planned += 1;
+        }
+        return result;
+      },
+      { total: 0, planned: 0, completed: 0, overdue: 0, needsReview: 0 },
+    );
+
+    return { summary, items };
   }
 
   async createGroup(userId: string, dto: CreateCoachGroupDto) {

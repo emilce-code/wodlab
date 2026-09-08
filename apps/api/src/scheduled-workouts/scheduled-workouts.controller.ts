@@ -16,6 +16,7 @@ import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateScheduledWorkoutDto } from './dto/create-scheduled-workout.dto';
 import { FindScheduledWorkoutsQueryDto } from './dto/find-scheduled-workouts-query.dto';
 import { UpdateScheduledWorkoutDto } from './dto/update-scheduled-workout.dto';
+import { UpdateAthleteCommentDto } from './dto/update-athlete-comment.dto';
 import { ScheduledWorkoutsService } from './scheduled-workouts.service';
 
 type AuthenticatedRequest = Request & {
@@ -57,5 +58,18 @@ export class ScheduledWorkoutsController {
   @Delete(':id')
   remove(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
     return this.scheduledWorkoutsService.remove(request.user.userId, id);
+  }
+
+  @Patch(':id/comment')
+  updateComment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateAthleteCommentDto,
+  ) {
+    return this.scheduledWorkoutsService.updateAthleteComment(
+      request.user.userId,
+      id,
+      dto,
+    );
   }
 }

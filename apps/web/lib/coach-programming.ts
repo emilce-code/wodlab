@@ -51,3 +51,41 @@ export type CoachProgrammingWorkspace = {
   workouts: ProgrammingWorkout[];
   prescriptionCategories: { key: string; name: string }[];
 };
+
+export type CoachMonitoringStatus =
+  | "ALL"
+  | "PLANNED"
+  | "COMPLETED"
+  | "OVERDUE"
+  | "NEEDS_REVIEW";
+
+export type CoachMonitoringItem = {
+  id: string;
+  scheduledDate: string;
+  status: "PLANNED" | "COMPLETED";
+  coachNotes: string | null;
+  athleteComment: string | null;
+  athleteCommentedAt: string | null;
+  coachFeedback: string | null;
+  reviewedAt: string | null;
+  athleteProfile: { id: string; displayName: string };
+  workout: { id: string; name: string };
+  workoutVariant: {
+    id: string;
+    name: string | null;
+    level: { key: string; name: string };
+  };
+  prescriptionCategory: { key: string; name: string } | null;
+  workoutResult: { id: string; performedAt: string } | null;
+};
+
+export type CoachMonitoringResponse = {
+  summary: {
+    total: number;
+    planned: number;
+    completed: number;
+    overdue: number;
+    needsReview: number;
+  };
+  items: CoachMonitoringItem[];
+};

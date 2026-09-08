@@ -176,4 +176,46 @@ describe('CoachProgrammingService', () => {
     });
     expect(result).toEqual({ requested: 2, created: 1, skipped: 1 });
   });
+
+  it('summarizes planned, overdue, completed, and unreviewed assignments', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.scheduledWorkout.findMany.mockResolvedValue([
+      {
+        status: 'PLANNED',
+        scheduledDate: new Date('2020-01-01T00:00:00.000Z'),
+        reviewedAt: null,
+      },
+      {
+        status: 'COMPLETED',
+        scheduledDate: new Date('2026-09-08T00:00:00.000Z'),
+        reviewedAt: null,
+      },
+      {
+        status: 'COMPLETED',
+        scheduledDate: new Date('2026-09-07T00:00:00.000Z'),
+        reviewedAt: new Date(),
+      },
+    ]);
+
+    const result = await service.getMonitoring('user-1', { status: 'ALL' });
+
+    expect(result.summary).toEqual({
+      total: 3,
+      planned: 0,
+      completed: 2,
+      overdue: 1,
+      needsReview: 1,
+    });
+  });
+
+  it('rejects monitoring an athlete without an active relationship', async () => {
+    prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
+    prisma.coachAthleteRelationship.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.getMonitoring('user-1', { athleteProfileId: 'athlete-2' }),
+    ).rejects.toThrow(
+      new ForbiddenException('Active coach relationship required'),
+    );
+  });
 });

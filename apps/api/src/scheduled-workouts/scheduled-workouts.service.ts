@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateScheduledWorkoutDto } from './dto/create-scheduled-workout.dto';
 import { FindScheduledWorkoutsQueryDto } from './dto/find-scheduled-workouts-query.dto';
 import { UpdateScheduledWorkoutDto } from './dto/update-scheduled-workout.dto';
+import { UpdateAthleteCommentDto } from './dto/update-athlete-comment.dto';
 
 const scheduledWorkoutInclude = {
   workout: {
@@ -209,6 +210,28 @@ export class ScheduledWorkoutsService {
     });
 
     return { id: scheduledWorkout.id, deleted: true };
+  }
+
+  async updateAthleteComment(
+    userId: string,
+    scheduledWorkoutId: string,
+    dto: UpdateAthleteCommentDto,
+  ) {
+    const athleteProfileId = await this.getAthleteProfileId(userId);
+    const scheduledWorkout = await this.findOwnedScheduledWorkout(
+      athleteProfileId,
+      scheduledWorkoutId,
+    );
+    const athleteComment = this.normalizeNotes(dto.comment);
+
+    return this.prisma.scheduledWorkout.update({
+      where: { id: scheduledWorkout.id },
+      data: {
+        athleteComment,
+        athleteCommentedAt: athleteComment ? new Date() : null,
+      },
+      include: scheduledWorkoutInclude,
+    });
   }
 
   private async getAthleteProfileId(userId: string) {

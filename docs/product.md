@@ -211,6 +211,13 @@ seven-day program templates, and assign a complete template to every athlete in
 a group for a selected week. Existing assignments are preserved and reported as
 skipped instead of being overwritten.
 
+### Coach monitoring and athlete feedback
+
+Coaches can monitor assigned training by date, group, athlete, and completion
+state. The dashboard highlights overdue sessions and completed assignments that
+still need review. Athletes can attach contextual comments to scheduled sessions,
+and coaches can respond with feedback that remains visible in training history.
+
 ## Future features
 
 Possible future capabilities include:
