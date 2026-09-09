@@ -16,4 +16,8 @@ export class MovementResponseDto {
   isFoundational: boolean;
   official: boolean;
   aliases: string[];
+  description: string | null;
+  videoUrl: string | null;
+  canEdit: boolean;
+  canDelete: boolean;
 }

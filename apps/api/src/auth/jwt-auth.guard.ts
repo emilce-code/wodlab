@@ -13,6 +13,7 @@ import type { Auth0AuthenticatedRequest } from './auth0-auth.guard';
 export type AuthenticatedUser = {
   userId: string;
   email: string;
+  role?: 'USER' | 'ADMIN';
 };
 
 type AuthenticatedRequest = Auth0AuthenticatedRequest &
@@ -51,6 +52,7 @@ export class JwtAuthGuard implements CanActivate {
     request.user = {
       userId: user.id,
       email: user.email,
+      role: user.role,
     };
 
     return true;

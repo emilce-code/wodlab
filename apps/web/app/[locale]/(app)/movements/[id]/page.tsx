@@ -13,6 +13,7 @@ import LogMovementResultForm from "./components/LogMovementResultForm";
 import MovementProgressChart from "./components/MovementProgressChart";
 import MovementResultActions from "./components/MovementResultActions";
 import MovementResultSource from "./components/MovementResultSource";
+import MovementEditor from "../components/MovementEditor";
 import { MeasurementType, MovementResult } from "./movement-result.types";
 
 type Movement = {
@@ -21,6 +22,10 @@ type Movement = {
   aliases: string[];
   isFoundational: boolean;
   official: boolean;
+  description: string | null;
+  videoUrl: string | null;
+  canEdit: boolean;
+  canDelete: boolean;
   category: {
     key: string;
     name: string;
@@ -92,20 +97,41 @@ async function getMovementSummary(
   return (await response.json()) as MovementResultSummary;
 }
 
+async function getOptions(
+  path: string,
+): Promise<{ key: string; name: string }[]> {
+  const response = await authenticatedApiFetch(path);
+  return response?.ok
+    ? ((await response.json()) as { key: string; name: string }[])
+    : [];
+}
+
 export default async function MovementDetailPage({ params }: Props) {
   const { id } = await params;
 
-  const [movement, results, summary, user, t, categoryT, measurementT, locale] =
-    await Promise.all([
-      getMovement(id),
-      getMovementResults(id),
-      getMovementSummary(id),
-      getCurrentUser(),
-      getTranslations("movements.detail"),
-      getTranslations("movementCategories"),
-      getTranslations("measurementTypes"),
-      getLocale(),
-    ]);
+  const [
+    movement,
+    results,
+    summary,
+    user,
+    t,
+    categoryT,
+    measurementT,
+    locale,
+    categories,
+    measurementTypes,
+  ] = await Promise.all([
+    getMovement(id),
+    getMovementResults(id),
+    getMovementSummary(id),
+    getCurrentUser(),
+    getTranslations("movements.detail"),
+    getTranslations("movementCategories"),
+    getTranslations("measurementTypes"),
+    getLocale(),
+    getOptions("/movements/categories"),
+    getOptions("/movements/measurement-types"),
+  ]);
 
   if (!movement) {
     notFound();
@@ -167,11 +193,47 @@ export default async function MovementDetailPage({ params }: Props) {
           </p>
         )}
 
+        {currentMovement.description ? (
+          <section
+            className="mt-6 max-w-3xl"
+            aria-labelledby="movement-instructions"
+          >
+            <h2
+              id="movement-instructions"
+              className="text-sm font-bold uppercase tracking-[0.14em] text-muted"
+            >
+              {t("instructions")}
+            </h2>
+            <p className="mt-3 whitespace-pre-line text-base leading-7">
+              {currentMovement.description}
+            </p>
+          </section>
+        ) : null}
+
+        {currentMovement.videoUrl ? (
+          <a
+            href={currentMovement.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex min-h-11 items-center rounded-lg border border-border px-4 py-2 text-sm font-semibold transition hover:border-accent/50 hover:text-accent"
+          >
+            {t("watchVideo")} ↗
+          </a>
+        ) : null}
+
         <div className="mt-5 flex flex-wrap gap-2">
           {currentMovement.measurementTypes.map((type) => (
             <Badge key={type.key}>{getMeasurementName(type)}</Badge>
           ))}
         </div>
+
+        {currentMovement.canEdit ? (
+          <MovementEditor
+            movement={currentMovement}
+            categories={categories}
+            measurementTypes={measurementTypes}
+          />
+        ) : null}
       </header>
 
       <section className="mt-12">

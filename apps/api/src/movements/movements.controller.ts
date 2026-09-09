@@ -15,8 +15,10 @@ import { Request } from 'express';
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
+import { CreateMovementDto } from './dto/create-movement.dto';
 import { FindMovementsQueryDto } from './dto/find-movements-query.dto';
 import { UpdateMovementResultDto } from './dto/update-movement-result.dto';
+import { UpdateMovementDto } from './dto/update-movement.dto';
 import { MovementsService } from './movements.service';
 
 type AuthenticatedRequest = Request & {
@@ -29,8 +31,17 @@ export class MovementsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() query: FindMovementsQueryDto) {
-    return this.movementsService.findAll(query);
+  findAll(
+    @Query() query: FindMovementsQueryDto,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.movementsService.findAll(query, request.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  create(@Req() request: AuthenticatedRequest, @Body() dto: CreateMovementDto) {
+    return this.movementsService.create(request.user, dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -53,8 +64,30 @@ export class MovementsController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') movementId: string) {
-    return this.movementsService.findOne(movementId);
+  findOne(
+    @Param('id') movementId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.movementsService.findOne(movementId, request.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  update(
+    @Param('id') movementId: string,
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: UpdateMovementDto,
+  ) {
+    return this.movementsService.update(movementId, request.user, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  delete(
+    @Param('id') movementId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.movementsService.delete(movementId, request.user);
   }
 
   @UseGuards(JwtAuthGuard)

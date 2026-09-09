@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import MovementCard, { Movement } from "./MovementCard";
+import MovementEditor from "./MovementEditor";
 
 type Props = {
   initialMovements: Movement[];
+  categories: { key: string; name: string }[];
+  measurementTypes: { key: string; name: string }[];
 };
 
-export default function MovementLibrary({ initialMovements }: Props) {
+export default function MovementLibrary({
+  initialMovements,
+  categories,
+  measurementTypes,
+}: Props) {
   const t = useTranslations("movements");
 
   const [search, setSearch] = useState("");
@@ -78,6 +85,10 @@ export default function MovementLibrary({ initialMovements }: Props) {
 
   return (
     <>
+      <MovementEditor
+        categories={categories}
+        measurementTypes={measurementTypes}
+      />
       <div className="mt-8">
         <div className="relative">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">

@@ -1,16 +1,37 @@
 import {
   BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 
 import type { Prisma } from '../../generated/prisma/client';
+import type { AuthenticatedUser } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
+import { CreateMovementDto } from './dto/create-movement.dto';
 import { FindMovementsQueryDto } from './dto/find-movements-query.dto';
 import { MovementResponseDto } from './dto/movement-response.dto';
 import { UpdateMovementResultDto } from './dto/update-movement-result.dto';
+import { UpdateMovementDto } from './dto/update-movement.dto';
+
+const movementManagementInclude = {
+  category: true,
+  measurementTypes: {
+    include: { measurementType: true },
+    orderBy: { measurementType: { sortOrder: 'asc' as const } },
+  },
+  _count: {
+    select: {
+      workoutMovements: true,
+      movementResults: true,
+      percentagePrescriptions: true,
+      variants: true,
+    },
+  },
+} satisfies Prisma.MovementInclude;
 
 const movementResultInclude = {
   measurementType: {
@@ -63,7 +84,10 @@ type MovementResultWithSource = Prisma.MovementResultGetPayload<{
 export class MovementsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: FindMovementsQueryDto): Promise<MovementResponseDto[]> {
+  async findAll(
+    query: FindMovementsQueryDto,
+    user: AuthenticatedUser,
+  ): Promise<MovementResponseDto[]> {
     const { search, category, measurementType, foundational } = query;
 
     const normalizedSearch = search?.trim().toLowerCase();
@@ -107,52 +131,145 @@ export class MovementsService {
           : {}),
       },
 
-      include: {
-        category: true,
-
-        measurementTypes: {
-          include: {
-            measurementType: true,
-          },
-        },
-      },
+      include: movementManagementInclude,
 
       orderBy: {
         name: 'asc',
       },
     });
 
-    return movements.map((movement) => this.mapMovement(movement));
+    return movements.map((movement) => this.mapMovement(movement, user));
   }
 
-  async findOne(movementId: string): Promise<MovementResponseDto> {
+  async findOne(
+    movementId: string,
+    user: AuthenticatedUser,
+  ): Promise<MovementResponseDto> {
     const movement = await this.prisma.movement.findUnique({
       where: {
         id: movementId,
       },
 
-      include: {
-        category: true,
-
-        measurementTypes: {
-          include: {
-            measurementType: true,
-          },
-
-          orderBy: {
-            measurementType: {
-              sortOrder: 'asc',
-            },
-          },
-        },
-      },
+      include: movementManagementInclude,
     });
 
     if (!movement) {
       throw new NotFoundException('Movement not found');
     }
 
-    return this.mapMovement(movement);
+    return this.mapMovement(movement, user);
+  }
+
+  async create(user: AuthenticatedUser, dto: CreateMovementDto) {
+    const references = await this.resolveMovementReferences(dto);
+    const aliases = this.normalizeAliases(dto.aliases);
+
+    try {
+      const movement = await this.prisma.movement.create({
+        data: {
+          name: dto.name,
+          searchText: this.createSearchText(dto.name, aliases),
+          categoryId: references.categoryId,
+          aliases,
+          isFoundational: dto.isFoundational ?? false,
+          official: false,
+          description: dto.description || null,
+          videoUrl: dto.videoUrl || null,
+          createdByUserId: user.userId,
+          measurementTypes: {
+            create: references.measurementTypeIds.map((measurementTypeId) => ({
+              measurementTypeId,
+            })),
+          },
+        },
+        include: movementManagementInclude,
+      });
+
+      return this.mapMovement(movement, user);
+    } catch (error) {
+      this.handleMovementWriteError(error);
+    }
+  }
+
+  async update(
+    movementId: string,
+    user: AuthenticatedUser,
+    dto: UpdateMovementDto,
+  ) {
+    const existing = await this.getManageableMovement(movementId, user);
+    const aliases = dto.aliases
+      ? this.normalizeAliases(dto.aliases)
+      : existing.aliases;
+    const references = await this.resolveMovementReferences(dto, existing);
+    const name = dto.name ?? existing.name;
+
+    try {
+      const movement = await this.prisma.$transaction(async (tx) => {
+        if (dto.measurementTypeKeys) {
+          await tx.movementMeasurementType.deleteMany({
+            where: { movementId },
+          });
+        }
+
+        return tx.movement.update({
+          where: { id: movementId },
+          data: {
+            name,
+            searchText: this.createSearchText(name, aliases),
+            categoryId: references.categoryId,
+            aliases,
+            isFoundational: dto.isFoundational,
+            description:
+              dto.description === undefined
+                ? undefined
+                : dto.description || null,
+            videoUrl:
+              dto.videoUrl === undefined ? undefined : dto.videoUrl || null,
+            ...(dto.measurementTypeKeys
+              ? {
+                  measurementTypes: {
+                    create: references.measurementTypeIds.map(
+                      (measurementTypeId) => ({ measurementTypeId }),
+                    ),
+                  },
+                }
+              : {}),
+          },
+          include: movementManagementInclude,
+        });
+      });
+
+      return this.mapMovement(movement, user);
+    } catch (error) {
+      this.handleMovementWriteError(error);
+    }
+  }
+
+  async delete(movementId: string, user: AuthenticatedUser) {
+    const movement = await this.getManageableMovement(movementId, user);
+    const dependencies = await this.prisma.movement.findUnique({
+      where: { id: movementId },
+      select: {
+        _count: {
+          select: {
+            workoutMovements: true,
+            movementResults: true,
+            percentagePrescriptions: true,
+            variants: true,
+          },
+        },
+      },
+    });
+
+    if (!dependencies) throw new NotFoundException('Movement not found');
+    if (Object.values(dependencies._count).some((count) => count > 0)) {
+      throw new ConflictException(
+        'Movement cannot be deleted because it is used by workouts or results',
+      );
+    }
+
+    await this.prisma.movement.delete({ where: { id: movement.id } });
+    return { id: movement.id, deleted: true };
   }
 
   findCategories() {
@@ -827,25 +944,44 @@ export class MovementsService {
     };
   }
 
-  private mapMovement(movement: {
-    id: string;
-    name: string;
-    aliases: string[];
-    isFoundational: boolean;
-    official: boolean;
-
-    category: {
-      key: string;
+  private mapMovement(
+    movement: {
+      id: string;
       name: string;
-    };
+      aliases: string[];
+      isFoundational: boolean;
+      official: boolean;
+      description: string | null;
+      videoUrl: string | null;
+      createdByUserId: string | null;
 
-    measurementTypes: {
-      measurementType: {
+      category: {
         key: string;
         name: string;
       };
-    }[];
-  }): MovementResponseDto {
+
+      measurementTypes: {
+        measurementType: {
+          key: string;
+          name: string;
+        };
+      }[];
+      _count: {
+        workoutMovements: number;
+        movementResults: number;
+        percentagePrescriptions: number;
+        variants: number;
+      };
+    },
+    user: AuthenticatedUser,
+  ): MovementResponseDto {
+    const canManage =
+      user.role === 'ADMIN' ||
+      (!movement.official && movement.createdByUserId === user.userId);
+    const hasDependencies = Object.values(movement._count).some(
+      (count) => count > 0,
+    );
+
     return {
       id: movement.id,
 
@@ -868,7 +1004,111 @@ export class MovementsService {
       official: movement.official,
 
       aliases: movement.aliases,
+
+      description: movement.description,
+
+      videoUrl: movement.videoUrl,
+
+      canEdit: canManage,
+
+      canDelete: canManage && !hasDependencies,
     };
+  }
+
+  private async getManageableMovement(
+    movementId: string,
+    user: AuthenticatedUser,
+  ) {
+    const movement = await this.prisma.movement.findUnique({
+      where: { id: movementId },
+      select: {
+        id: true,
+        name: true,
+        aliases: true,
+        official: true,
+        createdByUserId: true,
+        categoryId: true,
+        measurementTypes: { select: { measurementTypeId: true } },
+      },
+    });
+
+    if (!movement) throw new NotFoundException('Movement not found');
+    const canManage =
+      user.role === 'ADMIN' ||
+      (!movement.official && movement.createdByUserId === user.userId);
+    if (!canManage) {
+      throw new ForbiddenException('You cannot manage this movement');
+    }
+    return movement;
+  }
+
+  private async resolveMovementReferences(
+    dto: {
+      categoryKey?: string;
+      measurementTypeKeys?: string[];
+    },
+    existing?: {
+      categoryId: string;
+      measurementTypes: { measurementTypeId: string }[];
+    },
+  ) {
+    const [category, measurementTypes] = await Promise.all([
+      dto.categoryKey
+        ? this.prisma.movementCategory.findUnique({
+            where: { key: dto.categoryKey },
+            select: { id: true },
+          })
+        : Promise.resolve(existing ? { id: existing.categoryId } : null),
+      dto.measurementTypeKeys
+        ? this.prisma.measurementType.findMany({
+            where: { key: { in: dto.measurementTypeKeys } },
+            select: { id: true },
+          })
+        : Promise.resolve(
+            existing?.measurementTypes.map(({ measurementTypeId }) => ({
+              id: measurementTypeId,
+            })) ?? [],
+          ),
+    ]);
+
+    if (!category) throw new BadRequestException('Invalid movement category');
+    if (
+      dto.measurementTypeKeys &&
+      measurementTypes.length !== new Set(dto.measurementTypeKeys).size
+    ) {
+      throw new BadRequestException('Invalid measurement type');
+    }
+    return {
+      categoryId: category.id,
+      measurementTypeIds: measurementTypes.map(({ id }) => id),
+    };
+  }
+
+  private normalizeAliases(aliases?: string[]) {
+    return Array.from(
+      new Set(
+        (aliases ?? [])
+          .map((alias) => alias.trim())
+          .filter(Boolean)
+          .map((alias) => alias.slice(0, 80)),
+      ),
+    );
+  }
+
+  private createSearchText(name: string, aliases: string[]) {
+    return [name, ...aliases].join(' ').toLowerCase();
+  }
+
+  private handleMovementWriteError(error: unknown): never {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2002'
+    ) {
+      throw new ConflictException('A movement with this name already exists');
+    }
+    throw error;
   }
 
   private mapMovementResult<T extends MovementResultWithSource>(result: T) {

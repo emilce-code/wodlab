@@ -34,15 +34,22 @@ enum CoachAthleteStatus {
   ARCHIVED
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id              String          @id @default(cuid())
-  auth0UserId     String          @unique
-  email           String          @unique
-  athleteProfile  AthleteProfile?
-  coachProfile    CoachProfile?
-  workoutsCreated Workout[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id               String          @id @default(cuid())
+  auth0UserId      String          @unique
+  email            String          @unique
+  athleteProfile   AthleteProfile?
+  coachProfile     CoachProfile?
+  workoutsCreated  Workout[]
+  movementsCreated Movement[]
+  role             UserRole        @default(USER)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
 model AthleteProfile {
@@ -179,8 +186,14 @@ model Movement {
   baseMovement            Movement?                     @relation("MovementVariants", fields: [baseMovementId], references: [id])
   variants                Movement[]                    @relation("MovementVariants")
   aliases                 String[]
+  description             String?
+  videoUrl                String?
+  createdByUserId         String?
+  createdByUser           User?                         @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   createdAt               DateTime                      @default(now())
   updatedAt               DateTime                      @updatedAt
+
+  @@index([createdByUserId])
 }
 
 model MeasurementType {

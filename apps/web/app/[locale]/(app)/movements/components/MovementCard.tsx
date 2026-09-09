@@ -11,6 +11,10 @@ export type Movement = {
   aliases: string[];
   isFoundational: boolean;
   official: boolean;
+  description: string | null;
+  videoUrl: string | null;
+  canEdit: boolean;
+  canDelete: boolean;
 
   category: {
     key: string;
@@ -70,6 +74,12 @@ export default function MovementCard({ movement }: Props) {
             {movement.aliases.join(" · ")}
           </p>
         )}
+
+        {movement.description ? (
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted">
+            {movement.description}
+          </p>
+        ) : null}
 
         <div className="mt-5 flex flex-wrap gap-2 sm:mt-6">
           {movement.measurementTypes.map((type) => (
