@@ -65,10 +65,7 @@ export default function WorkoutLibrary({
         role="tablist"
         aria-label={t("viewLabel")}
       >
-        <ViewTab
-          active={view === "ACTIVE"}
-          onClick={() => setView("ACTIVE")}
-        >
+        <ViewTab active={view === "ACTIVE"} onClick={() => setView("ACTIVE")}>
           {t("active")}
         </ViewTab>
 
@@ -98,7 +95,10 @@ export default function WorkoutLibrary({
       </div>
 
       <div className="mt-5 flex gap-2">
-        <FilterButton active={filter === "ALL"} onClick={() => setFilter("ALL")}>
+        <FilterButton
+          active={filter === "ALL"}
+          onClick={() => setFilter("ALL")}
+        >
           {t("all")}
         </FilterButton>
 
@@ -117,7 +117,7 @@ export default function WorkoutLibrary({
       </div>
 
       {filteredWorkouts.length === 0 ? (
-        <div className="mt-5 rounded-xl border border-dashed border-border px-6 py-16 text-center">
+        <div className="mt-5 rounded-xl border border-dashed border-border px-4 py-10 text-center sm:px-6 sm:py-16">
           <p className="font-semibold">
             {view === "ARCHIVED" ? t("archivedEmptyTitle") : t("emptyTitle")}
           </p>

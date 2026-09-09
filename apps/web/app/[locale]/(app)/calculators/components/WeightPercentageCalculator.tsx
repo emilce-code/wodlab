@@ -47,6 +47,9 @@ export default function WeightPercentageCalculator({
     referenceValue > 0
       ? ((Number(performedWeight) || 0) / referenceValue) * 100
       : 0;
+  const hasReference = referenceValue > 0;
+  const hasPercentage = percentageValue > 0;
+  const validTarget = hasReference && hasPercentage;
   const perSide = Math.max(0, (target - (Number(barWeight) || 0)) / 2);
   let remaining = perSide;
   const plates: number[] = [];
@@ -62,14 +65,21 @@ export default function WeightPercentageCalculator({
     setReference(
       String(Math.round(convertWeight(referenceValue, unit, next) * 10) / 10),
     );
+    setPerformedWeight(
+      String(
+        Math.round(
+          convertWeight(Number(performedWeight) || 0, unit, next) * 10,
+        ) / 10,
+      ),
+    );
     setBarWeight(next === "KG" ? "20" : "45");
     setIncrement(next === "KG" ? "0.5" : "1");
     setUnit(next);
   }
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.7fr)]">
-      <Card className="p-5 sm:p-6">
+    <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.72fr)]">
+      <Card className="min-w-0 p-4 sm:p-6">
         <div
           className="mb-5 grid grid-cols-2 rounded-xl bg-surface-elevated p-1"
           role="group"
@@ -90,7 +100,8 @@ export default function WeightPercentageCalculator({
             {t("reverseMode")}
           </Button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <fieldset className="grid min-w-0 gap-4 sm:grid-cols-2">
+          <legend className="sr-only">{t("inputs")}</legend>
           <label className="text-sm font-semibold">
             {t("referenceWeight")}
             <input
@@ -102,17 +113,27 @@ export default function WeightPercentageCalculator({
               className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4 text-lg"
             />
           </label>
-          <label className="text-sm font-semibold">
-            {t("unit")}
-            <select
-              value={unit}
-              onChange={(event) => changeUnit(event.target.value as WeightUnit)}
-              className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4"
-            >
-              <option value="KG">KG</option>
-              <option value="LB">LB</option>
-            </select>
-          </label>
+          <div>
+            <span className="text-sm font-semibold">{t("unit")}</span>
+            <div className="mt-2 grid grid-cols-2 rounded-lg border border-border p-1">
+              {(["KG", "LB"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={unit === value}
+                  onClick={() => changeUnit(value)}
+                  className={[
+                    "min-h-10 rounded-md text-sm font-bold transition",
+                    unit === value
+                      ? "bg-foreground text-background"
+                      : "text-muted hover:bg-surface-elevated hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+          </div>
           {mode === "target" ? (
             <label className="text-sm font-semibold">
               {t("customPercentage")}
@@ -152,7 +173,7 @@ export default function WeightPercentageCalculator({
               />
             </label>
           ) : null}
-        </div>
+        </fieldset>
         {mode === "target" ? (
           <div className="mt-5 flex flex-wrap gap-2" aria-label={t("presets")}>
             {presets.map((value) => (
@@ -169,48 +190,82 @@ export default function WeightPercentageCalculator({
           </div>
         ) : null}
         {mode === "target" ? (
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[28rem] text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-muted">
-                  <th className="py-3">{t("percentage")}</th>
-                  <th className="py-3">{t("calculatedWeight")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {presets.map((value) => (
-                  <tr key={value} className="border-b border-border/60">
-                    <td className="py-3 font-semibold">{value}%</td>
-                    <td className="py-3">
-                      {roundToIncrement(
-                        calculatePercentage(referenceValue, value),
-                        Number(increment) || 0.5,
-                      )}{" "}
-                      {unit}
-                    </td>
+          <>
+            <div className="mt-6 hidden overflow-x-auto sm:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-muted">
+                    <th className="py-3">{t("percentage")}</th>
+                    <th className="py-3">{t("calculatedWeight")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {presets.map((value) => (
+                    <tr key={value} className="border-b border-border/60">
+                      <td className="py-3 font-semibold">{value}%</td>
+                      <td className="py-3">
+                        {roundToIncrement(
+                          calculatePercentage(referenceValue, value),
+                          Number(increment) || 0.5,
+                        )}{" "}
+                        {unit}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:hidden">
+              {presets.map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  onClick={() => setPercentage(String(value))}
+                  className="flex min-h-12 items-center justify-between rounded-lg border border-border bg-background px-3 text-sm"
+                >
+                  <span className="font-semibold">{value}%</span>
+                  <span className="text-muted">
+                    {roundToIncrement(
+                      calculatePercentage(referenceValue, value),
+                      Number(increment) || 0.5,
+                    )}{" "}
+                    {unit}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
         ) : null}
       </Card>
-      <div className="space-y-6">
-        <Card className="border-accent/40 p-6 text-center">
-          <p className="text-sm font-semibold text-muted">
-            {mode === "target" ? t("targetWeight") : t("calculatedPercentage")}
-          </p>
-          <p className="mt-2 text-5xl font-black text-accent">
-            {mode === "target"
-              ? target
-              : Math.round(reversePercentage * 10) / 10}
-          </p>
-          <p className="mt-1 font-semibold">{mode === "target" ? unit : "%"}</p>
-          <p className="mt-3 text-sm text-muted">
-            {mode === "target"
-              ? `${percentageValue}% × ${referenceValue} ${unit}`
-              : `${Number(performedWeight) || 0} ${unit} ÷ ${referenceValue} ${unit}`}
-          </p>
+      <aside className="order-first space-y-6 lg:order-none lg:sticky lg:top-6">
+        <Card className="overflow-hidden border-accent/40">
+          <div
+            className="bg-accent/10 p-4 text-center sm:p-8"
+            aria-live="polite"
+          >
+            <p className="text-sm font-semibold text-muted">
+              {mode === "target"
+                ? t("targetWeight")
+                : t("calculatedPercentage")}
+            </p>
+            <p className="mt-2 text-5xl font-black text-accent">
+              {mode === "target"
+                ? validTarget
+                  ? target
+                  : "—"
+                : hasReference
+                  ? Math.round(reversePercentage * 10) / 10
+                  : "—"}
+            </p>
+            <p className="mt-1 font-semibold">
+              {mode === "target" ? unit : "%"}
+            </p>
+            <p className="mt-3 break-words text-sm text-muted">
+              {mode === "target"
+                ? `${percentageValue}% × ${referenceValue} ${unit}`
+                : `${Number(performedWeight) || 0} ${unit} ÷ ${referenceValue} ${unit}`}
+            </p>
+          </div>
         </Card>
         {mode === "target" ? (
           <Card className="p-5">
@@ -227,13 +282,22 @@ export default function WeightPercentageCalculator({
               />
             </label>
             <p className="mt-4 text-sm text-muted">{t("platesPerSide")}</p>
-            <p className="mt-2 text-lg font-bold">
-              {target < Number(barWeight)
-                ? t("belowBar")
-                : plates.length > 0
-                  ? plates.map((plate) => `${plate} ${unit}`).join(" + ")
-                  : t("noPlates")}
-            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {target < Number(barWeight) ? (
+                <p className="text-sm text-muted">{t("belowBar")}</p>
+              ) : plates.length > 0 ? (
+                plates.map((plate, index) => (
+                  <span
+                    key={`${plate}-${index}`}
+                    className="inline-flex min-h-10 items-center rounded-full border-2 border-accent/50 bg-accent/10 px-3 text-sm font-bold"
+                  >
+                    {plate} {unit}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm font-semibold">{t("noPlates")}</p>
+              )}
+            </div>
             {remaining > 0.01 ? (
               <p className="mt-2 text-sm text-amber-500">
                 {t("remainder", {
@@ -244,7 +308,7 @@ export default function WeightPercentageCalculator({
             ) : null}
           </Card>
         ) : null}
-      </div>
+      </aside>
     </div>
   );
 }

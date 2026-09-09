@@ -148,6 +148,14 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
     setSuccess(null);
   }
 
+  function goToCurrentWeek() {
+    const currentWeek = toDateKey(startOfWeek());
+    setWeekStart(currentWeek);
+    setSelectedDate(toDateKey(new Date()));
+    setError(null);
+    setSuccess(null);
+  }
+
   function chooseWorkout(id: string) {
     const workout = options?.workouts.find((item) => item.id === id);
     setWorkoutId(id);
@@ -175,7 +183,9 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
         },
       );
       if (!response.ok) {
-        setError(response.status === 409 ? t("duplicateError") : t("saveError"));
+        setError(
+          response.status === 409 ? t("duplicateError") : t("saveError"),
+        );
         return;
       }
       setWorkoutId("");
@@ -193,7 +203,9 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
   }
 
   async function removeAssignment(assignment: WeeklyAssignment) {
-    if (!window.confirm(t("removeConfirm", { workout: assignment.workout.name }))) {
+    if (
+      !window.confirm(t("removeConfirm", { workout: assignment.workout.name }))
+    ) {
       return;
     }
     setSubmitting(true);
@@ -233,29 +245,39 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
         setError(t("nothingToCopy"));
         return;
       }
-      let copied = 0;
-      for (const assignment of assignments) {
-        const saveResponse = await fetch(
-          `/api/coach/athletes/${athleteId}/assignments`,
-          {
+      const saveResponses = await Promise.all(
+        assignments.map((assignment) =>
+          fetch(`/api/coach/athletes/${athleteId}/assignments`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               workoutId: assignment.workout.id,
               workoutVariantId: assignment.workoutVariant.id,
-              scheduledDate: shiftDate(assignment.scheduledDate.slice(0, 10), 7),
+              scheduledDate: shiftDate(
+                assignment.scheduledDate.slice(0, 10),
+                7,
+              ),
               ...(assignment.prescriptionCategory
-                ? { prescriptionCategoryKey: assignment.prescriptionCategory.key }
+                ? {
+                    prescriptionCategoryKey:
+                      assignment.prescriptionCategory.key,
+                  }
                 : {}),
               ...(assignment.coachNotes
                 ? { coachNotes: assignment.coachNotes }
                 : {}),
             }),
-          },
-        );
-        if (saveResponse.ok) copied += 1;
-        else if (saveResponse.status !== 409) throw new Error();
+          }),
+        ),
+      );
+      if (
+        saveResponses.some(
+          (response) => !response.ok && response.status !== 409,
+        )
+      ) {
+        throw new Error();
       }
+      const copied = saveResponses.filter((response) => response.ok).length;
       setSuccess(t("copied", { count: copied }));
       await loadWeek(weekStart);
       await onChanged?.();
@@ -274,13 +296,37 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
           <p className="mt-1 text-sm text-muted">{t("description")}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" size="sm" variant="secondary" onClick={() => changeWeek(-1)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => changeWeek(-1)}
+          >
             {t("previous")}
           </Button>
-          <Button type="button" size="sm" variant="secondary" onClick={() => changeWeek(1)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={goToCurrentWeek}
+          >
+            {t("today")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => changeWeek(1)}
+          >
             {t("next")}
           </Button>
-          <Button type="button" size="sm" variant="ghost" disabled={submitting} onClick={() => void copyPreviousWeek()}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={submitting}
+            onClick={() => void copyPreviousWeek()}
+          >
             {t("copyPrevious")}
           </Button>
         </div>
@@ -289,71 +335,155 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
       {error ? <Alert variant="error">{error}</Alert> : null}
       {success ? <Alert variant="success">{success}</Alert> : null}
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+      <div className="-mx-4 grid snap-x snap-mandatory auto-cols-[minmax(15rem,82vw)] grid-flow-col gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:auto-cols-[minmax(15rem,20rem)] sm:px-0 xl:grid-flow-row xl:grid-cols-7 xl:overflow-visible xl:pb-0">
         {days.map((day) => {
-          const assignments = plan?.assignments.filter(
-            (assignment) => assignment.scheduledDate.slice(0, 10) === day.key,
-          ) ?? [];
+          const assignments =
+            plan?.assignments.filter(
+              (assignment) => assignment.scheduledDate.slice(0, 10) === day.key,
+            ) ?? [];
           return (
-            <Card key={day.key} className="min-w-0 p-4">
-              <button type="button" onClick={() => setSelectedDate(day.key)} className="w-full text-left">
-                <span className={selectedDate === day.key ? "font-bold text-accent" : "font-bold"}>{day.label}</span>
+            <Card
+              key={day.key}
+              className={`min-w-0 snap-start p-4 transition ${selectedDate === day.key ? "border-accent ring-1 ring-accent/30" : ""}`}
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedDate(day.key)}
+                aria-pressed={selectedDate === day.key}
+                className="min-h-10 w-full rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <span
+                  className={
+                    selectedDate === day.key
+                      ? "font-bold text-accent"
+                      : "font-bold"
+                  }
+                >
+                  {day.label}
+                </span>
               </button>
               <div className="mt-3 space-y-3">
                 {assignments.length === 0 ? (
                   <p className="text-xs text-muted">{t("restDay")}</p>
-                ) : assignments.map((assignment) => (
-                  <div key={assignment.id} className="rounded-lg border border-border bg-background p-3">
-                    <p className="text-sm font-semibold">{assignment.workout.name}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      <Badge>{assignment.workoutVariant.level.name}</Badge>
-                      <Badge variant={assignment.status === "COMPLETED" ? "accent" : "default"}>
-                        {assignment.status === "COMPLETED" ? t("completed") : t("planned")}
-                      </Badge>
+                ) : (
+                  assignments.map((assignment) => (
+                    <div
+                      key={assignment.id}
+                      className="rounded-lg border border-border bg-background p-3"
+                    >
+                      <p className="text-sm font-semibold">
+                        {assignment.workout.name}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <Badge>{assignment.workoutVariant.level.name}</Badge>
+                        <Badge
+                          variant={
+                            assignment.status === "COMPLETED"
+                              ? "accent"
+                              : "default"
+                          }
+                        >
+                          {assignment.status === "COMPLETED"
+                            ? t("completed")
+                            : t("planned")}
+                        </Badge>
+                      </div>
+                      {assignment.coachNotes ? (
+                        <p className="mt-2 text-xs text-muted">
+                          {assignment.coachNotes}
+                        </p>
+                      ) : null}
+                      {assignment.canManage ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          disabled={submitting}
+                          onClick={() => void removeAssignment(assignment)}
+                          className="mt-2 text-red-500"
+                        >
+                          {t("remove")}
+                        </Button>
+                      ) : null}
                     </div>
-                    {assignment.coachNotes ? <p className="mt-2 text-xs text-muted">{assignment.coachNotes}</p> : null}
-                    {assignment.canManage ? (
-                      <Button type="button" size="sm" variant="ghost" disabled={submitting} onClick={() => void removeAssignment(assignment)} className="mt-2 text-red-500">
-                        {t("remove")}
-                      </Button>
-                    ) : null}
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </Card>
           );
         })}
       </div>
 
-      <Card className="p-5">
+      <Card className="scroll-mt-24 p-5" id="coach-add-assignment">
         <h3 className="font-bold">{t("addTitle", { date: selectedDate })}</h3>
-        <form onSubmit={assign} className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <form
+          onSubmit={assign}
+          className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
+        >
           <label className="text-sm font-medium">
             {t("workout")}
-            <select required value={workoutId} onChange={(event) => chooseWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base">
+            <select
+              required
+              value={workoutId}
+              onChange={(event) => chooseWorkout(event.target.value)}
+              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+            >
               <option value="">{t("selectWorkout")}</option>
-              {options?.workouts.map((workout) => <option key={workout.id} value={workout.id}>{workout.name}</option>)}
+              {options?.workouts.map((workout) => (
+                <option key={workout.id} value={workout.id}>
+                  {workout.name}
+                </option>
+              ))}
             </select>
           </label>
           <label className="text-sm font-medium">
             {t("variation")}
-            <select required value={variantId} onChange={(event) => setVariantId(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base">
+            <select
+              required
+              value={variantId}
+              onChange={(event) => setVariantId(event.target.value)}
+              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+            >
               <option value="">{t("selectVariation")}</option>
-              {selectedWorkout?.variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.level.name}{variant.name ? ` · ${variant.name}` : ""}</option>)}
+              {selectedWorkout?.variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.level.name}
+                  {variant.name ? ` · ${variant.name}` : ""}
+                </option>
+              ))}
             </select>
           </label>
           <label className="text-sm font-medium">
             {t("prescription")}
-            <select value={prescriptionCategoryKey} onChange={(event) => setPrescriptionCategoryKey(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base">
+            <select
+              value={prescriptionCategoryKey}
+              onChange={(event) =>
+                setPrescriptionCategoryKey(event.target.value)
+              }
+              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+            >
               <option value="">{t("noPrescription")}</option>
-              {options?.prescriptionCategories.map((category) => <option key={category.key} value={category.key}>{category.name}</option>)}
+              {options?.prescriptionCategories.map((category) => (
+                <option key={category.key} value={category.key}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </label>
           <label className="text-sm font-medium lg:col-span-2">
             {t("notes")}
-            <input value={notes} maxLength={1000} onChange={(event) => setNotes(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3" />
+            <input
+              value={notes}
+              maxLength={1000}
+              onChange={(event) => setNotes(event.target.value)}
+              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3"
+            />
           </label>
-          <Button type="submit" isLoading={submitting} className="sm:w-fit">
+          <Button
+            type="submit"
+            isLoading={submitting}
+            className="w-full sm:w-fit"
+          >
             {t("add")}
           </Button>
         </form>

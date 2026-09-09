@@ -448,10 +448,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
 
         {canManage && (
           <div className="mt-5 max-w-2xl">
-            <WorkoutLifecycleActions
-              workout={workout}
-              redirectAfterDelete
-            />
+            <WorkoutLifecycleActions workout={workout} redirectAfterDelete />
           </div>
         )}
       </header>
@@ -532,7 +529,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
 
                 return (
                   <Card key={section.id} className="overflow-hidden">
-                    <div className="p-6 sm:p-8">
+                    <div className="p-4 sm:p-8">
                       {variant.sections.length > 1 && (
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
                           {t("section", {
@@ -577,7 +574,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                               key={item.id}
                               className="py-4 first:pt-0 last:pb-0"
                             >
-                              <div className="flex items-start justify-between gap-6">
+                              <div className="flex min-w-0 items-start justify-between gap-3 sm:gap-6">
                                 <div>
                                   <p className="font-semibold">
                                     {item.movement.name}
@@ -633,28 +630,33 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                                               <p>
                                                 <span className="font-semibold text-accent">
                                                   {percentageTarget.target.load}{" "}
-                                                  {percentageTarget.target.weightUnit}
+                                                  {
+                                                    percentageTarget.target
+                                                      .weightUnit
+                                                  }
                                                 </span>{" "}
                                                 {t("percentageTargetFromRm", {
                                                   percentage:
                                                     percentageTarget.percentage,
-                                                  reps:
-                                                    percentageTarget.referenceRepMax,
-                                                  rm: percentageTarget.repMax.load,
+                                                  reps: percentageTarget.referenceRepMax,
+                                                  rm: percentageTarget.repMax
+                                                    .load,
                                                   unit: percentageTarget.repMax
                                                     .weightUnit,
                                                 })}
                                               </p>
                                             ) : (
                                               <p>
-                                                {t("percentageTargetMissingRm", {
-                                                  reps:
-                                                    percentageTarget.referenceRepMax,
-                                                  movement:
-                                                    percentageTarget.movement
-                                                      ?.name ??
-                                                    item.movement.name,
-                                                })}
+                                                {t(
+                                                  "percentageTargetMissingRm",
+                                                  {
+                                                    reps: percentageTarget.referenceRepMax,
+                                                    movement:
+                                                      percentageTarget.movement
+                                                        ?.name ??
+                                                      item.movement.name,
+                                                  },
+                                                )}
                                               </p>
                                             )}
                                           </div>
@@ -702,9 +704,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
             )}
             prescriptionCategories={prescriptionCategories}
             preferredWeightUnit={athletePreferences.preferredWeightUnit}
-            preferredWorkoutLevelKey={
-              selectedVariant.level.key
-            }
+            preferredWorkoutLevelKey={selectedVariant.level.key}
             preferredPrescriptionCategoryKey={
               athletePreferences.preferredPrescriptionCategoryKey
             }
@@ -730,7 +730,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         </div>
 
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
               {t("performance.personalBest")}
             </p>
@@ -774,7 +774,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
             )}
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-4 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
               {t("performance.lastResult")}
             </p>
@@ -821,7 +821,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
 
         {results.length > 0 && (
           <div className="mt-5">
-            <Card className="p-6">
+            <Card className="p-4 sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {getResultTypeName(results[0].resultType)}
               </p>
@@ -874,7 +874,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         </div>
 
         {results.length === 0 ? (
-          <Card className="mt-5 p-6">
+          <Card className="mt-5 p-4 sm:p-6">
             <p className="font-semibold">{t("history.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">

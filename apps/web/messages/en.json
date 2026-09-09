@@ -53,6 +53,7 @@
     "title": "Weight percentage calculator",
     "description": "Calculate percentage-based loads, round them to your equipment and build the bar.",
     "referenceWeight": "Reference weight",
+    "inputs": "Calculator inputs",
     "mode": "Calculation mode",
     "targetMode": "Find target",
     "reverseMode": "Find percentage",
@@ -121,6 +122,13 @@
     "saveComment": "Save comment",
     "commentError": "We couldn't save your comment."
   },
+  "coachNavigation": {
+    "label": "Coach workspace sections",
+    "overview": "Overview",
+    "programming": "Programming",
+    "monitoring": "Monitoring",
+    "analytics": "Analytics"
+  },
   "coach": {
     "eyebrow": "Coaching",
     "title": "Coach workspace",
@@ -178,17 +186,20 @@
     "assignmentError": "We couldn't assign this workout.",
     "duplicateAssignment": "This variation is already scheduled for that date.",
     "assignmentsTitle": "Training assignments",
+    "assignmentsEmpty": "No training has been assigned to this athlete yet.",
     "planned": "Planned",
     "completed": "Completed",
     "feedbackPlaceholder": "Feedback for the athlete",
     "markReviewed": "Save feedback",
     "reviewError": "We couldn't save the feedback.",
     "recentResults": "Recent results",
+    "resultsEmpty": "This athlete has no recorded workout results yet.",
     "connectionError": "We couldn't connect to the server.",
     "weeklyPlan": {
       "title": "Weekly programming",
       "description": "Plan the athlete's training one week at a time.",
       "previous": "Previous week",
+      "today": "This week",
       "next": "Next week",
       "copyPrevious": "Copy previous week",
       "restDay": "No training planned",

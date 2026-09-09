@@ -1,21 +1,18 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
-import Wordmark from '@/components/brand/Wordmark';
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
-import { BRAND } from '@/lib/brand';
+import Wordmark from "@/components/brand/Wordmark";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import { BRAND } from "@/lib/brand";
 
 type Props = {
   children: ReactNode;
 };
 
-export default function AuthShell({
-  children,
-}: Props) {
-  const t =
-    useTranslations('auth.shell');
+export default function AuthShell({ children }: Props) {
+  const t = useTranslations("auth.shell");
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -41,17 +38,17 @@ export default function AuthShell({
 
           <div className="relative z-10 max-w-lg">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">
-              {t('eyebrow')}
+              {t("eyebrow")}
             </p>
 
             <h1 className="mt-5 text-5xl font-black leading-[1.05] tracking-tight xl:text-6xl">
-              {t('titleLine1')}
+              {t("titleLine1")}
               <br />
-              {t('titleLine2')}
+              {t("titleLine2")}
             </h1>
 
             <p className="mt-6 max-w-md text-lg leading-8 text-muted">
-              {t('description')}
+              {t("description")}
             </p>
 
             <div className="mt-10 flex items-center gap-3">
@@ -66,9 +63,9 @@ export default function AuthShell({
           </p>
         </section>
 
-        <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+        <section className="flex min-h-screen items-center justify-center px-4 py-6 sm:px-8 sm:py-10 lg:px-12">
           <div className="w-full max-w-md">
-            <div className="mb-10 flex items-start justify-between gap-5 lg:hidden">
+            <div className="mb-8 flex items-start justify-between gap-4 sm:mb-10 sm:gap-5 lg:hidden">
               <Wordmark />
 
               <div className="w-32">

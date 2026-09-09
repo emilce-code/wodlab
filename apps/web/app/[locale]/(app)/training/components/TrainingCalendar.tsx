@@ -35,8 +35,10 @@ function orderedVariants(
     if (right.level.key === preferredLevelKey) return 1;
     const leftIndex = levelOrder.indexOf(left.level.key.toUpperCase());
     const rightIndex = levelOrder.indexOf(right.level.key.toUpperCase());
-    return (leftIndex < 0 ? levelOrder.length : leftIndex) -
-      (rightIndex < 0 ? levelOrder.length : rightIndex);
+    return (
+      (leftIndex < 0 ? levelOrder.length : leftIndex) -
+      (rightIndex < 0 ? levelOrder.length : rightIndex)
+    );
   });
 }
 
@@ -65,7 +67,9 @@ function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
           <Badge>{item.prescriptionCategory.name}</Badge>
         ) : null}
       </div>
-      <h3 className="mt-3 break-words text-lg font-bold">{item.workout.name}</h3>
+      <h3 className="mt-3 break-words text-lg font-bold">
+        {item.workout.name}
+      </h3>
       <p className="mt-1 text-sm text-muted">
         {item.workout.type.name}
         {item.workoutVariant.name ? ` · ${item.workoutVariant.name}` : ""}
@@ -116,11 +120,14 @@ function AthleteCommentForm({
     setSubmitting(true);
     setError(null);
     try {
-      const response = await fetch(`/api/scheduled-workouts/${item.id}/comment`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment }),
-      });
+      const response = await fetch(
+        `/api/scheduled-workouts/${item.id}/comment`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comment }),
+        },
+      );
       if (!response.ok) throw new Error();
       onUpdated((await response.json()) as ScheduledWorkout);
       setEditing(false);
@@ -140,7 +147,13 @@ function AthleteCommentForm({
             {item.athleteComment}
           </p>
         ) : null}
-        <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(true)} className="mt-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={() => setEditing(true)}
+          className="mt-2"
+        >
           {item.athleteComment ? t("editComment") : t("addComment")}
         </Button>
       </div>
@@ -150,11 +163,35 @@ function AthleteCommentForm({
   return (
     <form onSubmit={save} className="mt-4 rounded-lg border border-border p-3">
       {error ? <Alert variant="error">{error}</Alert> : null}
-      <label htmlFor={`athlete-comment-${item.id}`} className="text-sm font-semibold">{t("commentLabel")}</label>
-      <textarea id={`athlete-comment-${item.id}`} maxLength={2000} value={comment} onChange={(event) => setComment(event.target.value)} placeholder={t("commentPlaceholder")} className="mt-2 min-h-24 w-full rounded-lg border border-border bg-background p-3" />
+      <label
+        htmlFor={`athlete-comment-${item.id}`}
+        className="text-sm font-semibold"
+      >
+        {t("commentLabel")}
+      </label>
+      <textarea
+        id={`athlete-comment-${item.id}`}
+        maxLength={2000}
+        value={comment}
+        onChange={(event) => setComment(event.target.value)}
+        placeholder={t("commentPlaceholder")}
+        className="mt-2 min-h-24 w-full rounded-lg border border-border bg-background p-3"
+      />
       <div className="mt-2 flex gap-2">
-        <Button type="submit" size="sm" isLoading={submitting}>{t("saveComment")}</Button>
-        <Button type="button" size="sm" variant="secondary" onClick={() => { setComment(item.athleteComment ?? ""); setEditing(false); }}>{t("cancel")}</Button>
+        <Button type="submit" size="sm" isLoading={submitting}>
+          {t("saveComment")}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={() => {
+            setComment(item.athleteComment ?? "");
+            setEditing(false);
+          }}
+        >
+          {t("cancel")}
+        </Button>
       </div>
     </form>
   );
@@ -194,7 +231,9 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
       };
 
       if (!response.ok) {
-        setError(response.status === 409 ? t("duplicateError") : t("saveError"));
+        setError(
+          response.status === 409 ? t("duplicateError") : t("saveError"),
+        );
         return;
       }
 
@@ -232,7 +271,10 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
     <div className="mt-4 border-t border-border pt-4">
       {error ? <Alert variant="error">{error}</Alert> : null}
       {editing ? (
-        <form onSubmit={reschedule} className="mt-3 flex flex-col gap-3 sm:flex-row">
+        <form
+          onSubmit={reschedule}
+          className="mt-3 flex flex-col gap-3 sm:flex-row"
+        >
           <label className="sr-only" htmlFor={`session-date-${item.id}`}>
             {t("date")}
           </label>
@@ -248,7 +290,12 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
           <Button type="submit" size="sm" isLoading={submitting}>
             {t("save")}
           </Button>
-          <Button type="button" size="sm" variant="secondary" onClick={() => setEditing(false)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => setEditing(false)}
+          >
             {t("cancel")}
           </Button>
         </form>
@@ -257,10 +304,21 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
           <ButtonLink href={workoutHref(item)} size="sm">
             {t("openWorkout")}
           </ButtonLink>
-          <Button type="button" size="sm" variant="secondary" onClick={() => setEditing(true)}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => setEditing(true)}
+          >
             {t("reschedule")}
           </Button>
-          <Button type="button" size="sm" variant="ghost" isLoading={submitting} onClick={remove}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            isLoading={submitting}
+            onClick={remove}
+          >
             {t("remove")}
           </Button>
         </div>
@@ -298,7 +356,9 @@ function ScheduleForm({
     const selected = workouts.find((item) => item.id === id);
     setWorkoutId(id);
     setVariantId(
-      selected ? (orderedVariants(selected, preferredLevelKey)[0]?.id ?? "") : "",
+      selected
+        ? (orderedVariants(selected, preferredLevelKey)[0]?.id ?? "")
+        : "",
     );
     setError(null);
   }
@@ -327,7 +387,9 @@ function ScheduleForm({
         message?: string | string[];
       };
       if (!response.ok) {
-        setError(response.status === 409 ? t("duplicateError") : t("saveError"));
+        setError(
+          response.status === 409 ? t("duplicateError") : t("saveError"),
+        );
         return;
       }
       onSaved(data);
@@ -350,16 +412,35 @@ function ScheduleForm({
             {t("scheduleFor", { date: formatCalendarDate(date, locale) })}
           </h2>
         </div>
-        <button type="button" onClick={onClose} aria-label={t("close")} className="h-11 w-11 rounded-lg text-xl text-muted hover:bg-surface-elevated">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("close")}
+          className="h-11 w-11 rounded-lg text-xl text-muted hover:bg-surface-elevated"
+        >
           ×
         </button>
       </div>
       <form onSubmit={submit} className="mt-5 space-y-4">
         <div>
-          <label htmlFor="calendar-workout" className="mb-1.5 block text-sm font-medium">{t("workout")}</label>
-          <select id="calendar-workout" value={workoutId} onChange={(event) => selectWorkout(event.target.value)} className="min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base outline-none focus:border-accent">
+          <label
+            htmlFor="calendar-workout"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t("workout")}
+          </label>
+          <select
+            id="calendar-workout"
+            value={workoutId}
+            onChange={(event) => selectWorkout(event.target.value)}
+            className="min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base outline-none focus:border-accent"
+          >
             <option value="">{t("selectWorkout")}</option>
-            {workouts.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            {workouts.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
           </select>
         </div>
         {workout && workout.variants.length > 0 ? (
@@ -367,21 +448,58 @@ function ScheduleForm({
             <legend className="text-sm font-medium">{t("variation")}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {orderedVariants(workout, preferredLevelKey).map((variant) => (
-                <button key={variant.id} type="button" aria-pressed={variantId === variant.id} onClick={() => setVariantId(variant.id)} className={["min-h-11 rounded-full border px-4 text-sm font-semibold", variantId === variant.id ? "border-accent bg-accent text-accent-foreground" : "border-border bg-background text-muted"].join(" ")}>
-                  {variant.level.name}{variant.name ? ` · ${variant.name}` : ""}
+                <button
+                  key={variant.id}
+                  type="button"
+                  aria-pressed={variantId === variant.id}
+                  onClick={() => setVariantId(variant.id)}
+                  className={[
+                    "min-h-11 rounded-full border px-4 text-sm font-semibold",
+                    variantId === variant.id
+                      ? "border-accent bg-accent text-accent-foreground"
+                      : "border-border bg-background text-muted",
+                  ].join(" ")}
+                >
+                  {variant.level.name}
+                  {variant.name ? ` · ${variant.name}` : ""}
                 </button>
               ))}
             </div>
           </fieldset>
         ) : null}
         <div>
-          <label htmlFor="calendar-notes" className="mb-1.5 block text-sm font-medium">{t("notesOptional")}</label>
-          <textarea id="calendar-notes" rows={3} maxLength={1000} value={notes} onChange={(event) => setNotes(event.target.value)} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-3 outline-none focus:border-accent" />
+          <label
+            htmlFor="calendar-notes"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t("notesOptional")}
+          </label>
+          <textarea
+            id="calendar-notes"
+            rows={3}
+            maxLength={1000}
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            className="w-full resize-none rounded-lg border border-border bg-background px-3 py-3 outline-none focus:border-accent"
+          />
         </div>
         {error ? <Alert variant="error">{error}</Alert> : null}
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
-          <Button type="button" variant="secondary" onClick={onClose} className="w-full sm:w-auto">{t("cancel")}</Button>
-          <Button type="submit" isLoading={submitting} className="w-full sm:w-auto">{t("addToPlan")}</Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
+            {t("cancel")}
+          </Button>
+          <Button
+            type="submit"
+            isLoading={submitting}
+            className="w-full sm:w-auto"
+          >
+            {t("addToPlan")}
+          </Button>
         </div>
       </form>
     </Card>
@@ -392,11 +510,15 @@ export default function TrainingCalendar() {
   const t = useTranslations("training");
   const locale = useLocale();
   const today = toDateValue(new Date());
-  const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+  const [month, setMonth] = useState(
+    () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
   const [view, setView] = useState<ViewMode>("calendar");
   const [schedule, setSchedule] = useState<ScheduledWorkout[]>([]);
   const [workouts, setWorkouts] = useState<TrainingCalendarWorkout[]>([]);
-  const [preferredLevelKey, setPreferredLevelKey] = useState<string | null>(null);
+  const [preferredLevelKey, setPreferredLevelKey] = useState<string | null>(
+    null,
+  );
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -413,21 +535,29 @@ export default function TrainingCalendar() {
       setError(false);
       try {
         const query = new URLSearchParams({ from, to });
-        const [scheduleResponse, workoutsResponse, profileResponse] = await Promise.all([
-          fetch(`/api/scheduled-workouts?${query}`, { signal: controller.signal }),
-          fetch("/api/workouts", { signal: controller.signal }),
-          fetch("/api/athlete-profile", { signal: controller.signal }),
-        ]);
-        if (!scheduleResponse.ok || !workoutsResponse.ok || !profileResponse.ok) throw new Error("load");
-        const scheduleData = (await scheduleResponse.json()) as ScheduledWorkoutsResponse;
+        const [scheduleResponse, workoutsResponse, profileResponse] =
+          await Promise.all([
+            fetch(`/api/scheduled-workouts?${query}`, {
+              signal: controller.signal,
+            }),
+            fetch("/api/workouts", { signal: controller.signal }),
+            fetch("/api/athlete-profile", { signal: controller.signal }),
+          ]);
+        if (!scheduleResponse.ok || !workoutsResponse.ok || !profileResponse.ok)
+          throw new Error("load");
+        const scheduleData =
+          (await scheduleResponse.json()) as ScheduledWorkoutsResponse;
         setSchedule(scheduleData.items);
-        setWorkouts((await workoutsResponse.json()) as TrainingCalendarWorkout[]);
+        setWorkouts(
+          (await workoutsResponse.json()) as TrainingCalendarWorkout[],
+        );
         const profile = (await profileResponse.json()) as {
           preferredWorkoutLevel?: { key: string } | null;
         };
         setPreferredLevelKey(profile.preferredWorkoutLevel?.key ?? null);
       } catch (loadError) {
-        if (!(loadError instanceof Error && loadError.name === "AbortError")) setError(true);
+        if (!(loadError instanceof Error && loadError.name === "AbortError"))
+          setError(true);
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -446,14 +576,21 @@ export default function TrainingCalendar() {
   }, [schedule]);
   const days = calendarDays(month);
   const weekdayNames = Array.from({ length: 7 }, (_, day) =>
-    new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(2026, 7, 2 + day)),
+    new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+      new Date(2026, 7, 2 + day),
+    ),
   );
-  const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month);
+  const monthLabel = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+  }).format(month);
 
   function upsert(item: ScheduledWorkout) {
     setSchedule((current) => {
       const exists = current.some((entry) => entry.id === item.id);
-      return exists ? current.map((entry) => entry.id === item.id ? item : entry) : [...current, item];
+      return exists
+        ? current.map((entry) => (entry.id === item.id ? item : entry))
+        : [...current, item];
     });
   }
 
@@ -475,9 +612,7 @@ export default function TrainingCalendar() {
         return;
       }
 
-      setSchedule((current) =>
-        current.filter((entry) => entry.id !== item.id),
-      );
+      setSchedule((current) => current.filter((entry) => entry.id !== item.id));
     } catch {
       setCalendarActionError(t("connectionError"));
     } finally {
@@ -489,29 +624,93 @@ export default function TrainingCalendar() {
     <div className="mt-8">
       <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between gap-2 sm:justify-start">
-          <Button type="button" variant="secondary" size="sm" onClick={() => setMonth(addMonths(month, -1))} aria-label={t("previousMonth")}>←</Button>
-          <h2 className="min-w-0 text-center text-lg font-bold capitalize sm:min-w-48">{monthLabel}</h2>
-          <Button type="button" variant="secondary" size="sm" onClick={() => setMonth(addMonths(month, 1))} aria-label={t("nextMonth")}>→</Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setMonth(addMonths(month, -1))}
+            aria-label={t("previousMonth")}
+          >
+            ←
+          </Button>
+          <h2 className="min-w-0 text-center text-lg font-bold capitalize sm:min-w-48">
+            {monthLabel}
+          </h2>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setMonth(addMonths(month, 1))}
+            aria-label={t("nextMonth")}
+          >
+            →
+          </Button>
         </div>
-        <div className="flex gap-2">
-          <Button type="button" size="sm" variant="secondary" onClick={() => setMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}>{t("today")}</Button>
-          <Button type="button" size="sm" variant={view === "calendar" ? "primary" : "secondary"} onClick={() => setView("calendar")} aria-pressed={view === "calendar"}>{t("calendarView")}</Button>
-          <Button type="button" size="sm" variant={view === "agenda" ? "primary" : "secondary"} onClick={() => setView("agenda")} aria-pressed={view === "agenda"}>{t("agendaView")}</Button>
+        <div className="grid grid-cols-3 gap-2 sm:flex">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() =>
+              setMonth(
+                new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+              )
+            }
+          >
+            {t("today")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={view === "calendar" ? "primary" : "secondary"}
+            onClick={() => setView("calendar")}
+            aria-pressed={view === "calendar"}
+          >
+            {t("calendarView")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={view === "agenda" ? "primary" : "secondary"}
+            onClick={() => setView("agenda")}
+            aria-pressed={view === "agenda"}
+          >
+            {t("agendaView")}
+          </Button>
         </div>
       </div>
 
-      {error ? <Alert variant="error" className="mt-5">{t("loadError")}</Alert> : null}
+      {error ? (
+        <Alert variant="error" className="mt-5">
+          {t("loadError")}
+        </Alert>
+      ) : null}
       {calendarActionError ? (
         <Alert variant="error" className="mt-5">
           {calendarActionError}
         </Alert>
       ) : null}
-      {loading ? <Card className="mt-5 p-8 text-center text-muted">{t("loading")}</Card> : null}
+      {loading ? (
+        <div className="mt-5 grid gap-3" aria-label={t("loading")}>
+          {[0, 1, 2].map((item) => (
+            <Card key={item} className="h-28 animate-pulse bg-surface-elevated">
+              <span className="sr-only">{t("loading")}</span>
+            </Card>
+          ))}
+        </div>
+      ) : null}
 
       {!loading && !error && view === "calendar" ? (
         <div className="mt-5 overflow-hidden rounded-xl border border-border bg-surface">
           <div className="grid grid-cols-7 border-b border-border bg-surface-elevated">
-            {weekdayNames.map((name) => <div key={name} className="px-1 py-3 text-center text-xs font-semibold uppercase text-muted">{name}</div>)}
+            {weekdayNames.map((name) => (
+              <div
+                key={name}
+                className="px-1 py-3 text-center text-xs font-semibold uppercase text-muted"
+              >
+                {name}
+              </div>
+            ))}
           </div>
           <div className="grid grid-cols-7">
             {days.map((date) => {
@@ -605,13 +804,29 @@ export default function TrainingCalendar() {
 
       {!loading && !error && view === "agenda" ? (
         <div className="mt-5 space-y-4">
-          {schedule.length === 0 ? <Card className="p-8 text-center text-muted">{t("emptyMonth")}</Card> : schedule.map((item) => (
-            <Card key={item.id} className="p-5 sm:p-6">
-              <p className="mb-4 text-sm font-semibold text-accent">{formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}</p>
-              <ScheduleSummary item={item} />
-              <SessionActions item={item} onUpdated={upsert} onRemoved={(id) => setSchedule((current) => current.filter((entry) => entry.id !== id))} />
+          {schedule.length === 0 ? (
+            <Card className="p-8 text-center text-muted">
+              {t("emptyMonth")}
             </Card>
-          ))}
+          ) : (
+            schedule.map((item) => (
+              <Card key={item.id} className="p-5 sm:p-6">
+                <p className="mb-4 text-sm font-semibold text-accent">
+                  {formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}
+                </p>
+                <ScheduleSummary item={item} />
+                <SessionActions
+                  item={item}
+                  onUpdated={upsert}
+                  onRemoved={(id) =>
+                    setSchedule((current) =>
+                      current.filter((entry) => entry.id !== id),
+                    )
+                  }
+                />
+              </Card>
+            ))
+          )}
         </div>
       ) : null}
 
@@ -619,15 +834,27 @@ export default function TrainingCalendar() {
         <div className="mt-6 scroll-mt-6" id="selected-training-day">
           <div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{t("selectedDay")}</p>
-              <h2 className="mt-1 text-2xl font-bold">{formatCalendarDate(selectedDate, locale)}</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+                {t("selectedDay")}
+              </p>
+              <h2 className="mt-1 text-2xl font-bold">
+                {formatCalendarDate(selectedDate, locale)}
+              </h2>
             </div>
           </div>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {(itemsByDate.get(selectedDate) ?? []).map((item) => (
               <Card key={item.id} className="p-5">
                 <ScheduleSummary item={item} />
-                <SessionActions item={item} onUpdated={upsert} onRemoved={(id) => setSchedule((current) => current.filter((entry) => entry.id !== id))} />
+                <SessionActions
+                  item={item}
+                  onUpdated={upsert}
+                  onRemoved={(id) =>
+                    setSchedule((current) =>
+                      current.filter((entry) => entry.id !== id),
+                    )
+                  }
+                />
               </Card>
             ))}
           </div>

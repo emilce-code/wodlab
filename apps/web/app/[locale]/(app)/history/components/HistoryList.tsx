@@ -565,7 +565,7 @@ export default function HistoryList({ results }: Props) {
       </section>
 
       {filteredResults.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-dashed border-border px-6 py-12 text-center">
+        <div className="mt-6 rounded-xl border border-dashed border-border px-4 py-10 text-center sm:px-6 sm:py-12">
           <p className="font-semibold">{t("noMatches.title")}</p>
 
           <p className="mt-2 text-sm text-muted">

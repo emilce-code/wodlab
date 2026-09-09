@@ -827,7 +827,7 @@ export default function WorkoutForm({
       </nav>
 
       {currentStep === "details" ? (
-        <section className="rounded-xl border border-border bg-surface p-6">
+        <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
               {t("details.eyebrow")}

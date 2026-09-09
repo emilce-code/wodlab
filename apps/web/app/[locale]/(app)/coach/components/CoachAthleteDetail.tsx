@@ -36,20 +36,29 @@ type AthleteOverview = {
     coachFeedback: string | null;
     reviewedAt: string | null;
     workout: { id: string; name: string };
-    workoutVariant: { id: string; name: string | null; level: { key: string; name: string } };
+    workoutVariant: {
+      id: string;
+      name: string | null;
+      level: { key: string; name: string };
+    };
     workoutResult: { id: string } | null;
   }[];
 };
 
 function resultValue(result: AthleteOverview["workoutResults"][number]) {
-  if (result.timeSeconds !== null) return `${Math.floor(result.timeSeconds / 60)}:${String(result.timeSeconds % 60).padStart(2, "0")}`;
+  if (result.timeSeconds !== null)
+    return `${Math.floor(result.timeSeconds / 60)}:${String(result.timeSeconds % 60).padStart(2, "0")}`;
   if (result.rounds !== null) return `${result.rounds} + ${result.reps ?? 0}`;
   if (result.load !== null) return `${result.load} ${result.weightUnit ?? ""}`;
   if (result.reps !== null) return `${result.reps} reps`;
   return "—";
 }
 
-export default function CoachAthleteDetail({ athleteId }: { athleteId: string }) {
+export default function CoachAthleteDetail({
+  athleteId,
+}: {
+  athleteId: string;
+}) {
   const t = useTranslations("coach");
   const locale = useLocale();
   const [athlete, setAthlete] = useState<AthleteOverview | null>(null);
@@ -99,9 +108,22 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
 
   if (!athlete) {
     return error ? (
-      <Alert variant="error" className="mt-8">{error}</Alert>
+      <Alert variant="error" className="mt-8">
+        {error}
+      </Alert>
     ) : (
-      <Card className="mt-8 p-8 text-muted">{t("loading")}</Card>
+      <div className="mt-8 space-y-4" aria-label={t("loading")}>
+        <Card className="h-28 animate-pulse bg-surface-elevated">
+          <span className="sr-only">{t("loading")}</span>
+        </Card>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[0, 1, 2].map((item) => (
+            <Card key={item} className="h-24 animate-pulse bg-surface-elevated">
+              <span className="sr-only">{t("loading")}</span>
+            </Card>
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -110,22 +132,95 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
       {error ? <Alert variant="error">{error}</Alert> : null}
       <Card className="p-6">
         <h2 className="text-2xl font-bold">{athlete.displayName}</h2>
-        <p className="mt-1 text-sm text-muted">{athlete.user.email} · {athlete.preferredWeightUnit}</p>
+        <p className="mt-1 text-sm text-muted">
+          {athlete.user.email} · {athlete.preferredWeightUnit}
+        </p>
       </Card>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-sm text-muted">{t("planned")}</p>
+          <p className="mt-1 text-2xl font-black">
+            {
+              athlete.scheduledWorkouts.filter(
+                (item) => item.status === "PLANNED",
+              ).length
+            }
+          </p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-sm text-muted">{t("completed")}</p>
+          <p className="mt-1 text-2xl font-black">
+            {
+              athlete.scheduledWorkouts.filter(
+                (item) => item.status === "COMPLETED",
+              ).length
+            }
+          </p>
+        </Card>
+        <Card className="col-span-2 p-4 sm:col-span-1">
+          <p className="text-sm text-muted">{t("recentResults")}</p>
+          <p className="mt-1 text-2xl font-black">
+            {athlete.workoutResults.length}
+          </p>
+        </Card>
+      </div>
 
       <CoachWeeklyPlanner athleteId={athleteId} onChanged={load} />
 
       <section>
         <h2 className="text-xl font-bold">{t("assignmentsTitle")}</h2>
+        {athlete.scheduledWorkouts.length === 0 ? (
+          <Card className="mt-4 p-8 text-center text-muted">
+            {t("assignmentsEmpty")}
+          </Card>
+        ) : null}
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           {athlete.scheduledWorkouts.map((item) => (
             <Card key={item.id} className="p-5">
-              <div className="flex flex-wrap gap-2"><Badge variant={item.status === "COMPLETED" ? "accent" : "default"}>{item.status === "COMPLETED" ? t("completed") : t("planned")}</Badge><Badge>{item.workoutVariant.level.name}</Badge></div>
+              <div className="flex flex-wrap gap-2">
+                <Badge
+                  variant={item.status === "COMPLETED" ? "accent" : "default"}
+                >
+                  {item.status === "COMPLETED" ? t("completed") : t("planned")}
+                </Badge>
+                <Badge>{item.workoutVariant.level.name}</Badge>
+              </div>
               <h3 className="mt-3 text-lg font-bold">{item.workout.name}</h3>
-              <p className="mt-1 text-sm text-muted">{formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}</p>
-              {item.coachNotes ? <p className="mt-3 text-sm">{item.coachNotes}</p> : null}
-              {item.coachFeedback ? <Alert variant="success" className="mt-4">{item.coachFeedback}</Alert> : null}
-              {item.status === "COMPLETED" && !item.reviewedAt ? <div className="mt-4"><textarea value={feedback[item.id] ?? ""} onChange={(event) => setFeedback((current) => ({ ...current, [item.id]: event.target.value }))} placeholder={t("feedbackPlaceholder")} className="w-full rounded-lg border border-border bg-background p-3" /><Button size="sm" disabled={submitting} onClick={() => void review(item.id)} className="mt-2">{t("markReviewed")}</Button></div> : null}
+              <p className="mt-1 text-sm text-muted">
+                {formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}
+              </p>
+              {item.coachNotes ? (
+                <p className="mt-3 text-sm">{item.coachNotes}</p>
+              ) : null}
+              {item.coachFeedback ? (
+                <Alert variant="success" className="mt-4">
+                  {item.coachFeedback}
+                </Alert>
+              ) : null}
+              {item.status === "COMPLETED" && !item.reviewedAt ? (
+                <div className="mt-4">
+                  <textarea
+                    value={feedback[item.id] ?? ""}
+                    onChange={(event) =>
+                      setFeedback((current) => ({
+                        ...current,
+                        [item.id]: event.target.value,
+                      }))
+                    }
+                    placeholder={t("feedbackPlaceholder")}
+                    className="w-full rounded-lg border border-border bg-background p-3"
+                  />
+                  <Button
+                    size="sm"
+                    disabled={submitting}
+                    onClick={() => void review(item.id)}
+                    className="mt-2"
+                  >
+                    {t("markReviewed")}
+                  </Button>
+                </div>
+              ) : null}
             </Card>
           ))}
         </div>
@@ -133,7 +228,30 @@ export default function CoachAthleteDetail({ athleteId }: { athleteId: string })
 
       <section>
         <h2 className="text-xl font-bold">{t("recentResults")}</h2>
-        <div className="mt-4 space-y-3">{athlete.workoutResults.map((result) => <Card key={result.id} className="flex items-center justify-between gap-4 p-4"><div><p className="font-semibold">{result.workout.name}</p><p className="text-sm text-muted">{formatCalendarDate(result.performedAt.slice(0, 10), locale)} · {result.workoutVariant.level.name}</p></div><p className="font-bold text-accent">{resultValue(result)}</p></Card>)}</div>
+        {athlete.workoutResults.length === 0 ? (
+          <Card className="mt-4 p-8 text-center text-muted">
+            {t("resultsEmpty")}
+          </Card>
+        ) : null}
+        <div className="mt-4 space-y-3">
+          {athlete.workoutResults.map((result) => (
+            <Card
+              key={result.id}
+              className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{result.workout.name}</p>
+                <p className="text-sm text-muted">
+                  {formatCalendarDate(result.performedAt.slice(0, 10), locale)}{" "}
+                  · {result.workoutVariant.level.name}
+                </p>
+              </div>
+              <p className="shrink-0 font-bold text-accent">
+                {resultValue(result)}
+              </p>
+            </Card>
+          ))}
+        </div>
       </section>
     </div>
   );

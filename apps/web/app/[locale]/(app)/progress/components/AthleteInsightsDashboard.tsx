@@ -206,7 +206,7 @@ export default function AthleteInsightsDashboard() {
       ) : null}
 
       {state.status === "error" ? (
-        <Card className="mt-6 p-6 text-center">
+        <Card className="mt-6 p-4 text-center sm:p-6">
           <p className="font-semibold">{t("error.title")}</p>
           <p className="mt-2 text-sm text-muted">{t("error.description")}</p>
           <Button className="mt-5" variant="secondary" onClick={retry}>

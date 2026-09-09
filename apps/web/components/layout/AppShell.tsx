@@ -30,7 +30,7 @@ export default async function AppShell({ children, user }: Props) {
         <Sidebar user={user} />
 
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
-          <div className="mx-auto max-w-7xl px-5 py-6 pb-24 sm:px-8 lg:px-10 lg:py-8 lg:pb-8">
+          <div className="mx-auto max-w-7xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-10 lg:py-8 lg:pb-8">
             {children}
           </div>
         </main>

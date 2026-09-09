@@ -80,9 +80,7 @@ export default function ScheduleWorkoutForm({
           workoutId,
           workoutVariantId,
           scheduledDate,
-          ...(prescriptionCategoryKey
-            ? { prescriptionCategoryKey }
-            : {}),
+          ...(prescriptionCategoryKey ? { prescriptionCategoryKey } : {}),
           ...(notes.trim() ? { notes: notes.trim() } : {}),
         }),
       });
@@ -130,14 +128,17 @@ export default function ScheduleWorkoutForm({
         </span>
         <span
           aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-lg text-muted"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-lg text-muted"
         >
           {isOpen ? "−" : "+"}
         </span>
       </button>
 
       {isOpen && (
-        <div id="schedule-workout-panel" className="border-t border-border p-4 sm:p-5">
+        <div
+          id="schedule-workout-panel"
+          className="border-t border-border p-4 sm:p-5"
+        >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
               {t("eyebrow")}
@@ -150,7 +151,10 @@ export default function ScheduleWorkoutForm({
 
           <form onSubmit={handleSubmit} className="mt-5 space-y-5" noValidate>
             <div>
-              <label htmlFor="scheduledWorkoutDate" className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="scheduledWorkoutDate"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 {t("date")}
               </label>
               <input
@@ -198,17 +202,14 @@ export default function ScheduleWorkoutForm({
                     {t("noPrescription")}
                   </button>
                   {prescriptionCategories.map((category) => {
-                    const selected =
-                      prescriptionCategoryKey === category.key;
+                    const selected = prescriptionCategoryKey === category.key;
 
                     return (
                       <button
                         key={category.key}
                         type="button"
                         aria-pressed={selected}
-                        onClick={() =>
-                          setPrescriptionCategoryKey(category.key)
-                        }
+                        onClick={() => setPrescriptionCategoryKey(category.key)}
                         className={[
                           "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
                           selected
@@ -225,7 +226,10 @@ export default function ScheduleWorkoutForm({
             )}
 
             <div>
-              <label htmlFor="scheduledWorkoutNotes" className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="scheduledWorkoutNotes"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 {t("notes")}
                 <span className="ml-1 font-normal text-muted">
                   {t("optional")}

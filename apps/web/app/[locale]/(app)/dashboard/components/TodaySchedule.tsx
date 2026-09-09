@@ -183,7 +183,10 @@ function UpcomingCard({ item, onUpdated, onRemoved }: UpcomingCardProps) {
       )}
 
       {mode === "date" && (
-        <form onSubmit={reschedule} className="mt-5 border-t border-border pt-5">
+        <form
+          onSubmit={reschedule}
+          className="mt-5 border-t border-border pt-5"
+        >
           <label
             htmlFor={`reschedule-${item.id}`}
             className="mb-1.5 block text-sm font-medium"
@@ -340,7 +343,7 @@ export default function TodaySchedule() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 sm:space-y-12">
       <section aria-labelledby="today-schedule-title">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
           {t("eyebrow")}
@@ -351,7 +354,7 @@ export default function TodaySchedule() {
         <p className="mt-2 max-w-2xl text-sm text-muted">{t("description")}</p>
 
         {!schedule && !error && (
-          <Card className="mt-5 p-6" aria-live="polite">
+          <Card className="mt-5 p-4 sm:p-6" aria-live="polite">
             <div className="h-5 w-2/3 animate-pulse rounded bg-surface-elevated" />
             <div className="mt-5 h-11 w-full animate-pulse rounded bg-surface-elevated sm:w-40" />
             <span className="sr-only">{t("loading")}</span>
@@ -359,14 +362,14 @@ export default function TodaySchedule() {
         )}
 
         {error && (
-          <Card className="mt-5 p-6">
+          <Card className="mt-5 p-4 sm:p-6">
             <p className="font-semibold">{t("errorTitle")}</p>
             <p className="mt-2 text-sm text-muted">{t("errorDescription")}</p>
           </Card>
         )}
 
         {schedule && todayItems.length === 0 && (
-          <Card className="mt-5 p-6 sm:p-8">
+          <Card className="mt-5 p-4 sm:p-8">
             <h3 className="text-xl font-bold">{t("emptyTitle")}</h3>
             <p className="mt-2 max-w-xl text-sm text-muted">
               {t("emptyDescription")}
@@ -404,7 +407,9 @@ export default function TodaySchedule() {
                       ? completedWorkoutHref(item)
                       : workoutHref(item)
                   }
-                  variant={item.status === "COMPLETED" ? "secondary" : "primary"}
+                  variant={
+                    item.status === "COMPLETED" ? "secondary" : "primary"
+                  }
                   className="mt-5 w-full sm:w-auto"
                 >
                   {item.status === "COMPLETED"
@@ -437,7 +442,7 @@ export default function TodaySchedule() {
           </div>
 
           {upcomingItems.length === 0 ? (
-            <Card className="mt-5 p-6 text-center">
+            <Card className="mt-5 p-4 text-center sm:p-6">
               <p className="font-semibold">{upcomingT("emptyTitle")}</p>
               <p className="mt-2 text-sm text-muted">
                 {upcomingT("emptyDescription")}

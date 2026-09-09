@@ -131,7 +131,7 @@ export default function AthleteProfileForm({
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <form onSubmit={handleSubmit}>
         <div className="grid gap-5">
           <div>
@@ -270,8 +270,12 @@ export default function AthleteProfileForm({
 
           {success && <Alert variant="success">{t("saved")}</Alert>}
 
-          <div className="flex justify-end border-t border-border pt-5">
-            <Button type="submit" isLoading={isSubmitting} className="min-w-32">
+          <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-10 -mx-4 flex justify-end border-t border-border bg-surface/95 px-4 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-5 sm:backdrop-blur-none">
+            <Button
+              type="submit"
+              isLoading={isSubmitting}
+              className="w-full sm:w-auto sm:min-w-32"
+            >
               {isSubmitting ? t("saving") : t("save")}
             </Button>
           </div>

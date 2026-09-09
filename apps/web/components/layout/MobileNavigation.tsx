@@ -82,7 +82,7 @@ export default function MobileNavigation() {
           <section
             id="mobile-more-menu"
             aria-labelledby="mobile-more-menu-title"
-            className="fixed inset-x-3 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 rounded-2xl border border-border bg-surface p-4 shadow-2xl lg:hidden"
+            className="fixed inset-x-2 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 max-h-[calc(100dvh-5rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-surface p-4 shadow-2xl sm:inset-x-3 lg:hidden"
           >
             <div className="flex items-center justify-between gap-4">
               <h2 id="mobile-more-menu-title" className="font-bold">

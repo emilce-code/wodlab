@@ -49,8 +49,15 @@ function DistributionBars({
                 <span className="truncate font-medium">{item.label}</span>
                 <span className="text-muted">{item.value}</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-surface-elevated" role="img" aria-label={`${item.label}: ${item.value}`}>
-                <div className="h-full rounded-full bg-accent" style={{ width: `${(item.value / maximum) * 100}%` }} />
+              <div
+                className="h-2 overflow-hidden rounded-full bg-surface-elevated"
+                role="img"
+                aria-label={`${item.label}: ${item.value}`}
+              >
+                <div
+                  className="h-full rounded-full bg-accent"
+                  style={{ width: `${(item.value / maximum) * 100}%` }}
+                />
               </div>
             </div>
           ))}
@@ -68,8 +75,12 @@ export default function CoachAnalyticsDashboard() {
   const [to, setTo] = useState(range.to);
   const [groupId, setGroupId] = useState("");
   const [athleteId, setAthleteId] = useState("");
-  const [workspace, setWorkspace] = useState<CoachProgrammingWorkspace | null>(null);
-  const [analytics, setAnalytics] = useState<CoachAnalyticsResponse | null>(null);
+  const [workspace, setWorkspace] = useState<CoachProgrammingWorkspace | null>(
+    null,
+  );
+  const [analytics, setAnalytics] = useState<CoachAnalyticsResponse | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,7 +91,9 @@ export default function CoachAnalyticsDashboard() {
       const params = new URLSearchParams({ from, to });
       if (groupId) params.set("groupId", groupId);
       if (athleteId) params.set("athleteProfileId", athleteId);
-      const response = await fetch(`/api/coach-programming/analytics?${params}`);
+      const response = await fetch(
+        `/api/coach-programming/analytics?${params}`,
+      );
       if (!response.ok) throw new Error();
       setAnalytics((await response.json()) as CoachAnalyticsResponse);
     } catch {
@@ -138,46 +151,243 @@ export default function CoachAnalyticsDashboard() {
     <div className="mt-8 space-y-6">
       {error ? <Alert variant="error">{error}</Alert> : null}
       <form onSubmit={applyFilters}>
-        <Card className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
-          <label className="text-sm font-semibold">{t("from")}<input type="date" required value={from} onChange={(event) => setFrom(event.target.value)} className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3" /></label>
-          <label className="text-sm font-semibold">{t("to")}<input type="date" required value={to} onChange={(event) => setTo(event.target.value)} className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3" /></label>
-          <label className="text-sm font-semibold">{t("group")}<select value={groupId} onChange={(event) => { setGroupId(event.target.value); setAthleteId(""); }} className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"><option value="">{t("allGroups")}</option>{workspace?.groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select></label>
-          <label className="text-sm font-semibold">{t("athlete")}<select value={athleteId} onChange={(event) => { setAthleteId(event.target.value); setGroupId(""); }} className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"><option value="">{t("allAthletes")}</option>{workspace?.athletes.map((athlete) => <option key={athlete.id} value={athlete.id}>{athlete.displayName}</option>)}</select></label>
-          <div className="flex items-end"><Button type="submit" className="w-full" isLoading={loading}>{t("applyFilters")}</Button></div>
+        <Card className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-5">
+          <label className="text-sm font-semibold">
+            {t("from")}
+            <input
+              type="date"
+              required
+              value={from}
+              onChange={(event) => setFrom(event.target.value)}
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+            />
+          </label>
+          <label className="text-sm font-semibold">
+            {t("to")}
+            <input
+              type="date"
+              required
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+            />
+          </label>
+          <label className="text-sm font-semibold">
+            {t("group")}
+            <select
+              value={groupId}
+              onChange={(event) => {
+                setGroupId(event.target.value);
+                setAthleteId("");
+              }}
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+            >
+              <option value="">{t("allGroups")}</option>
+              {workspace?.groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm font-semibold">
+            {t("athlete")}
+            <select
+              value={athleteId}
+              onChange={(event) => {
+                setAthleteId(event.target.value);
+                setGroupId("");
+              }}
+              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+            >
+              <option value="">{t("allAthletes")}</option>
+              {workspace?.athletes.map((athlete) => (
+                <option key={athlete.id} value={athlete.id}>
+                  {athlete.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex items-end">
+            <Button type="submit" className="w-full" isLoading={loading}>
+              {t("applyFilters")}
+            </Button>
+          </div>
         </Card>
       </form>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        {summaryItems.map((item) => <Card key={item.key} className="p-4"><p className="text-sm text-muted">{t(item.key)}</p><p className="mt-1 text-2xl font-bold">{item.value}</p></Card>)}
+        {summaryItems.map((item) => (
+          <Card
+            key={item.key}
+            className={`p-4 ${item.key === "completionRate" ? "border-accent/50 bg-accent/5" : ""}`}
+          >
+            <p className="text-sm text-muted">{t(item.key)}</p>
+            <p className="mt-1 text-2xl font-black">{item.value}</p>
+          </Card>
+        ))}
       </div>
 
-      {loading ? <Card className="p-8 text-center text-muted">{t("loading")}</Card> : null}
-      {!loading && summary?.assigned === 0 ? <Card className="p-8 text-center text-muted">{t("empty")}</Card> : null}
+      {loading ? (
+        <div className="grid gap-4 lg:grid-cols-2" aria-label={t("loading")}>
+          {[0, 1, 2, 3].map((item) => (
+            <Card key={item} className="h-56 animate-pulse bg-surface-elevated">
+              <span className="sr-only">{t("loading")}</span>
+            </Card>
+          ))}
+        </div>
+      ) : null}
+      {!loading && summary?.assigned === 0 ? (
+        <Card className="p-8 text-center text-muted">{t("empty")}</Card>
+      ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2" aria-busy={loading}>
         <Card className="p-5">
           <h2 className="text-lg font-bold">{t("weeklyTrend")}</h2>
           <div className="mt-5 space-y-4">
             {analytics?.weekly.map((week) => (
-              <div key={week.weekStart} className="grid grid-cols-[7rem_1fr_3rem] items-center gap-3 text-sm">
+              <div
+                key={week.weekStart}
+                className="grid grid-cols-[7rem_1fr_3rem] items-center gap-3 text-sm"
+              >
                 <span>{formatCalendarDate(week.weekStart, locale)}</span>
-                <div className="h-3 overflow-hidden rounded-full bg-surface-elevated" role="img" aria-label={t("weekRateLabel", { date: formatCalendarDate(week.weekStart, locale), rate: week.completionRate })}><div className="h-full rounded-full bg-accent" style={{ width: `${week.completionRate}%` }} /></div>
-                <span className="text-right font-semibold">{week.completionRate}%</span>
+                <div
+                  className="h-3 overflow-hidden rounded-full bg-surface-elevated"
+                  role="img"
+                  aria-label={t("weekRateLabel", {
+                    date: formatCalendarDate(week.weekStart, locale),
+                    rate: week.completionRate,
+                  })}
+                >
+                  <div
+                    className="h-full rounded-full bg-accent"
+                    style={{ width: `${week.completionRate}%` }}
+                  />
+                </div>
+                <span className="text-right font-semibold">
+                  {week.completionRate}%
+                </span>
               </div>
             ))}
+            {!loading && analytics?.weekly.length === 0 ? (
+              <p className="text-sm text-muted">{t("empty")}</p>
+            ) : null}
           </div>
         </Card>
-        <DistributionBars title={t("workoutTypes")} empty={t("noDistribution")} items={(analytics?.workoutTypes ?? []).map((item) => ({ key: item.key, label: item.name, value: item.count }))} />
-        <DistributionBars title={t("movementCategories")} empty={t("noMovementData")} items={(analytics?.movementCategories ?? []).map((item) => ({ key: item.key, label: item.name, value: item.count }))} />
-        <DistributionBars title={t("topWorkouts")} empty={t("noDistribution")} items={(analytics?.workouts ?? []).map((item) => ({ key: item.id, label: item.name, value: item.count }))} />
+        <DistributionBars
+          title={t("workoutTypes")}
+          empty={t("noDistribution")}
+          items={(analytics?.workoutTypes ?? []).map((item) => ({
+            key: item.key,
+            label: item.name,
+            value: item.count,
+          }))}
+        />
+        <DistributionBars
+          title={t("movementCategories")}
+          empty={t("noMovementData")}
+          items={(analytics?.movementCategories ?? []).map((item) => ({
+            key: item.key,
+            label: item.name,
+            value: item.count,
+          }))}
+        />
+        <DistributionBars
+          title={t("topWorkouts")}
+          empty={t("noDistribution")}
+          items={(analytics?.workouts ?? []).map((item) => ({
+            key: item.id,
+            label: item.name,
+            value: item.count,
+          }))}
+        />
       </div>
 
       <Card className="overflow-hidden">
-        <div className="border-b border-border p-5"><h2 className="text-lg font-bold">{t("athleteComparison")}</h2></div>
-        <div className="overflow-x-auto">
+        <div className="border-b border-border p-4 sm:p-5">
+          <h2 className="text-lg font-bold">{t("athleteComparison")}</h2>
+        </div>
+        <div className="divide-y divide-border sm:hidden">
+          {analytics?.athletes.map((athlete) => (
+            <article key={athlete.id} className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-bold">{athlete.name}</h3>
+                  <p className="mt-1 text-sm text-muted">
+                    {athlete.totalReps} {t("repsShort")} ·{" "}
+                    {Math.round(athlete.totalLoadKg * 10) / 10} kg
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-sm font-bold text-accent">
+                  {athlete.completionRate}%
+                </span>
+              </div>
+
+              <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-lg bg-surface-elevated p-2">
+                  <dt className="text-xs text-muted">{t("assigned")}</dt>
+                  <dd className="mt-1 font-bold">{athlete.assigned}</dd>
+                </div>
+                <div className="rounded-lg bg-surface-elevated p-2">
+                  <dt className="text-xs text-muted">{t("completed")}</dt>
+                  <dd className="mt-1 font-bold">{athlete.completed}</dd>
+                </div>
+                <div className="rounded-lg bg-surface-elevated p-2">
+                  <dt className="text-xs text-muted">{t("overdue")}</dt>
+                  <dd className="mt-1 font-bold">{athlete.overdue}</dd>
+                </div>
+              </dl>
+
+              <ButtonLink
+                href={`/coach/${athlete.id}`}
+                size="sm"
+                variant="secondary"
+                className="mt-4 w-full"
+              >
+                {t("openAthlete")}
+              </ButtonLink>
+            </article>
+          ))}
+        </div>
+        <div className="hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-surface-elevated text-muted"><tr><th className="px-5 py-3">{t("athlete")}</th><th className="px-5 py-3">{t("assigned")}</th><th className="px-5 py-3">{t("completed")}</th><th className="px-5 py-3">{t("completionRate")}</th><th className="px-5 py-3">{t("overdue")}</th><th className="px-5 py-3">{t("volume")}</th><th className="px-5 py-3"><span className="sr-only">{t("actions")}</span></th></tr></thead>
-            <tbody>{analytics?.athletes.map((athlete) => <tr key={athlete.id} className="border-t border-border"><td className="px-5 py-4 font-semibold">{athlete.name}</td><td className="px-5 py-4">{athlete.assigned}</td><td className="px-5 py-4">{athlete.completed}</td><td className="px-5 py-4">{athlete.completionRate}%</td><td className="px-5 py-4">{athlete.overdue}</td><td className="px-5 py-4">{athlete.totalReps} {t("repsShort")} · {Math.round(athlete.totalLoadKg * 10) / 10} kg</td><td className="px-5 py-4"><ButtonLink href={`/coach/${athlete.id}`} size="sm" variant="secondary">{t("openAthlete")}</ButtonLink></td></tr>)}</tbody>
+            <thead className="bg-surface-elevated text-muted">
+              <tr>
+                <th className="px-5 py-3">{t("athlete")}</th>
+                <th className="px-5 py-3">{t("assigned")}</th>
+                <th className="px-5 py-3">{t("completed")}</th>
+                <th className="px-5 py-3">{t("completionRate")}</th>
+                <th className="px-5 py-3">{t("overdue")}</th>
+                <th className="px-5 py-3">{t("volume")}</th>
+                <th className="px-5 py-3">
+                  <span className="sr-only">{t("actions")}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {analytics?.athletes.map((athlete) => (
+                <tr key={athlete.id} className="border-t border-border">
+                  <td className="px-5 py-4 font-semibold">{athlete.name}</td>
+                  <td className="px-5 py-4">{athlete.assigned}</td>
+                  <td className="px-5 py-4">{athlete.completed}</td>
+                  <td className="px-5 py-4">{athlete.completionRate}%</td>
+                  <td className="px-5 py-4">{athlete.overdue}</td>
+                  <td className="px-5 py-4">
+                    {athlete.totalReps} {t("repsShort")} ·{" "}
+                    {Math.round(athlete.totalLoadKg * 10) / 10} kg
+                  </td>
+                  <td className="px-5 py-4">
+                    <ButtonLink
+                      href={`/coach/${athlete.id}`}
+                      size="sm"
+                      variant="secondary"
+                    >
+                      {t("openAthlete")}
+                    </ButtonLink>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </Card>

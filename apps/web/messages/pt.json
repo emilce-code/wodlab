@@ -53,6 +53,7 @@
     "title": "Calculadora de percentuais de peso",
     "description": "Calcule cargas por percentual, arredonde para seu equipamento e monte a barra.",
     "referenceWeight": "Peso de referência",
+    "inputs": "Dados da calculadora",
     "mode": "Modo de cálculo",
     "targetMode": "Calcular alvo",
     "reverseMode": "Calcular percentual",
@@ -121,6 +122,13 @@
     "saveComment": "Salvar comentário",
     "commentError": "Não foi possível salvar seu comentário."
   },
+  "coachNavigation": {
+    "label": "Seções do espaço do treinador",
+    "overview": "Visão geral",
+    "programming": "Programação",
+    "monitoring": "Monitoramento",
+    "analytics": "Análises"
+  },
   "coach": {
     "eyebrow": "Coaching",
     "title": "Espaço do coach",
@@ -178,17 +186,20 @@
     "assignmentError": "Não foi possível atribuir este treino.",
     "duplicateAssignment": "Esta variação já está programada para essa data.",
     "assignmentsTitle": "Treinos atribuídos",
+    "assignmentsEmpty": "Ainda não há treinos atribuídos a este atleta.",
     "planned": "Planejado",
     "completed": "Concluído",
     "feedbackPlaceholder": "Feedback para o atleta",
     "markReviewed": "Salvar feedback",
     "reviewError": "Não foi possível salvar o feedback.",
     "recentResults": "Resultados recentes",
+    "resultsEmpty": "Este atleta ainda não tem resultados registrados.",
     "connectionError": "Não foi possível conectar ao servidor.",
     "weeklyPlan": {
       "title": "Programação semanal",
       "description": "Planeje o treinamento do atleta uma semana de cada vez.",
       "previous": "Semana anterior",
+      "today": "Esta semana",
       "next": "Próxima semana",
       "copyPrevious": "Copiar semana anterior",
       "restDay": "Nenhum treino planejado",

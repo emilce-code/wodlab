@@ -188,7 +188,7 @@ export default async function MovementDetailPage({ params }: Props) {
         </p>
 
         {!hasPersonalRecords ? (
-          <Card className="mt-5 p-6">
+          <Card className="mt-5 p-4 sm:p-6">
             <p className="font-semibold">{t("personalRecords.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">
@@ -311,7 +311,7 @@ export default async function MovementDetailPage({ params }: Props) {
         </div>
 
         {results.length === 0 ? (
-          <Card className="mt-5 p-6">
+          <Card className="mt-5 p-4 sm:p-6">
             <p className="font-semibold">{t("history.emptyTitle")}</p>
 
             <p className="mt-2 text-sm text-muted">

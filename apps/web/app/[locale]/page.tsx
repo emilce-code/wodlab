@@ -1,42 +1,36 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations } from "next-intl/server";
 
-import LogoMark from '@/components/brand/LogoMark';
-import Wordmark from '@/components/brand/Wordmark';
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
+import LogoMark from "@/components/brand/LogoMark";
+import Wordmark from "@/components/brand/Wordmark";
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import { Link } from "@/i18n/navigation";
 
 export default async function LandingPage() {
-  const t =
-    await getTranslations(
-      'landing',
-    );
+  const t = await getTranslations("landing");
 
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
-          <Link
-            href="/"
-            className="flex items-center gap-2"
-          >
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:px-8 sm:py-5 lg:px-10">
+          <Link href="/" className="flex items-center gap-2">
             <LogoMark />
             <Wordmark />
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
             <Link
               href="/login"
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-muted transition hover:text-foreground"
+              className="inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold text-muted transition hover:text-foreground"
             >
-              {t('signIn')}
+              {t("signIn")}
             </Link>
 
             <Link
               href="/register"
-              className="rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+              className="inline-flex min-h-11 items-center rounded-lg bg-accent px-3 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong sm:px-4"
             >
-              {t('getStarted')}
+              {t("getStarted")}
             </Link>
           </div>
         </div>
@@ -53,39 +47,37 @@ export default async function LandingPage() {
           className="pointer-events-none absolute -right-32 top-1/3 h-96 w-96 rounded-full bg-accent/5 blur-3xl"
         />
 
-        <div className="relative mx-auto grid max-w-7xl gap-14 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-10 lg:py-32">
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-8 sm:py-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-10 lg:py-32">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent">
-              {t('hero.eyebrow')}
+              {t("hero.eyebrow")}
             </p>
 
-            <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[0.98] tracking-tight sm:text-6xl lg:text-7xl">
-              {t('hero.titleLine1')}
+            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-7xl">
+              {t("hero.titleLine1")}
               <br />
-              {t('hero.titleLine2')}
+              {t("hero.titleLine2")}
               <br />
-              <span className="text-accent">
-                {t('hero.titleLine3')}
-              </span>
+              <span className="text-accent">{t("hero.titleLine3")}</span>
             </h1>
 
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-muted">
-              {t('hero.description')}
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:mt-7 sm:text-lg sm:leading-8">
+              {t("hero.description")}
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
               >
-                {t('hero.startTraining')} →
+                {t("hero.startTraining")} →
               </Link>
 
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-elevated"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-border bg-surface px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-elevated"
               >
-                {t('signIn')}
+                {t("signIn")}
               </Link>
             </div>
           </div>
@@ -95,14 +87,10 @@ export default async function LandingPage() {
               <div className="p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                    {t('workoutPreview.forTime')}
+                    {t("workoutPreview.forTime")}
                   </p>
 
-                  <Badge>
-                    {t(
-                      'workoutPreview.benchmark',
-                    )}
-                  </Badge>
+                  <Badge>{t("workoutPreview.benchmark")}</Badge>
                 </div>
 
                 <h2 className="mt-4 text-4xl font-black tracking-tight">
@@ -114,30 +102,19 @@ export default async function LandingPage() {
                 </p>
 
                 <div className="mt-8 space-y-4">
-                  <WorkoutLine
-                    name="Thruster"
-                    value="43 kg"
-                  />
+                  <WorkoutLine name="Thruster" value="43 kg" />
 
-                  <WorkoutLine
-                    name="Pull-up"
-                  />
+                  <WorkoutLine name="Pull-up" />
                 </div>
 
                 <div className="mt-8 rounded-xl border border-accent/20 bg-accent/5 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-                    {t(
-                      'workoutPreview.personalBest',
-                    )}
+                    {t("workoutPreview.personalBest")}
                   </p>
 
-                  <p className="mt-2 text-3xl font-black">
-                    5:58
-                  </p>
+                  <p className="mt-2 text-3xl font-black">5:58</p>
 
-                  <p className="mt-1 text-sm text-muted">
-                    Rx
-                  </p>
+                  <p className="mt-1 text-sm text-muted">Rx</p>
                 </div>
               </div>
             </Card>
@@ -146,86 +123,58 @@ export default async function LandingPage() {
       </section>
 
       <section className="border-y border-border bg-surface">
-        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-8 sm:py-16 lg:px-10">
           <div className="grid gap-10 md:grid-cols-3">
             <Feature
               number="01"
-              title={t(
-                'features.build.title',
-              )}
-              description={t(
-                'features.build.description',
-              )}
+              title={t("features.build.title")}
+              description={t("features.build.description")}
             />
 
             <Feature
               number="02"
-              title={t(
-                'features.log.title',
-              )}
-              description={t(
-                'features.log.description',
-              )}
+              title={t("features.log.title")}
+              description={t("features.log.description")}
             />
 
             <Feature
               number="03"
-              title={t(
-                'features.progress.title',
-              )}
-              description={t(
-                'features.progress.description',
-              )}
+              title={t("features.progress.title")}
+              description={t("features.progress.description")}
             />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-8 sm:py-20 lg:px-10 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              {t('training.eyebrow')}
+              {t("training.eyebrow")}
             </p>
 
             <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
-              {t('training.titleLine1')}
+              {t("training.titleLine1")}
               <br />
-              {t('training.titleLine2')}
+              {t("training.titleLine2")}
             </h2>
 
             <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-              {t('training.description')}
+              {t("training.description")}
             </p>
           </div>
 
           <Card className="p-6 sm:p-8">
             <div className="space-y-5">
-              <StatRow
-                label={t(
-                  'stats.workoutsThisMonth',
-                )}
-                value="12"
-              />
+              <StatRow label={t("stats.workoutsThisMonth")} value="12" />
+
+              <StatRow label={t("stats.personalRecords")} value="4" accent />
 
               <StatRow
-                label={t(
-                  'stats.personalRecords',
-                )}
-                value="4"
-                accent
-              />
-
-              <StatRow
-                label={t(
-                  'stats.trainingStreak',
-                )}
-                value={t(
-                  'stats.days',
-                  {
-                    count: 8,
-                  },
-                )}
+                label={t("stats.trainingStreak")}
+                value={t("stats.days", {
+                  count: 8,
+                })}
               />
             </div>
           </Card>
@@ -233,59 +182,45 @@ export default async function LandingPage() {
       </section>
 
       <section className="border-t border-border">
-        <div className="mx-auto max-w-5xl px-5 py-20 text-center sm:px-8">
+        <div className="mx-auto max-w-5xl px-4 py-14 text-center sm:px-8 sm:py-20">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            {t('cta.eyebrow')}
+            {t("cta.eyebrow")}
           </p>
 
           <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
-            {t('cta.title')}
+            {t("cta.title")}
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-muted">
-            {t('cta.description')}
+            {t("cta.description")}
           </p>
 
           <Link
             href="/register"
-            className="mt-8 inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong"
+            className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground transition hover:bg-accent-strong sm:w-auto"
           >
-            {t('cta.createAccount')} →
+            {t("cta.createAccount")} →
           </Link>
         </div>
       </section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-10">
           <Wordmark className="text-sm" />
 
-          <p>
-            {t('footer')}
-          </p>
+          <p>{t("footer")}</p>
         </div>
       </footer>
     </main>
   );
 }
 
-function WorkoutLine({
-  name,
-  value,
-}: {
-  name: string;
-  value?: string;
-}) {
+function WorkoutLine({ name, value }: { name: string; value?: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border pb-4 last:border-b-0 last:pb-0">
-      <span className="font-semibold">
-        {name}
-      </span>
+      <span className="font-semibold">{name}</span>
 
-      {value && (
-        <span className="text-sm text-muted">
-          {value}
-        </span>
-      )}
+      {value && <span className="text-sm text-muted">{value}</span>}
     </div>
   );
 }
@@ -301,17 +236,11 @@ function Feature({
 }) {
   return (
     <div>
-      <p className="text-xs font-black text-accent">
-        {number}
-      </p>
+      <p className="text-xs font-black text-accent">{number}</p>
 
-      <h3 className="mt-3 text-xl font-bold">
-        {title}
-      </h3>
+      <h3 className="mt-3 text-xl font-bold">{title}</h3>
 
-      <p className="mt-3 leading-7 text-muted">
-        {description}
-      </p>
+      <p className="mt-3 leading-7 text-muted">{description}</p>
     </div>
   );
 }
@@ -327,17 +256,12 @@ function StatRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-6 border-b border-border pb-5 last:border-b-0 last:pb-0">
-      <span className="text-muted">
-        {label}
-      </span>
+      <span className="text-muted">{label}</span>
 
       <span
-        className={[
-          'text-2xl font-black',
-          accent
-            ? 'text-accent'
-            : '',
-        ].join(' ')}
+        className={["text-2xl font-black", accent ? "text-accent" : ""].join(
+          " ",
+        )}
       >
         {value}
       </span>

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 
 import CoachProgrammingWorkspace from "../components/CoachProgrammingWorkspace";
+import CoachModuleNavigation from "../components/CoachModuleNavigation";
 
 export default async function CoachProgrammingPage() {
   const t = await getTranslations("coachProgramming");
@@ -14,6 +15,7 @@ export default async function CoachProgrammingPage() {
         title={t("title")}
         description={t("description")}
       />
+      <CoachModuleNavigation />
       <CoachProgrammingWorkspace />
     </div>
   );

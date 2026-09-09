@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from "react";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
@@ -6,15 +6,15 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 export default function Card({
   children,
-  className = '',
+  className = "",
   ...props
 }: CardProps) {
   return (
     <div
       className={[
-        'rounded-xl border border-border bg-surface',
+        "min-w-0 rounded-xl border border-border bg-surface",
         className,
-      ].join(' ')}
+      ].join(" ")}
       {...props}
     >
       {children}

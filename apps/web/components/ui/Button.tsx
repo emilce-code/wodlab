@@ -13,7 +13,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const baseClassName = [
   "inline-flex items-center justify-center gap-2 rounded-lg",
-  "text-sm font-semibold transition-colors",
+  "select-none text-sm font-semibold transition-colors",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "disabled:cursor-not-allowed disabled:opacity-50",
@@ -30,7 +30,7 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "min-h-10 px-3 py-2",
+  sm: "min-h-11 px-3 py-2",
   md: "min-h-11 px-4 py-2.5",
   lg: "min-h-12 px-5 py-3",
   icon: "h-11 w-11 shrink-0 p-0",

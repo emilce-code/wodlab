@@ -168,7 +168,7 @@ export default async function DashboardPage({ params }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-12">
+    <div className="mx-auto max-w-5xl space-y-8 sm:space-y-12">
       <header>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
           {t("eyebrow")}
@@ -179,8 +179,8 @@ export default async function DashboardPage({ params }: Props) {
         <p className="mt-2 text-muted">{t("readyToTrain")}</p>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-5">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Card className="p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {t("stats.workouts")}
           </p>
@@ -192,7 +192,7 @@ export default async function DashboardPage({ params }: Props) {
           <p className="mt-1 text-xs text-muted">{t("stats.thisMonth")}</p>
         </Card>
 
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {t("stats.movementResults")}
           </p>
@@ -204,7 +204,7 @@ export default async function DashboardPage({ params }: Props) {
           <p className="mt-1 text-xs text-muted">{t("stats.thisMonth")}</p>
         </Card>
 
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {t("stats.personalRecords")}
           </p>
@@ -216,7 +216,7 @@ export default async function DashboardPage({ params }: Props) {
           <p className="mt-1 text-xs text-muted">{t("stats.thisMonth")}</p>
         </Card>
 
-        <Card className="p-5">
+        <Card className="p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {t("stats.movementsTracked")}
           </p>

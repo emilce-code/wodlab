@@ -79,7 +79,7 @@ export default async function AccountPage() {
         description={t("description")}
       />
 
-      <Card className="mt-8 p-6">
+      <Card className="mt-6 p-4 sm:mt-8 sm:p-6">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-accent text-lg font-black text-accent">
             {initials}
@@ -136,7 +136,7 @@ export default async function AccountPage() {
           <h2 className="mt-1 text-xl font-bold">{t("preferences.title")}</h2>
         </div>
 
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium">{t("language.title")}</p>
@@ -153,7 +153,7 @@ export default async function AccountPage() {
         </Card>
       </section>
 
-      <Card className="mt-6 p-6">
+      <Card className="mt-6 p-4 sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
           {t("session.eyebrow")}
         </p>
@@ -163,7 +163,7 @@ export default async function AccountPage() {
         <p className="mt-2 text-sm text-muted">{t("session.description")}</p>
 
         <div className="mt-5">
-          <LogoutButton className="inline-flex items-center justify-center rounded-lg border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50">
+          <LogoutButton className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
             {t("session.logout")}
           </LogoutButton>
         </div>

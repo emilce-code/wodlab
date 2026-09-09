@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
-import Card from '@/components/ui/Card';
-import { Link } from '@/i18n/navigation';
+import Card from "@/components/ui/Card";
+import { Link } from "@/i18n/navigation";
 
 export type Movement = {
   id: string;
@@ -27,55 +27,28 @@ type Props = {
   movement: Movement;
 };
 
-export default function MovementCard({
-  movement,
-}: Props) {
-  const t =
-    useTranslations(
-      'movements',
-    );
+export default function MovementCard({ movement }: Props) {
+  const t = useTranslations("movements");
 
-  const categoryT =
-    useTranslations(
-      'movementCategories',
-    );
+  const categoryT = useTranslations("movementCategories");
 
-  const measurementT =
-    useTranslations(
-      'measurementTypes',
-    );
+  const measurementT = useTranslations("measurementTypes");
 
   function getCategoryName() {
-    const key =
-      movement.category.key.toLowerCase();
+    const key = movement.category.key.toLowerCase();
 
-    return categoryT.has(key)
-      ? categoryT(key)
-      : movement.category.name;
+    return categoryT.has(key) ? categoryT(key) : movement.category.name;
   }
 
-  function getMeasurementName(
-    type: {
-      key: string;
-      name: string;
-    },
-  ) {
-    const key =
-      type.key.toLowerCase();
+  function getMeasurementName(type: { key: string; name: string }) {
+    const key = type.key.toLowerCase();
 
-    return measurementT.has(
-      key,
-    )
-      ? measurementT(key)
-      : type.name;
+    return measurementT.has(key) ? measurementT(key) : type.name;
   }
 
   return (
-    <Link
-      href={`/movements/${movement.id}`}
-      className="block h-full"
-    >
-      <Card className="flex h-full flex-col p-5 transition hover:border-accent/40 hover:bg-surface-elevated">
+    <Link href={`/movements/${movement.id}`} className="block h-full">
+      <Card className="flex h-full flex-col p-4 transition hover:border-accent/40 hover:bg-surface-elevated sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
             {getCategoryName()}
@@ -83,9 +56,7 @@ export default function MovementCard({
 
           {movement.isFoundational && (
             <span className="rounded-md border border-border bg-surface-elevated px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted">
-              {t(
-                'foundational',
-              )}
+              {t("foundational")}
             </span>
           )}
         </div>
@@ -94,28 +65,21 @@ export default function MovementCard({
           {movement.name}
         </h2>
 
-        {movement.aliases.length >
-          0 && (
+        {movement.aliases.length > 0 && (
           <p className="mt-2 text-sm text-muted">
-            {movement.aliases.join(
-              ' · ',
-            )}
+            {movement.aliases.join(" · ")}
           </p>
         )}
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {movement.measurementTypes.map(
-            (type) => (
-              <span
-                key={type.key}
-                className="rounded-md border border-border bg-surface-elevated px-2 py-1 text-xs text-muted"
-              >
-                {getMeasurementName(
-                  type,
-                )}
-              </span>
-            ),
-          )}
+        <div className="mt-5 flex flex-wrap gap-2 sm:mt-6">
+          {movement.measurementTypes.map((type) => (
+            <span
+              key={type.key}
+              className="rounded-md border border-border bg-surface-elevated px-2 py-1 text-xs text-muted"
+            >
+              {getMeasurementName(type)}
+            </span>
+          ))}
         </div>
       </Card>
     </Link>

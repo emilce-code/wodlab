@@ -44,7 +44,9 @@ export default function CoachProgrammingWorkspace() {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
-  const [memberSelections, setMemberSelections] = useState<Record<string, string>>({});
+  const [memberSelections, setMemberSelections] = useState<
+    Record<string, string>
+  >({});
   const [templateName, setTemplateName] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
   const [items, setItems] = useState<DraftItem[]>([emptyItem()]);
@@ -83,7 +85,9 @@ export default function CoachProgrammingWorkspace() {
     try {
       const response = await fetch(`/api/coach-programming/${path}`, init);
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { message?: string } | null;
+        const body = (await response.json().catch(() => null)) as {
+          message?: string;
+        } | null;
         throw new Error(body?.message || t("saveError"));
       }
       await load();
@@ -164,7 +168,9 @@ export default function CoachProgrammingWorkspace() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: templateName,
-        ...(templateDescription.trim() ? { description: templateDescription } : {}),
+        ...(templateDescription.trim()
+          ? { description: templateDescription }
+          : {}),
         items: items.map((item) => ({
           dayOffset: item.dayOffset,
           workoutId: item.workoutId,
@@ -210,7 +216,10 @@ export default function CoachProgrammingWorkspace() {
         },
       );
       if (!response.ok) throw new Error(t("applyError"));
-      const result = (await response.json()) as { created: number; skipped: number };
+      const result = (await response.json()) as {
+        created: number;
+        skipped: number;
+      };
       setSuccess(t("applied", result));
       await load();
     } catch {
@@ -222,9 +231,17 @@ export default function CoachProgrammingWorkspace() {
 
   if (!workspace) {
     return error ? (
-      <Alert variant="error" className="mt-8">{error}</Alert>
+      <Alert variant="error" className="mt-8">
+        {error}
+      </Alert>
     ) : (
-      <Card className="mt-8 p-8 text-muted">{t("loading")}</Card>
+      <div className="mt-8 grid gap-4 lg:grid-cols-2" aria-label={t("loading")}>
+        {[0, 1, 2, 3].map((item) => (
+          <Card key={item} className="h-40 animate-pulse bg-surface-elevated">
+            <span className="sr-only">{t("loading")}</span>
+          </Card>
+        ))}
+      </div>
     );
   }
 
@@ -235,7 +252,10 @@ export default function CoachProgrammingWorkspace() {
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)]">
         <div>
-          <h2 className="text-xl font-bold">{t("groupsTitle")}</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-bold">{t("groupsTitle")}</h2>
+            <Badge variant="accent">{workspace.groups.length}</Badge>
+          </div>
           <div className="mt-4 grid gap-4">
             {workspace.groups.map((group) => {
               const availableAthletes = workspace.athletes.filter(
@@ -249,69 +269,200 @@ export default function CoachProgrammingWorkspace() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="font-bold">{group.name}</h3>
-                      {group.description ? <p className="mt-1 text-sm text-muted">{group.description}</p> : null}
+                      {group.description ? (
+                        <p className="mt-1 text-sm text-muted">
+                          {group.description}
+                        </p>
+                      ) : null}
                     </div>
-                    <Button type="button" size="sm" variant="ghost" disabled={submitting} onClick={() => void deleteGroup(group.id, group.name)}>{t("delete")}</Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      disabled={submitting}
+                      onClick={() => void deleteGroup(group.id, group.name)}
+                    >
+                      {t("delete")}
+                    </Button>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {group.members.length === 0 ? <p className="text-sm text-muted">{t("emptyGroup")}</p> : group.members.map((member) => (
-                      <button key={member.id} type="button" disabled={submitting} onClick={() => void removeMember(group.id, member.athleteProfile.id)} title={t("removeMember")} className="rounded-full border border-border px-3 py-1.5 text-sm hover:border-red-500 hover:text-red-500">
-                        {member.athleteProfile.displayName} ×
-                      </button>
-                    ))}
+                    {group.members.length === 0 ? (
+                      <p className="text-sm text-muted">{t("emptyGroup")}</p>
+                    ) : (
+                      group.members.map((member) => (
+                        <button
+                          key={member.id}
+                          type="button"
+                          disabled={submitting}
+                          onClick={() =>
+                            void removeMember(
+                              group.id,
+                              member.athleteProfile.id,
+                            )
+                          }
+                          title={t("removeMember")}
+                          className="rounded-full border border-border px-3 py-1.5 text-sm hover:border-red-500 hover:text-red-500"
+                        >
+                          {member.athleteProfile.displayName} ×
+                        </button>
+                      ))
+                    )}
                   </div>
                   {availableAthletes.length > 0 ? (
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                      <select value={memberSelections[group.id] ?? ""} onChange={(event) => setMemberSelections((current) => ({ ...current, [group.id]: event.target.value }))} className="min-h-11 flex-1 rounded-lg border border-border bg-background px-3">
+                      <select
+                        value={memberSelections[group.id] ?? ""}
+                        onChange={(event) =>
+                          setMemberSelections((current) => ({
+                            ...current,
+                            [group.id]: event.target.value,
+                          }))
+                        }
+                        className="min-h-11 flex-1 rounded-lg border border-border bg-background px-3"
+                      >
                         <option value="">{t("selectAthlete")}</option>
-                        {availableAthletes.map((athlete) => <option key={athlete.id} value={athlete.id}>{athlete.displayName}</option>)}
+                        {availableAthletes.map((athlete) => (
+                          <option key={athlete.id} value={athlete.id}>
+                            {athlete.displayName}
+                          </option>
+                        ))}
                       </select>
-                      <Button type="button" size="sm" disabled={submitting || !memberSelections[group.id]} onClick={() => void addMember(group.id)}>{t("addMember")}</Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={submitting || !memberSelections[group.id]}
+                        onClick={() => void addMember(group.id)}
+                      >
+                        {t("addMember")}
+                      </Button>
                     </div>
                   ) : null}
                 </Card>
               );
             })}
-            {workspace.groups.length === 0 ? <Card className="p-6 text-center text-muted">{t("noGroups")}</Card> : null}
+            {workspace.groups.length === 0 ? (
+              <Card className="p-6 text-center text-muted">
+                {t("noGroups")}
+              </Card>
+            ) : null}
           </div>
         </div>
 
         <Card className="h-fit p-5">
           <h2 className="text-lg font-bold">{t("createGroup")}</h2>
           <form onSubmit={createGroup} className="mt-4 space-y-3">
-            <input required maxLength={100} value={groupName} onChange={(event) => setGroupName(event.target.value)} placeholder={t("groupName")} className="min-h-12 w-full rounded-lg border border-border bg-background px-3" />
-            <textarea maxLength={500} value={groupDescription} onChange={(event) => setGroupDescription(event.target.value)} placeholder={t("groupDescription")} className="min-h-24 w-full rounded-lg border border-border bg-background p-3" />
-            <Button type="submit" isLoading={submitting}>{t("saveGroup")}</Button>
+            <input
+              aria-label={t("groupName")}
+              required
+              maxLength={100}
+              value={groupName}
+              onChange={(event) => setGroupName(event.target.value)}
+              placeholder={t("groupName")}
+              className="min-h-12 w-full rounded-lg border border-border bg-background px-3"
+            />
+            <textarea
+              aria-label={t("groupDescription")}
+              maxLength={500}
+              value={groupDescription}
+              onChange={(event) => setGroupDescription(event.target.value)}
+              placeholder={t("groupDescription")}
+              className="min-h-24 w-full resize-y rounded-lg border border-border bg-background p-3"
+            />
+            <Button type="submit" isLoading={submitting}>
+              {t("saveGroup")}
+            </Button>
           </form>
         </Card>
       </section>
 
       <section>
-        <h2 className="text-xl font-bold">{t("templatesTitle")}</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl font-bold">{t("templatesTitle")}</h2>
+          <Badge variant="accent">{workspace.templates.length}</Badge>
+        </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           {workspace.templates.map((template) => (
             <Card key={template.id} className="p-5">
               <div className="flex items-start justify-between gap-4">
-                <div><h3 className="font-bold">{template.name}</h3>{template.description ? <p className="mt-1 text-sm text-muted">{template.description}</p> : null}</div>
-                <Button type="button" size="sm" variant="ghost" disabled={submitting} onClick={() => void deleteTemplate(template.id, template.name)}>{t("delete")}</Button>
+                <div>
+                  <h3 className="font-bold">{template.name}</h3>
+                  {template.description ? (
+                    <p className="mt-1 text-sm text-muted">
+                      {template.description}
+                    </p>
+                  ) : null}
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={submitting}
+                  onClick={() =>
+                    void deleteTemplate(template.id, template.name)
+                  }
+                >
+                  {t("delete")}
+                </Button>
               </div>
               <div className="mt-4 space-y-2">
                 {template.items.map((item) => (
-                  <div key={item.id} className="flex flex-wrap items-center gap-2 rounded-lg bg-background p-3 text-sm">
+                  <div
+                    key={item.id}
+                    className="flex flex-wrap items-center gap-2 rounded-lg bg-background p-3 text-sm"
+                  >
                     <Badge>{t(`days.${item.dayOffset}`)}</Badge>
                     <span className="font-semibold">{item.workout.name}</span>
-                    <span className="text-muted">· {item.workoutVariant.level.name}</span>
+                    <span className="text-muted">
+                      · {item.workoutVariant.level.name}
+                    </span>
                   </div>
                 ))}
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <select value={applyGroup[template.id] ?? ""} onChange={(event) => setApplyGroup((current) => ({ ...current, [template.id]: event.target.value }))} className="min-h-11 rounded-lg border border-border bg-background px-3"><option value="">{t("selectGroup")}</option>{workspace.groups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>
-                <input type="date" value={applyWeek[template.id] ?? mondayValue()} onChange={(event) => setApplyWeek((current) => ({ ...current, [template.id]: event.target.value }))} className="min-h-11 rounded-lg border border-border bg-background px-3" />
-                <Button type="button" disabled={submitting} onClick={() => void applyTemplate(template.id)} className="sm:col-span-2">{t("apply")}</Button>
+                <select
+                  value={applyGroup[template.id] ?? ""}
+                  onChange={(event) =>
+                    setApplyGroup((current) => ({
+                      ...current,
+                      [template.id]: event.target.value,
+                    }))
+                  }
+                  className="min-h-11 rounded-lg border border-border bg-background px-3"
+                >
+                  <option value="">{t("selectGroup")}</option>
+                  {workspace.groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="date"
+                  value={applyWeek[template.id] ?? mondayValue()}
+                  onChange={(event) =>
+                    setApplyWeek((current) => ({
+                      ...current,
+                      [template.id]: event.target.value,
+                    }))
+                  }
+                  className="min-h-11 rounded-lg border border-border bg-background px-3"
+                />
+                <Button
+                  type="button"
+                  disabled={submitting}
+                  onClick={() => void applyTemplate(template.id)}
+                  className="sm:col-span-2"
+                >
+                  {t("apply")}
+                </Button>
               </div>
             </Card>
           ))}
-          {workspace.templates.length === 0 ? <Card className="p-6 text-center text-muted">{t("noTemplates")}</Card> : null}
+          {workspace.templates.length === 0 ? (
+            <Card className="p-6 text-center text-muted">
+              {t("noTemplates")}
+            </Card>
+          ) : null}
         </div>
       </section>
 
@@ -319,26 +470,137 @@ export default function CoachProgrammingWorkspace() {
         <h2 className="text-xl font-bold">{t("createTemplate")}</h2>
         <form onSubmit={createTemplate} className="mt-5 space-y-5">
           <div className="grid gap-3 sm:grid-cols-2">
-            <input required maxLength={100} value={templateName} onChange={(event) => setTemplateName(event.target.value)} placeholder={t("templateName")} className="min-h-12 rounded-lg border border-border bg-background px-3" />
-            <input maxLength={500} value={templateDescription} onChange={(event) => setTemplateDescription(event.target.value)} placeholder={t("templateDescription")} className="min-h-12 rounded-lg border border-border bg-background px-3" />
+            <input
+              aria-label={t("templateName")}
+              required
+              maxLength={100}
+              value={templateName}
+              onChange={(event) => setTemplateName(event.target.value)}
+              placeholder={t("templateName")}
+              className="min-h-12 rounded-lg border border-border bg-background px-3"
+            />
+            <input
+              aria-label={t("templateDescription")}
+              maxLength={500}
+              value={templateDescription}
+              onChange={(event) => setTemplateDescription(event.target.value)}
+              placeholder={t("templateDescription")}
+              className="min-h-12 rounded-lg border border-border bg-background px-3"
+            />
           </div>
           <div className="space-y-4">
             {items.map((item, index) => {
-              const workout: ProgrammingWorkout | undefined = workspace.workouts.find((value) => value.id === item.workoutId);
+              const workout: ProgrammingWorkout | undefined =
+                workspace.workouts.find((value) => value.id === item.workoutId);
               return (
-                <div key={index} className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2 lg:grid-cols-5">
-                  <select value={item.dayOffset} onChange={(event) => updateItem(index, { dayOffset: Number(event.target.value) })} className="min-h-11 rounded-lg border border-border bg-background px-3">{Array.from({ length: 7 }, (_, day) => <option key={day} value={day}>{t(`days.${day}`)}</option>)}</select>
-                  <select required value={item.workoutId} onChange={(event) => selectWorkout(index, event.target.value)} className="min-h-11 rounded-lg border border-border bg-background px-3"><option value="">{t("selectWorkout")}</option>{workspace.workouts.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}</select>
-                  <select required value={item.workoutVariantId} onChange={(event) => updateItem(index, { workoutVariantId: event.target.value })} className="min-h-11 rounded-lg border border-border bg-background px-3"><option value="">{t("selectVariation")}</option>{workout?.variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.level.name}{variant.name ? ` · ${variant.name}` : ""}</option>)}</select>
-                  <select value={item.prescriptionCategoryKey} onChange={(event) => updateItem(index, { prescriptionCategoryKey: event.target.value })} className="min-h-11 rounded-lg border border-border bg-background px-3"><option value="">{t("noPrescription")}</option>{workspace.prescriptionCategories.map((category) => <option key={category.key} value={category.key}>{category.name}</option>)}</select>
-                  <div className="flex gap-2"><input value={item.coachNotes} maxLength={1000} onChange={(event) => updateItem(index, { coachNotes: event.target.value })} placeholder={t("notes")} className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3" /><Button type="button" size="icon" variant="ghost" disabled={items.length === 1} onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={t("removeItem")}>×</Button></div>
+                <div
+                  key={index}
+                  className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2 lg:grid-cols-5"
+                >
+                  <select
+                    value={item.dayOffset}
+                    onChange={(event) =>
+                      updateItem(index, {
+                        dayOffset: Number(event.target.value),
+                      })
+                    }
+                    className="min-h-11 rounded-lg border border-border bg-background px-3"
+                  >
+                    {Array.from({ length: 7 }, (_, day) => (
+                      <option key={day} value={day}>
+                        {t(`days.${day}`)}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    required
+                    value={item.workoutId}
+                    onChange={(event) =>
+                      selectWorkout(index, event.target.value)
+                    }
+                    className="min-h-11 rounded-lg border border-border bg-background px-3"
+                  >
+                    <option value="">{t("selectWorkout")}</option>
+                    {workspace.workouts.map((value) => (
+                      <option key={value.id} value={value.id}>
+                        {value.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    required
+                    value={item.workoutVariantId}
+                    onChange={(event) =>
+                      updateItem(index, {
+                        workoutVariantId: event.target.value,
+                      })
+                    }
+                    className="min-h-11 rounded-lg border border-border bg-background px-3"
+                  >
+                    <option value="">{t("selectVariation")}</option>
+                    {workout?.variants.map((variant) => (
+                      <option key={variant.id} value={variant.id}>
+                        {variant.level.name}
+                        {variant.name ? ` · ${variant.name}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={item.prescriptionCategoryKey}
+                    onChange={(event) =>
+                      updateItem(index, {
+                        prescriptionCategoryKey: event.target.value,
+                      })
+                    }
+                    className="min-h-11 rounded-lg border border-border bg-background px-3"
+                  >
+                    <option value="">{t("noPrescription")}</option>
+                    {workspace.prescriptionCategories.map((category) => (
+                      <option key={category.key} value={category.key}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex gap-2">
+                    <input
+                      value={item.coachNotes}
+                      maxLength={1000}
+                      onChange={(event) =>
+                        updateItem(index, { coachNotes: event.target.value })
+                      }
+                      placeholder={t("notes")}
+                      className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      disabled={items.length === 1}
+                      onClick={() =>
+                        setItems((current) =>
+                          current.filter((_, itemIndex) => itemIndex !== index),
+                        )
+                      }
+                      aria-label={t("removeItem")}
+                    >
+                      ×
+                    </Button>
+                  </div>
                 </div>
               );
             })}
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button type="button" variant="secondary" onClick={() => setItems((current) => [...current, emptyItem()])}>{t("addItem")}</Button>
-            <Button type="submit" isLoading={submitting}>{t("saveTemplate")}</Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setItems((current) => [...current, emptyItem()])}
+            >
+              {t("addItem")}
+            </Button>
+            <Button type="submit" isLoading={submitting}>
+              {t("saveTemplate")}
+            </Button>
           </div>
         </form>
       </Card>
