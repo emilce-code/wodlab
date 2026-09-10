@@ -97,6 +97,11 @@ The database stores:
 - Personal records
 - Scheduled workout sessions and their optional completed results
 
+Workout mutations are authorized in the API. Administrators may manage any
+workout; regular users may manage only non-official workouts they created.
+Structural updates and permanent deletion require the workout to have no
+results, scheduled sessions, or program-template references.
+
 ## Future mobile application
 
 Future application:

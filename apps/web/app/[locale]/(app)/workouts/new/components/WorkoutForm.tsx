@@ -18,7 +18,110 @@ type Props = {
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
   prescriptionCategories: PrescriptionCategory[];
+  initialWorkout?: EditableWorkout;
 };
+
+export type EditableWorkout = {
+  id: string;
+  name: string;
+  description: string | null;
+  isBenchmark: boolean;
+  type: { key: string };
+  variants: Array<{
+    id: string;
+    name: string | null;
+    notes: string | null;
+    level: { key: string };
+    sections: Array<{
+      id: string;
+      type: { key: string };
+      rounds: number | null;
+      durationSeconds: number | null;
+      restSeconds: number | null;
+      repScheme: number[];
+      notes: string | null;
+      movements: Array<{
+        id: string;
+        movement: {
+          id: string;
+          name: string;
+          measurementTypes: Array<{ key: string; name: string }>;
+        };
+        reps: number | null;
+        weight: number | null;
+        weightUnit: "KG" | "LB" | null;
+        distance: number | null;
+        calories: number | null;
+        durationSeconds: number | null;
+        notes: string | null;
+        prescriptions: Array<{
+          category: { key: string };
+          reps: number | null;
+          weight: number | null;
+          weightUnit: "KG" | "LB" | null;
+          percentage: number | null;
+          referenceRepMax: number | null;
+          distance: number | null;
+          calories: number | null;
+          durationSeconds: number | null;
+          notes: string | null;
+        }>;
+      }>;
+    }>;
+  }>;
+};
+
+const formValue = (value: number | null) =>
+  value === null ? "" : String(value);
+
+function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
+  return workout.variants.map((variant) => ({
+    id: variant.id,
+    levelKey: variant.level.key,
+    name: variant.name ?? "",
+    notes: variant.notes ?? "",
+    sections: variant.sections.map((section) => ({
+      id: section.id,
+      typeKey: section.type.key,
+      rounds: formValue(section.rounds),
+      durationSeconds: formValue(section.durationSeconds),
+      restSeconds: formValue(section.restSeconds),
+      repScheme: section.repScheme.join("-"),
+      notes: section.notes ?? "",
+      movements: section.movements.map((item) => ({
+        id: item.id,
+        movementId: item.movement.id,
+        movementName: item.movement.name,
+        movementOption: {
+          id: item.movement.id,
+          name: item.movement.name,
+          aliases: [],
+          category: { key: "", name: "" },
+          measurementTypes: item.movement.measurementTypes,
+        },
+        reps: formValue(item.reps),
+        weight: formValue(item.weight),
+        weightUnit: item.weightUnit ?? "",
+        distance: formValue(item.distance),
+        calories: formValue(item.calories),
+        durationSeconds: formValue(item.durationSeconds),
+        notes: item.notes ?? "",
+        prescriptions: item.prescriptions.map((prescription) => ({
+          categoryKey: prescription.category.key,
+          reps: formValue(prescription.reps),
+          weight: formValue(prescription.weight),
+          weightUnit: prescription.weightUnit ?? "",
+          percentage: formValue(prescription.percentage),
+          referenceRepMax: formValue(prescription.referenceRepMax),
+          distance: formValue(prescription.distance),
+          calories: formValue(prescription.calories),
+          durationSeconds: formValue(prescription.durationSeconds),
+          notes: prescription.notes ?? "",
+        })),
+      })),
+    })),
+  }));
+}
 
 type FormStep = "details" | "programming" | "review";
 
@@ -124,6 +227,7 @@ export default function WorkoutForm({
   workoutTypes,
   workoutLevels,
   prescriptionCategories,
+  initialWorkout,
 }: Props) {
   const t = useTranslations("workouts.create");
 
@@ -141,15 +245,24 @@ export default function WorkoutForm({
 
   const [currentStep, setCurrentStep] = useState<FormStep>("details");
 
-  const [name, setName] = useState("");
+  const isEditing = Boolean(initialWorkout);
 
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(initialWorkout?.name ?? "");
 
-  const [typeKey, setTypeKey] = useState("");
+  const [description, setDescription] = useState(
+    initialWorkout?.description ?? "",
+  );
 
-  const [isBenchmark, setIsBenchmark] = useState(false);
+  const [typeKey, setTypeKey] = useState(initialWorkout?.type.key ?? "");
+
+  const [isBenchmark, setIsBenchmark] = useState(
+    initialWorkout?.isBenchmark ?? false,
+  );
 
   const [variants, setVariants] = useState<WorkoutVariantFormState[]>(() => {
+    if (initialWorkout) {
+      return mapWorkoutToForm(initialWorkout);
+    }
     const defaultLevel =
       workoutLevels.find((level) => level.key === "RX") ?? workoutLevels[0];
 
@@ -162,31 +275,39 @@ export default function WorkoutForm({
 
   const [fieldErrors, setFieldErrors] = useState<WorkoutFormFieldErrors>({});
 
-  const hasUnsavedChanges =
-    Boolean(name.trim()) ||
-    Boolean(description.trim()) ||
-    Boolean(typeKey) ||
-    isBenchmark ||
-    variants.length > 1 ||
-    variants.some(
-      (variant) =>
-        Boolean(variant.name.trim()) ||
-        Boolean(variant.notes.trim()) ||
-        variant.sections.length > 1 ||
-        variant.sections.some(
-          (section) =>
-            Boolean(section.typeKey) ||
-            Boolean(section.rounds) ||
-            Boolean(section.durationSeconds) ||
-            Boolean(section.restSeconds) ||
-            Boolean(section.repScheme.trim()) ||
-            Boolean(section.notes.trim()) ||
-            section.movements.length > 0,
-        ),
-    );
+  const hasUnsavedChanges = isEditing
+    ? JSON.stringify({ name, description, typeKey, isBenchmark, variants }) !==
+      JSON.stringify({
+        name: initialWorkout?.name ?? "",
+        description: initialWorkout?.description ?? "",
+        typeKey: initialWorkout?.type.key ?? "",
+        isBenchmark: initialWorkout?.isBenchmark ?? false,
+        variants: initialWorkout ? mapWorkoutToForm(initialWorkout) : [],
+      })
+    : Boolean(name.trim()) ||
+      Boolean(description.trim()) ||
+      Boolean(typeKey) ||
+      isBenchmark ||
+      variants.length > 1 ||
+      variants.some(
+        (variant) =>
+          Boolean(variant.name.trim()) ||
+          Boolean(variant.notes.trim()) ||
+          variant.sections.length > 1 ||
+          variant.sections.some(
+            (section) =>
+              Boolean(section.typeKey) ||
+              Boolean(section.rounds) ||
+              Boolean(section.durationSeconds) ||
+              Boolean(section.restSeconds) ||
+              Boolean(section.repScheme.trim()) ||
+              Boolean(section.notes.trim()) ||
+              section.movements.length > 0,
+          ),
+      );
 
   useEffect(() => {
-    if (!hasUnsavedChanges || isSubmitting) {
+    if (isEditing || !hasUnsavedChanges || isSubmitting) {
       return;
     }
 
@@ -208,13 +329,14 @@ export default function WorkoutForm({
     hasUnsavedChanges,
     isBenchmark,
     isSubmitting,
+    isEditing,
     name,
     typeKey,
     variants,
   ]);
 
   useEffect(() => {
-    if (!hasUnsavedChanges || isSubmitting) {
+    if (isEditing || !hasUnsavedChanges || isSubmitting) {
       return;
     }
 
@@ -226,7 +348,7 @@ export default function WorkoutForm({
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasUnsavedChanges, isSubmitting]);
+  }, [hasUnsavedChanges, isEditing, isSubmitting]);
 
   function restoreDraft() {
     if (!storedDraft) {
@@ -626,15 +748,18 @@ export default function WorkoutForm({
         })),
       };
 
-      const response = await fetch("/api/workouts", {
-        method: "POST",
+      const response = await fetch(
+        initialWorkout ? `/api/workouts/${initialWorkout.id}` : "/api/workouts",
+        {
+        method: initialWorkout ? "PATCH" : "POST",
 
         headers: {
           "Content-Type": "application/json",
         },
 
         body: JSON.stringify(payload),
-      });
+        },
+      );
 
       const data = await response.json();
 
@@ -648,9 +773,9 @@ export default function WorkoutForm({
         return;
       }
 
-      removeDraft();
+      if (!isEditing) removeDraft();
 
-      router.push(`/workouts/${data.id}`);
+      router.push(`/workouts/${initialWorkout?.id ?? data.id}`);
 
       router.refresh();
     } catch {
@@ -740,7 +865,7 @@ export default function WorkoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {storedDraft && !isDraftPromptDismissed && !hasUnsavedChanges ? (
+      {!isEditing && storedDraft && !isDraftPromptDismissed && !hasUnsavedChanges ? (
         <section
           aria-labelledby="workout-draft-title"
           className="rounded-xl border border-accent/30 bg-accent/10 p-4"
@@ -1230,7 +1355,9 @@ export default function WorkoutForm({
                 isLoading={isSubmitting}
                 className="px-5"
               >
-                {isSubmitting ? t("creating") : t("create")}
+                {isSubmitting
+                  ? t(isEditing ? "saving" : "creating")
+                  : t(isEditing ? "saveChanges" : "create")}
               </Button>
             ) : (
               <Button

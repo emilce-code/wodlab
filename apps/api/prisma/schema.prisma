@@ -284,6 +284,7 @@ model Workout {
   createdByUserId      String
   createdByUser        User                  @relation(fields: [createdByUserId], references: [id])
   isBenchmark          Boolean               @default(false)
+  official             Boolean               @default(false)
   isActive             Boolean               @default(true)
   deactivatedAt        DateTime?
   variants             WorkoutVariant[]

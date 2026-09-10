@@ -7,7 +7,6 @@ import ProgressiveList from "@/components/ui/ProgressiveList";
 import Alert from "@/components/ui/Alert";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetch } from "@/lib/api";
-import { getCurrentUser } from "@/lib/auth";
 import { formatDate } from "@/lib/date-formatters";
 import {
   formatDuration,
@@ -101,9 +100,13 @@ type Workout = {
   name: string;
   description: string | null;
   isBenchmark: boolean;
+  official: boolean;
   isActive: boolean;
   deactivatedAt: string | null;
   resultCount: number;
+  canManage: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
   createdByUser: {
     id: string;
     email: string;
@@ -226,7 +229,6 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     workoutTypeT,
     resultTypeT,
     locale,
-    currentUser,
     percentageTargets,
   ] = await Promise.all([
     getWorkout(id),
@@ -237,7 +239,6 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     getTranslations("workoutTypes"),
     getTranslations("resultTypes"),
     getLocale(),
-    getCurrentUser(),
     getPercentageTargets(id),
   ]);
 
@@ -372,7 +373,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
 
   const personalBest = summary.personalBest;
   const lastResult = summary.lastResult;
-  const canManage = workout.createdByUser.id === currentUser?.id;
+  const canManage = workout.canManage;
   const displayedVariants = [selectedVariant];
 
   const formVariants: LogResultWorkoutVariant[] = workout.variants.map(
@@ -448,7 +449,15 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         )}
 
         {canManage && (
-          <div className="mt-5 max-w-2xl">
+          <div className="mt-5 flex max-w-2xl flex-col gap-3 min-[390px]:flex-row">
+            {workout.canEdit ? (
+              <Link
+                href={`/workouts/${workout.id}/edit`}
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-semibold transition hover:border-accent/40"
+              >
+                {t("editWorkout")}
+              </Link>
+            ) : null}
             <WorkoutLifecycleActions workout={workout} redirectAfterDelete />
           </div>
         )}

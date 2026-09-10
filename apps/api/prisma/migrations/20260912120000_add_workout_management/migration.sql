@@ -1,0 +1,2 @@
+ALTER TABLE "Workout"
+ADD COLUMN "official" BOOLEAN NOT NULL DEFAULT false;

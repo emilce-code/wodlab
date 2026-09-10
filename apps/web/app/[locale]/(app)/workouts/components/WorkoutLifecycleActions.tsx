@@ -29,9 +29,9 @@ export default function WorkoutLifecycleActions({
 
   const action: LifecycleAction = !workout.isActive
     ? "reactivate"
-    : workout.resultCount > 0
-      ? "deactivate"
-      : "delete";
+    : workout.canDelete
+      ? "delete"
+      : "deactivate";
 
   async function handleAction() {
     setError(null);

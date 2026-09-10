@@ -15,6 +15,7 @@ import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
 import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
+import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { WorkoutResultsService } from './workout-results.service';
 import { WorkoutsService } from './workouts.service';
 
@@ -63,33 +64,42 @@ export class WorkoutsController {
 
   @Get('archived')
   findArchived(@Req() request: AuthenticatedRequest) {
-    return this.workoutsService.findArchived(request.user.userId);
+    return this.workoutsService.findArchived(request.user);
   }
 
   // Collection routes
   @Get()
-  findAll() {
-    return this.workoutsService.findAll();
+  findAll(@Req() request: AuthenticatedRequest) {
+    return this.workoutsService.findAll(request.user);
   }
 
   @Post()
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateWorkoutDto) {
-    return this.workoutsService.create(request.user.userId, dto);
+    return this.workoutsService.create(request.user, dto);
+  }
+
+  @Patch(':id')
+  update(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateWorkoutDto,
+  ) {
+    return this.workoutsService.update(request.user, id, dto);
   }
 
   @Patch(':id/deactivate')
   deactivate(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
-    return this.workoutsService.deactivate(request.user.userId, id);
+    return this.workoutsService.deactivate(request.user, id);
   }
 
   @Patch(':id/reactivate')
   reactivate(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
-    return this.workoutsService.reactivate(request.user.userId, id);
+    return this.workoutsService.reactivate(request.user, id);
   }
 
   @Delete(':id')
   delete(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
-    return this.workoutsService.delete(request.user.userId, id);
+    return this.workoutsService.delete(request.user, id);
   }
 
   // Workout result routes
@@ -153,6 +163,6 @@ export class WorkoutsController {
   // Dynamic route LAST
   @Get(':id')
   findOne(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
-    return this.workoutsService.findOne(id, request.user.userId);
+    return this.workoutsService.findOne(id, request.user);
   }
 }

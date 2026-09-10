@@ -538,8 +538,12 @@
     },
     "create": {
       "backToLibrary": "Workout Library",
+      "backToWorkout": "Back to workout",
       "title": "Create Workout",
       "description": "Build a workout by adding sections and movements.",
+      "editEyebrow": "Workout management",
+      "editTitle": "Edit workout",
+      "editDescription": "Update the workout structure, variations, and prescriptions.",
       "optional": "(optional)",
       "draft": {
         "title": "Continue your workout draft?",
@@ -601,6 +605,8 @@
       "reviewBeforeSaving": "Review your sections and movements before saving.",
       "create": "Create workout",
       "creating": "Creating workout...",
+      "saveChanges": "Save changes",
+      "saving": "Saving changes...",
       "validation": {
         "nameRequired": "Workout name is required.",
         "typeRequired": "Workout type is required.",
@@ -700,6 +706,7 @@
     },
     "detail": {
       "backToWorkouts": "Workouts",
+      "editWorkout": "Edit workout",
       "benchmark": "Benchmark",
       "inactiveTitle": "This workout is inactive",
       "inactiveDescription": "It is available only as historical data. New results and changes to existing results are disabled.",

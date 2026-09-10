@@ -25,3 +25,22 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
   return NextResponse.json(data, { status: response.status });
 }
+
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+  const response = await authenticatedApiFetch(`/workouts/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(await request.json()),
+  });
+
+  if (!response) {
+    return NextResponse.json(
+      { message: "Unable to connect to API" },
+      { status: 503 },
+    );
+  }
+
+  const data = await response.json();
+  return NextResponse.json(data, { status: response.status });
+}

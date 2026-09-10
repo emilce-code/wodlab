@@ -124,6 +124,7 @@ export class UsersController {
     return {
       id: user.id,
       email: user.email,
+      role: user.role,
       athleteProfile: user.athleteProfile,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

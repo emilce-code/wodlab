@@ -7,8 +7,10 @@ import {
 } from '@nestjs/common';
 
 import type { Prisma } from '../../generated/prisma/client';
+import type { AuthenticatedUser } from '../auth/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
+import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { WorkoutResponseDto } from './dto/workout-response.dto';
 
 const workoutInclude = {
@@ -106,6 +108,8 @@ const workoutInclude = {
   _count: {
     select: {
       results: true,
+      scheduledWorkouts: true,
+      programTemplateItems: true,
     },
   },
 } satisfies Prisma.WorkoutInclude;
@@ -167,7 +171,7 @@ export class WorkoutsService {
     });
   }
 
-  async findAll(): Promise<WorkoutResponseDto[]> {
+  async findAll(user: AuthenticatedUser): Promise<WorkoutResponseDto[]> {
     const workouts = await this.prisma.workout.findMany({
       where: {
         isActive: true,
@@ -180,13 +184,13 @@ export class WorkoutsService {
       },
     });
 
-    return workouts.map((workout) => this.mapWorkout(workout));
+    return workouts.map((workout) => this.mapWorkout(workout, user));
   }
 
-  async findArchived(userId: string): Promise<WorkoutResponseDto[]> {
+  async findArchived(user: AuthenticatedUser): Promise<WorkoutResponseDto[]> {
     const workouts = await this.prisma.workout.findMany({
       where: {
-        createdByUserId: userId,
+        ...(user.role === 'ADMIN' ? {} : { createdByUserId: user.userId }),
         isActive: false,
       },
       include: workoutInclude,
@@ -195,10 +199,13 @@ export class WorkoutsService {
       },
     });
 
-    return workouts.map((workout) => this.mapWorkout(workout));
+    return workouts.map((workout) => this.mapWorkout(workout, user));
   }
 
-  async findOne(id: string, userId: string): Promise<WorkoutResponseDto> {
+  async findOne(
+    id: string,
+    user: AuthenticatedUser,
+  ): Promise<WorkoutResponseDto> {
     const workout = await this.prisma.workout.findUnique({
       where: {
         id,
@@ -211,12 +218,16 @@ export class WorkoutsService {
       throw new NotFoundException('Workout not found');
     }
 
-    if (!workout.isActive && workout.createdByUserId !== userId) {
+    if (
+      !workout.isActive &&
+      user.role !== 'ADMIN' &&
+      workout.createdByUserId !== user.userId
+    ) {
       const historicalResult = await this.prisma.workoutResult.findFirst({
         where: {
           workoutId: id,
           athleteProfile: {
-            userId,
+            userId: user.userId,
           },
         },
         select: {
@@ -229,15 +240,15 @@ export class WorkoutsService {
       }
     }
 
-    return this.mapWorkout(workout);
+    return this.mapWorkout(workout, user);
   }
 
-  async delete(userId: string, id: string) {
-    const workout = await this.findOwnedWorkout(id, userId);
+  async delete(user: AuthenticatedUser, id: string) {
+    const workout = await this.findManageableWorkout(id, user);
 
-    if (workout._count.results > 0) {
+    if (this.hasDependencies(workout)) {
       throw new ConflictException(
-        'Workouts with results cannot be deleted and must be deactivated',
+        'Workouts with results, schedules, or program templates cannot be deleted and must be deactivated',
       );
     }
 
@@ -253,17 +264,20 @@ export class WorkoutsService {
     };
   }
 
-  async deactivate(userId: string, id: string): Promise<WorkoutResponseDto> {
-    const workout = await this.findOwnedWorkout(id, userId);
+  async deactivate(
+    user: AuthenticatedUser,
+    id: string,
+  ): Promise<WorkoutResponseDto> {
+    const workout = await this.findManageableWorkout(id, user);
 
-    if (workout._count.results === 0) {
+    if (!this.hasDependencies(workout)) {
       throw new ConflictException(
         'Workouts without results must be deleted instead of deactivated',
       );
     }
 
     if (!workout.isActive) {
-      return this.mapWorkout(workout);
+      return this.mapWorkout(workout, user);
     }
 
     const updatedWorkout = await this.prisma.workout.update({
@@ -277,14 +291,17 @@ export class WorkoutsService {
       include: workoutInclude,
     });
 
-    return this.mapWorkout(updatedWorkout);
+    return this.mapWorkout(updatedWorkout, user);
   }
 
-  async reactivate(userId: string, id: string): Promise<WorkoutResponseDto> {
-    const workout = await this.findOwnedWorkout(id, userId);
+  async reactivate(
+    user: AuthenticatedUser,
+    id: string,
+  ): Promise<WorkoutResponseDto> {
+    const workout = await this.findManageableWorkout(id, user);
 
     if (workout.isActive) {
-      return this.mapWorkout(workout);
+      return this.mapWorkout(workout, user);
     }
 
     const updatedWorkout = await this.prisma.workout.update({
@@ -298,10 +315,10 @@ export class WorkoutsService {
       include: workoutInclude,
     });
 
-    return this.mapWorkout(updatedWorkout);
+    return this.mapWorkout(updatedWorkout, user);
   }
 
-  async create(userId: string, dto: CreateWorkoutDto) {
+  async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
     return this.prisma.$transaction(async (tx) => {
       const workoutType = await tx.workoutType.findUnique({
         where: {
@@ -383,7 +400,7 @@ export class WorkoutsService {
 
           createdByUser: {
             connect: {
-              id: userId,
+              id: user.userId,
             },
           },
 
@@ -477,7 +494,96 @@ export class WorkoutsService {
     });
   }
 
-  private async findOwnedWorkout(id: string, userId: string) {
+  async update(
+    user: AuthenticatedUser,
+    id: string,
+    dto: UpdateWorkoutDto,
+  ): Promise<WorkoutResponseDto> {
+    const workout = await this.findManageableWorkout(id, user);
+
+    if (this.hasDependencies(workout)) {
+      throw new ConflictException(
+        'Workouts with results, schedules, or program templates cannot be structurally edited',
+      );
+    }
+
+    const updatedWorkout = await this.prisma.$transaction(async (tx) => {
+      await this.validateWorkoutDefinition(tx, dto);
+
+      await tx.workoutVariant.deleteMany({ where: { workoutId: id } });
+
+      return tx.workout.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          description: dto.description,
+          isBenchmark: dto.isBenchmark ?? false,
+          type: { connect: { key: dto.typeKey } },
+          variants: {
+            create: dto.variants.map((variant) => ({
+              name: variant.name,
+              notes: variant.notes,
+              level: { connect: { key: variant.levelKey } },
+              sections: {
+                create: variant.sections.map((section) => ({
+                  order: section.order,
+                  rounds: section.rounds,
+                  durationSeconds: section.durationSeconds,
+                  restSeconds: section.restSeconds,
+                  repScheme: section.repScheme ?? [],
+                  notes: section.notes,
+                  type: { connect: { key: section.typeKey } },
+                  movements: {
+                    create: section.movements.map((movement) => ({
+                      order: movement.order,
+                      reps: movement.reps,
+                      weight: movement.weight,
+                      weightUnit: movement.weightUnit,
+                      distance: movement.distance,
+                      calories: movement.calories,
+                      durationSeconds: movement.durationSeconds,
+                      notes: movement.notes,
+                      movement: { connect: { id: movement.movementId } },
+                      prescriptions: {
+                        create: (movement.prescriptions ?? []).map(
+                          (prescription) => ({
+                            reps: prescription.reps,
+                            weight: prescription.weight,
+                            weightUnit: prescription.weightUnit,
+                            percentage: prescription.percentage,
+                            referenceRepMax: prescription.referenceRepMax,
+                            referenceMovement: prescription.referenceMovementId
+                              ? {
+                                  connect: {
+                                    id: prescription.referenceMovementId,
+                                  },
+                                }
+                              : undefined,
+                            distance: prescription.distance,
+                            calories: prescription.calories,
+                            durationSeconds: prescription.durationSeconds,
+                            notes: prescription.notes,
+                            prescriptionCategory: {
+                              connect: { key: prescription.categoryKey },
+                            },
+                          }),
+                        ),
+                      },
+                    })),
+                  },
+                })),
+              },
+            })),
+          },
+        },
+        include: workoutInclude,
+      });
+    });
+
+    return this.mapWorkout(updatedWorkout, user);
+  }
+
+  private async findManageableWorkout(id: string, user: AuthenticatedUser) {
     const workout = await this.prisma.workout.findUnique({
       where: {
         id,
@@ -489,22 +595,100 @@ export class WorkoutsService {
       throw new NotFoundException('Workout not found');
     }
 
-    if (workout.createdByUserId !== userId) {
-      throw new ForbiddenException('Only the workout creator can manage it');
+    const canManage =
+      user.role === 'ADMIN' ||
+      (!workout.official && workout.createdByUserId === user.userId);
+
+    if (!canManage) {
+      throw new ForbiddenException('You cannot manage this workout');
     }
 
     return workout;
   }
 
-  private mapWorkout(workout: WorkoutWithDetails): WorkoutResponseDto {
+  private hasDependencies(workout: WorkoutWithDetails) {
+    return (
+      workout._count.results > 0 ||
+      workout._count.scheduledWorkouts > 0 ||
+      workout._count.programTemplateItems > 0
+    );
+  }
+
+  private async validateWorkoutDefinition(
+    tx: Prisma.TransactionClient,
+    dto: CreateWorkoutDto,
+  ) {
+    const workoutType = await tx.workoutType.findUnique({
+      where: { key: dto.typeKey },
+    });
+    if (!workoutType) {
+      throw new NotFoundException(`Workout type "${dto.typeKey}" not found`);
+    }
+    if (dto.variants.length === 0) {
+      throw new BadRequestException('At least one workout variant is required');
+    }
+
+    for (const variant of dto.variants) {
+      const level = await tx.workoutLevel.findUnique({
+        where: { key: variant.levelKey },
+      });
+      if (!level) {
+        throw new NotFoundException(
+          `Workout level "${variant.levelKey}" not found`,
+        );
+      }
+      for (const section of variant.sections) {
+        const sectionType = await tx.workoutType.findUnique({
+          where: { key: section.typeKey },
+        });
+        if (!sectionType) {
+          throw new NotFoundException(
+            `Workout section type "${section.typeKey}" not found`,
+          );
+        }
+        for (const movement of section.movements) {
+          const existingMovement = await tx.movement.findUnique({
+            where: { id: movement.movementId },
+          });
+          if (!existingMovement) {
+            throw new NotFoundException(
+              `Movement "${movement.movementId}" not found`,
+            );
+          }
+          for (const prescription of movement.prescriptions ?? []) {
+            const category = await tx.prescriptionCategory.findUnique({
+              where: { key: prescription.categoryKey },
+            });
+            if (!category) {
+              throw new NotFoundException(
+                `Prescription category "${prescription.categoryKey}" not found`,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private mapWorkout(
+    workout: WorkoutWithDetails,
+    user: AuthenticatedUser,
+  ): WorkoutResponseDto {
+    const canManage =
+      user.role === 'ADMIN' ||
+      (!workout.official && workout.createdByUserId === user.userId);
     return {
       id: workout.id,
       name: workout.name,
       description: workout.description,
       isBenchmark: workout.isBenchmark,
+      official: workout.official,
       isActive: workout.isActive,
       deactivatedAt: workout.deactivatedAt,
       resultCount: workout._count.results,
+      canManage,
+      canEdit: canManage && !this.hasDependencies(workout),
+      canDelete: canManage && !this.hasDependencies(workout),
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
 

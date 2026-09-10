@@ -39,7 +39,6 @@ export default async function WorkoutsPage() {
       <WorkoutLibrary
         workouts={workouts}
         archivedWorkouts={archivedWorkouts}
-        currentUserId={currentUser?.id ?? null}
         preferredWorkoutLevelKey={
           currentUser?.athleteProfile?.preferredWorkoutLevel?.key ?? null
         }

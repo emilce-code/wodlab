@@ -10,8 +10,11 @@ describe('WorkoutsController', () => {
   let controller: WorkoutsController;
 
   const workoutsServiceMock = {
+    findAll: jest.fn(),
     findArchived: jest.fn(),
     findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
     deactivate: jest.fn(),
     reactivate: jest.fn(),
     delete: jest.fn(),
@@ -58,7 +61,7 @@ describe('WorkoutsController', () => {
   it('lists archived workouts for the authenticated creator', async () => {
     workoutsServiceMock.findArchived.mockResolvedValue([]);
     await controller.findArchived(request);
-    expect(workoutsServiceMock.findArchived).toHaveBeenCalledWith('user-1');
+    expect(workoutsServiceMock.findArchived).toHaveBeenCalledWith(request.user);
   });
 
   it('passes the authenticated user when reading a workout', async () => {
@@ -66,7 +69,7 @@ describe('WorkoutsController', () => {
     await controller.findOne(request, 'workout-1');
     expect(workoutsServiceMock.findOne).toHaveBeenCalledWith(
       'workout-1',
-      'user-1',
+      request.user,
     );
   });
 
@@ -83,15 +86,15 @@ describe('WorkoutsController', () => {
     await controller.delete(request, 'workout-1');
 
     expect(workoutsServiceMock.deactivate).toHaveBeenCalledWith(
-      'user-1',
+      request.user,
       'workout-1',
     );
     expect(workoutsServiceMock.reactivate).toHaveBeenCalledWith(
-      'user-1',
+      request.user,
       'workout-1',
     );
     expect(workoutsServiceMock.delete).toHaveBeenCalledWith(
-      'user-1',
+      request.user,
       'workout-1',
     );
   });

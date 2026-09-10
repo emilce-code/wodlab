@@ -538,8 +538,12 @@
     },
     "create": {
       "backToLibrary": "Biblioteca de treinos",
+      "backToWorkout": "Voltar ao treino",
       "title": "Criar treino",
       "description": "Monte um treino adicionando seções e movimentos.",
+      "editEyebrow": "Gerenciamento de treino",
+      "editTitle": "Editar treino",
+      "editDescription": "Atualize a estrutura, as variações e as prescrições.",
       "optional": "(opcional)",
       "draft": {
         "title": "Continuar seu rascunho?",
@@ -601,6 +605,8 @@
       "reviewBeforeSaving": "Revise as seções e os movimentos antes de salvar.",
       "create": "Criar treino",
       "creating": "Criando treino...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando alterações...",
       "validation": {
         "nameRequired": "O nome do treino é obrigatório.",
         "typeRequired": "O tipo de treino é obrigatório.",
@@ -700,6 +706,7 @@
     },
     "detail": {
       "backToWorkouts": "Treinos",
+      "editWorkout": "Editar treino",
       "benchmark": "Benchmark",
       "inactiveTitle": "Este treino está inativo",
       "inactiveDescription": "Ele está disponível apenas como histórico. Novos resultados e alterações nos resultados existentes estão desativados.",

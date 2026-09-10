@@ -13,14 +13,12 @@ type LibraryView = "ACTIVE" | "ARCHIVED";
 type Props = {
   workouts: Workout[];
   archivedWorkouts: Workout[];
-  currentUserId: string | null;
   preferredWorkoutLevelKey: string | null;
 };
 
 export default function WorkoutLibrary({
   workouts,
   archivedWorkouts,
-  currentUserId,
   preferredWorkoutLevelKey,
 }: Props) {
   const t = useTranslations("workouts.library");
@@ -141,7 +139,7 @@ export default function WorkoutLibrary({
             <WorkoutCard
               key={workout.id}
               workout={workout}
-              canManage={workout.createdByUser.id === currentUserId}
+              canManage={workout.canManage}
               preferredWorkoutLevelKey={preferredWorkoutLevelKey}
             />
           ))}

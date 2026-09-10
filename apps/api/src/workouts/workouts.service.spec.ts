@@ -10,6 +10,16 @@ import { WorkoutsService } from './workouts.service';
 
 describe('WorkoutsService lifecycle', () => {
   let service: WorkoutsService;
+  const user = {
+    userId: 'user-1',
+    email: 'user@example.com',
+    role: 'USER' as const,
+  };
+  const admin = {
+    userId: 'admin-1',
+    email: 'admin@example.com',
+    role: 'ADMIN' as const,
+  };
 
   const prismaMock = {
     workout: {
@@ -25,10 +35,12 @@ describe('WorkoutsService lifecycle', () => {
     isActive = true,
     resultCount = 0,
     createdByUserId = 'user-1',
+    official = false,
   }: {
     isActive?: boolean;
     resultCount?: number;
     createdByUserId?: string;
+    official?: boolean;
   } = {}) => ({
     id: 'workout-1',
     name: 'Fran',
@@ -36,6 +48,7 @@ describe('WorkoutsService lifecycle', () => {
     typeId: 'type-1',
     createdByUserId,
     isBenchmark: true,
+    official,
     isActive,
     deactivatedAt: isActive ? null : new Date('2026-09-02T12:00:00.000Z'),
     createdAt: new Date('2026-08-01T12:00:00.000Z'),
@@ -50,7 +63,11 @@ describe('WorkoutsService lifecycle', () => {
       email: 'creator@example.com',
     },
     variants: [],
-    _count: { results: resultCount },
+    _count: {
+      results: resultCount,
+      scheduledWorkouts: 0,
+      programTemplateItems: 0,
+    },
   });
 
   beforeEach(async () => {
@@ -71,14 +88,14 @@ describe('WorkoutsService lifecycle', () => {
   afterEach(() => jest.clearAllMocks());
 
   it('lists only active workouts', async () => {
-    await service.findAll();
+    await service.findAll(user);
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { isActive: true } }),
     );
   });
 
   it('lists only archived workouts created by the current user', async () => {
-    await service.findArchived('user-1');
+    await service.findArchived(user);
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { createdByUserId: 'user-1', isActive: false },
@@ -90,7 +107,7 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.findUnique.mockResolvedValue(
       workoutFixture({ isActive: false }),
     );
-    await expect(service.findOne('workout-1', 'user-1')).resolves.toEqual(
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({ isActive: false }),
     );
   });
@@ -100,7 +117,7 @@ describe('WorkoutsService lifecycle', () => {
       workoutFixture({ isActive: false, createdByUserId: 'creator-2' }),
     );
     prismaMock.workoutResult.findFirst.mockResolvedValue({ id: 'result-1' });
-    await expect(service.findOne('workout-1', 'user-1')).resolves.toEqual(
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({ id: 'workout-1', isActive: false }),
     );
   });
@@ -109,14 +126,14 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.findUnique.mockResolvedValue(
       workoutFixture({ isActive: false, createdByUserId: 'creator-2' }),
     );
-    await expect(service.findOne('workout-1', 'user-1')).rejects.toThrow(
+    await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
     );
   });
 
   it('permanently deletes an owned workout without results', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
-    await expect(service.delete('user-1', 'workout-1')).resolves.toEqual({
+    await expect(service.delete(user, 'workout-1')).resolves.toEqual({
       id: 'workout-1',
       deleted: true,
     });
@@ -129,7 +146,7 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.findUnique.mockResolvedValue(
       workoutFixture({ resultCount: 2 }),
     );
-    await expect(service.delete('user-1', 'workout-1')).rejects.toThrow(
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
       ConflictException,
     );
     expect(prismaMock.workout.delete).not.toHaveBeenCalled();
@@ -139,7 +156,7 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.findUnique.mockResolvedValue(
       workoutFixture({ createdByUserId: 'creator-2' }),
     );
-    await expect(service.delete('user-1', 'workout-1')).rejects.toThrow(
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
       ForbiddenException,
     );
   });
@@ -151,7 +168,7 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.update.mockResolvedValue(
       workoutFixture({ isActive: false, resultCount: 2 }),
     );
-    const result = await service.deactivate('user-1', 'workout-1');
+    const result = await service.deactivate(user, 'workout-1');
     expect(result.isActive).toBe(false);
     const updateCalls = prismaMock.workout.update.mock.calls as unknown[][];
     const updateInput = updateCalls[0][0] as {
@@ -165,7 +182,7 @@ describe('WorkoutsService lifecycle', () => {
 
   it('requires empty workouts to be deleted instead of deactivated', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
-    await expect(service.deactivate('user-1', 'workout-1')).rejects.toThrow(
+    await expect(service.deactivate(user, 'workout-1')).rejects.toThrow(
       ConflictException,
     );
   });
@@ -177,7 +194,7 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.update.mockResolvedValue(
       workoutFixture({ isActive: true, resultCount: 2 }),
     );
-    const result = await service.reactivate('user-1', 'workout-1');
+    const result = await service.reactivate(user, 'workout-1');
     expect(result.isActive).toBe(true);
     expect(prismaMock.workout.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -185,5 +202,24 @@ describe('WorkoutsService lifecycle', () => {
         data: { isActive: true, deactivatedAt: null },
       }),
     );
+  });
+
+  it('blocks regular users from managing official workouts', async () => {
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({ official: true }),
+    );
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('allows administrators to manage official workouts', async () => {
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({ official: true, createdByUserId: 'seed-user' }),
+    );
+    await expect(service.delete(admin, 'workout-1')).resolves.toEqual({
+      id: 'workout-1',
+      deleted: true,
+    });
   });
 });

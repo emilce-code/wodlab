@@ -15,9 +15,13 @@ export type Workout = {
   name: string;
   description: string | null;
   isBenchmark: boolean;
+  official: boolean;
   isActive: boolean;
   deactivatedAt: string | null;
   resultCount: number;
+  canManage: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
 
   createdByUser: {
     id: string;

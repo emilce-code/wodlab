@@ -15,6 +15,7 @@ type AthletePreference = {
 export type CurrentUser = {
   id: string;
   email: string;
+  role: "USER" | "ADMIN";
 
   athleteProfile: {
     id: string;

@@ -120,6 +120,11 @@ The MVP supports:
 
 A workout contains one or more components.
 
+Users can edit workouts they created while those workouts have no results,
+scheduled sessions, or program-template references. Referenced workouts retain
+their historical structure and can be deactivated instead of deleted. Admins
+can manage any workout, including official system workouts.
+
 A component may include:
 
 - Movement
