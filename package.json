@@ -1,16 +1,21 @@
 {
   "name": "wodlab",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Mobile-first workout tracking and coaching platform",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pnpm --dir apps/api build && pnpm --dir apps/web build",
+    "check": "pnpm check:api && pnpm check:web",
+    "check:api": "pnpm --dir apps/api lint:check && pnpm --dir apps/api test --runInBand && pnpm --dir apps/api build",
+    "check:web": "pnpm --dir apps/web lint && pnpm --dir apps/web exec tsc --noEmit && pnpm --dir apps/web build",
+    "lint": "pnpm --dir apps/api lint:check && pnpm --dir apps/web lint",
+    "test": "pnpm --dir apps/api test --runInBand",
+    "test:e2e": "pnpm --dir apps/api test:e2e --runInBand"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": ">=22.12.0 <23"
+    "node": ">=22.12.0 <25"
   },
   "packageManager": "pnpm@11.18.0",
   "type": "module",
