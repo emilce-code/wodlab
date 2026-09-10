@@ -1138,6 +1138,10 @@
       }
     }
   },
+  "pagination": {
+    "loadMore": "Carregar mais {count}",
+    "showing": "Mostrando {shown} de {total}"
+  },
   "measurementTypes": {
     "reps": "Repetições",
     "weight": "Peso",

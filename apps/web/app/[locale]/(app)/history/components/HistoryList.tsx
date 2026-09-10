@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import { Link } from "@/i18n/navigation";
 import { formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 import {
@@ -167,6 +168,7 @@ function groupWorkoutMovements(
 
 export default function HistoryList({ results }: Props) {
   const t = useTranslations("history");
+  const measurementT = useTranslations("measurementTypes");
   const typeT = useTranslations("workoutTypes");
   const resultTypeT = useTranslations("resultTypes");
   const locale = useLocale();
@@ -581,7 +583,12 @@ export default function HistoryList({ results }: Props) {
           </button>
         </div>
       ) : (
-        <div className="mt-8 space-y-10">
+        <ProgressiveList
+          key={`${search}-${entryFilter}-${workoutType}-${resultType}-${levelFilter}`}
+          initialCount={10}
+          increment={10}
+          className="mt-8 space-y-10"
+        >
           {groupedResults.map((group) => (
             <section key={group.key}>
               <div className="mb-4 flex items-center gap-4">
@@ -610,7 +617,11 @@ export default function HistoryList({ results }: Props) {
                             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <Badge>{result.measurementType.name}</Badge>
+                                  <Badge>
+                                    {measurementT(
+                                      result.measurementType.key.toLowerCase(),
+                                    )}
+                                  </Badge>
 
                                   <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
                                     {t("labels.movement")}
@@ -839,7 +850,7 @@ export default function HistoryList({ results }: Props) {
               </div>
             </section>
           ))}
-        </div>
+        </ProgressiveList>
       )}
     </>
   );

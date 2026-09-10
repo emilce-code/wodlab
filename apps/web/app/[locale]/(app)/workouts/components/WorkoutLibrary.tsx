@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import ProgressiveList from "@/components/ui/ProgressiveList";
+
 import WorkoutCard, { Workout } from "./WorkoutCard";
 
 type Filter = "ALL" | "BENCHMARK";
@@ -129,7 +131,12 @@ export default function WorkoutLibrary({
           </p>
         </div>
       ) : (
-        <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <ProgressiveList
+          key={`${view}-${filter}-${search.trim().toLowerCase()}`}
+          initialCount={12}
+          increment={12}
+          className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3"
+        >
           {filteredWorkouts.map((workout) => (
             <WorkoutCard
               key={workout.id}
@@ -138,7 +145,7 @@ export default function WorkoutLibrary({
               preferredWorkoutLevelKey={preferredWorkoutLevelKey}
             />
           ))}
-        </div>
+        </ProgressiveList>
       )}
     </>
   );

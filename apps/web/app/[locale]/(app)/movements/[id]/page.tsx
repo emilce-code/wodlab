@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
@@ -382,7 +383,11 @@ export default async function MovementDetailPage({ params }: Props) {
           </Card>
         ) : (
           <Card className="mt-5 overflow-hidden">
-            <div className="divide-y divide-border">
+            <ProgressiveList
+              initialCount={10}
+              increment={10}
+              className="divide-y divide-border"
+            >
               {results.map((result) => (
                 <div key={result.id} className="p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -428,7 +433,7 @@ export default async function MovementDetailPage({ params }: Props) {
                   </div>
                 </div>
               ))}
-            </div>
+            </ProgressiveList>
           </Card>
         )}
       </section>

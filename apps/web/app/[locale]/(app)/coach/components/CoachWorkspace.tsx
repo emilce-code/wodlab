@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import type { CoachWorkspace as Workspace } from "@/lib/coach";
 
 import CoachModuleNavigation from "./CoachModuleNavigation";
@@ -298,7 +299,11 @@ export default function CoachWorkspace() {
                 {t("athletesEmpty")}
               </Card>
             ) : (
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <ProgressiveList
+                initialCount={10}
+                increment={10}
+                className="mt-4 grid gap-4 sm:grid-cols-2"
+              >
                 {workspace.athletes.map((relationship) => (
                   <Card key={relationship.id} className="p-5">
                     <p className="text-lg font-bold">
@@ -329,21 +334,25 @@ export default function CoachWorkspace() {
                     </Button>
                   </Card>
                 ))}
-              </div>
+              </ProgressiveList>
             )}
           </section>
 
           {workspace.sentInvitations.length > 0 ? (
             <section>
               <h2 className="text-xl font-bold">{t("pendingTitle")}</h2>
-              <div className="mt-4 space-y-2">
+              <ProgressiveList
+                initialCount={10}
+                increment={10}
+                className="mt-4 space-y-2"
+              >
                 {workspace.sentInvitations.map((relationship) => (
                   <Card key={relationship.id} className="p-4 text-sm">
                     {relationship.athleteProfile.displayName} ·{" "}
                     {relationship.athleteProfile.user.email}
                   </Card>
                 ))}
-              </div>
+              </ProgressiveList>
             </section>
           ) : null}
         </>

@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import { formatCalendarDate } from "@/lib/date-formatters";
 import type {
   CoachMonitoringResponse,
@@ -258,7 +259,12 @@ export default function CoachMonitoringDashboard() {
       {!loading && data?.items.length === 0 ? (
         <Card className="p-8 text-center text-muted">{t("empty")}</Card>
       ) : null}
-      <div className="grid gap-4 lg:grid-cols-2" aria-busy={loading}>
+      <ProgressiveList
+        key={`${groupId}-${athleteId}-${status}-${from}-${to}`}
+        initialCount={10}
+        increment={10}
+        className="grid gap-4 lg:grid-cols-2"
+      >
         {data?.items.map((item) => {
           const overdue =
             item.status === "PLANNED" &&
@@ -344,7 +350,7 @@ export default function CoachMonitoringDashboard() {
             </Card>
           );
         })}
-      </div>
+      </ProgressiveList>
     </div>
   );
 }

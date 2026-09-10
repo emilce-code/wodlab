@@ -156,6 +156,7 @@ export default function LogResultForm({
   onSaved,
 }: Props) {
   const t = useTranslations("workouts.logResult");
+  const measurementT = useTranslations("measurementTypes");
   const resultTypeT = useTranslations("resultTypes");
   const movementBuilderT = useTranslations("workouts.create.movementBuilder");
 
@@ -990,7 +991,7 @@ export default function LogResultForm({
                               key={type.key}
                               className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
                             >
-                              {type.name}
+                              {measurementT(type.key.toLowerCase())}
                             </span>
                           ))}
                         </div>

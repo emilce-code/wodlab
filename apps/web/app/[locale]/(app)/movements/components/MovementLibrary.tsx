@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import ProgressiveList from "@/components/ui/ProgressiveList";
+
 import MovementCard, { Movement } from "./MovementCard";
 import MovementEditor from "./MovementEditor";
 
@@ -129,11 +131,16 @@ export default function MovementLibrary({
           <p className="mt-2 text-sm text-muted">{t("emptyDescription")}</p>
         </div>
       ) : (
-        <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <ProgressiveList
+          key={normalizedSearch}
+          initialCount={12}
+          increment={12}
+          className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3"
+        >
           {displayedMovements.map((movement) => (
             <MovementCard key={movement.id} movement={movement} />
           ))}
-        </div>
+        </ProgressiveList>
       )}
     </>
   );

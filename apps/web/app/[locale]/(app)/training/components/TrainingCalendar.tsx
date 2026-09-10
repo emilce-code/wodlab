@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import { formatCalendarDate } from "@/lib/date-formatters";
 import {
   calendarDays,
@@ -809,23 +810,33 @@ export default function TrainingCalendar() {
               {t("emptyMonth")}
             </Card>
           ) : (
-            schedule.map((item) => (
-              <Card key={item.id} className="p-5 sm:p-6">
-                <p className="mb-4 text-sm font-semibold text-accent">
-                  {formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}
-                </p>
-                <ScheduleSummary item={item} />
-                <SessionActions
-                  item={item}
-                  onUpdated={upsert}
-                  onRemoved={(id) =>
-                    setSchedule((current) =>
-                      current.filter((entry) => entry.id !== id),
-                    )
-                  }
-                />
-              </Card>
-            ))
+            <ProgressiveList
+              key={month.toISOString()}
+              initialCount={10}
+              increment={10}
+              className="space-y-4"
+            >
+              {schedule.map((item) => (
+                <Card key={item.id} className="p-5 sm:p-6">
+                  <p className="mb-4 text-sm font-semibold text-accent">
+                    {formatCalendarDate(
+                      item.scheduledDate.slice(0, 10),
+                      locale,
+                    )}
+                  </p>
+                  <ScheduleSummary item={item} />
+                  <SessionActions
+                    item={item}
+                    onUpdated={upsert}
+                    onRemoved={(id) =>
+                      setSchedule((current) =>
+                        current.filter((entry) => entry.id !== id),
+                      )
+                    }
+                  />
+                </Card>
+              ))}
+            </ProgressiveList>
           )}
         </div>
       ) : null}

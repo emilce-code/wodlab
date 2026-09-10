@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import type {
   CoachProgrammingWorkspace as Workspace,
   ProgrammingWorkout,
@@ -256,7 +257,11 @@ export default function CoachProgrammingWorkspace() {
             <h2 className="text-xl font-bold">{t("groupsTitle")}</h2>
             <Badge variant="accent">{workspace.groups.length}</Badge>
           </div>
-          <div className="mt-4 grid gap-4">
+          <ProgressiveList
+            initialCount={10}
+            increment={10}
+            className="mt-4 grid gap-4"
+          >
             {workspace.groups.map((group) => {
               const availableAthletes = workspace.athletes.filter(
                 (athlete) =>
@@ -345,7 +350,7 @@ export default function CoachProgrammingWorkspace() {
                 {t("noGroups")}
               </Card>
             ) : null}
-          </div>
+          </ProgressiveList>
         </div>
 
         <Card className="h-fit p-5">
@@ -380,7 +385,11 @@ export default function CoachProgrammingWorkspace() {
           <h2 className="text-xl font-bold">{t("templatesTitle")}</h2>
           <Badge variant="accent">{workspace.templates.length}</Badge>
         </div>
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <ProgressiveList
+          initialCount={10}
+          increment={10}
+          className="mt-4 grid gap-4 lg:grid-cols-2"
+        >
           {workspace.templates.map((template) => (
             <Card key={template.id} className="p-5">
               <div className="flex items-start justify-between gap-4">
@@ -463,7 +472,7 @@ export default function CoachProgrammingWorkspace() {
               {t("noTemplates")}
             </Card>
           ) : null}
-        </div>
+        </ProgressiveList>
       </section>
 
       <Card className="p-5">

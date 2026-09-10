@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import ProgressiveList from "@/components/ui/ProgressiveList";
 import { formatCalendarDate } from "@/lib/date-formatters";
 
 import CoachWeeklyPlanner from "./CoachWeeklyPlanner";
@@ -175,7 +176,11 @@ export default function CoachAthleteDetail({
             {t("assignmentsEmpty")}
           </Card>
         ) : null}
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <ProgressiveList
+          initialCount={10}
+          increment={10}
+          className="mt-4 grid gap-4 lg:grid-cols-2"
+        >
           {athlete.scheduledWorkouts.map((item) => (
             <Card key={item.id} className="p-5">
               <div className="flex flex-wrap gap-2">
@@ -223,7 +228,7 @@ export default function CoachAthleteDetail({
               ) : null}
             </Card>
           ))}
-        </div>
+        </ProgressiveList>
       </section>
 
       <section>
@@ -233,7 +238,11 @@ export default function CoachAthleteDetail({
             {t("resultsEmpty")}
           </Card>
         ) : null}
-        <div className="mt-4 space-y-3">
+        <ProgressiveList
+          initialCount={10}
+          increment={10}
+          className="mt-4 space-y-3"
+        >
           {athlete.workoutResults.map((result) => (
             <Card
               key={result.id}
@@ -251,7 +260,7 @@ export default function CoachAthleteDetail({
               </p>
             </Card>
           ))}
-        </div>
+        </ProgressiveList>
       </section>
     </div>
   );

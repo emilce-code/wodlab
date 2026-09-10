@@ -33,6 +33,7 @@ export default function MovementEditor({
   movement,
 }: Props) {
   const t = useTranslations("movements.management");
+  const measurementT = useTranslations("measurementTypes");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(movement?.name ?? "");
@@ -207,7 +208,7 @@ export default function MovementEditor({
                     onClick={() => toggleType(item.key)}
                     className={`min-h-11 rounded-full border px-4 text-sm font-semibold ${selected ? "border-accent bg-accent/10 text-accent" : "border-border text-muted"}`}
                   >
-                    {item.name}
+                    {measurementT(item.key.toLowerCase())}
                   </button>
                 );
               })}
