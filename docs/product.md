@@ -239,6 +239,13 @@ of the same movement's exact rep max. When the athlete has that RM recorded,
 the workout displays a personalized target in the athlete's preferred unit;
 otherwise it clearly identifies the missing RM.
 
+### Notifications and training reminders
+
+Athletes have a mobile-first inbox for upcoming and overdue planned workouts
+and pending coach invitations. Notifications can be opened, marked as read, or
+dismissed. Each user can independently enable workout and coach updates and
+choose how many days before training workout reminders appear.
+
 ## Future features
 
 Possible future capabilities include:

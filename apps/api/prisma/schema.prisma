@@ -40,16 +40,42 @@ enum UserRole {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  auth0UserId      String          @unique
-  email            String          @unique
-  athleteProfile   AthleteProfile?
-  coachProfile     CoachProfile?
-  workoutsCreated  Workout[]
-  movementsCreated Movement[]
-  role             UserRole        @default(USER)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id                     String                  @id @default(cuid())
+  auth0UserId            String                  @unique
+  email                  String                  @unique
+  athleteProfile         AthleteProfile?
+  coachProfile           CoachProfile?
+  workoutsCreated        Workout[]
+  movementsCreated       Movement[]
+  role                   UserRole                @default(USER)
+  notificationPreference NotificationPreference?
+  notificationReceipts   NotificationReceipt[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+model NotificationPreference {
+  userId           String   @id
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutReminders Boolean  @default(true)
+  coachUpdates     Boolean  @default(true)
+  reminderLeadDays Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model NotificationReceipt {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationKey String
+  readAt          DateTime?
+  dismissedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, notificationKey])
+  @@index([userId, dismissedAt])
 }
 
 model AthleteProfile {

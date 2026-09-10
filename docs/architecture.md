@@ -7,17 +7,17 @@ WODLY uses a web-first, API-first modular monolith architecture.
 The initial architecture is:
 
 Browser
-  |
-  v
+|
+v
 Next.js Web Application
-  |
-  v
+|
+v
 NestJS REST API
-  |
-  v
+|
+v
 Prisma
-  |
-  v
+|
+v
 PostgreSQL
 
 A future React Native application will consume the same NestJS API.
@@ -203,26 +203,26 @@ The backend exposes a REST API.
 
 Example future routes:
 
-GET    /health
+GET /health
 
-POST   /auth/register
-POST   /auth/login
-POST   /auth/refresh
+POST /auth/register
+POST /auth/login
+POST /auth/refresh
 
-GET    /me
+GET /me
 
-GET    /movements
-GET    /movements/:id
+GET /movements
+GET /movements/:id
 
-POST   /workouts
-GET    /workouts
-GET    /workouts/:id
+POST /workouts
+GET /workouts
+GET /workouts/:id
 
-POST   /workout-performances
-GET    /workout-performances
-GET    /workout-performances/:id
+POST /workout-performances
+GET /workout-performances
+GET /workout-performances/:id
 
-GET    /personal-records
+GET /personal-records
 
 Exact contracts should be defined as features are implemented.
 
@@ -367,3 +367,11 @@ Personalized workout targets are calculated by the authenticated
 the athlete's strongest exact-repetition movement result. Unit normalization
 and authorization remain server-side; persisted historical results are never
 rewritten when a newer rep max is recorded.
+
+## Notification boundary
+
+The notifications API derives time-sensitive reminders from the current
+scheduled-workout and coaching relationship state. Per-user preferences and
+read/dismiss receipts are persisted separately, avoiding duplicated copies of
+domain records. The Next.js notification route performs the authenticated API
+proxying, while localized presentation stays in the web application.

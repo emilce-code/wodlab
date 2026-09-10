@@ -39,6 +39,11 @@ const navigation = [
 
 const secondaryNavigation = [
   {
+    key: "notifications",
+    href: "/notifications",
+    icon: "notifications",
+  },
+  {
     key: "coach",
     href: "/coach",
     icon: "coach",

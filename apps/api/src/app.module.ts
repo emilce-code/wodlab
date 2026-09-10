@@ -7,6 +7,7 @@ import { AthleteProfilesModule } from './athlete-profiles/athlete-profiles.modul
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { MovementsModule } from './movements/movements.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ScheduledWorkoutsModule } from './scheduled-workouts/scheduled-workouts.module';
 import { TrainingModule } from './training/training.module';
@@ -28,6 +29,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
     UsersModule,
     AthleteProfilesModule,
     MovementsModule,
+    NotificationsModule,
     WorkoutsModule,
     ScheduledWorkoutsModule,
     TrainingModule,
