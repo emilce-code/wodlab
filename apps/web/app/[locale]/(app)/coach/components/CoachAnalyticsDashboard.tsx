@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import MobileDateField from "@/components/ui/MobileDateField";
 import type {
   CoachAnalyticsResponse,
   CoachProgrammingWorkspace,
@@ -152,26 +153,20 @@ export default function CoachAnalyticsDashboard() {
       {error ? <Alert variant="error">{error}</Alert> : null}
       <form onSubmit={applyFilters}>
         <Card className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-5">
-          <label className="text-sm font-semibold">
-            {t("from")}
-            <input
-              type="date"
-              required
-              value={from}
-              onChange={(event) => setFrom(event.target.value)}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
-          <label className="text-sm font-semibold">
-            {t("to")}
-            <input
-              type="date"
-              required
-              value={to}
-              onChange={(event) => setTo(event.target.value)}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
+          <MobileDateField
+            label={t("from")}
+            required
+            value={from}
+            onChange={setFrom}
+            max={to}
+          />
+          <MobileDateField
+            label={t("to")}
+            required
+            value={to}
+            onChange={setTo}
+            min={from}
+          />
           <label className="text-sm font-semibold">
             {t("group")}
             <select

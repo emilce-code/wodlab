@@ -17,7 +17,13 @@
     "all": "Todos",
     "rx": "Rx",
     "scaled": "Escalado",
-    "language": "Idioma"
+    "language": "Idioma",
+    "datePicker": {
+      "open": "Abrir selector de fecha",
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "nextWeek": "+1 semana"
+    }
   },
   "pwa": {
     "offline": "Estás sin conexión. Puedes guardar resultados en cola desde un entrenamiento abierto.",

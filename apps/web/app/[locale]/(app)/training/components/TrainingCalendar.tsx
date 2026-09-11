@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
+import MobileDateField from "@/components/ui/MobileDateField";
 import { formatCalendarDate } from "@/lib/date-formatters";
 import {
   calendarDays,
@@ -276,17 +277,15 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
           onSubmit={reschedule}
           className="mt-3 flex flex-col gap-3 sm:flex-row"
         >
-          <label className="sr-only" htmlFor={`session-date-${item.id}`}>
-            {t("date")}
-          </label>
-          <input
+          <MobileDateField
             id={`session-date-${item.id}`}
-            type="date"
+            label={t("date")}
             required
             min={toDateValue(new Date())}
             value={date}
-            onChange={(event) => setDate(event.target.value)}
-            className="min-h-11 rounded-lg border border-border bg-background px-3 text-base outline-none focus:border-accent"
+            onChange={setDate}
+            planningShortcuts
+            className="w-full sm:max-w-sm"
           />
           <Button type="submit" size="sm" isLoading={submitting}>
             {t("save")}
@@ -722,9 +721,10 @@ export default function TrainingCalendar() {
                 <div
                   key={value}
                   className={[
-                    "min-h-24 min-w-0 border-b border-r border-border p-1.5 transition sm:min-h-32 sm:p-2",
+                    "relative min-h-16 min-w-0 border-b border-r border-border p-1 transition sm:min-h-32 sm:p-2",
                     currentMonth ? "" : "bg-background/40 text-muted",
                     value === today ? "ring-2 ring-inset ring-accent" : "",
+                    value === selectedDate ? "bg-accent/10" : "",
                   ].join(" ")}
                 >
                   <button
@@ -734,11 +734,16 @@ export default function TrainingCalendar() {
                       date: formatCalendarDate(value, locale),
                       count: items.length,
                     })}
-                    className="w-full rounded text-left text-sm font-semibold hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    className="flex min-h-11 w-full items-start justify-center rounded-lg pt-2 text-center text-sm font-semibold hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:min-h-0 sm:justify-start sm:p-0 sm:text-left"
                   >
                     {date.getDate()}
                   </button>
-                  <div className="mt-1 space-y-1">
+                  {items.length > 0 ? (
+                    <span className="pointer-events-none absolute bottom-1 left-1/2 flex min-w-5 -translate-x-1/2 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-black text-accent-foreground sm:hidden">
+                      {items.length}
+                    </span>
+                  ) : null}
+                  <div className="mt-1 hidden space-y-1 sm:block">
                     {items.slice(0, 2).map((item) => (
                       <div
                         key={item.id}

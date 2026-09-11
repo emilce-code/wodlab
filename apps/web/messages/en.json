@@ -17,7 +17,13 @@
     "all": "All",
     "rx": "Rx",
     "scaled": "Scaled",
-    "language": "Language"
+    "language": "Language",
+    "datePicker": {
+      "open": "Open date picker",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "nextWeek": "+1 week"
+    }
   },
   "pwa": {
     "offline": "You're offline. Results can still be queued from an opened workout.",

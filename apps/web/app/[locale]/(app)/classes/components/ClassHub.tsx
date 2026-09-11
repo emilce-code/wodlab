@@ -566,13 +566,15 @@ function ClassForm({
           placeholder={t("classForm.name")}
           className="min-h-11 rounded-lg border border-border bg-background px-3 sm:col-span-2"
         />
-        <input
-          name="startsAt"
-          type="datetime-local"
-          aria-label={t("classForm.startsAt")}
-          required
-          className="min-h-11 rounded-lg border border-border bg-background px-3"
-        />
+        <label className="text-sm font-semibold">
+          {t("classForm.startsAt")}
+          <input
+            name="startsAt"
+            type="datetime-local"
+            required
+            className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
+          />
+        </label>
         <input
           name="durationMinutes"
           type="number"

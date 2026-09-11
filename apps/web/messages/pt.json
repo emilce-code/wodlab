@@ -17,7 +17,13 @@
     "all": "Todos",
     "rx": "Rx",
     "scaled": "Adaptado",
-    "language": "Idioma"
+    "language": "Idioma",
+    "datePicker": {
+      "open": "Abrir seletor de data",
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "nextWeek": "+1 semana"
+    }
   },
   "pwa": {
     "offline": "Você está offline. Ainda é possível colocar resultados na fila a partir de um treino aberto.",

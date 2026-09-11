@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
+import MobileDateField from "@/components/ui/MobileDateField";
 
 type PrescriptionCategory = {
   key: string;
@@ -150,34 +151,20 @@ export default function ScheduleWorkoutForm({
           </div>
 
           <form onSubmit={handleSubmit} className="mt-5 space-y-5" noValidate>
-            <div>
-              <label
-                htmlFor="scheduledWorkoutDate"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("date")}
-              </label>
-              <input
-                id="scheduledWorkoutDate"
-                type="date"
-                required
-                min={getLocalDateValue()}
-                value={scheduledDate}
-                onChange={(event) => {
-                  setScheduledDate(event.target.value);
-                  setError(null);
-                  setSavedDate(null);
-                }}
-                className="min-h-12 w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 sm:max-w-xs"
-              />
-              <button
-                type="button"
-                onClick={() => setScheduledDate(getLocalDateValue())}
-                className="mt-2 text-sm font-semibold text-accent hover:underline"
-              >
-                {t("today")}
-              </button>
-            </div>
+            <MobileDateField
+              id="scheduledWorkoutDate"
+              label={t("date")}
+              required
+              min={getLocalDateValue()}
+              value={scheduledDate}
+              planningShortcuts
+              onChange={(value) => {
+                setScheduledDate(value);
+                setError(null);
+                setSavedDate(null);
+              }}
+              className="sm:max-w-sm"
+            />
 
             {prescriptionCategories.length > 0 && (
               <fieldset>

@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
+import MobileDateField from "@/components/ui/MobileDateField";
 import type {
   CoachProgrammingWorkspace as Workspace,
   ProgrammingWorkout,
@@ -445,16 +446,15 @@ export default function CoachProgrammingWorkspace() {
                     </option>
                   ))}
                 </select>
-                <input
-                  type="date"
+                <MobileDateField
                   value={applyWeek[template.id] ?? mondayValue()}
-                  onChange={(event) =>
+                  onChange={(value) =>
                     setApplyWeek((current) => ({
                       ...current,
-                      [template.id]: event.target.value,
+                      [template.id]: value,
                     }))
                   }
-                  className="min-h-11 rounded-lg border border-border bg-background px-3"
+                  planningShortcuts
                 />
                 <Button
                   type="button"

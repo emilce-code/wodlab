@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
+import MobileDateField from "@/components/ui/MobileDateField";
 import { formatCalendarDate } from "@/lib/date-formatters";
 import type {
   CoachMonitoringResponse,
@@ -155,24 +156,18 @@ export default function CoachMonitoringDashboard() {
         }}
       >
         <Card className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-6">
-          <label className="text-sm font-semibold">
-            {t("from")}
-            <input
-              type="date"
-              value={from}
-              onChange={(event) => setFrom(event.target.value)}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
-          <label className="text-sm font-semibold">
-            {t("to")}
-            <input
-              type="date"
-              value={to}
-              onChange={(event) => setTo(event.target.value)}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
+          <MobileDateField
+            label={t("from")}
+            value={from}
+            onChange={setFrom}
+            max={to}
+          />
+          <MobileDateField
+            label={t("to")}
+            value={to}
+            onChange={setTo}
+            min={from}
+          />
           <label className="text-sm font-semibold">
             {t("group")}
             <select

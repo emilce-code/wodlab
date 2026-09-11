@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import MobileDateField from "@/components/ui/MobileDateField";
 import { formatCalendarDate } from "@/lib/date-formatters";
 import type {
   ScheduledWorkout,
@@ -187,20 +188,15 @@ function UpcomingCard({ item, onUpdated, onRemoved }: UpcomingCardProps) {
           onSubmit={reschedule}
           className="mt-5 border-t border-border pt-5"
         >
-          <label
-            htmlFor={`reschedule-${item.id}`}
-            className="mb-1.5 block text-sm font-medium"
-          >
-            {t("newDate")}
-          </label>
-          <input
+          <MobileDateField
             id={`reschedule-${item.id}`}
-            type="date"
+            label={t("newDate")}
             required
             min={dateValue()}
             value={newDate}
-            onChange={(event) => setNewDate(event.target.value)}
-            className="min-h-12 w-full rounded-lg border border-border bg-background px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10 sm:max-w-xs"
+            onChange={setNewDate}
+            planningShortcuts
+            className="sm:max-w-sm"
           />
           <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row">
             <Button
