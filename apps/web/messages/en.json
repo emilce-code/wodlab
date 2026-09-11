@@ -42,6 +42,7 @@
     }
   },
   "navigation": {
+    "boxes": "Classes",
     "notifications": "Notifications",
     "today": "Today",
     "workouts": "Workouts",
@@ -60,6 +61,67 @@
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
     "closeAccountMenu": "Close account menu"
+  },
+  "boxes": {
+    "eyebrow": "Train together",
+    "title": "Boxes and classes",
+    "description": "Join your gym, reserve a class, or manage the next sessions.",
+    "selectBox": "Current box",
+    "manage": "Boxes",
+    "members": "{count, plural, =1 {1 member} other {# members}}",
+    "joinCode": "Join code: {code}",
+    "memberManagement": "Team roles",
+    "memberRole": "Member role",
+    "owner": "Owner",
+    "coach": "Coach",
+    "athlete": "Athlete",
+    "upcoming": "Upcoming classes",
+    "loading": "Loading classes...",
+    "empty": "No classes are scheduled for the next 30 days.",
+    "classMeta": "{duration} min · {booked}/{capacity} booked",
+    "spots": "{count, plural, =1 {1 spot} other {# spots}}",
+    "full": "Full",
+    "book": "Reserve spot",
+    "cancelBooking": "Cancel reservation",
+    "attended": "Attended",
+    "roster": "Roster ({count})",
+    "markAttended": "Attended",
+    "undoAttendance": "Undo",
+    "noBookings": "No reservations yet.",
+    "deleteClass": "Delete class",
+    "join": {
+      "title": "Join a box",
+      "description": "Ask your coach for the box join code.",
+      "code": "Join code",
+      "submit": "Join box"
+    },
+    "create": {
+      "title": "Create a box",
+      "description": "Set up a space for your athletes and classes.",
+      "name": "Box name",
+      "boxDescription": "Short description (optional)",
+      "submit": "Create box"
+    },
+    "classForm": {
+      "open": "Schedule class",
+      "cancel": "Close",
+      "title": "Schedule a class",
+      "name": "Class name",
+      "startsAt": "Class date and time",
+      "workout": "Workout",
+      "variation": "Workout variation",
+      "description": "Coach notes or class focus (optional)",
+      "duration": "Duration in minutes",
+      "capacity": "Capacity",
+      "noWorkout": "No linked workout",
+      "noVariation": "No variation",
+      "submit": "Publish class"
+    },
+    "errors": {
+      "load": "Unable to load classes.",
+      "save": "Unable to save these changes.",
+      "action": "Unable to update this class."
+    }
   },
   "notifications": {
     "eyebrow": "Stay on track",
@@ -1370,11 +1432,34 @@
     "transitions": "Transitions",
     "roundsReps": "{rounds} rounds + {reps} reps",
     "reps": "{count} reps",
-    "confidence": { "none": "First attempt", "low": "Low confidence", "medium": "Medium confidence", "high": "High confidence" },
-    "effort": { "controlled": "Controlled", "steady": "Steady", "build": "Build", "hard": "Finish hard" },
-    "approach": { "unbroken": "Unbroken if comfortable", "smallSets": "Small repeatable sets", "plannedBreaks": "Plan breaks early", "steadyPace": "Hold a steady pace" },
-    "transition": { "minimize": "Keep equipment close and transitions short without rushing.", "resetBreathing": "Use each section change to reset your breathing, then move promptly.", "useRest": "Respect the programmed rest; breathe, prepare equipment, and restart deliberately." },
-    "warning": { "noHistory": "This is a structure-based starting plan because no matching result is available.", "highVolume": "Higher volume detected: choose sustainable sets before fatigue forces long breaks.", "heavyPercentage": "Heavy percentage detected: protect technique and extend rest if positions deteriorate." },
+    "confidence": {
+      "none": "First attempt",
+      "low": "Low confidence",
+      "medium": "Medium confidence",
+      "high": "High confidence"
+    },
+    "effort": {
+      "controlled": "Controlled",
+      "steady": "Steady",
+      "build": "Build",
+      "hard": "Finish hard"
+    },
+    "approach": {
+      "unbroken": "Unbroken if comfortable",
+      "smallSets": "Small repeatable sets",
+      "plannedBreaks": "Plan breaks early",
+      "steadyPace": "Hold a steady pace"
+    },
+    "transition": {
+      "minimize": "Keep equipment close and transitions short without rushing.",
+      "resetBreathing": "Use each section change to reset your breathing, then move promptly.",
+      "useRest": "Respect the programmed rest; breathe, prepare equipment, and restart deliberately."
+    },
+    "warning": {
+      "noHistory": "This is a structure-based starting plan because no matching result is available.",
+      "highVolume": "Higher volume detected: choose sustainable sets before fatigue forces long breaks.",
+      "heavyPercentage": "Heavy percentage detected: protect technique and extend rest if positions deteriorate."
+    },
     "disclaimer": "This guidance is an estimate, not a guarantee. Adjust for readiness, technique, equipment, and coaching direction."
   },
   "labels": {

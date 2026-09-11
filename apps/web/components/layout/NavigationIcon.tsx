@@ -10,6 +10,7 @@ export type NavigationIconName =
   | "coach"
   | "calculator"
   | "notifications"
+  | "boxes"
   | "close";
 
 type Props = {
@@ -87,6 +88,12 @@ const paths: Record<NavigationIconName, React.ReactNode> = {
     <>
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
       <path d="M10 21h4" />
+    </>
+  ),
+  boxes: (
+    <>
+      <path d="M3 10 12 4l9 6v10H3z" />
+      <path d="M7 20v-6h10v6M8 10h.01M12 10h.01M16 10h.01" />
     </>
   ),
   close: <path d="m6 6 12 12M18 6 6 18" />,

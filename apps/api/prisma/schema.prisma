@@ -39,6 +39,18 @@ enum UserRole {
   ADMIN
 }
 
+enum BoxMemberRole {
+  OWNER
+  COACH
+  ATHLETE
+}
+
+enum ClassBookingStatus {
+  BOOKED
+  ATTENDED
+  CANCELLED
+}
+
 model User {
   id                     String                  @id @default(cuid())
   auth0UserId            String                  @unique
@@ -50,8 +62,78 @@ model User {
   role                   UserRole                @default(USER)
   notificationPreference NotificationPreference?
   notificationReceipts   NotificationReceipt[]
+  boxesOwned             Box[]                   @relation("BoxOwner")
+  boxMemberships         BoxMembership[]
+  classesCreated         ClassSession[]          @relation("ClassCreator")
+  classBookings          ClassBooking[]
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+}
+
+model Box {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  timezone    String          @default("UTC")
+  joinCode    String          @unique
+  ownerUserId String
+  owner       User            @relation("BoxOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  memberships BoxMembership[]
+  classes     ClassSession[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([ownerUserId])
+}
+
+model BoxMembership {
+  id        String        @id @default(cuid())
+  boxId     String
+  box       Box           @relation(fields: [boxId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      BoxMemberRole @default(ATHLETE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([boxId, userId])
+  @@index([userId, role])
+}
+
+model ClassSession {
+  id               String          @id @default(cuid())
+  boxId            String
+  box              Box             @relation(fields: [boxId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  startsAt         DateTime
+  durationMinutes  Int
+  capacity         Int
+  workoutId        String?
+  workout          Workout?        @relation(fields: [workoutId], references: [id], onDelete: SetNull)
+  workoutVariantId String?
+  workoutVariant   WorkoutVariant? @relation(fields: [workoutVariantId], references: [id], onDelete: SetNull)
+  createdByUserId  String
+  createdByUser    User            @relation("ClassCreator", fields: [createdByUserId], references: [id])
+  bookings         ClassBooking[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([boxId, startsAt])
+}
+
+model ClassBooking {
+  id        String             @id @default(cuid())
+  classId   String
+  class     ClassSession       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    ClassBookingStatus @default(BOOKED)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@unique([classId, userId])
+  @@index([userId, status])
 }
 
 model NotificationPreference {
@@ -317,6 +399,7 @@ model Workout {
   results              WorkoutResult[]
   scheduledWorkouts    ScheduledWorkout[]
   programTemplateItems ProgramTemplateItem[]
+  classSessions        ClassSession[]
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
 
@@ -448,6 +531,7 @@ model WorkoutVariant {
   results              WorkoutResult[]
   scheduledWorkouts    ScheduledWorkout[]
   programTemplateItems ProgramTemplateItem[]
+  classSessions        ClassSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

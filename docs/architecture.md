@@ -422,3 +422,12 @@ against the active movement catalog and returns a draft without persisting it.
 The Next.js form maps that response into the existing editor, where unresolved
 movement lines must be selected and all standard validation, authorization, and
 review requirements still apply. Parsing does not depend on an AI provider.
+
+## Box and class boundary
+
+The authenticated `boxes` API module owns box membership, class scheduling,
+capacity, booking, and attendance rules. Membership is user-based so the same
+identity can participate as an athlete in one box and staff in another. Class
+records may reference the existing workout catalog without copying programming.
+The Next.js `/classes` experience proxies these operations and keeps localized
+date and interaction presentation in the client.

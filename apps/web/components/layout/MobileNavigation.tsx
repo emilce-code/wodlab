@@ -33,6 +33,7 @@ export default function MobileNavigation() {
     pathname.startsWith("/movements") ||
     pathname.startsWith("/calculators") ||
     pathname.startsWith("/notifications") ||
+    pathname.startsWith("/classes") ||
     pathname.startsWith("/account");
 
   useEffect(() => {
@@ -103,6 +104,18 @@ export default function MobileNavigation() {
             <div className="mt-3 grid gap-2">
               <Link
                 ref={firstMenuLinkRef}
+                href="/classes"
+                onClick={() => closeMoreMenu()}
+                aria-current={
+                  pathname.startsWith("/classes") ? "page" : undefined
+                }
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <NavigationIcon name="boxes" className="h-5 w-5" />
+                {t("boxes")}
+              </Link>
+
+              <Link
                 href="/notifications"
                 onClick={() => closeMoreMenu()}
                 aria-current={

@@ -42,6 +42,7 @@
     }
   },
   "navigation": {
+    "boxes": "Clases",
     "notifications": "Notificaciones",
     "today": "Hoy",
     "workouts": "Entrenamientos",
@@ -60,6 +61,67 @@
     "skipToContent": "Saltar al contenido principal",
     "accountMenu": "Abrir menú de cuenta",
     "closeAccountMenu": "Cerrar menú de cuenta"
+  },
+  "boxes": {
+    "eyebrow": "Entrenen juntos",
+    "title": "Boxes y clases",
+    "description": "Únete a tu gimnasio, reserva una clase o administra las próximas sesiones.",
+    "selectBox": "Box actual",
+    "manage": "Boxes",
+    "members": "{count, plural, =1 {1 miembro} other {# miembros}}",
+    "joinCode": "Código para unirse: {code}",
+    "memberManagement": "Roles del equipo",
+    "memberRole": "Rol del miembro",
+    "owner": "Propietario",
+    "coach": "Coach",
+    "athlete": "Atleta",
+    "upcoming": "Próximas clases",
+    "loading": "Cargando clases...",
+    "empty": "No hay clases programadas para los próximos 30 días.",
+    "classMeta": "{duration} min · {booked}/{capacity} reservas",
+    "spots": "{count, plural, =1 {1 lugar} other {# lugares}}",
+    "full": "Completa",
+    "book": "Reservar lugar",
+    "cancelBooking": "Cancelar reserva",
+    "attended": "Asistencia registrada",
+    "roster": "Lista ({count})",
+    "markAttended": "Asistió",
+    "undoAttendance": "Deshacer",
+    "noBookings": "Aún no hay reservas.",
+    "deleteClass": "Eliminar clase",
+    "join": {
+      "title": "Unirse a un box",
+      "description": "Pide a tu coach el código del box.",
+      "code": "Código",
+      "submit": "Unirme"
+    },
+    "create": {
+      "title": "Crear un box",
+      "description": "Crea un espacio para tus atletas y clases.",
+      "name": "Nombre del box",
+      "boxDescription": "Descripción breve (opcional)",
+      "submit": "Crear box"
+    },
+    "classForm": {
+      "open": "Programar clase",
+      "cancel": "Cerrar",
+      "title": "Programar una clase",
+      "name": "Nombre de la clase",
+      "startsAt": "Fecha y hora de la clase",
+      "workout": "Entrenamiento",
+      "variation": "Variación del entrenamiento",
+      "description": "Notas del coach o enfoque (opcional)",
+      "duration": "Duración en minutos",
+      "capacity": "Capacidad",
+      "noWorkout": "Sin entrenamiento asociado",
+      "noVariation": "Sin variación",
+      "submit": "Publicar clase"
+    },
+    "errors": {
+      "load": "No se pudieron cargar las clases.",
+      "save": "No se pudieron guardar los cambios.",
+      "action": "No se pudo actualizar la clase."
+    }
   },
   "notifications": {
     "eyebrow": "Mantente al día",
@@ -1370,11 +1432,34 @@
     "transitions": "Transiciones",
     "roundsReps": "{rounds} rondas + {reps} repeticiones",
     "reps": "{count} repeticiones",
-    "confidence": { "none": "Primer intento", "low": "Confianza baja", "medium": "Confianza media", "high": "Confianza alta" },
-    "effort": { "controlled": "Controlado", "steady": "Constante", "build": "En aumento", "hard": "Final fuerte" },
-    "approach": { "unbroken": "Sin cortar si es cómodo", "smallSets": "Series pequeñas y repetibles", "plannedBreaks": "Planifica pausas desde el inicio", "steadyPace": "Mantén un ritmo constante" },
-    "transition": { "minimize": "Mantén el equipo cerca y las transiciones cortas, sin apresurarte.", "resetBreathing": "Usa cada cambio de sección para recuperar la respiración y continúa sin demora.", "useRest": "Respeta el descanso programado; respira, prepara el equipo y reinicia con intención." },
-    "warning": { "noHistory": "Este es un plan inicial basado en la estructura porque no hay un resultado comparable.", "highVolume": "Se detectó volumen alto: elige series sostenibles antes de que la fatiga obligue a pausas largas.", "heavyPercentage": "Se detectó un porcentaje alto: protege la técnica y extiende el descanso si se deterioran las posiciones." },
+    "confidence": {
+      "none": "Primer intento",
+      "low": "Confianza baja",
+      "medium": "Confianza media",
+      "high": "Confianza alta"
+    },
+    "effort": {
+      "controlled": "Controlado",
+      "steady": "Constante",
+      "build": "En aumento",
+      "hard": "Final fuerte"
+    },
+    "approach": {
+      "unbroken": "Sin cortar si es cómodo",
+      "smallSets": "Series pequeñas y repetibles",
+      "plannedBreaks": "Planifica pausas desde el inicio",
+      "steadyPace": "Mantén un ritmo constante"
+    },
+    "transition": {
+      "minimize": "Mantén el equipo cerca y las transiciones cortas, sin apresurarte.",
+      "resetBreathing": "Usa cada cambio de sección para recuperar la respiración y continúa sin demora.",
+      "useRest": "Respeta el descanso programado; respira, prepara el equipo y reinicia con intención."
+    },
+    "warning": {
+      "noHistory": "Este es un plan inicial basado en la estructura porque no hay un resultado comparable.",
+      "highVolume": "Se detectó volumen alto: elige series sostenibles antes de que la fatiga obligue a pausas largas.",
+      "heavyPercentage": "Se detectó un porcentaje alto: protege la técnica y extiende el descanso si se deterioran las posiciones."
+    },
     "disclaimer": "Esta guía es una estimación, no una garantía. Ajústala según tu recuperación, técnica, equipo y las indicaciones de tu coach."
   },
   "labels": {

@@ -289,14 +289,21 @@ durations, rounds, rep schemes, movement prescriptions, and catalog movements.
 Unknown, ambiguous, and dual-load lines stay visible for manual review in the
 normal workout editor, which retains its existing validation and final review.
 
+### CrossFit box and class management
+
+Users can create a box or join one with a shareable code. Box owners and coaches
+can publish capacity-limited classes, optionally attach an active workout and
+variation, inspect the roster, record attendance, and remove classes that have
+no attendance history. Athletes can reserve or cancel their own spot from a
+mobile-first upcoming-class view. Capacity and membership rules are enforced by
+the API.
+
 ## Future features
 
 Possible future capabilities include:
 
 - Deeper training-volume analytics
 - Training volume analysis
-- CrossFit box management
-- Class programming
 - Athlete groups
 - Leaderboards
 - Mobile applications
