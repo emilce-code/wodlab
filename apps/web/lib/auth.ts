@@ -1,8 +1,6 @@
-import {
-  authenticatedApiFetch,
-} from './api';
+import { authenticatedApiFetch } from "./api";
 
-import { auth0 } from './auth0';
+import { auth0 } from "./auth0";
 
 type AthletePreference = {
   id: string;
@@ -20,103 +18,73 @@ export type CurrentUser = {
   athleteProfile: {
     id: string;
     displayName: string;
-    preferredWeightUnit:
-      | 'KG'
-      | 'LB';
+    leaderboardEnabled: boolean;
+    preferredWeightUnit: "KG" | "LB";
 
-    preferredWorkoutLevel:
-      AthletePreference | null;
+    preferredWorkoutLevel: AthletePreference | null;
 
-    preferredPrescriptionCategory:
-      AthletePreference | null;
+    preferredPrescriptionCategory: AthletePreference | null;
   } | null;
 
   createdAt: string;
   updatedAt: string;
 };
 
-async function fetchCurrentUser(): Promise<
-  Response | null
-> {
-  return authenticatedApiFetch(
-    '/me',
-  );
+async function fetchCurrentUser(): Promise<Response | null> {
+  return authenticatedApiFetch("/me");
 }
 
 async function provisionCurrentUser() {
-  const session =
-    await auth0.getSession();
+  const session = await auth0.getSession();
 
   if (!session) {
     return null;
   }
 
-  const email =
-    session.user.email;
+  const email = session.user.email;
 
-  if (
-    typeof email !==
-      'string' ||
-    !email
-  ) {
+  if (typeof email !== "string" || !email) {
     return null;
   }
 
   const displayName =
-    typeof session.user.name ===
-      'string' &&
-    session.user.name.trim()
+    typeof session.user.name === "string" && session.user.name.trim()
       ? session.user.name.trim()
-      : email.split('@')[0];
+      : email.split("@")[0];
 
-  return authenticatedApiFetch(
-    '/auth/provision',
-    {
-      method: 'POST',
+  return authenticatedApiFetch("/auth/provision", {
+    method: "POST",
 
-      headers: {
-        'Content-Type':
-          'application/json',
-      },
-
-      body: JSON.stringify({
-        email,
-        displayName,
-      }),
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+
+    body: JSON.stringify({
+      email,
+      displayName,
+    }),
+  });
 }
 
-export async function getCurrentUser(): Promise<
-  CurrentUser | null
-> {
+export async function getCurrentUser(): Promise<CurrentUser | null> {
   try {
-    let response =
-      await fetchCurrentUser();
+    let response = await fetchCurrentUser();
 
-    if (
-      response?.status === 401
-    ) {
-      const provisionResponse =
-        await provisionCurrentUser();
+    if (response?.status === 401) {
+      const provisionResponse = await provisionCurrentUser();
 
-      if (
-        !provisionResponse?.ok
-      ) {
+      if (!provisionResponse?.ok) {
         return null;
       }
 
-      response =
-        await fetchCurrentUser();
+      response = await fetchCurrentUser();
     }
 
     if (!response?.ok) {
       return null;
     }
 
-    return (
-      await response.json()
-    ) as CurrentUser;
+    return (await response.json()) as CurrentUser;
   } catch {
     return null;
   }

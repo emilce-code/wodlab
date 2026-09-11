@@ -164,6 +164,7 @@ model AthleteProfile {
   id                              String                     @id @default(cuid())
   userId                          String                     @unique
   displayName                     String
+  leaderboardEnabled              Boolean                    @default(false)
   preferredWeightUnit             WeightUnit                 @default(KG)
   preferredWorkoutLevelId         String?
   preferredWorkoutLevel           WorkoutLevel?              @relation("AthletePreferredWorkoutLevel", fields: [preferredWorkoutLevelId], references: [id])

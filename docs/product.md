@@ -298,6 +298,14 @@ no attendance history. Athletes can reserve or cancel their own spot from a
 mobile-first upcoming-class view. Capacity and membership rules are enforced by
 the API.
 
+### Privacy-first workout leaderboards
+
+Athletes can explicitly opt in to workout leaderboards from their profile.
+Rankings compare one best result per athlete for the same workout variation and
+time period, support time, rounds and reps, repetitions, and normalized loads,
+and show the signed-in athlete's placement. Athletes who do not opt in never
+appear in shared rankings.
+
 ## Future features
 
 Possible future capabilities include:
@@ -305,7 +313,6 @@ Possible future capabilities include:
 - Deeper training-volume analytics
 - Training volume analysis
 - Athlete groups
-- Leaderboards
 - Mobile applications
 - Push notifications
 - Offline workout logging

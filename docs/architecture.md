@@ -431,3 +431,12 @@ identity can participate as an athlete in one box and staff in another. Class
 records may reference the existing workout catalog without copying programming.
 The Next.js `/classes` experience proxies these operations and keeps localized
 date and interaction presentation in the client.
+
+## Leaderboard boundary
+
+The authenticated `leaderboards` API module ranks persisted workout results
+only when their athlete has explicitly enabled leaderboard participation.
+Results are isolated by workout variation and period, reduced to one best score
+per athlete, and load comparisons are normalized to kilograms. The API exposes
+display names but no athlete identifiers; the Next.js workout detail presents
+the localized, mobile-first ranking and account privacy control.

@@ -29,6 +29,7 @@ type PrescriptionCategory = {
 
 type Profile = {
   displayName: string;
+  leaderboardEnabled: boolean;
   preferredWeightUnit: WeightUnit;
 
   preferredWorkoutLevelKey: string;
@@ -54,6 +55,10 @@ export default function AthleteProfileForm({
   const router = useRouter();
 
   const [displayName, setDisplayName] = useState(profile.displayName);
+
+  const [leaderboardEnabled, setLeaderboardEnabled] = useState(
+    profile.leaderboardEnabled,
+  );
 
   const [preferredWeightUnit, setPreferredWeightUnit] = useState<WeightUnit>(
     profile.preferredWeightUnit,
@@ -98,6 +103,8 @@ export default function AthleteProfileForm({
 
         body: JSON.stringify({
           displayName: displayName.trim(),
+
+          leaderboardEnabled,
 
           preferredWeightUnit,
 
@@ -264,6 +271,28 @@ export default function AthleteProfileForm({
             <p className="mt-1.5 text-xs text-muted">
               {t("prescriptionDescription")}
             </p>
+          </div>
+
+          <div className="border-t border-border pt-5">
+            <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-border bg-surface-elevated p-4">
+              <input
+                type="checkbox"
+                checked={leaderboardEnabled}
+                onChange={(event) => {
+                  setLeaderboardEnabled(event.target.checked);
+                  setSuccess(false);
+                }}
+                className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accent)]"
+              />
+              <span>
+                <span className="block text-sm font-semibold">
+                  {t("leaderboard.title")}
+                </span>
+                <span className="mt-1 block text-xs leading-5 text-muted">
+                  {t("leaderboard.description")}
+                </span>
+              </span>
+            </label>
           </div>
 
           {error && <Alert variant="error">{error}</Alert>}

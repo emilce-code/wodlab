@@ -33,6 +33,7 @@ import WorkoutResultActions from "./components/WorkoutResultActions";
 import ScheduleWorkoutForm from "./components/ScheduleWorkoutForm";
 import WorkoutLifecycleActions from "../components/WorkoutLifecycleActions";
 import WorkoutStrategyCard from "./components/WorkoutStrategyCard";
+import WorkoutLeaderboardCard from "./components/WorkoutLeaderboardCard";
 
 type WorkoutPrescription = {
   id: string;
@@ -533,6 +534,14 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
 
       {workoutStrategy ? (
         <WorkoutStrategyCard strategy={workoutStrategy} />
+      ) : null}
+
+      {workout.type.defaultResultType ? (
+        <WorkoutLeaderboardCard
+          key={selectedVariant.id}
+          workoutId={workout.id}
+          variantId={selectedVariant.id}
+        />
       ) : null}
 
       <div className="mt-10 space-y-10">

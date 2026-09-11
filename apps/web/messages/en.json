@@ -840,6 +840,23 @@
       "ofRepMax": "of {reps}RM",
       "percentageTargetFromRm": "based on your {reps}RM of {rm} {unit}",
       "percentageTargetMissingRm": "Log an exact {reps}RM for {movement} to calculate your target.",
+      "leaderboard": {
+        "eyebrow": "Community",
+        "title": "Workout leaderboard",
+        "description": "Best score per athlete for this variation.",
+        "yourRank": "Your rank",
+        "periodLabel": "Leaderboard period",
+        "periods": { "30D": "30 days", "90D": "90 days", "ALL": "All time" },
+        "loading": "Loading leaderboard…",
+        "error": "The leaderboard is temporarily unavailable.",
+        "empty": "No ranked results in this period yet.",
+        "optInTitle": "Leaderboard participation is off",
+        "optInDescription": "Enable it in your profile to appear in rankings and see your placement.",
+        "managePrivacy": "Manage leaderboard privacy",
+        "you": "You",
+        "roundsReps": "{rounds} + {reps}",
+        "reps": "{count} reps"
+      },
       "performance": {
         "eyebrow": "Your performance",
         "title": "Track your progress",
@@ -1355,6 +1372,10 @@
       "prescriptionCategory": "Default prescription",
       "noPrescriptionPreference": "No default prescription",
       "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "leaderboard": {
+        "title": "Join workout leaderboards",
+        "description": "Show your display name and best comparable workout scores on leaderboards. This is off by default and can be disabled at any time."
+      },
       "preferencesUnavailable": "Some training preferences are temporarily unavailable. You can still update the available profile fields or try again later.",
       "save": "Save changes",
       "saving": "Saving...",

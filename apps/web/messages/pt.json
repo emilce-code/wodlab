@@ -840,6 +840,27 @@
       "ofRepMax": "de {reps}RM",
       "percentageTargetFromRm": "com base no seu {reps}RM de {rm} {unit}",
       "percentageTargetMissingRm": "Registre um {reps}RM exato de {movement} para calcular seu alvo.",
+      "leaderboard": {
+        "eyebrow": "Comunidade",
+        "title": "Ranking do treino",
+        "description": "Melhor resultado por atleta para esta variação.",
+        "yourRank": "Sua posição",
+        "periodLabel": "Período do ranking",
+        "periods": {
+          "30D": "30 dias",
+          "90D": "90 dias",
+          "ALL": "Todo o período"
+        },
+        "loading": "Carregando ranking…",
+        "error": "O ranking está temporariamente indisponível.",
+        "empty": "Ainda não há resultados classificados neste período.",
+        "optInTitle": "Sua participação está desativada",
+        "optInDescription": "Ative no seu perfil para aparecer e ver sua posição.",
+        "managePrivacy": "Gerenciar privacidade",
+        "you": "Você",
+        "roundsReps": "{rounds} + {reps}",
+        "reps": "{count} reps"
+      },
       "performance": {
         "eyebrow": "Seu desempenho",
         "title": "Acompanhe seu progresso",
@@ -1355,6 +1376,10 @@
       "prescriptionCategory": "Prescrição padrão",
       "noPrescriptionPreference": "Sem prescrição padrão",
       "prescriptionDescription": "Usada quando um treino possui prescrições específicas por categoria.",
+      "leaderboard": {
+        "title": "Participar dos rankings",
+        "description": "Mostra seu nome de exibição e seus melhores resultados comparáveis. Fica desativado por padrão e pode ser desativado a qualquer momento."
+      },
       "preferencesUnavailable": "Algumas preferências de treino estão temporariamente indisponíveis. Você ainda pode atualizar os campos de perfil disponíveis ou tentar novamente mais tarde.",
       "save": "Salvar alterações",
       "saving": "Salvando...",

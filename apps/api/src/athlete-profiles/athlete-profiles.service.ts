@@ -99,6 +99,10 @@ export class AthleteProfilesService {
       },
 
       data: {
+        ...(dto.leaderboardEnabled !== undefined
+          ? { leaderboardEnabled: dto.leaderboardEnabled }
+          : {}),
+
         ...(dto.displayName !== undefined
           ? {
               displayName: dto.displayName.trim(),

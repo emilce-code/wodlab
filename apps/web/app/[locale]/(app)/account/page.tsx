@@ -113,6 +113,9 @@ export default async function AccountPage() {
           profile={{
             displayName: user.athleteProfile?.displayName ?? "",
 
+            leaderboardEnabled:
+              user.athleteProfile?.leaderboardEnabled ?? false,
+
             preferredWeightUnit:
               user.athleteProfile?.preferredWeightUnit ?? "KG",
 

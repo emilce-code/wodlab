@@ -1,8 +1,18 @@
-import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 import { WeightUnit } from '../../../generated/prisma/enums';
 
 export class UpdateAthleteProfileDto {
+  @IsOptional()
+  @IsBoolean()
+  leaderboardEnabled?: boolean;
+
   @IsOptional()
   @IsString()
   @MinLength(1)

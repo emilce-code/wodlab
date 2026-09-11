@@ -17,6 +17,7 @@ import { UsersModule } from './users/users.module';
 import { WorkoutsModule } from './workouts/workouts.module';
 import { WorkoutStrategiesModule } from './workout-strategies/workout-strategies.module';
 import { WorkoutImportsModule } from './workout-imports/workout-imports.module';
+import { LeaderboardsModule } from './leaderboards/leaderboards.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { WorkoutImportsModule } from './workout-imports/workout-imports.module';
     AthleteProfilesModule,
     MovementsModule,
     NotificationsModule,
+    LeaderboardsModule,
     WorkoutsModule,
     WorkoutImportsModule,
     WorkoutStrategiesModule,
