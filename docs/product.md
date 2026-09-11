@@ -255,6 +255,15 @@ training days, workload status, and conservative recovery guidance. The UI
 clearly identifies these values as training estimates rather than medical
 advice.
 
+### Installable and offline experience
+
+WODLY can be installed from supported mobile browsers and launches in a
+standalone, portrait-oriented experience. Previously opened pages remain
+available during connectivity interruptions. New workout and movement results
+submitted while offline are queued on the device, clearly identified to the
+athlete, and synchronized when connectivity returns. Editing existing results
+still requires an active connection to prevent conflicting changes.
+
 ## Future features
 
 Possible future capabilities include:

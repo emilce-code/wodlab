@@ -19,6 +19,17 @@
     "scaled": "Scaled",
     "language": "Language"
   },
+  "pwa": {
+    "offline": "You're offline. Results can still be queued from an opened workout.",
+    "install": "Install",
+    "installDescription": "Install WODLY for faster access.",
+    "synced": "Your offline result was saved.",
+    "syncFailed": "An offline result needs your attention. Open the form and try again.",
+    "dismiss": "Dismiss message",
+    "offlineTitle": "You're offline",
+    "offlineDescription": "Previously opened pages remain available. Reconnect to load new data; submitted results will sync automatically.",
+    "retry": "Try again"
+  },
   "states": {
     "loading": {
       "label": "Loading your training data"
@@ -31,6 +42,7 @@
     }
   },
   "navigation": {
+    "notifications": "Notifications",
     "today": "Today",
     "workouts": "Workouts",
     "training": "Training",
@@ -47,8 +59,7 @@
     "mobileLabel": "Main navigation",
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
-    "closeAccountMenu": "Close account menu",
-    "notifications": "Notifications"
+    "closeAccountMenu": "Close account menu"
   },
   "notifications": {
     "eyebrow": "Stay on track",
@@ -783,6 +794,7 @@
       "today": "Today",
       "now": "Now",
       "saved": "Workout result saved successfully.",
+      "queuedOffline": "Result saved on this device. It will sync automatically when you're online.",
       "minutes": "Minutes",
       "seconds": "Seconds",
       "rounds": "Rounds",
@@ -1169,6 +1181,7 @@
         "save": "Save result",
         "saving": "Saving result...",
         "saved": "Result saved successfully.",
+        "queuedOffline": "Result saved on this device. It will sync automatically when you're online.",
         "update": "Update result",
         "updating": "Updating...",
         "cancel": "Cancel",

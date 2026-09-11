@@ -19,6 +19,17 @@
     "scaled": "Escalado",
     "language": "Idioma"
   },
+  "pwa": {
+    "offline": "Estás sin conexión. Puedes guardar resultados en cola desde un entrenamiento abierto.",
+    "install": "Instalar",
+    "installDescription": "Instala WODLY para acceder más rápido.",
+    "synced": "Tu resultado sin conexión fue guardado.",
+    "syncFailed": "Un resultado sin conexión necesita atención. Abre el formulario e inténtalo nuevamente.",
+    "dismiss": "Descartar mensaje",
+    "offlineTitle": "Estás sin conexión",
+    "offlineDescription": "Las páginas abiertas anteriormente siguen disponibles. Reconéctate para cargar datos nuevos; los resultados enviados se sincronizarán automáticamente.",
+    "retry": "Intentar nuevamente"
+  },
   "states": {
     "loading": {
       "label": "Cargando tus datos de entrenamiento"
@@ -31,6 +42,7 @@
     }
   },
   "navigation": {
+    "notifications": "Notificaciones",
     "today": "Hoy",
     "workouts": "Entrenamientos",
     "training": "Plan",
@@ -47,8 +59,7 @@
     "mobileLabel": "Navegación principal",
     "skipToContent": "Saltar al contenido principal",
     "accountMenu": "Abrir menú de cuenta",
-    "closeAccountMenu": "Cerrar menú de cuenta",
-    "notifications": "Notificaciones"
+    "closeAccountMenu": "Cerrar menú de cuenta"
   },
   "notifications": {
     "eyebrow": "Mantente al día",
@@ -783,6 +794,7 @@
       "today": "Hoy",
       "now": "Ahora",
       "saved": "Resultado del entrenamiento guardado correctamente.",
+      "queuedOffline": "Resultado guardado en este dispositivo. Se sincronizará automáticamente cuando tengas conexión.",
       "minutes": "Minutos",
       "seconds": "Segundos",
       "rounds": "Rondas",
@@ -1169,6 +1181,7 @@
         "save": "Guardar resultado",
         "saving": "Guardando resultado...",
         "saved": "Resultado guardado correctamente.",
+        "queuedOffline": "Resultado guardado en este dispositivo. Se sincronizará automáticamente cuando tengas conexión.",
         "update": "Actualizar resultado",
         "updating": "Actualizando...",
         "cancel": "Cancelar",

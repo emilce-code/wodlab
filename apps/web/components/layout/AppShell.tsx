@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import MobileNavigation from "./MobileNavigation";
 import Sidebar from "./Sidebar";
+import PwaManager from "@/components/pwa/PwaManager";
 
 type Props = {
   children: ReactNode;
@@ -19,6 +20,7 @@ export default async function AppShell({ children, user }: Props) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <PwaManager />
       <a
         href="#main-content"
         className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-xl transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-foreground"

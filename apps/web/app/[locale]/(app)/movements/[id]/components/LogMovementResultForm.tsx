@@ -137,6 +137,7 @@ export default function LogMovementResultForm({
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [queuedOffline, setQueuedOffline] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function getMeasurementName(type: MeasurementType) {
@@ -255,6 +256,7 @@ export default function LogMovementResultForm({
     event.preventDefault();
     setError(null);
     setSuccess(false);
+    setQueuedOffline(false);
 
     const validationErrors = validate();
 
@@ -318,7 +320,10 @@ export default function LogMovementResultForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = (await response.json()) as { message?: string | string[] };
+      const data = (await response.json()) as {
+        message?: string | string[];
+        queued?: boolean;
+      };
 
       if (!response.ok) {
         setError(
@@ -331,11 +336,17 @@ export default function LogMovementResultForm({
 
       if (!isEditing) {
         resetForm();
-        setSuccess(true);
+        if (data.queued) {
+          setQueuedOffline(true);
+        } else {
+          setSuccess(true);
+        }
       }
 
-      router.refresh();
-      onSaved?.();
+      if (!data.queued) {
+        router.refresh();
+        onSaved?.();
+      }
     } catch {
       setError(t("validation.connectionError"));
     } finally {
@@ -364,7 +375,9 @@ export default function LogMovementResultForm({
 
       {measurementTypes.length > 1 && (
         <fieldset className="mt-6">
-          <legend className="text-sm font-semibold">{t("measurementType")}</legend>
+          <legend className="text-sm font-semibold">
+            {t("measurementType")}
+          </legend>
           <div className="mt-3 flex flex-wrap gap-2">
             {measurementTypes.map((type) => {
               const selected = type.key === measurementTypeKey;
@@ -550,7 +563,9 @@ export default function LogMovementResultForm({
           className="flex min-h-12 w-full items-center justify-between gap-4 px-4 py-3 text-left"
         >
           <span>
-            <span className="block text-sm font-semibold">{t("resultDetails")}</span>
+            <span className="block text-sm font-semibold">
+              {t("resultDetails")}
+            </span>
             <span className="mt-0.5 block text-xs text-muted">
               {t("resultDetailsSummary", {
                 date: performedDate
@@ -568,11 +583,17 @@ export default function LogMovementResultForm({
         </button>
 
         {detailsOpen && (
-          <div id="movement-result-details" className="border-t border-border p-4">
+          <div
+            id="movement-result-details"
+            className="border-t border-border p-4"
+          >
             <div className="grid min-w-0 gap-4 sm:grid-cols-2">
               <div>
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <label htmlFor="movementPerformedDate" className="text-sm font-medium">
+                  <label
+                    htmlFor="movementPerformedDate"
+                    className="text-sm font-medium"
+                  >
                     {t("date")}
                   </label>
                   <button
@@ -614,7 +635,10 @@ export default function LogMovementResultForm({
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <label htmlFor="movementPerformedTime" className="text-sm font-medium">
+                  <label
+                    htmlFor="movementPerformedTime"
+                    className="text-sm font-medium"
+                  >
                     {t("time")}
                   </label>
                   <button
@@ -655,8 +679,14 @@ export default function LogMovementResultForm({
               </div>
 
               <div className="sm:col-span-2">
-                <label htmlFor="movementNotes" className="mb-1.5 block text-sm font-medium">
-                  {t("notes")} <span className="font-normal text-muted">{t("optional")}</span>
+                <label
+                  htmlFor="movementNotes"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("notes")}{" "}
+                  <span className="font-normal text-muted">
+                    {t("optional")}
+                  </span>
                 </label>
                 <textarea
                   id="movementNotes"
@@ -672,8 +702,21 @@ export default function LogMovementResultForm({
         )}
       </section>
 
-      {error && <Alert variant="error" className="mt-5">{error}</Alert>}
-      {success && <Alert variant="success" className="mt-5">{t("saved")}</Alert>}
+      {error && (
+        <Alert variant="error" className="mt-5">
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert variant="success" className="mt-5">
+          {t("saved")}
+        </Alert>
+      )}
+      {queuedOffline && (
+        <Alert variant="info" className="mt-5">
+          {t("queuedOffline")}
+        </Alert>
+      )}
 
       <div className="sticky bottom-20 z-10 -mx-2 mt-6 rounded-xl border border-border bg-surface/95 p-3 shadow-lg backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

@@ -19,6 +19,17 @@
     "scaled": "Adaptado",
     "language": "Idioma"
   },
+  "pwa": {
+    "offline": "Você está offline. Ainda é possível colocar resultados na fila a partir de um treino aberto.",
+    "install": "Instalar",
+    "installDescription": "Instale o WODLY para acesso mais rápido.",
+    "synced": "Seu resultado offline foi salvo.",
+    "syncFailed": "Um resultado offline precisa de atenção. Abra o formulário e tente novamente.",
+    "dismiss": "Dispensar mensagem",
+    "offlineTitle": "Você está offline",
+    "offlineDescription": "As páginas abertas anteriormente continuam disponíveis. Reconecte-se para carregar novos dados; os resultados enviados serão sincronizados automaticamente.",
+    "retry": "Tentar novamente"
+  },
   "states": {
     "loading": {
       "label": "Carregando seus dados de treino"
@@ -31,6 +42,7 @@
     }
   },
   "navigation": {
+    "notifications": "Notificações",
     "today": "Hoje",
     "workouts": "Treinos",
     "training": "Plano",
@@ -47,8 +59,7 @@
     "mobileLabel": "Navegação principal",
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
-    "closeAccountMenu": "Fechar menu da conta",
-    "notifications": "Notificações"
+    "closeAccountMenu": "Fechar menu da conta"
   },
   "notifications": {
     "eyebrow": "Mantenha o ritmo",
@@ -783,6 +794,7 @@
       "today": "Hoje",
       "now": "Agora",
       "saved": "Resultado do treino salvo com sucesso.",
+      "queuedOffline": "Resultado salvo neste dispositivo. Ele será sincronizado automaticamente quando você estiver online.",
       "minutes": "Minutos",
       "seconds": "Segundos",
       "rounds": "Rounds",
@@ -1169,6 +1181,7 @@
         "save": "Salvar resultado",
         "saving": "Salvando resultado...",
         "saved": "Resultado salvo com sucesso.",
+        "queuedOffline": "Resultado salvo neste dispositivo. Ele será sincronizado automaticamente quando você estiver online.",
         "update": "Atualizar resultado",
         "updating": "Atualizando...",
         "cancel": "Cancelar",

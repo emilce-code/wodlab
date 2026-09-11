@@ -183,7 +183,8 @@ export default function LogResultForm({
 
   const initialTimeSeconds = result?.timeSeconds ?? 0;
 
-  const workoutVariantId = result?.workoutVariant?.id ?? defaultVariant?.id ?? "";
+  const workoutVariantId =
+    result?.workoutVariant?.id ?? defaultVariant?.id ?? "";
 
   const [prescriptionCategoryKey, setPrescriptionCategoryKey] = useState(
     result?.prescriptionCategory?.key ?? defaultPrescriptionCategoryKey,
@@ -248,6 +249,7 @@ export default function LogResultForm({
     Partial<Record<ScoreField, string>>
   >({});
   const [success, setSuccess] = useState(false);
+  const [queuedOffline, setQueuedOffline] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resultTypeKey = resultType.key.toLowerCase();
@@ -591,6 +593,7 @@ export default function LogResultForm({
     setError(null);
     setScoreErrors({});
     setSuccess(false);
+    setQueuedOffline(false);
 
     const validationError = validate();
 
@@ -707,7 +710,10 @@ export default function LogResultForm({
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        message?: string | string[];
+        queued?: boolean;
+      };
 
       if (!response.ok) {
         const message = Array.isArray(data.message)
@@ -720,11 +726,17 @@ export default function LogResultForm({
 
       if (!isEditing) {
         resetForm();
-        setSuccess(true);
+        if (data.queued) {
+          setQueuedOffline(true);
+        } else {
+          setSuccess(true);
+        }
       }
 
-      router.refresh();
-      onSaved?.();
+      if (!data.queued) {
+        router.refresh();
+        onSaved?.();
+      }
     } catch {
       setError(t("validation.connectionError"));
     } finally {
@@ -868,9 +880,7 @@ export default function LogResultForm({
                   id={isEditing ? "editReps" : "reps"}
                   label={t("extraReps")}
                   value={reps}
-                  onChange={(value) =>
-                    updateScoreField("reps", setReps, value)
-                  }
+                  onChange={(value) => updateScoreField("reps", setReps, value)}
                   error={scoreErrors.reps}
                   placeholder="12"
                 />
@@ -882,9 +892,7 @@ export default function LogResultForm({
                 id={isEditing ? "editReps" : "reps"}
                 label={t("reps")}
                 value={reps}
-                onChange={(value) =>
-                  updateScoreField("reps", setReps, value)
-                }
+                onChange={(value) => updateScoreField("reps", setReps, value)}
                 error={scoreErrors.reps}
                 placeholder="50"
                 className="sm:col-span-2"
@@ -897,9 +905,7 @@ export default function LogResultForm({
                   id={isEditing ? "editLoad" : "load"}
                   label={t("load")}
                   value={load}
-                  onChange={(value) =>
-                    updateScoreField("load", setLoad, value)
-                  }
+                  onChange={(value) => updateScoreField("load", setLoad, value)}
                   error={scoreErrors.load}
                   placeholder="100"
                   step="0.1"
@@ -1193,75 +1199,77 @@ export default function LogResultForm({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-              <p className="mb-1.5 text-xs font-medium text-muted">
-                {t("date")}
-              </p>
-
-              <button
-                type="button"
-                onClick={openDatePicker}
-                className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
-              >
-                <div>
-                  <p className="text-sm font-semibold">
-                    {formatSelectedDate(performedDate)}
+                  <p className="mb-1.5 text-xs font-medium text-muted">
+                    {t("date")}
                   </p>
 
-                  <p className="mt-0.5 text-xs text-muted">{t("chooseDate")}</p>
-                </div>
+                  <button
+                    type="button"
+                    onClick={openDatePicker}
+                    className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {formatSelectedDate(performedDate)}
+                      </p>
 
-                <span aria-hidden="true" className="text-lg text-muted">
-                  ◫
-                </span>
-              </button>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {t("chooseDate")}
+                      </p>
+                    </div>
 
-              <input
-                ref={dateInputRef}
-                type="date"
-                value={performedDate}
-                onChange={(event) => setPerformedDate(event.target.value)}
-                className="sr-only"
-                tabIndex={-1}
-              />
+                    <span aria-hidden="true" className="text-lg text-muted">
+                      ◫
+                    </span>
+                  </button>
+
+                  <input
+                    ref={dateInputRef}
+                    type="date"
+                    value={performedDate}
+                    onChange={(event) => setPerformedDate(event.target.value)}
+                    className="sr-only"
+                    tabIndex={-1}
+                  />
                 </div>
 
                 <div>
-              <p className="mb-1.5 text-xs font-medium text-muted">
-                {t("time")}
-              </p>
-
-              <button
-                type="button"
-                onClick={openTimePicker}
-                className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
-              >
-                <div>
-                  <p className="text-sm font-semibold">
-                    {formatSelectedTime(performedTime)}
+                  <p className="mb-1.5 text-xs font-medium text-muted">
+                    {t("time")}
                   </p>
 
-                  <p className="mt-0.5 text-xs text-muted">{t("chooseTime")}</p>
-                </div>
+                  <button
+                    type="button"
+                    onClick={openTimePicker}
+                    className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {formatSelectedTime(performedTime)}
+                      </p>
 
-                <span aria-hidden="true" className="text-lg text-muted">
-                  ◷
-                </span>
-              </button>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {t("chooseTime")}
+                      </p>
+                    </div>
 
-              <input
-                ref={timeInputRef}
-                type="time"
-                value={performedTime}
-                onChange={(event) => setPerformedTime(event.target.value)}
-                className="sr-only"
-                tabIndex={-1}
-              />
+                    <span aria-hidden="true" className="text-lg text-muted">
+                      ◷
+                    </span>
+                  </button>
+
+                  <input
+                    ref={timeInputRef}
+                    type="time"
+                    value={performedTime}
+                    onChange={(event) => setPerformedTime(event.target.value)}
+                    className="sr-only"
+                    tabIndex={-1}
+                  />
                 </div>
               </div>
 
-              <p className="mt-2 text-xs text-muted">
-                {t("performedAtHelp")}
-              </p>
+              <p className="mt-2 text-xs text-muted">{t("performedAtHelp")}</p>
 
               <div className="mt-5">
                 <label
@@ -1298,6 +1306,12 @@ export default function LogResultForm({
       {success && (
         <Alert variant="success" className="mt-5">
           {t("saved")}
+        </Alert>
+      )}
+
+      {queuedOffline && (
+        <Alert variant="info" className="mt-5">
+          {t("queuedOffline")}
         </Alert>
       )}
 

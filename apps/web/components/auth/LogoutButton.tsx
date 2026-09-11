@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useLocale } from 'next-intl';
+import { useState } from "react";
+import { useLocale } from "next-intl";
 
 type Props = {
   className?: string;
@@ -9,15 +9,12 @@ type Props = {
 };
 
 export default function LogoutButton({
-  className = '',
-  children = 'Log out',
+  className = "",
+  children = "Log out",
 }: Props) {
   const locale = useLocale();
 
-  const [
-    isLoggingOut,
-    setIsLoggingOut,
-  ] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   function handleLogout() {
     if (isLoggingOut) {
@@ -26,24 +23,17 @@ export default function LogoutButton({
 
     setIsLoggingOut(true);
 
-    const returnTo = new URL(
-      `/${locale}/login`,
-      window.location.origin,
-    );
+    navigator.serviceWorker?.controller?.postMessage({
+      type: "CLEAR_PRIVATE_DATA",
+    });
 
-    const logoutUrl = new URL(
-      '/auth/logout',
-      window.location.origin,
-    );
+    const returnTo = new URL(`/${locale}/login`, window.location.origin);
 
-    logoutUrl.searchParams.set(
-      'returnTo',
-      returnTo.toString(),
-    );
+    const logoutUrl = new URL("/auth/logout", window.location.origin);
 
-    window.location.assign(
-      logoutUrl.toString(),
-    );
+    logoutUrl.searchParams.set("returnTo", returnTo.toString());
+
+    window.location.assign(logoutUrl.toString());
   }
 
   return (
@@ -53,9 +43,7 @@ export default function LogoutButton({
       disabled={isLoggingOut}
       className={className}
     >
-      {isLoggingOut
-        ? 'Logging out...'
-        : children}
+      {isLoggingOut ? "Logging out..." : children}
     </button>
   );
 }

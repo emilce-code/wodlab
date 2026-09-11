@@ -384,3 +384,13 @@ logs on the same UTC date are grouped into one session, and the API returns a
 compact eight-week series plus acute and rolling-baseline metrics. The web app
 renders these estimates without a charting dependency and labels recovery
 recommendations as non-medical training guidance.
+
+## PWA and offline boundary
+
+The web application registers a dependency-free service worker that caches the
+manifest, icons, static assets, offline fallback, and successfully visited page
+responses. Authenticated API reads are never cached. New result POST requests
+can be serialized to an IndexedDB queue after a network failure and replayed
+with the active same-origin session. Existing-result PATCH operations are not
+queued because conflict resolution is intentionally out of scope. Private page
+caches and queued writes are cleared when the user logs out.
