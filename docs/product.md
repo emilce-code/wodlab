@@ -281,13 +281,20 @@ movement break guidance, transition advice, and warnings for high-volume or
 heavy-percentage work. First attempts receive conservative structure-based
 guidance without pretending that personal performance data exists.
 
+### Workout text import
+
+Workout creators can paste common workout notation and preview a structured
+draft before anything is saved. The importer detects common workout formats,
+durations, rounds, rep schemes, movement prescriptions, and catalog movements.
+Unknown, ambiguous, and dual-load lines stay visible for manual review in the
+normal workout editor, which retains its existing validation and final review.
+
 ## Future features
 
 Possible future capabilities include:
 
 - Deeper training-volume analytics
 - Training volume analysis
-- Workout parsing from text
 - CrossFit box management
 - Class programming
 - Athlete groups

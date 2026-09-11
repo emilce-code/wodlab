@@ -13,6 +13,9 @@ import type { WorkoutSectionFormState } from "./WorkoutSectionForm";
 import WorkoutVariantForm, {
   WorkoutVariantFormState,
 } from "./WorkoutVariantForm";
+import WorkoutTextImporter, {
+  type WorkoutImportResult,
+} from "./WorkoutTextImporter";
 
 type Props = {
   workoutTypes: WorkoutType[];
@@ -419,6 +422,53 @@ export default function WorkoutForm({
     setVariants((current) =>
       current.map((variant) => (variant.id === id ? updatedVariant : variant)),
     );
+  }
+
+  function applyImport(result: WorkoutImportResult) {
+    const defaultLevel =
+      workoutLevels.find((level) => level.key === "RX") ?? workoutLevels[0];
+    const section = result.draft.section;
+
+    setName(result.draft.name);
+    setDescription(result.draft.description ?? "");
+    setTypeKey(result.draft.typeKey);
+    setIsBenchmark(false);
+    setVariants([
+      {
+        id: crypto.randomUUID(),
+        levelKey: defaultLevel?.key ?? "",
+        name: "",
+        notes: "",
+        sections: [
+          {
+            id: crypto.randomUUID(),
+            typeKey: section.typeKey,
+            rounds: formValue(section.rounds),
+            durationSeconds: formValue(section.durationSeconds),
+            restSeconds: formValue(section.restSeconds),
+            repScheme: section.repScheme.join("-"),
+            notes: section.notes ?? "",
+            movements: section.movements.map((item) => ({
+              id: crypto.randomUUID(),
+              movementId: item.movement?.id ?? "",
+              movementName: item.movement?.name ?? item.notes ?? "",
+              movementOption: item.movement,
+              reps: formValue(item.reps),
+              weight: formValue(item.weight),
+              weightUnit: item.weightUnit ?? "",
+              distance: formValue(item.distance),
+              calories: formValue(item.calories),
+              durationSeconds: formValue(item.durationSeconds),
+              notes: item.matchStatus === "MATCHED" ? "" : item.source,
+              prescriptions: [],
+            })),
+          },
+        ],
+      },
+    ]);
+    setError(null);
+    setFieldErrors({});
+    setCurrentStep("details");
   }
 
   function clearFieldError(fieldId: string) {
@@ -865,6 +915,7 @@ export default function WorkoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {!isEditing ? <WorkoutTextImporter onApply={applyImport} /> : null}
       {!isEditing && storedDraft && !isDraftPromptDismissed && !hasUnsavedChanges ? (
         <section
           aria-labelledby="workout-draft-title"

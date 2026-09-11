@@ -590,6 +590,25 @@
         "restore": "Restaurar rascunho",
         "discard": "Descartar"
       },
+      "importer": {
+        "title": "Importar texto do treino",
+        "description": "Cole um treino e transforme-o em um rascunho editável.",
+        "label": "Texto do treino",
+        "placeholder": "Fran\nFor time\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "parse": "Visualizar importação",
+        "parsing": "Lendo treino...",
+        "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
+        "matched": "{count, plural, =1 {1 movimento encontrado} other {# movimentos encontrados}}",
+        "needsReview": "{count, plural, =1 {1 movimento para revisar} other {# movimentos para revisar}}",
+        "detectedType": "Formato detectado: {type}",
+        "apply": "Usar este rascunho",
+        "applyHint": "Você pode corrigir todos os campos no editor antes de revisar e salvar.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Linha {line}: escolha o movimento correto",
+          "UNKNOWN_MOVEMENT": "Linha {line}: movimento não reconhecido",
+          "MULTIPLE_LOADS": "Linha {line}: revise manualmente as cargas múltiplas"
+        }
+      },
       "steps": {
         "ariaLabel": "Progresso de criação do treino",
         "details": {

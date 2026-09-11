@@ -590,6 +590,25 @@
         "restore": "Restore draft",
         "discard": "Discard"
       },
+      "importer": {
+        "title": "Import workout text",
+        "description": "Paste a workout and turn it into an editable draft.",
+        "label": "Workout text",
+        "placeholder": "Fran\nFor time\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "parse": "Preview import",
+        "parsing": "Reading workout...",
+        "parseError": "Unable to read this workout. Check the text and try again.",
+        "matched": "{count, plural, =1 {1 movement matched} other {# movements matched}}",
+        "needsReview": "{count, plural, =1 {1 movement needs review} other {# movements need review}}",
+        "detectedType": "Detected format: {type}",
+        "apply": "Use this draft",
+        "applyHint": "You can correct every field in the editor before the final review and save.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Line {line}: choose the intended movement",
+          "UNKNOWN_MOVEMENT": "Line {line}: movement was not recognized",
+          "MULTIPLE_LOADS": "Line {line}: multiple loads need manual review"
+        }
+      },
       "steps": {
         "ariaLabel": "Workout creation progress",
         "details": {

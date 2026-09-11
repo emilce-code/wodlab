@@ -414,3 +414,11 @@ not depend on an external AI service. The API returns structured strategy codes
 and numeric targets; localized wording and mobile presentation remain in the
 Next.js workout detail page. Inactive workouts are excluded and requested
 variations are verified against the workout.
+
+## Workout import boundary
+
+The authenticated `workout-imports` API module parses text deterministically
+against the active movement catalog and returns a draft without persisting it.
+The Next.js form maps that response into the existing editor, where unresolved
+movement lines must be selected and all standard validation, authorization, and
+review requirements still apply. Parsing does not depend on an AI provider.

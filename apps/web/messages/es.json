@@ -590,6 +590,25 @@
         "restore": "Restaurar borrador",
         "discard": "Descartar"
       },
+      "importer": {
+        "title": "Importar texto del entrenamiento",
+        "description": "Pega un entrenamiento y conviértelo en un borrador editable.",
+        "label": "Texto del entrenamiento",
+        "placeholder": "Fran\nPor tiempo\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "parse": "Vista previa",
+        "parsing": "Leyendo entrenamiento...",
+        "parseError": "No se pudo leer el entrenamiento. Revisa el texto e inténtalo de nuevo.",
+        "matched": "{count, plural, =1 {1 movimiento encontrado} other {# movimientos encontrados}}",
+        "needsReview": "{count, plural, =1 {1 movimiento por revisar} other {# movimientos por revisar}}",
+        "detectedType": "Formato detectado: {type}",
+        "apply": "Usar este borrador",
+        "applyHint": "Puedes corregir cada campo en el editor antes de revisar y guardar.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Línea {line}: elige el movimiento correcto",
+          "UNKNOWN_MOVEMENT": "Línea {line}: no se reconoció el movimiento",
+          "MULTIPLE_LOADS": "Línea {line}: revisa manualmente las cargas múltiples"
+        }
+      },
       "steps": {
         "ariaLabel": "Progreso de creación del entrenamiento",
         "details": {

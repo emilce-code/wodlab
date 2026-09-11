@@ -15,6 +15,7 @@ import { TrainingCalculatorsModule } from './training-calculators/training-calcu
 import { UsersModule } from './users/users.module';
 import { WorkoutsModule } from './workouts/workouts.module';
 import { WorkoutStrategiesModule } from './workout-strategies/workout-strategies.module';
+import { WorkoutImportsModule } from './workout-imports/workout-imports.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { WorkoutStrategiesModule } from './workout-strategies/workout-strategies
     MovementsModule,
     NotificationsModule,
     WorkoutsModule,
+    WorkoutImportsModule,
     WorkoutStrategiesModule,
     ScheduledWorkoutsModule,
     TrainingModule,
