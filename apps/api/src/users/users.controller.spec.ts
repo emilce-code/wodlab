@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AthleteBalanceInsightsService } from './athlete-balance-insights.service';
 import { AthleteInsightsService } from './athlete-insights.service';
 import { AthletePerformanceInsightsService } from './athlete-performance-insights.service';
+import { AthleteTrainingLoadService } from './athlete-training-load.service';
 import {
   AthleteInsightsPeriod,
   type FindAthleteInsightsQueryDto,
@@ -25,6 +26,7 @@ describe('UsersController', () => {
   const athletePerformanceInsightsServiceMock = {
     getPerformance: jest.fn(),
   };
+  const athleteTrainingLoadServiceMock = { getTrainingLoad: jest.fn() };
 
   const auth0AuthGuardMock = {
     canActivate: jest.fn(() => true),
@@ -55,6 +57,10 @@ describe('UsersController', () => {
           useValue: athletePerformanceInsightsServiceMock,
         },
         {
+          provide: AthleteTrainingLoadService,
+          useValue: athleteTrainingLoadServiceMock,
+        },
+        {
           provide: Auth0AuthGuard,
           useValue: auth0AuthGuardMock,
         },
@@ -79,6 +85,13 @@ describe('UsersController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('delegates training load using the authenticated user', async () => {
+    await controller.getTrainingLoad(request);
+    expect(athleteTrainingLoadServiceMock.getTrainingLoad).toHaveBeenCalledWith(
+      'user-1',
+    );
   });
 
   const query: FindAthleteInsightsQueryDto = {

@@ -896,6 +896,38 @@
     "eyebrow": "Progress",
     "title": "See how you're evolving",
     "description": "Track personal bests, repeated attempts, and performance trends across your workouts.",
+    "load": {
+      "eyebrow": "Load and recovery",
+      "title": "Training readiness",
+      "description": "Compare your recent workload with your four-week baseline and spot when recovery may deserve priority.",
+      "workloadRatio": "Acute-to-baseline ratio",
+      "acuteLoad": "7-day load",
+      "baseline": "Weekly baseline",
+      "sessions": "Sessions",
+      "restDays": "Rest days",
+      "ratioHelp": "Estimated from logged sessions and weight volume. This is training guidance, not medical advice.",
+      "trend": "Eight-week load trend",
+      "trendHelp": "Bar height shows estimated weekly load; number above shows sessions.",
+      "trendLabel": "Weekly estimated training load over eight weeks",
+      "volume": "{value} kg volume this week",
+      "consecutive": "{count, plural, =1 {1 consecutive training day} other {# consecutive training days}}. Consider how you feel before adding intensity.",
+      "loading": "Loading training readiness",
+      "error": "We couldn't calculate your training load.",
+      "retry": "Try again",
+      "status": {
+        "DETRAINING": "Below baseline",
+        "BALANCED": "Balanced",
+        "ELEVATED": "Elevated",
+        "HIGH": "High",
+        "NO_BASELINE": "Building baseline"
+      },
+      "recommendation": {
+        "BUILD": "You have room to build gradually if you feel recovered.",
+        "MAINTAIN": "Your recent workload is close to your established baseline.",
+        "RECOVER": "Prioritize recovery or reduce intensity before the next hard session.",
+        "ESTABLISH_BASELINE": "Keep logging sessions to establish a reliable four-week baseline."
+      }
+    },
     "insights": {
       "eyebrow": "Athlete insights",
       "title": "Your training at a glance",

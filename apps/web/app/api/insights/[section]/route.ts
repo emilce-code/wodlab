@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { authenticatedApiFetch } from "@/lib/api";
 
-const insightSections = new Set(["consistency", "performance", "balance"]);
+const insightSections = new Set([
+  "consistency",
+  "performance",
+  "balance",
+  "load",
+]);
 
 type Context = {
   params: Promise<{

@@ -896,6 +896,38 @@
     "eyebrow": "Progresso",
     "title": "Veja como você está evoluindo",
     "description": "Acompanhe suas melhores marcas, tentativas repetidas e tendências de desempenho nos seus treinos.",
+    "load": {
+      "eyebrow": "Carga e recuperação",
+      "title": "Prontidão para treinar",
+      "description": "Compare sua carga recente com a base de quatro semanas e identifique quando priorizar a recuperação.",
+      "workloadRatio": "Relação carga aguda/base",
+      "acuteLoad": "Carga de 7 dias",
+      "baseline": "Base semanal",
+      "sessions": "Sessões",
+      "restDays": "Dias de descanso",
+      "ratioHelp": "Estimativa baseada em sessões registradas e volume de peso. É uma orientação de treino, não aconselhamento médico.",
+      "trend": "Tendência de carga de oito semanas",
+      "trendHelp": "A altura mostra a carga semanal estimada; o número indica as sessões.",
+      "trendLabel": "Carga semanal estimada durante oito semanas",
+      "volume": "{value} kg de volume nesta semana",
+      "consecutive": "{count, plural, =1 {1 dia consecutivo de treino} other {# dias consecutivos de treino}}. Considere como você se sente antes de aumentar a intensidade.",
+      "loading": "Carregando prontidão de treino",
+      "error": "Não foi possível calcular sua carga de treino.",
+      "retry": "Tentar novamente",
+      "status": {
+        "DETRAINING": "Abaixo da base",
+        "BALANCED": "Equilibrada",
+        "ELEVATED": "Elevada",
+        "HIGH": "Alta",
+        "NO_BASELINE": "Criando base"
+      },
+      "recommendation": {
+        "BUILD": "Você pode aumentar gradualmente se estiver recuperado.",
+        "MAINTAIN": "Sua carga recente está próxima da base estabelecida.",
+        "RECOVER": "Priorize a recuperação ou reduza a intensidade antes da próxima sessão difícil.",
+        "ESTABLISH_BASELINE": "Continue registrando sessões para estabelecer uma base confiável de quatro semanas."
+      }
+    },
     "insights": {
       "eyebrow": "Análises do atleta",
       "title": "Seu treino em um relance",

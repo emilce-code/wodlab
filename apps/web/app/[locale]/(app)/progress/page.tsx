@@ -18,6 +18,7 @@ import MovementTrendChart, {
   type MovementTrendResult,
 } from "./components/MovementTrendChart";
 import AthleteInsightsDashboard from "./components/AthleteInsightsDashboard";
+import TrainingLoadDashboard from "./components/TrainingLoadDashboard";
 import WorkoutTrendChart, {
   type TrendResult,
 } from "./components/WorkoutTrendChart";
@@ -337,6 +338,7 @@ export default async function ProgressPage() {
         description={t("description")}
       />
 
+      <TrainingLoadDashboard />
       <AthleteInsightsDashboard />
 
       {(workoutProgressFailed || movementProgressFailed) && (

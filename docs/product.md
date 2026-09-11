@@ -246,6 +246,15 @@ and pending coach invitations. Notifications can be opened, marked as read, or
 dismissed. Each user can independently enable workout and coach updates and
 choose how many days before training workout reminders appear.
 
+### Training load and recovery analytics
+
+Athletes can compare their estimated seven-day training load with a rolling
+four-week weekly baseline. The progress experience includes an eight-week
+trend, normalized weight volume, session and rest-day counts, consecutive
+training days, workload status, and conservative recovery guidance. The UI
+clearly identifies these values as training estimates rather than medical
+advice.
+
 ## Future features
 
 Possible future capabilities include:

@@ -896,6 +896,38 @@
     "eyebrow": "Progreso",
     "title": "Mira cómo estás evolucionando",
     "description": "Sigue tus mejores marcas, intentos repetidos y tendencias de rendimiento en tus entrenamientos.",
+    "load": {
+      "eyebrow": "Carga y recuperación",
+      "title": "Preparación para entrenar",
+      "description": "Compara tu carga reciente con tu base de cuatro semanas e identifica cuándo priorizar la recuperación.",
+      "workloadRatio": "Relación carga aguda/base",
+      "acuteLoad": "Carga de 7 días",
+      "baseline": "Base semanal",
+      "sessions": "Sesiones",
+      "restDays": "Días de descanso",
+      "ratioHelp": "Estimación basada en sesiones registradas y volumen de peso. Es una guía de entrenamiento, no consejo médico.",
+      "trend": "Tendencia de carga de ocho semanas",
+      "trendHelp": "La altura muestra la carga semanal estimada; el número indica las sesiones.",
+      "trendLabel": "Carga de entrenamiento semanal estimada durante ocho semanas",
+      "volume": "{value} kg de volumen esta semana",
+      "consecutive": "{count, plural, =1 {1 día consecutivo de entrenamiento} other {# días consecutivos de entrenamiento}}. Considera cómo te sientes antes de sumar intensidad.",
+      "loading": "Cargando preparación de entrenamiento",
+      "error": "No pudimos calcular tu carga de entrenamiento.",
+      "retry": "Intentar nuevamente",
+      "status": {
+        "DETRAINING": "Debajo de la base",
+        "BALANCED": "Equilibrada",
+        "ELEVATED": "Elevada",
+        "HIGH": "Alta",
+        "NO_BASELINE": "Creando base"
+      },
+      "recommendation": {
+        "BUILD": "Puedes aumentar gradualmente si te sientes recuperado.",
+        "MAINTAIN": "Tu carga reciente está cerca de tu base establecida.",
+        "RECOVER": "Prioriza la recuperación o reduce la intensidad antes de la próxima sesión exigente.",
+        "ESTABLISH_BASELINE": "Continúa registrando sesiones para establecer una base confiable de cuatro semanas."
+      }
+    },
     "insights": {
       "eyebrow": "Análisis del atleta",
       "title": "Tu entrenamiento de un vistazo",

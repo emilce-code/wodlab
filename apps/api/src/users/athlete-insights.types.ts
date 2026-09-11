@@ -32,6 +32,28 @@ export type AthleteBalanceInsightsResponse = {
   balance: AthleteInsightsResponse['balance'];
 };
 
+export type AthleteTrainingLoadResponse = {
+  generatedAt: string;
+  acuteLoad: number;
+  chronicWeeklyLoad: number;
+  workloadRatio: number | null;
+  status: 'DETRAINING' | 'BALANCED' | 'ELEVATED' | 'HIGH' | 'NO_BASELINE';
+  sessionsLast7Days: number;
+  sessionsLast28Days: number;
+  restDaysLast7Days: number;
+  consecutiveTrainingDays: number;
+  volumeKgLast7Days: number;
+  volumeKgPrevious7Days: number;
+  recommendation: 'BUILD' | 'MAINTAIN' | 'RECOVER' | 'ESTABLISH_BASELINE';
+  weeks: Array<{
+    startDate: string;
+    endDate: string;
+    load: number;
+    sessions: number;
+    volumeKg: number;
+  }>;
+};
+
 export type AthleteInsightsComparison = {
   current: number;
   previous: number | null;

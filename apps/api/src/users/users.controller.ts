@@ -22,6 +22,7 @@ import { UsersService } from './users.service';
 import { AthleteInsightsService } from './athlete-insights.service';
 import { AthleteBalanceInsightsService } from './athlete-balance-insights.service';
 import { AthletePerformanceInsightsService } from './athlete-performance-insights.service';
+import { AthleteTrainingLoadService } from './athlete-training-load.service';
 import { FindAthleteInsightsQueryDto } from './dto/find-athlete-insights-query.dto';
 
 type AuthenticatedRequest = Request & {
@@ -40,7 +41,14 @@ export class UsersController {
     private readonly athleteInsightsService: AthleteInsightsService,
     private readonly athleteBalanceInsightsService: AthleteBalanceInsightsService,
     private readonly athletePerformanceInsightsService: AthletePerformanceInsightsService,
+    private readonly athleteTrainingLoadService: AthleteTrainingLoadService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('users/me/insights/load')
+  getTrainingLoad(@Req() request: AuthenticatedRequest) {
+    return this.athleteTrainingLoadService.getTrainingLoad(request.user.userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('users/me/insights/balance')

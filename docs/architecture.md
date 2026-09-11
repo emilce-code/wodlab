@@ -375,3 +375,12 @@ scheduled-workout and coaching relationship state. Per-user preferences and
 read/dismiss receipts are persisted separately, avoiding duplicated copies of
 domain records. The Next.js notification route performs the authenticated API
 proxying, while localized presentation stays in the web application.
+
+## Training load boundary
+
+Training-load aggregates are calculated server-side from existing workout and
+standalone movement results. Load volume is normalized to kilograms, multiple
+logs on the same UTC date are grouped into one session, and the API returns a
+compact eight-week series plus acute and rolling-baseline metrics. The web app
+renders these estimates without a charting dependency and labels recovery
+recommendations as non-medical training guidance.
