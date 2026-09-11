@@ -2,14 +2,17 @@ import { getTranslations } from "next-intl/server";
 
 import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetchJson } from "@/lib/api";
+import type { PaginatedResponse } from "@/lib/pagination";
 
 import MovementLibrary from "./components/MovementLibrary";
 import type { Movement } from "./components/MovementCard";
 
 type Option = { key: string; name: string };
 
-async function getMovements(): Promise<Movement[]> {
-  return authenticatedApiFetchJson<Movement[]>("/movements");
+async function getMovements(): Promise<PaginatedResponse<Movement>> {
+  return authenticatedApiFetchJson<PaginatedResponse<Movement>>(
+    "/movements?page=1&pageSize=12",
+  );
 }
 
 async function getOptions(path: string): Promise<Option[]> {

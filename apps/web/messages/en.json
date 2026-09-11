@@ -525,6 +525,8 @@
       "all": "All",
       "benchmark": "Benchmark",
       "workoutCount": "{count, plural, =0 {0 workouts} =1 {1 workout} other {# workouts}}",
+      "loading": "Loading workouts...",
+      "loadError": "Unable to load workouts. Please try again.",
       "emptyTitle": "No workouts found",
       "emptyDescription": "Try changing your search or filters.",
       "archivedEmptyTitle": "No archived workouts",

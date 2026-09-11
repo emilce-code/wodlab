@@ -7,6 +7,8 @@ describe('MovementsService', () => {
   let service: MovementsService;
   const prisma = {
     movement: {
+      findMany: jest.fn(),
+      count: jest.fn(),
       findUnique: jest.fn(),
       delete: jest.fn(),
     },
@@ -24,10 +26,33 @@ describe('MovementsService', () => {
     }).compile();
 
     service = module.get<MovementsService>(MovementsService);
+    prisma.movement.findMany.mockResolvedValue([]);
+    prisma.movement.count.mockResolvedValue(0);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('paginates movement searches at the database', async () => {
+    prisma.movement.count.mockResolvedValue(14);
+
+    await expect(
+      service.findAll(
+        { search: 'squat', page: 2, pageSize: 10 },
+        { userId: 'user-1', email: 'owner@example.com' },
+      ),
+    ).resolves.toEqual({
+      items: [],
+      page: 2,
+      pageSize: 10,
+      total: 14,
+      totalPages: 2,
+      hasNextPage: false,
+    });
+    expect(prisma.movement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 }),
+    );
   });
 
   it('deletes an unused custom movement owned by the user', async () => {

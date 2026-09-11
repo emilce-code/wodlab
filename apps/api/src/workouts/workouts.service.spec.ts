@@ -24,6 +24,7 @@ describe('WorkoutsService lifecycle', () => {
   const prismaMock = {
     workout: {
       findMany: jest.fn(),
+      count: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -80,6 +81,7 @@ describe('WorkoutsService lifecycle', () => {
 
     service = module.get(WorkoutsService);
     prismaMock.workout.findMany.mockResolvedValue([]);
+    prismaMock.workout.count.mockResolvedValue(0);
     prismaMock.workout.findUnique.mockResolvedValue(null);
     prismaMock.workoutResult.findFirst.mockResolvedValue(null);
     prismaMock.workout.delete.mockResolvedValue({ id: 'workout-1' });
@@ -94,11 +96,31 @@ describe('WorkoutsService lifecycle', () => {
     );
   });
 
+  it('returns pagination metadata and applies database limits', async () => {
+    prismaMock.workout.count.mockResolvedValue(25);
+
+    await expect(
+      service.findAll(user, { page: 2, pageSize: 10, search: 'Fran' }),
+    ).resolves.toEqual({
+      items: [],
+      page: 2,
+      pageSize: 10,
+      total: 25,
+      totalPages: 3,
+      hasNextPage: true,
+    });
+    expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 }),
+    );
+    expect(prismaMock.workout.count).toHaveBeenCalledTimes(1);
+  });
+
   it('lists only archived workouts created by the current user', async () => {
     await service.findArchived(user);
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { createdByUserId: 'user-1', isActive: false },
+        orderBy: [{ deactivatedAt: 'desc' }, { createdAt: 'desc' }],
       }),
     );
   });

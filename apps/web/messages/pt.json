@@ -525,6 +525,8 @@
       "all": "Todos",
       "benchmark": "Benchmark",
       "workoutCount": "{count, plural, =0 {0 treinos} =1 {1 treino} other {# treinos}}",
+      "loading": "Carregando treinos...",
+      "loadError": "Não foi possível carregar os treinos. Tente novamente.",
       "emptyTitle": "Nenhum treino encontrado",
       "emptyDescription": "Tente alterar a busca ou os filtros.",
       "archivedEmptyTitle": "Nenhum treino arquivado",

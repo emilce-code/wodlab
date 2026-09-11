@@ -394,3 +394,13 @@ can be serialized to an IndexedDB queue after a network failure and replayed
 with the active same-origin session. Existing-result PATCH operations are not
 queued because conflict resolution is intentionally out of scope. Private page
 caches and queued writes are cleared when the user logs out.
+
+## Pagination boundary
+
+Collection endpoints support validated, one-based `page` and bounded
+`pageSize` parameters and return items with total-count metadata. Prisma applies
+filters, ordering, `skip`, and `take` before records reach the web application.
+Pagination is opt-in for backward compatibility with selectors that still need
+complete reference collections. The main movement and workout libraries use the
+paginated contract and merge additional pages client-side behind mobile-first
+load-more controls.

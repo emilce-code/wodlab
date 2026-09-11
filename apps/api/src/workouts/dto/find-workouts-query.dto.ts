@@ -1,20 +1,12 @@
 import { IsBooleanString, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
-export class FindMovementsQueryDto extends PaginationQueryDto {
+export class FindWorkoutsQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
 
   @IsOptional()
-  @IsString()
-  category?: string;
-
-  @IsOptional()
-  @IsString()
-  measurementType?: string;
-
-  @IsOptional()
   @IsBooleanString()
-  foundational?: string;
+  benchmark?: string;
 }

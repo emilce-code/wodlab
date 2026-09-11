@@ -61,7 +61,10 @@ describe('WorkoutsController', () => {
   it('lists archived workouts for the authenticated creator', async () => {
     workoutsServiceMock.findArchived.mockResolvedValue([]);
     await controller.findArchived(request);
-    expect(workoutsServiceMock.findArchived).toHaveBeenCalledWith(request.user);
+    expect(workoutsServiceMock.findArchived).toHaveBeenCalledWith(
+      request.user,
+      {},
+    );
   });
 
   it('passes the authenticated user when reading a workout', async () => {

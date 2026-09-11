@@ -3,12 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { authenticatedApiFetch } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
-  const search = request.nextUrl.searchParams.get("search")?.trim();
-
   const query = new URLSearchParams();
+  const allowedParameters = [
+    "search",
+    "category",
+    "measurementType",
+    "foundational",
+    "page",
+    "pageSize",
+  ];
 
-  if (search) {
-    query.set("search", search);
+  for (const parameter of allowedParameters) {
+    const value = request.nextUrl.searchParams.get(parameter)?.trim();
+    if (value) query.set(parameter, value);
   }
 
   const suffix = query.toString() ? `?${query.toString()}` : "";

@@ -264,6 +264,14 @@ submitted while offline are queued on the device, clearly identified to the
 athlete, and synchronized when connectivity returns. Editing existing results
 still requires an active connection to prevent conflicting changes.
 
+### Server pagination and scalable libraries
+
+The movement and workout libraries load compact pages from the API instead of
+downloading the complete catalog. Search and benchmark filtering run in the
+database, active and archived workout views keep independent pagination state,
+and mobile users can progressively load more records without losing the current
+filter. Existing unpaginated consumers remain compatible during the transition.
+
 ## Future features
 
 Possible future capabilities include:

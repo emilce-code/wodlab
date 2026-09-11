@@ -1,4 +1,4 @@
-const VERSION = "wodly-v1";
+const VERSION = "wodly-v2";
 const PAGE_CACHE = `${VERSION}-pages`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const DATABASE = "wodly-offline";
@@ -150,10 +150,14 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.ok && !url.pathname.includes("/login"))
-            caches
-              .open(PAGE_CACHE)
-              .then((cache) => cache.put(event.request, response.clone()));
+          if (response.ok && !url.pathname.includes("/login")) {
+            const responseForCache = response.clone();
+            event.waitUntil(
+              caches
+                .open(PAGE_CACHE)
+                .then((cache) => cache.put(event.request, responseForCache)),
+            );
+          }
           return response;
         })
         .catch(
@@ -175,9 +179,14 @@ self.addEventListener("fetch", (event) => {
         (cached) =>
           cached ||
           fetch(event.request).then((response) => {
-            caches
-              .open(ASSET_CACHE)
-              .then((cache) => cache.put(event.request, response.clone()));
+            if (response.ok) {
+              const responseForCache = response.clone();
+              event.waitUntil(
+                caches
+                  .open(ASSET_CACHE)
+                  .then((cache) => cache.put(event.request, responseForCache)),
+              );
+            }
             return response;
           }),
       ),

@@ -8,6 +8,10 @@ import {
 
 import type { Prisma } from '../../generated/prisma/client';
 import type { AuthenticatedUser } from '../auth/jwt-auth.guard';
+import {
+  createPaginatedResponse,
+  type PaginatedResponse,
+} from '../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateMovementResultDto } from './dto/create-movement-result.dto';
@@ -87,58 +91,80 @@ export class MovementsService {
   async findAll(
     query: FindMovementsQueryDto,
     user: AuthenticatedUser,
-  ): Promise<MovementResponseDto[]> {
-    const { search, category, measurementType, foundational } = query;
+  ): Promise<MovementResponseDto[] | PaginatedResponse<MovementResponseDto>> {
+    const { search, category, measurementType, foundational, page, pageSize } =
+      query;
 
     const normalizedSearch = search?.trim().toLowerCase();
 
-    const movements = await this.prisma.movement.findMany({
-      where: {
-        ...(normalizedSearch
-          ? {
-              searchText: {
-                contains: normalizedSearch,
+    const where = {
+      ...(normalizedSearch
+        ? {
+            searchText: {
+              contains: normalizedSearch,
 
-                mode: 'insensitive',
-              },
-            }
-          : {}),
+              mode: 'insensitive',
+            },
+          }
+        : {}),
 
-        ...(category
-          ? {
-              category: {
-                key: category,
-              },
-            }
-          : {}),
+      ...(category
+        ? {
+            category: {
+              key: category,
+            },
+          }
+        : {}),
 
-        ...(measurementType
-          ? {
-              measurementTypes: {
-                some: {
-                  measurementType: {
-                    key: measurementType,
-                  },
+      ...(measurementType
+        ? {
+            measurementTypes: {
+              some: {
+                measurementType: {
+                  key: measurementType,
                 },
               },
-            }
-          : {}),
+            },
+          }
+        : {}),
 
-        ...(foundational === 'true'
+      ...(foundational === 'true'
+        ? {
+            isFoundational: true,
+          }
+        : {}),
+    } satisfies Prisma.MovementWhereInput;
+
+    const paginationRequested = page !== undefined || pageSize !== undefined;
+    const resolvedPage = page ?? 1;
+    const resolvedPageSize = pageSize ?? 12;
+
+    const [movements, total] = await Promise.all([
+      this.prisma.movement.findMany({
+        where,
+
+        include: movementManagementInclude,
+
+        orderBy: {
+          name: 'asc',
+        },
+        ...(paginationRequested
           ? {
-              isFoundational: true,
+              skip: (resolvedPage - 1) * resolvedPageSize,
+              take: resolvedPageSize,
             }
           : {}),
-      },
+      }),
+      paginationRequested
+        ? this.prisma.movement.count({ where })
+        : Promise.resolve(0),
+    ]);
 
-      include: movementManagementInclude,
+    const items = movements.map((movement) => this.mapMovement(movement, user));
 
-      orderBy: {
-        name: 'asc',
-      },
-    });
-
-    return movements.map((movement) => this.mapMovement(movement, user));
+    return paginationRequested
+      ? createPaginatedResponse(items, total, resolvedPage, resolvedPageSize)
+      : items;
   }
 
   async findOne(

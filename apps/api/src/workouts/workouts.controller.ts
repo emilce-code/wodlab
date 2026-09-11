@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { Request } from 'express';
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { CreateWorkoutResultDto } from './dto/create-workout-result.dto';
+import { FindWorkoutsQueryDto } from './dto/find-workouts-query.dto';
 import { UpdateWorkoutResultDto } from './dto/update-workout-result.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { WorkoutResultsService } from './workout-results.service';
@@ -63,14 +65,20 @@ export class WorkoutsController {
   }
 
   @Get('archived')
-  findArchived(@Req() request: AuthenticatedRequest) {
-    return this.workoutsService.findArchived(request.user);
+  findArchived(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindWorkoutsQueryDto = {},
+  ) {
+    return this.workoutsService.findArchived(request.user, query);
   }
 
   // Collection routes
   @Get()
-  findAll(@Req() request: AuthenticatedRequest) {
-    return this.workoutsService.findAll(request.user);
+  findAll(
+    @Req() request: AuthenticatedRequest,
+    @Query() query: FindWorkoutsQueryDto = {},
+  ) {
+    return this.workoutsService.findAll(request.user, query);
   }
 
   @Post()

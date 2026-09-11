@@ -8,8 +8,13 @@ import {
 
 import type { Prisma } from '../../generated/prisma/client';
 import type { AuthenticatedUser } from '../auth/jwt-auth.guard';
+import {
+  createPaginatedResponse,
+  type PaginatedResponse,
+} from '../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
+import { FindWorkoutsQueryDto } from './dto/find-workouts-query.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { WorkoutResponseDto } from './dto/workout-response.dto';
 
@@ -171,35 +176,98 @@ export class WorkoutsService {
     });
   }
 
-  async findAll(user: AuthenticatedUser): Promise<WorkoutResponseDto[]> {
-    const workouts = await this.prisma.workout.findMany({
-      where: {
-        isActive: true,
-      },
-
-      include: workoutInclude,
-
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    return workouts.map((workout) => this.mapWorkout(workout, user));
+  findAll(
+    user: AuthenticatedUser,
+    query: FindWorkoutsQueryDto = {},
+  ): Promise<WorkoutResponseDto[] | PaginatedResponse<WorkoutResponseDto>> {
+    return this.findWorkoutCollection(user, query, false);
   }
 
-  async findArchived(user: AuthenticatedUser): Promise<WorkoutResponseDto[]> {
-    const workouts = await this.prisma.workout.findMany({
-      where: {
-        ...(user.role === 'ADMIN' ? {} : { createdByUserId: user.userId }),
-        isActive: false,
-      },
-      include: workoutInclude,
-      orderBy: {
-        deactivatedAt: 'desc',
-      },
-    });
+  findArchived(
+    user: AuthenticatedUser,
+    query: FindWorkoutsQueryDto = {},
+  ): Promise<WorkoutResponseDto[] | PaginatedResponse<WorkoutResponseDto>> {
+    return this.findWorkoutCollection(user, query, true);
+  }
 
-    return workouts.map((workout) => this.mapWorkout(workout, user));
+  private async findWorkoutCollection(
+    user: AuthenticatedUser,
+    query: FindWorkoutsQueryDto,
+    archived: boolean,
+  ) {
+    const normalizedSearch = query.search?.trim();
+    const where = {
+      ...(archived && user.role !== 'ADMIN'
+        ? { createdByUserId: user.userId }
+        : {}),
+      isActive: !archived,
+      ...(query.benchmark === 'true' ? { isBenchmark: true } : {}),
+      ...(normalizedSearch
+        ? {
+            OR: [
+              {
+                name: { contains: normalizedSearch, mode: 'insensitive' },
+              },
+              {
+                description: {
+                  contains: normalizedSearch,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                type: {
+                  name: { contains: normalizedSearch, mode: 'insensitive' },
+                },
+              },
+              {
+                variants: {
+                  some: {
+                    sections: {
+                      some: {
+                        movements: {
+                          some: {
+                            movement: {
+                              name: {
+                                contains: normalizedSearch,
+                                mode: 'insensitive',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    } satisfies Prisma.WorkoutWhereInput;
+    const paginationRequested =
+      query.page !== undefined || query.pageSize !== undefined;
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 12;
+
+    const [workouts, total] = await Promise.all([
+      this.prisma.workout.findMany({
+        where,
+        include: workoutInclude,
+        orderBy: archived
+          ? [{ deactivatedAt: 'desc' }, { createdAt: 'desc' }]
+          : [{ createdAt: 'desc' }],
+        ...(paginationRequested
+          ? { skip: (page - 1) * pageSize, take: pageSize }
+          : {}),
+      }),
+      paginationRequested
+        ? this.prisma.workout.count({ where })
+        : Promise.resolve(0),
+    ]);
+
+    const items = workouts.map((workout) => this.mapWorkout(workout, user));
+    return paginationRequested
+      ? createPaginatedResponse(items, total, page, pageSize)
+      : items;
   }
 
   async findOne(

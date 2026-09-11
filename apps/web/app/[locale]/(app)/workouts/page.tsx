@@ -4,16 +4,21 @@ import PageHeader from "@/components/layout/PageHeader";
 import ButtonLink from "@/components/ui/ButtonLink";
 import { authenticatedApiFetchJson } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
+import type { PaginatedResponse } from "@/lib/pagination";
 
 import WorkoutLibrary from "./components/WorkoutLibrary";
 import type { Workout } from "./components/WorkoutCard";
 
-async function getWorkouts(): Promise<Workout[]> {
-  return authenticatedApiFetchJson<Workout[]>("/workouts");
+async function getWorkouts(): Promise<PaginatedResponse<Workout>> {
+  return authenticatedApiFetchJson<PaginatedResponse<Workout>>(
+    "/workouts?page=1&pageSize=12",
+  );
 }
 
-async function getArchivedWorkouts(): Promise<Workout[]> {
-  return authenticatedApiFetchJson<Workout[]>("/workouts/archived");
+async function getArchivedWorkouts(): Promise<PaginatedResponse<Workout>> {
+  return authenticatedApiFetchJson<PaginatedResponse<Workout>>(
+    "/workouts/archived?page=1&pageSize=12",
+  );
 }
 
 export default async function WorkoutsPage() {
