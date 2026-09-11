@@ -272,13 +272,21 @@ database, active and archived workout views keep independent pagination state,
 and mobile users can progressively load more records without losing the current
 filter. Existing unpaginated consumers remain compatible during the transition.
 
+### Smart workout pacing and strategy
+
+Active workout variations include an explainable pacing plan derived from the
+workout structure and up to ten comparable athlete attempts. The plan provides
+a realistic target range, confidence indicator, section effort progression,
+movement break guidance, transition advice, and warnings for high-volume or
+heavy-percentage work. First attempts receive conservative structure-based
+guidance without pretending that personal performance data exists.
+
 ## Future features
 
 Possible future capabilities include:
 
 - Deeper training-volume analytics
 - Training volume analysis
-- Workout pacing recommendations
 - Workout parsing from text
 - CrossFit box management
 - Class programming

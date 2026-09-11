@@ -1339,6 +1339,25 @@
     },
     "footer": "Treine. Registre. Evolua."
   },
+  "workoutStrategy": {
+    "eyebrow": "Estratégia inteligente",
+    "title": "Plano de ritmo",
+    "description": "Um plano prático para a variação {level}, baseado neste treino e nas suas tentativas registradas.",
+    "target": "Faixa-alvo",
+    "basedOnAttempts": "Baseado em {count, plural, =1 {1 tentativa} other {# tentativas}} nesta variação.",
+    "firstAttempt": "Ainda não há uma tentativa comparável. Comece controlado, use séries repetíveis e ajuste após a primeira seção.",
+    "sectionPlan": "Plano por seção",
+    "section": "Seção {number}",
+    "transitions": "Transições",
+    "roundsReps": "{rounds} rounds + {reps} repetições",
+    "reps": "{count} repetições",
+    "confidence": { "none": "Primeira tentativa", "low": "Baixa confiança", "medium": "Confiança média", "high": "Alta confiança" },
+    "effort": { "controlled": "Controlado", "steady": "Constante", "build": "Crescente", "hard": "Final forte" },
+    "approach": { "unbroken": "Sem quebrar se estiver confortável", "smallSets": "Séries pequenas e repetíveis", "plannedBreaks": "Planeje pausas desde o início", "steadyPace": "Mantenha um ritmo constante" },
+    "transition": { "minimize": "Mantenha o equipamento próximo e as transições curtas, sem se apressar.", "resetBreathing": "Use cada troca de seção para recuperar a respiração e continue sem demora.", "useRest": "Respeite o descanso programado; respire, prepare o equipamento e reinicie com intenção." },
+    "warning": { "noHistory": "Este é um plano inicial baseado na estrutura porque não há resultado comparável.", "highVolume": "Volume alto detectado: escolha séries sustentáveis antes que a fadiga force pausas longas.", "heavyPercentage": "Percentual alto detectado: preserve a técnica e aumente o descanso se as posições piorarem." },
+    "disclaimer": "Esta orientação é uma estimativa, não uma garantia. Ajuste conforme recuperação, técnica, equipamento e orientação do coach."
+  },
   "labels": {
     "workout": "Treino",
     "movement": "Movimento",

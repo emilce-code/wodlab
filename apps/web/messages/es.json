@@ -1339,6 +1339,25 @@
     },
     "footer": "Entrena. Registra. Progresa."
   },
+  "workoutStrategy": {
+    "eyebrow": "Estrategia inteligente",
+    "title": "Plan de ritmo",
+    "description": "Un plan práctico para la variación {level}, basado en este entrenamiento y tus intentos registrados.",
+    "target": "Rango objetivo",
+    "basedOnAttempts": "Basado en {count, plural, =1 {1 intento} other {# intentos}} con esta variación.",
+    "firstAttempt": "Aún no hay un intento comparable. Comienza con control, usa series repetibles y ajusta después de la primera sección.",
+    "sectionPlan": "Plan por sección",
+    "section": "Sección {number}",
+    "transitions": "Transiciones",
+    "roundsReps": "{rounds} rondas + {reps} repeticiones",
+    "reps": "{count} repeticiones",
+    "confidence": { "none": "Primer intento", "low": "Confianza baja", "medium": "Confianza media", "high": "Confianza alta" },
+    "effort": { "controlled": "Controlado", "steady": "Constante", "build": "En aumento", "hard": "Final fuerte" },
+    "approach": { "unbroken": "Sin cortar si es cómodo", "smallSets": "Series pequeñas y repetibles", "plannedBreaks": "Planifica pausas desde el inicio", "steadyPace": "Mantén un ritmo constante" },
+    "transition": { "minimize": "Mantén el equipo cerca y las transiciones cortas, sin apresurarte.", "resetBreathing": "Usa cada cambio de sección para recuperar la respiración y continúa sin demora.", "useRest": "Respeta el descanso programado; respira, prepara el equipo y reinicia con intención." },
+    "warning": { "noHistory": "Este es un plan inicial basado en la estructura porque no hay un resultado comparable.", "highVolume": "Se detectó volumen alto: elige series sostenibles antes de que la fatiga obligue a pausas largas.", "heavyPercentage": "Se detectó un porcentaje alto: protege la técnica y extiende el descanso si se deterioran las posiciones." },
+    "disclaimer": "Esta guía es una estimación, no una garantía. Ajústala según tu recuperación, técnica, equipo y las indicaciones de tu coach."
+  },
   "labels": {
     "workout": "Entrenamiento",
     "movement": "Movimiento",

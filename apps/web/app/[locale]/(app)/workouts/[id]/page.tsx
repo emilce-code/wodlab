@@ -24,6 +24,7 @@ import type {
 } from "@/lib/result-types";
 import { selectWorkoutVariant } from "@/lib/workout-variants";
 import type { WorkoutPercentageTargets } from "@/lib/training-calculators";
+import type { WorkoutStrategy } from "@/lib/workout-strategies";
 
 import LogResultForm, {
   WorkoutVariant as LogResultWorkoutVariant,
@@ -31,6 +32,7 @@ import LogResultForm, {
 import WorkoutResultActions from "./components/WorkoutResultActions";
 import ScheduleWorkoutForm from "./components/ScheduleWorkoutForm";
 import WorkoutLifecycleActions from "../components/WorkoutLifecycleActions";
+import WorkoutStrategyCard from "./components/WorkoutStrategyCard";
 
 type WorkoutPrescription = {
   id: string;
@@ -211,6 +213,13 @@ async function getPercentageTargets(id: string) {
     : { preferredWeightUnit: "KG" as const, targets: [] };
 }
 
+async function getWorkoutStrategy(id: string, variantId: string) {
+  const response = await authenticatedApiFetch(
+    `/workout-strategies/${id}?variantId=${encodeURIComponent(variantId)}`,
+  );
+  return response?.ok ? ((await response.json()) as WorkoutStrategy) : null;
+}
+
 export default async function WorkoutPage({ params, searchParams }: Props) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const requestedLevelKey = Array.isArray(query.variation)
@@ -254,6 +263,10 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
   if (!selectedVariant) {
     notFound();
   }
+
+  const workoutStrategy = workout.isActive
+    ? await getWorkoutStrategy(workout.id, selectedVariant.id)
+    : null;
 
   function getWorkoutTypeName(type: { key: string; name: string }) {
     const key = type.key
@@ -517,6 +530,10 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
           }
         />
       )}
+
+      {workoutStrategy ? (
+        <WorkoutStrategyCard strategy={workoutStrategy} />
+      ) : null}
 
       <div className="mt-10 space-y-10">
         {displayedVariants.map((variant) => (

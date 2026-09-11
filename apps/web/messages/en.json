@@ -1339,6 +1339,25 @@
     },
     "footer": "Train. Log. Track."
   },
+  "workoutStrategy": {
+    "eyebrow": "Smart strategy",
+    "title": "Pacing plan",
+    "description": "A practical plan for the {level} variation based on this workout and your recorded attempts.",
+    "target": "Target range",
+    "basedOnAttempts": "Based on {count, plural, =1 {1 attempt} other {# attempts}} at this variation.",
+    "firstAttempt": "No matching attempt yet. Start controlled, keep repeatable sets, and adjust after the first section.",
+    "sectionPlan": "Section plan",
+    "section": "Section {number}",
+    "transitions": "Transitions",
+    "roundsReps": "{rounds} rounds + {reps} reps",
+    "reps": "{count} reps",
+    "confidence": { "none": "First attempt", "low": "Low confidence", "medium": "Medium confidence", "high": "High confidence" },
+    "effort": { "controlled": "Controlled", "steady": "Steady", "build": "Build", "hard": "Finish hard" },
+    "approach": { "unbroken": "Unbroken if comfortable", "smallSets": "Small repeatable sets", "plannedBreaks": "Plan breaks early", "steadyPace": "Hold a steady pace" },
+    "transition": { "minimize": "Keep equipment close and transitions short without rushing.", "resetBreathing": "Use each section change to reset your breathing, then move promptly.", "useRest": "Respect the programmed rest; breathe, prepare equipment, and restart deliberately." },
+    "warning": { "noHistory": "This is a structure-based starting plan because no matching result is available.", "highVolume": "Higher volume detected: choose sustainable sets before fatigue forces long breaks.", "heavyPercentage": "Heavy percentage detected: protect technique and extend rest if positions deteriorate." },
+    "disclaimer": "This guidance is an estimate, not a guarantee. Adjust for readiness, technique, equipment, and coaching direction."
+  },
   "labels": {
     "workout": "Workout",
     "movement": "Movement",

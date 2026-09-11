@@ -404,3 +404,13 @@ Pagination is opt-in for backward compatibility with selectors that still need
 complete reference collections. The main movement and workout libraries use the
 paginated contract and merge additional pages client-side behind mobile-first
 load-more controls.
+
+## Workout strategy boundary
+
+The authenticated `workout-strategies` API module produces deterministic,
+read-only guidance from a selected workout variation and the athlete's ten most
+recent comparable results. It does not modify programming or results and does
+not depend on an external AI service. The API returns structured strategy codes
+and numeric targets; localized wording and mobile presentation remain in the
+Next.js workout detail page. Inactive workouts are excluded and requested
+variations are verified against the workout.
