@@ -8,6 +8,9 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+const INSTALL_PROMPT_DISMISSED_AT_KEY = "wodly:pwa-install-dismissed-at";
+const INSTALL_PROMPT_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
+
 function subscribeToOnlineStatus(callback: () => void) {
   window.addEventListener("online", callback);
   window.addEventListener("offline", callback);
@@ -24,6 +27,17 @@ function getOnlineStatus() {
 
 function getServerOnlineStatus() {
   return true;
+}
+
+function wasInstallPromptRecentlyDismissed() {
+  const dismissedAt = Number(
+    window.localStorage.getItem(INSTALL_PROMPT_DISMISSED_AT_KEY),
+  );
+
+  return (
+    Number.isFinite(dismissedAt) &&
+    Date.now() - dismissedAt < INSTALL_PROMPT_COOLDOWN_MS
+  );
 }
 
 export default function PwaManager() {
@@ -47,7 +61,10 @@ export default function PwaManager() {
     };
     const handleInstall = (event: Event) => {
       event.preventDefault();
-      setInstallPrompt(event as InstallPromptEvent);
+
+      if (!wasInstallPromptRecentlyDismissed()) {
+        setInstallPrompt(event as InstallPromptEvent);
+      }
     };
     const handleMessage = (event: MessageEvent<{ type?: string }>) => {
       if (event.data.type === "RESULT_SYNCED") setSyncMessage(t("synced"));
@@ -71,6 +88,14 @@ export default function PwaManager() {
     setInstallPrompt(null);
   }
 
+  function dismissInstallPrompt() {
+    window.localStorage.setItem(
+      INSTALL_PROMPT_DISMISSED_AT_KEY,
+      Date.now().toString(),
+    );
+    setInstallPrompt(null);
+  }
+
   if (online && !installPrompt && !syncMessage) return null;
   return (
     <div
@@ -81,20 +106,30 @@ export default function PwaManager() {
         {!online ? t("offline") : (syncMessage ?? t("installDescription"))}
       </span>
       {installPrompt && online ? (
-        <button
-          type="button"
-          onClick={() => void install()}
-          className="min-h-10 shrink-0 rounded-lg bg-accent px-3 font-bold text-accent-foreground"
-        >
-          {t("install")}
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => void install()}
+            className="min-h-11 rounded-lg bg-accent px-3 font-bold text-accent-foreground"
+          >
+            {t("install")}
+          </button>
+          <button
+            type="button"
+            onClick={dismissInstallPrompt}
+            aria-label={t("dismiss")}
+            className="min-h-11 min-w-11 rounded-lg text-xl text-muted"
+          >
+            ×
+          </button>
+        </div>
       ) : null}
       {syncMessage && online ? (
         <button
           type="button"
           onClick={() => setSyncMessage(null)}
           aria-label={t("dismiss")}
-          className="min-h-10 px-2 text-muted"
+          className="min-h-11 min-w-11 rounded-lg text-xl text-muted"
         >
           ×
         </button>
