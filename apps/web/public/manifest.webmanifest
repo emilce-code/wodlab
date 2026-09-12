@@ -1,35 +1,48 @@
 {
-  "name": "WODLY",
-  "short_name": "WODLY",
-  "description": "Build workouts, log results, and track your training progress.",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "name": "Wodly",
+  "short_name": "Wodly",
+  "description": "Plan, track, and improve your CrossFit training.",
+  "start_url": "/en/dashboard",
   "display": "standalone",
+  "background_color": "#090b08",
+  "theme_color": "#a3ff00",
   "orientation": "portrait-primary",
-  "background_color": "#0D0D0D",
-  "theme_color": "#C6FF00",
-  "categories": ["fitness", "health", "sports"],
   "shortcuts": [
     {
-      "name": "Today's training",
-      "short_name": "Today",
+      "name": "Dashboard",
+      "short_name": "Dashboard",
       "url": "/en/dashboard"
     },
-    { "name": "Training plan", "short_name": "Plan", "url": "/en/training" }
+    {
+      "name": "Training plan",
+      "short_name": "Plan",
+      "url": "/en/training"
+    }
   ],
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
