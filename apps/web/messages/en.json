@@ -1429,51 +1429,65 @@
     "signIn": "Sign in",
     "getStarted": "Get started",
     "hero": {
-      "eyebrow": "Train · Log · Track",
-      "titleLine1": "Your training.",
-      "titleLine2": "Your progress.",
-      "titleLine3": "All in one place.",
-      "description": "Build workouts, log results, track personal records and see how your training evolves over time.",
-      "startTraining": "Start training"
-    },
-    "workoutPreview": {
-      "forTime": "For Time",
-      "benchmark": "Benchmark",
-      "personalBest": "Personal best"
-    },
-    "features": {
-      "build": {
-        "title": "Build workouts",
-        "description": "Create For Time, AMRAP, strength, interval and custom workouts with real movement data."
-      },
-      "log": {
-        "title": "Log performance",
-        "description": "Capture time, rounds, reps, loads and notes without losing the structure of the workout."
-      },
-      "progress": {
-        "title": "Track progress",
-        "description": "Follow your history, personal records and performance over time."
+      "eyebrow": "Training that moves with you",
+      "title": "Plan the work. Track the effort.",
+      "titleAccent": "See the progress.",
+      "description": "WODLY brings workouts, movement results, training plans, classes and coaching into one connected experience.",
+      "primaryAction": "Start training",
+      "secondaryAction": "See what WODLY does",
+      "pills": {
+        "athletes": "For athletes",
+        "coaches": "For coaches"
       }
     },
-    "training": {
-      "eyebrow": "Built for training",
-      "titleLine1": "Less spreadsheet.",
-      "titleLine2": "More training.",
-      "description": "WODLY keeps workout structure, movement data, results and progress connected so you can spend less time organizing and more time training."
+    "preview": {
+      "today": "Today's training",
+      "forTime": "For Time",
+      "level": "Rx",
+      "personalBest": "Personal best",
+      "planned": "Planned"
     },
-    "stats": {
-      "workoutsThisMonth": "Workouts this month",
-      "personalRecords": "Personal records",
-      "trainingStreak": "Training streak",
-      "days": "{count, plural, =1 {1 day} other {# days}}"
+    "features": {
+      "eyebrow": "One training home",
+      "title": "Everything around your next session",
+      "description": "Spend less time organizing your training and more time doing it.",
+      "items": {
+        "plan": {
+          "title": "Plan your week",
+          "description": "Schedule workouts, manage classes and keep upcoming sessions easy to find."
+        },
+        "log": {
+          "title": "Log every result",
+          "description": "Capture times, rounds, reps, loads and movement results in one place."
+        },
+        "progress": {
+          "title": "Understand progress",
+          "description": "Follow personal records, trends, training load and recovery signals."
+        },
+        "coach": {
+          "title": "Coach with context",
+          "description": "Program for athletes and groups, monitor completion and review feedback."
+        }
+      }
+    },
+    "connected": {
+      "eyebrow": "Athletes and coaches",
+      "title": "The full training picture, connected",
+      "description": "Athletes always know what is next. Coaches can plan, adjust and understand how training is being completed.",
+      "benefits": {
+        "programming": "Weekly programming for individuals and groups",
+        "feedback": "Results, comments and coach reviews in one flow",
+        "load": "Training-load and recovery visibility",
+        "community": "Classes and optional workout leaderboards"
+      }
     },
     "cta": {
-      "eyebrow": "Ready?",
-      "title": "Start tracking the work you're already doing.",
-      "description": "Create your account and start building your training history.",
-      "createAccount": "Create your WODLY account"
+      "eyebrow": "Your next session starts here",
+      "title": "Build a training history you can use.",
+      "description": "Create your WODLY account and turn every workout into useful progress.",
+      "action": "Create my account"
     },
-    "footer": "Train. Log. Track."
+    "footer": "Plan. Train. Progress."
   },
   "workoutStrategy": {
     "eyebrow": "Smart strategy",
