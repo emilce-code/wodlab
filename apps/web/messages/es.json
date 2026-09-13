@@ -1361,6 +1361,10 @@
     "calories": "Calorías",
     "duration": "Duración"
   },
+  "prescriptionCategories": {
+    "men": "Hombres",
+    "women": "Mujeres"
+  },
   "movementCategories": {
     "weightlifting": "Halterofilia",
     "gymnastics": "Gimnasia",
@@ -1429,51 +1433,65 @@
     "signIn": "Iniciar sesión",
     "getStarted": "Comenzar",
     "hero": {
-      "eyebrow": "Entrena · Registra · Progresa",
-      "titleLine1": "Tu entrenamiento.",
-      "titleLine2": "Tu progreso.",
-      "titleLine3": "Todo en un solo lugar.",
-      "description": "Crea entrenamientos, registra resultados, sigue tus mejores marcas y descubre cómo evoluciona tu rendimiento con el tiempo.",
-      "startTraining": "Comenzar a entrenar"
-    },
-    "workoutPreview": {
-      "forTime": "Por tiempo",
-      "benchmark": "Benchmark",
-      "personalBest": "Mejor marca personal"
-    },
-    "features": {
-      "build": {
-        "title": "Crea entrenamientos",
-        "description": "Crea entrenamientos por tiempo, AMRAP, fuerza, intervalos y personalizados con datos reales de movimientos."
-      },
-      "log": {
-        "title": "Registra tu rendimiento",
-        "description": "Registra tiempo, rondas, repeticiones, cargas y notas sin perder la estructura del entrenamiento."
-      },
-      "progress": {
-        "title": "Sigue tu progreso",
-        "description": "Consulta tu historial, mejores marcas y rendimiento a lo largo del tiempo."
+      "eyebrow": "Tu entrenamiento siempre contigo",
+      "title": "Planifica el trabajo. Registra el esfuerzo.",
+      "titleAccent": "Descubre tu progreso.",
+      "description": "WODLY reúne entrenamientos, resultados de movimientos, planes, clases y coaching en una experiencia conectada.",
+      "primaryAction": "Comenzar a entrenar",
+      "secondaryAction": "Descubrir WODLY",
+      "pills": {
+        "athletes": "Para atletas",
+        "coaches": "Para coaches"
       }
     },
-    "training": {
-      "eyebrow": "Creado para entrenar",
-      "titleLine1": "Menos planillas.",
-      "titleLine2": "Más entrenamiento.",
-      "description": "WODLY mantiene conectados la estructura de tus entrenamientos, los movimientos, los resultados y tu progreso para que dediques menos tiempo a organizar y más a entrenar."
+    "preview": {
+      "today": "Entrenamiento de hoy",
+      "forTime": "Por tiempo",
+      "level": "Rx",
+      "personalBest": "Mejor marca personal",
+      "planned": "Planificado"
     },
-    "stats": {
-      "workoutsThisMonth": "Entrenamientos este mes",
-      "personalRecords": "Mejores marcas personales",
-      "trainingStreak": "Racha de entrenamiento",
-      "days": "{count, plural, =1 {1 día} other {# días}}"
+    "features": {
+      "eyebrow": "Todo tu entrenamiento",
+      "title": "Todo lo que necesitas para tu próxima sesión",
+      "description": "Dedica menos tiempo a organizar y más tiempo a entrenar.",
+      "items": {
+        "plan": {
+          "title": "Planifica tu semana",
+          "description": "Programa entrenamientos, administra clases y encuentra fácilmente tus próximas sesiones."
+        },
+        "log": {
+          "title": "Registra cada resultado",
+          "description": "Guarda tiempos, rondas, repeticiones, cargas y resultados en un solo lugar."
+        },
+        "progress": {
+          "title": "Comprende tu progreso",
+          "description": "Sigue tus mejores marcas, tendencias, carga de entrenamiento y recuperación."
+        },
+        "coach": {
+          "title": "Entrena con contexto",
+          "description": "Programa para atletas y grupos, controla el cumplimiento y revisa comentarios."
+        }
+      }
+    },
+    "connected": {
+      "eyebrow": "Atletas y coaches",
+      "title": "Todo el entrenamiento, conectado",
+      "description": "Los atletas siempre saben qué sigue. Los coaches pueden planificar, ajustar y entender cómo se completa cada sesión.",
+      "benefits": {
+        "programming": "Programación semanal individual y grupal",
+        "feedback": "Resultados, comentarios y revisiones en un mismo flujo",
+        "load": "Visibilidad de carga de entrenamiento y recuperación",
+        "community": "Clases y rankings opcionales de entrenamientos"
+      }
     },
     "cta": {
-      "eyebrow": "¿Listo?",
-      "title": "Empieza a registrar el trabajo que ya estás haciendo.",
-      "description": "Crea tu cuenta y comienza a construir tu historial de entrenamiento.",
-      "createAccount": "Crear mi cuenta de WODLY"
+      "eyebrow": "Tu próxima sesión comienza aquí",
+      "title": "Construye un historial que puedas aprovechar.",
+      "description": "Crea tu cuenta de WODLY y convierte cada entrenamiento en progreso útil.",
+      "action": "Crear mi cuenta"
     },
-    "footer": "Entrena. Registra. Progresa."
+    "footer": "Planifica. Entrena. Progresa."
   },
   "workoutStrategy": {
     "eyebrow": "Estrategia inteligente",

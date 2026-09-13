@@ -51,7 +51,7 @@ export default function LanguageSwitcher() {
         id={selectId}
         value={locale}
         onChange={(event) => handleChange(event.target.value)}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground outline-none transition hover:border-accent/40 focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+        className="min-h-11 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground outline-none transition hover:border-accent/40 focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
       >
         {routing.locales.map((availableLocale) => (
           <option key={availableLocale} value={availableLocale}>
