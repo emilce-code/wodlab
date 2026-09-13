@@ -101,4 +101,61 @@ describe('WorkoutImportsService', () => {
       ]),
     );
   });
+
+  it('parses localized levels and gender prescriptions', () => {
+    const result = service.parseWithCatalog(
+      [
+        'Fran',
+        'For time',
+        '21-15-9',
+        'RX',
+        'Hombres: Thrusters 95 lb',
+        'Mujeres: Thrusters 65 lb',
+        'Pull-ups',
+        'Intermediário',
+        'Homens: Thrusters 75 lb',
+        'Mulheres: Thrusters 55 lb',
+        'Pull-ups',
+        'Principiante',
+        'Masculino: Thrusters 45 lb',
+        'Feminino: Thrusters 35 lb',
+        'Pull-ups',
+      ].join('\n'),
+      catalog,
+    );
+
+    expect(result.draft.variants.map((variant) => variant.levelKey)).toEqual([
+      'RX',
+      'INTERMEDIATE',
+      'BEGINNER',
+    ]);
+    expect(
+      result.draft.variants.map((variant) =>
+        variant.section.movements[0].prescriptions.map((item) => ({
+          categoryKey: item.categoryKey,
+          weight: item.weight,
+        })),
+      ),
+    ).toEqual([
+      [
+        { categoryKey: 'MEN', weight: 95 },
+        { categoryKey: 'WOMEN', weight: 65 },
+      ],
+      [
+        { categoryKey: 'MEN', weight: 75 },
+        { categoryKey: 'WOMEN', weight: 55 },
+      ],
+      [
+        { categoryKey: 'MEN', weight: 45 },
+        { categoryKey: 'WOMEN', weight: 35 },
+      ],
+    ]);
+    expect(result.summary).toMatchObject({
+      detectedVariants: 3,
+      detectedPrescriptions: 6,
+      matchedMovements: 6,
+      unresolvedMovements: 0,
+    });
+  });
+
 });
