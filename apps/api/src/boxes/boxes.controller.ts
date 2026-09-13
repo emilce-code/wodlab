@@ -13,6 +13,8 @@ import {
 import { Request } from 'express';
 
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { BoxesService } from './boxes.service';
 import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
@@ -24,7 +26,7 @@ import { UpdateBoxMemberDto } from './dto/update-box-member.dto';
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
 @Controller('boxes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class BoxesController {
   constructor(private readonly boxes: BoxesService) {}
 
@@ -34,6 +36,7 @@ export class BoxesController {
   }
 
   @Post()
+  @Roles('COACH', 'ADMIN')
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateBoxDto) {
     return this.boxes.create(request.user.userId, dto);
   }
@@ -54,6 +57,7 @@ export class BoxesController {
   }
 
   @Patch(':boxId/members/:memberId')
+  @Roles('COACH', 'ADMIN')
   updateMember(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -78,6 +82,7 @@ export class BoxesController {
   }
 
   @Post(':boxId/classes')
+  @Roles('COACH', 'ADMIN')
   createClass(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -87,6 +92,7 @@ export class BoxesController {
   }
 
   @Delete(':boxId/classes/:classId')
+  @Roles('COACH', 'ADMIN')
   deleteClass(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -114,6 +120,7 @@ export class BoxesController {
   }
 
   @Patch(':boxId/classes/:classId/attendance')
+  @Roles('COACH', 'ADMIN')
   attendance(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,

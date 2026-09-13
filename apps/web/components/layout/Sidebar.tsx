@@ -8,6 +8,13 @@ import Wordmark from "@/components/brand/Wordmark";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { Link, usePathname } from "@/i18n/navigation";
 import NavigationIcon, { type NavigationIconName } from "./NavigationIcon";
+import type { CurrentUser } from "@/lib/auth";
+
+type NavigationItem = {
+  key: string;
+  href: string;
+  icon: NavigationIconName;
+};
 
 const navigation = [
   {
@@ -35,7 +42,7 @@ const navigation = [
     href: "/progress",
     icon: "progress",
   },
-] as const;
+] as const satisfies readonly NavigationItem[];
 
 const secondaryNavigation = [
   {
@@ -70,13 +77,7 @@ const secondaryNavigation = [
 }[];
 
 type Props = {
-  user: {
-    email: string;
-
-    athleteProfile?: {
-      displayName?: string | null;
-    } | null;
-  };
+  user: CurrentUser;
 };
 
 export default function Sidebar({ user }: Props) {
@@ -90,6 +91,10 @@ export default function Sidebar({ user }: Props) {
   const accountLinkRef = useRef<HTMLAnchorElement>(null);
 
   const displayName = user.athleteProfile?.displayName ?? user.email;
+  const visibleSecondaryNavigation = secondaryNavigation.filter((item) => {
+    if (item.href === "/coach") return user.permissions.includes("coach:use");
+    return true;
+  });
 
   const initials = displayName
     .split(" ")
@@ -139,9 +144,7 @@ export default function Sidebar({ user }: Props) {
     return pathname.startsWith(href);
   }
 
-  function renderNavigationItem(
-    item: (typeof navigation)[number] | (typeof secondaryNavigation)[number],
-  ) {
+  function renderNavigationItem(item: NavigationItem) {
     const active = isActive(item.href);
 
     return (
@@ -179,7 +182,14 @@ export default function Sidebar({ user }: Props) {
         <div className="my-5 border-t border-border" />
 
         <div className="space-y-1">
-          {secondaryNavigation.map(renderNavigationItem)}
+          {visibleSecondaryNavigation.map(renderNavigationItem)}
+          {user.permissions.includes("users:manage")
+            ? renderNavigationItem({
+                key: "admin",
+                href: "/admin/users",
+                icon: "admin",
+              })
+            : null}
         </div>
       </nav>
 

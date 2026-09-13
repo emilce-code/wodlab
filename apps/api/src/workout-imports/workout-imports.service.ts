@@ -80,6 +80,8 @@ const categoryAliases: Record<string, 'MEN' | 'WOMEN'> = {
   mujeres: 'WOMEN',
   femenino: 'WOMEN',
   femeninos: 'WOMEN',
+  feminino: 'WOMEN',
+  femininos: 'WOMEN',
   feminina: 'WOMEN',
   femininas: 'WOMEN',
   mulher: 'WOMEN',
@@ -148,12 +150,8 @@ function numericValues(value: string) {
     /^[-•*]?\s*(\d+)\s*(?:x|reps?)?\s+(?!m\b|meters?\b|cal\b|calories?\b|sec\b|seconds?\b)/i,
   );
   const distance = value.match(/^[-•*]?\s*(\d+)\s*(?:m|meters?)\s+/i);
-  const calories = value.match(
-    /^[-•*]?\s*(\d+)\s*(?:cal|calories?)\s+/i,
-  );
-  const load = value.match(
-    /(?:@\s*)?(\d+(?:\.\d+)?)\s*(kg|kgs|lb|lbs)\b/i,
-  );
+  const calories = value.match(/^[-•*]?\s*(\d+)\s*(?:cal|calories?)\s+/i);
+  const load = value.match(/(?:@\s*)?(\d+(?:\.\d+)?)\s*(kg|kgs|lb|lbs)\b/i);
 
   return {
     reps: reps ? Number(reps[1]) : null,
@@ -303,7 +301,8 @@ export class WorkoutImportsService {
       variantMovements.set(currentLevel, movements);
       const identity = match?.id ?? normalized;
       let movement = movements.find(
-        (item) => (item.movement?.id ?? normalize(item.notes ?? '')) === identity,
+        (item) =>
+          (item.movement?.id ?? normalize(item.notes ?? '')) === identity,
       );
 
       if (!movement) {

@@ -4,8 +4,13 @@ import PageHeader from "@/components/layout/PageHeader";
 
 import CoachProgrammingWorkspace from "../components/CoachProgrammingWorkspace";
 import CoachModuleNavigation from "../components/CoachModuleNavigation";
+import { requireRole } from "@/lib/auth";
 
-export default async function CoachProgrammingPage() {
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function CoachProgrammingPage({ params }: Props) {
+  const { locale } = await params;
+  await requireRole(locale, ["COACH", "ADMIN"]);
   const t = await getTranslations("coachProgramming");
 
   return (

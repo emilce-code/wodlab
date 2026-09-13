@@ -12,6 +12,8 @@ import {
 import { Request } from 'express';
 
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CoachProgrammingService } from './coach-programming.service';
 import { AddGroupMemberDto } from './dto/add-group-member.dto';
 import { ApplyProgramTemplateDto } from './dto/apply-program-template.dto';
@@ -23,7 +25,8 @@ import { FindCoachAnalyticsQueryDto } from './dto/find-coach-analytics-query.dto
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
 @Controller('coach-programming')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('COACH', 'ADMIN')
 export class CoachProgrammingController {
   constructor(private readonly service: CoachProgrammingService) {}
 

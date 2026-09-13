@@ -13,7 +13,7 @@ import type { Auth0AuthenticatedRequest } from './auth0-auth.guard';
 export type AuthenticatedUser = {
   userId: string;
   email: string;
-  role?: 'USER' | 'ADMIN';
+  role: 'USER' | 'COACH' | 'ADMIN';
 };
 
 type AuthenticatedRequest = Auth0AuthenticatedRequest &

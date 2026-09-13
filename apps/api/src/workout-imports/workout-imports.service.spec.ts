@@ -157,5 +157,4 @@ describe('WorkoutImportsService', () => {
       unresolvedMovements: 0,
     });
   });
-
 });

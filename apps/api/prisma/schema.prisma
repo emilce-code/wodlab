@@ -36,6 +36,7 @@ enum CoachAthleteStatus {
 
 enum UserRole {
   USER
+  COACH
   ADMIN
 }
 
@@ -66,8 +67,24 @@ model User {
   boxMemberships         BoxMembership[]
   classesCreated         ClassSession[]          @relation("ClassCreator")
   classBookings          ClassBooking[]
+  roleChangesReceived    UserRoleChange[]        @relation("RoleChangeSubject")
+  roleChangesPerformed   UserRoleChange[]        @relation("RoleChangeActor")
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
+}
+
+model UserRoleChange {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation("RoleChangeSubject", fields: [userId], references: [id], onDelete: Cascade)
+  previousRole UserRole
+  newRole      UserRole
+  changedById  String
+  changedBy    User     @relation("RoleChangeActor", fields: [changedById], references: [id], onDelete: Restrict)
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([changedById, createdAt])
 }
 
 model Box {
