@@ -660,9 +660,9 @@
       },
       "importer": {
         "title": "Importar texto do treino",
-        "description": "Cole um treino e transforme-o em um rascunho editável.",
+        "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Fran\nFor time\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 95 lb\nMulheres: Thrusters 65 lb\nPull-ups\n\nIntermediário\nHomens: Thrusters 75 lb\nMulheres: Thrusters 55 lb\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 45 lb\nMulheres: Thrusters 35 lb\nRing rows",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
@@ -675,7 +675,10 @@
           "AMBIGUOUS_MOVEMENT": "Linha {line}: escolha o movimento correto",
           "UNKNOWN_MOVEMENT": "Linha {line}: movimento não reconhecido",
           "MULTIPLE_LOADS": "Linha {line}: revise manualmente as cargas múltiplas"
-        }
+        },
+        "formatHint": "Use um cabeçalho de nível (RX, Intermediário ou Iniciante). Escreva Homens ou Mulheres antes dos movimentos específicos.",
+        "variantsDetected": "{count, plural, =1 {1 variação detectada} other {# variações detectadas}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}"
       },
       "steps": {
         "ariaLabel": "Progresso de criação do treino",
