@@ -660,9 +660,9 @@
       },
       "importer": {
         "title": "Importar texto del entrenamiento",
-        "description": "Pega un entrenamiento y conviértelo en un borrador editable.",
+        "description": "Pega un entrenamiento con niveles y prescripciones por categoría para crear un borrador editable.",
         "label": "Texto del entrenamiento",
-        "placeholder": "Fran\nPor tiempo\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHombres: Thrusters 95 lb\nMujeres: Thrusters 65 lb\nPull-ups\n\nIntermedio\nH-Term Finestombres: Thrusters 75 lb\nMujeres: Thrusters 55 lb\nJumping pull-ups\n\nPrincipiante\nHombres: Thrusters 45 lb\nMujeres: Thrusters 35 lb\nRing rows",
         "parse": "Vista previa",
         "parsing": "Leyendo entrenamiento...",
         "parseError": "No se pudo leer el entrenamiento. Revisa el texto e inténtalo de nuevo.",
@@ -675,7 +675,10 @@
           "AMBIGUOUS_MOVEMENT": "Línea {line}: elige el movimiento correcto",
           "UNKNOWN_MOVEMENT": "Línea {line}: no se reconoció el movimiento",
           "MULTIPLE_LOADS": "Línea {line}: revisa manualmente las cargas múltiples"
-        }
+        },
+        "formatHint": "Usa un encabezado de nivel (RX, Intermedio o Principiante). Escribe Hombres o Mujeres antes de los movimientos específicos.",
+        "variantsDetected": "{count, plural, =1 {1 variación detectada} other {# variaciones detectadas}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 prescripción por categoría} other {# prescripciones por categoría}}"
       },
       "steps": {
         "ariaLabel": "Progreso de creación del entrenamiento",
@@ -852,7 +855,11 @@
         "description": "Mejor resultado por atleta para esta variación.",
         "yourRank": "Tu posición",
         "periodLabel": "Período de clasificación",
-        "periods": { "30D": "30 días", "90D": "90 días", "ALL": "Histórico" },
+        "periods": {
+          "30D": "30 días",
+          "90D": "90 días",
+          "ALL": "Histórico"
+        },
         "loading": "Cargando clasificación…",
         "error": "La clasificación no está disponible temporalmente.",
         "empty": "Todavía no hay resultados clasificados en este período.",
