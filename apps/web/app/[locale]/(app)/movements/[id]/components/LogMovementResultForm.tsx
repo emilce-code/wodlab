@@ -4,6 +4,7 @@ import { FormEvent, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import ResultNumberField from "@/components/results/ResultNumberField";
+import ResultDateTimeFields from "@/components/results/ResultDateTimeFields";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
@@ -587,116 +588,44 @@ export default function LogMovementResultForm({
             id="movement-result-details"
             className="border-t border-border p-4"
           >
-            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-              <div>
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <label
-                    htmlFor="movementPerformedDate"
-                    className="text-sm font-medium"
-                  >
-                    {t("date")}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPerformedDate(getLocalDateValue());
-                      clearFieldError("performedDate");
-                    }}
-                    className="text-xs font-semibold text-accent hover:underline"
-                  >
-                    {t("today")}
-                  </button>
-                </div>
-                <input
-                  id="movementPerformedDate"
-                  type="date"
-                  value={performedDate}
-                  onChange={(event) => {
-                    setPerformedDate(event.target.value);
-                    clearFieldError("performedDate");
-                  }}
-                  aria-invalid={Boolean(fieldErrors.performedDate)}
-                  aria-describedby={
-                    fieldErrors.performedDate
-                      ? "movementPerformedDate-error"
-                      : undefined
-                  }
-                  className="min-h-12 w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                />
-                {fieldErrors.performedDate && (
-                  <p
-                    id="movementPerformedDate-error"
-                    className="mt-1.5 text-sm text-red-500"
-                  >
-                    {fieldErrors.performedDate}
-                  </p>
-                )}
-              </div>
+            <ResultDateTimeFields
+              date={performedDate}
+              time={performedTime}
+              onDateChange={(value) => {
+                setPerformedDate(value);
+                clearFieldError("performedDate");
+              }}
+              onTimeChange={(value) => {
+                setPerformedTime(value);
+                clearFieldError("performedTime");
+              }}
+              legend={t("performedAt")}
+              dateLabel={t("date")}
+              timeLabel={t("time")}
+              todayLabel={t("today")}
+              nowLabel={t("now")}
+              helpText={t("performedAtHelp")}
+              dateError={fieldErrors.performedDate}
+              timeError={fieldErrors.performedTime}
+              disabled={isSubmitting}
+            />
 
-              <div>
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <label
-                    htmlFor="movementPerformedTime"
-                    className="text-sm font-medium"
-                  >
-                    {t("time")}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPerformedTime(getLocalTimeValue());
-                      clearFieldError("performedTime");
-                    }}
-                    className="text-xs font-semibold text-accent hover:underline"
-                  >
-                    {t("now")}
-                  </button>
-                </div>
-                <input
-                  id="movementPerformedTime"
-                  type="time"
-                  value={performedTime}
-                  onChange={(event) => {
-                    setPerformedTime(event.target.value);
-                    clearFieldError("performedTime");
-                  }}
-                  aria-invalid={Boolean(fieldErrors.performedTime)}
-                  aria-describedby={
-                    fieldErrors.performedTime
-                      ? "movementPerformedTime-error"
-                      : undefined
-                  }
-                  className="min-h-12 w-full min-w-0 rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                />
-                {fieldErrors.performedTime && (
-                  <p
-                    id="movementPerformedTime-error"
-                    className="mt-1.5 text-sm text-red-500"
-                  >
-                    {fieldErrors.performedTime}
-                  </p>
-                )}
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="movementNotes"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("notes")}{" "}
-                  <span className="font-normal text-muted">
-                    {t("optional")}
-                  </span>
-                </label>
-                <textarea
-                  id="movementNotes"
-                  rows={3}
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder={t("notesPlaceholder")}
-                  className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                />
-              </div>
+            <div className="mt-5">
+              <label
+                htmlFor="movementNotes"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                {t("notes")}{" "}
+                <span className="font-normal text-muted">{t("optional")}</span>
+              </label>
+              <textarea
+                id="movementNotes"
+                rows={3}
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder={t("notesPlaceholder")}
+                className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+              />
             </div>
           </div>
         )}
