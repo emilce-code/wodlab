@@ -8,6 +8,7 @@ import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { Link, usePathname } from "@/i18n/navigation";
 
 import NavigationIcon, { type NavigationIconName } from "./NavigationIcon";
+import type { CurrentUser } from "@/lib/auth";
 
 const navigation = [
   { key: "today", href: "/dashboard", icon: "today" },
@@ -20,7 +21,9 @@ const navigation = [
   icon: NavigationIconName;
 }[];
 
-export default function MobileNavigation() {
+type Props = { user: CurrentUser };
+
+export default function MobileNavigation({ user }: Props) {
   const t = useTranslations("navigation");
   const pathname = usePathname();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -34,7 +37,10 @@ export default function MobileNavigation() {
     pathname.startsWith("/calculators") ||
     pathname.startsWith("/notifications") ||
     pathname.startsWith("/classes") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/account");
+  const canCoach = user.permissions.includes("coach:use");
+  const canManageUsers = user.permissions.includes("users:manage");
 
   useEffect(() => {
     if (!moreMenuOpen) {
@@ -127,17 +133,19 @@ export default function MobileNavigation() {
                 {t("notifications")}
               </Link>
 
-              <Link
-                href="/coach"
-                onClick={() => closeMoreMenu()}
-                aria-current={
-                  pathname.startsWith("/coach") ? "page" : undefined
-                }
-                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <NavigationIcon name="coach" className="h-5 w-5" />
-                {t("coach")}
-              </Link>
+              {canCoach ? (
+                <Link
+                  href="/coach"
+                  onClick={() => closeMoreMenu()}
+                  aria-current={
+                    pathname.startsWith("/coach") ? "page" : undefined
+                  }
+                  className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <NavigationIcon name="coach" className="h-5 w-5" />
+                  {t("coach")}
+                </Link>
+              ) : null}
 
               <Link
                 href="/progress"
@@ -186,6 +194,20 @@ export default function MobileNavigation() {
                 <NavigationIcon name="calculator" className="h-5 w-5" />
                 {t("calculators")}
               </Link>
+
+              {canManageUsers ? (
+                <Link
+                  href="/admin/users"
+                  onClick={() => closeMoreMenu()}
+                  aria-current={
+                    pathname.startsWith("/admin") ? "page" : undefined
+                  }
+                  className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <NavigationIcon name="admin" className="h-5 w-5" />
+                  {t("admin")}
+                </Link>
+              ) : null}
             </div>
 
             <div className="my-4 border-t border-border" />

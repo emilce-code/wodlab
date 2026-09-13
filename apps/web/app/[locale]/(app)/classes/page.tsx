@@ -4,10 +4,14 @@ import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetch } from "@/lib/api";
 import type { BoxSummary } from "@/lib/boxes";
 import ClassHub from "./components/ClassHub";
+import { getCurrentUser } from "@/lib/auth";
 
 export default async function ClassesPage() {
   const t = await getTranslations("boxes");
-  const response = await authenticatedApiFetch("/boxes");
+  const [response, user] = await Promise.all([
+    authenticatedApiFetch("/boxes"),
+    getCurrentUser(),
+  ]);
   const boxes = response?.ok ? ((await response.json()) as BoxSummary[]) : [];
 
   return (
@@ -17,7 +21,10 @@ export default async function ClassesPage() {
         title={t("title")}
         description={t("description")}
       />
-      <ClassHub initialBoxes={boxes} />
+      <ClassHub
+        initialBoxes={boxes}
+        canManageBoxes={user?.permissions.includes("box:manage") ?? false}
+      />
     </div>
   );
 }

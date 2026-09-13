@@ -24,6 +24,7 @@ import { AthleteBalanceInsightsService } from './athlete-balance-insights.servic
 import { AthletePerformanceInsightsService } from './athlete-performance-insights.service';
 import { AthleteTrainingLoadService } from './athlete-training-load.service';
 import { FindAthleteInsightsQueryDto } from './dto/find-athlete-insights-query.dto';
+import { permissionsForRole } from '../auth/permissions';
 
 type AuthenticatedRequest = Request & {
   user: AuthenticatedUser;
@@ -133,6 +134,7 @@ export class UsersController {
       id: user.id,
       email: user.email,
       role: user.role,
+      permissions: permissionsForRole(user.role),
       athleteProfile: user.athleteProfile,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

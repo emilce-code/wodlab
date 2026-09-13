@@ -12,7 +12,9 @@ import type { CoachWorkspace as Workspace } from "@/lib/coach";
 
 import CoachModuleNavigation from "./CoachModuleNavigation";
 
-export default function CoachWorkspace() {
+type Props = { canCoach: boolean };
+
+export default function CoachWorkspace({ canCoach }: Props) {
   const t = useTranslations("coach");
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -216,7 +218,7 @@ export default function CoachWorkspace() {
         </section>
       ) : null}
 
-      {!workspace.coachProfile ? (
+      {!workspace.coachProfile && canCoach ? (
         <Card className="p-6">
           <h2 className="text-xl font-bold">{t("activateTitle")}</h2>
           <p className="mt-2 text-sm text-muted">{t("activateDescription")}</p>
@@ -237,7 +239,7 @@ export default function CoachWorkspace() {
             </Button>
           </form>
         </Card>
-      ) : (
+      ) : workspace.coachProfile && canCoach ? (
         <>
           <section className="grid gap-4 md:grid-cols-3">
             <Card className="flex h-full flex-col p-6">
@@ -356,6 +358,13 @@ export default function CoachWorkspace() {
             </section>
           ) : null}
         </>
+      ) : (
+        <Card className="p-6">
+          <h2 className="text-xl font-bold">{t("accessRequiredTitle")}</h2>
+          <p className="mt-2 text-sm text-muted">
+            {t("accessRequiredDescription")}
+          </p>
+        </Card>
       )}
     </div>
   );

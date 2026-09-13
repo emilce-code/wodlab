@@ -153,6 +153,15 @@ export class BoxesService {
       where: { id: memberId, boxId, role: { not: 'OWNER' } },
     });
     if (!membership) throw new NotFoundException('Box member not found');
+    if (role === 'COACH') {
+      const target = await this.prisma.user.findUnique({
+        where: { id: membership.userId },
+        select: { role: true },
+      });
+      if (!target || !['COACH', 'ADMIN'].includes(target.role)) {
+        throw new ForbiddenException('User must have global coach access');
+      }
+    }
     return this.prisma.boxMembership.update({
       where: { id: memberId },
       data: { role },

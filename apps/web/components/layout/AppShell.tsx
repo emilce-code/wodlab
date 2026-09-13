@@ -3,16 +3,12 @@ import { getTranslations } from "next-intl/server";
 import MobileNavigation from "./MobileNavigation";
 import Sidebar from "./Sidebar";
 import PwaManager from "@/components/pwa/PwaManager";
+import type { CurrentUser } from "@/lib/auth";
 
 type Props = {
   children: ReactNode;
 
-  user: {
-    email: string;
-    athleteProfile?: {
-      displayName?: string | null;
-    } | null;
-  };
+  user: CurrentUser;
 };
 
 export default async function AppShell({ children, user }: Props) {
@@ -38,7 +34,7 @@ export default async function AppShell({ children, user }: Props) {
         </main>
       </div>
 
-      <MobileNavigation />
+      <MobileNavigation user={user} />
     </div>
   );
 }

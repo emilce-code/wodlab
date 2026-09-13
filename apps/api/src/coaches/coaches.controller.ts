@@ -13,6 +13,8 @@ import {
 import { Request } from 'express';
 
 import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CoachesService } from './coaches.service';
 import { AssignWorkoutDto } from './dto/assign-workout.dto';
 import { CreateCoachProfileDto } from './dto/create-coach-profile.dto';
@@ -24,7 +26,7 @@ import { ReviewAssignmentDto } from './dto/review-assignment.dto';
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
 @Controller('coach')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class CoachesController {
   constructor(private readonly coachesService: CoachesService) {}
 
@@ -34,6 +36,7 @@ export class CoachesController {
   }
 
   @Post('profile')
+  @Roles('COACH', 'ADMIN')
   createProfile(
     @Req() request: AuthenticatedRequest,
     @Body() dto: CreateCoachProfileDto,
@@ -42,11 +45,13 @@ export class CoachesController {
   }
 
   @Get('assignment-options')
+  @Roles('COACH', 'ADMIN')
   getAssignmentOptions(@Req() request: AuthenticatedRequest) {
     return this.coachesService.getAssignmentOptions(request.user.userId);
   }
 
   @Post('invitations')
+  @Roles('COACH', 'ADMIN')
   inviteAthlete(
     @Req() request: AuthenticatedRequest,
     @Body() dto: InviteAthleteDto,
@@ -76,6 +81,7 @@ export class CoachesController {
   }
 
   @Get('athletes/:athleteProfileId')
+  @Roles('COACH', 'ADMIN')
   getAthleteOverview(
     @Req() request: AuthenticatedRequest,
     @Param('athleteProfileId') athleteProfileId: string,
@@ -87,6 +93,7 @@ export class CoachesController {
   }
 
   @Post('athletes/:athleteProfileId/assignments')
+  @Roles('COACH', 'ADMIN')
   assignWorkout(
     @Req() request: AuthenticatedRequest,
     @Param('athleteProfileId') athleteProfileId: string,
@@ -100,6 +107,7 @@ export class CoachesController {
   }
 
   @Get('athletes/:athleteProfileId/weekly-plan')
+  @Roles('COACH', 'ADMIN')
   getWeeklyPlan(
     @Req() request: AuthenticatedRequest,
     @Param('athleteProfileId') athleteProfileId: string,
@@ -113,6 +121,7 @@ export class CoachesController {
   }
 
   @Delete('assignments/:id')
+  @Roles('COACH', 'ADMIN')
   removeAssignment(
     @Req() request: AuthenticatedRequest,
     @Param('id') id: string,
@@ -121,6 +130,7 @@ export class CoachesController {
   }
 
   @Patch('assignments/:id/review')
+  @Roles('COACH', 'ADMIN')
   reviewAssignment(
     @Req() request: AuthenticatedRequest,
     @Param('id') id: string,

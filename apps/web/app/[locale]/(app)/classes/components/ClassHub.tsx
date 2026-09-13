@@ -11,7 +11,7 @@ import type {
   WorkoutOption,
 } from "@/lib/boxes";
 
-type Props = { initialBoxes: BoxSummary[] };
+type Props = { initialBoxes: BoxSummary[]; canManageBoxes: boolean };
 
 function requestMessage(data: unknown, fallback: string) {
   if (data && typeof data === "object" && "message" in data) {
@@ -21,7 +21,7 @@ function requestMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-export default function ClassHub({ initialBoxes }: Props) {
+export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
   const [boxes, setBoxes] = useState(initialBoxes);
@@ -263,24 +263,26 @@ export default function ClassHub({ initialBoxes }: Props) {
 
       {showSetup ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          <form
-            onSubmit={submitBox}
-            className="rounded-xl border border-border bg-surface p-4"
-          >
-            <input type="hidden" name="mode" value="join" />
-            <h2 className="font-bold">{t("join.title")}</h2>
-            <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
-            <input
-              name="joinCode"
-              aria-label={t("join.code")}
-              required
-              minLength={6}
-              maxLength={12}
-              placeholder={t("join.code")}
-              className="mt-4 min-h-11 w-full rounded-lg border border-border bg-background px-3 uppercase"
-            />
-            <Button className="mt-3 w-full">{t("join.submit")}</Button>
-          </form>
+          {canManageBoxes ? (
+            <form
+              onSubmit={submitBox}
+              className="rounded-xl border border-border bg-surface p-4"
+            >
+              <input type="hidden" name="mode" value="join" />
+              <h2 className="font-bold">{t("join.title")}</h2>
+              <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
+              <input
+                name="joinCode"
+                aria-label={t("join.code")}
+                required
+                minLength={6}
+                maxLength={12}
+                placeholder={t("join.code")}
+                className="mt-4 min-h-11 w-full rounded-lg border border-border bg-background px-3 uppercase"
+              />
+              <Button className="mt-3 w-full">{t("join.submit")}</Button>
+            </form>
+          ) : null}
           <form
             onSubmit={submitBox}
             className="rounded-xl border border-border bg-surface p-4"

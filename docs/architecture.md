@@ -440,3 +440,19 @@ Results are isolated by workout variation and period, reduced to one best score
 per athlete, and load comparisons are normalized to kilograms. The API exposes
 display names but no athlete identifiers; the Next.js workout detail presents
 the localized, mobile-first ranking and account privacy control.
+
+## Role-based access boundary
+
+Authentication remains in Auth0, while application authorization uses the
+database-backed `UserRole` value loaded on every authenticated API request.
+`USER`, `COACH`, and `ADMIN` form application-wide access levels; contextual
+`BoxMemberRole` values remain separate and apply only inside one box. NestJS
+controllers enforce access through reusable role metadata and a guard. The web
+uses permissions returned by `/me` to tailor navigation and routes, but those UI
+checks never replace API authorization.
+
+Only administrators can change application roles. Every effective role change
+is recorded in `UserRoleChange`, administrators cannot change their own role,
+and the final administrator cannot be demoted. Revoking coach access preserves
+historical profiles, relationships, assignments, and feedback while immediately
+blocking new coach operations.

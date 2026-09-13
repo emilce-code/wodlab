@@ -1,6 +1,9 @@
 import { authenticatedApiFetch } from "./api";
 
 import { auth0 } from "./auth0";
+import { redirect } from "next/navigation";
+
+export type UserRole = "USER" | "COACH" | "ADMIN";
 
 type AthletePreference = {
   id: string;
@@ -13,7 +16,8 @@ type AthletePreference = {
 export type CurrentUser = {
   id: string;
   email: string;
-  role: "USER" | "ADMIN";
+  role: UserRole;
+  permissions: string[];
 
   athleteProfile: {
     id: string;
@@ -32,6 +36,17 @@ export type CurrentUser = {
 
 async function fetchCurrentUser(): Promise<Response | null> {
   return authenticatedApiFetch("/me");
+}
+
+export function hasRole(user: CurrentUser, roles: readonly UserRole[]) {
+  return roles.includes(user.role);
+}
+
+export async function requireRole(locale: string, roles: readonly UserRole[]) {
+  const user = await getCurrentUser();
+  if (!user) redirect(`/${locale}/login`);
+  if (!hasRole(user, roles)) redirect(`/${locale}/dashboard`);
+  return user;
 }
 
 async function provisionCurrentUser() {

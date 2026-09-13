@@ -306,6 +306,15 @@ time period, support time, rounds and reps, repetitions, and normalized loads,
 and show the signed-in athlete's placement. Athletes who do not opt in never
 appear in shared rankings.
 
+### Roles and coach access governance
+
+Every account begins with athlete access. Administrators can grant or revoke
+coach access from a mobile-first user management screen. Coach access unlocks
+coach profiles, athlete management, programming, monitoring, analytics, and box
+management without removing the user's athlete features. Only administrators
+can manage application roles and global catalog permissions. Athletes can still
+respond to coach invitations without receiving coach access themselves.
+
 ## Future features
 
 Possible future capabilities include:

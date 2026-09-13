@@ -18,6 +18,7 @@ import { WorkoutsModule } from './workouts/workouts.module';
 import { WorkoutStrategiesModule } from './workout-strategies/workout-strategies.module';
 import { WorkoutImportsModule } from './workout-imports/workout-imports.module';
 import { LeaderboardsModule } from './leaderboards/leaderboards.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { LeaderboardsModule } from './leaderboards/leaderboards.module';
       envFilePath: '.env',
     }),
     PrismaModule,
+    AdminModule,
     HealthModule,
     AuthModule,
     BoxesModule,
