@@ -1361,6 +1361,10 @@
     "calories": "Calorias",
     "duration": "Duração"
   },
+  "prescriptionCategories": {
+    "men": "Homens",
+    "women": "Mulheres"
+  },
   "movementCategories": {
     "weightlifting": "Levantamento de peso",
     "gymnastics": "Ginástica",

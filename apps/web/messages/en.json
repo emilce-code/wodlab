@@ -1361,6 +1361,10 @@
     "calories": "Calories",
     "duration": "Duration"
   },
+  "prescriptionCategories": {
+    "men": "Men",
+    "women": "Women"
+  },
   "movementCategories": {
     "weightlifting": "Weightlifting",
     "gymnastics": "Gymnastics",

@@ -157,6 +157,7 @@ export default function LogResultForm({
 }: Props) {
   const t = useTranslations("workouts.logResult");
   const measurementT = useTranslations("measurementTypes");
+  const prescriptionCategoryT = useTranslations("prescriptionCategories");
   const resultTypeT = useTranslations("resultTypes");
   const movementBuilderT = useTranslations("workouts.create.movementBuilder");
 
@@ -256,6 +257,14 @@ export default function LogResultForm({
   const localizedResultType = resultTypeT.has(resultTypeKey)
     ? resultTypeT(resultTypeKey)
     : resultType.name;
+
+  function getPrescriptionCategoryName(category: PrescriptionCategory) {
+    const key = category.key.toLowerCase();
+
+    return prescriptionCategoryT.has(key)
+      ? prescriptionCategoryT(key)
+      : category.name;
+  }
 
   const selectedVariant =
     variants.find((variant) => variant.id === workoutVariantId) ?? null;
@@ -822,7 +831,7 @@ export default function LogResultForm({
                         : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
                     ].join(" ")}
                   >
-                    {category.name}
+                    {getPrescriptionCategoryName(category)}
                   </button>
                 );
               })}
