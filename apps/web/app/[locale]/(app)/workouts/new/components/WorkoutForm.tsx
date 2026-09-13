@@ -427,28 +427,37 @@ export default function WorkoutForm({
   function applyImport(result: WorkoutImportResult) {
     const defaultLevel =
       workoutLevels.find((level) => level.key === "RX") ?? workoutLevels[0];
-    const section = result.draft.section;
+    const importedVariants = result.draft.variants.length
+      ? result.draft.variants
+      : [
+          {
+            levelKey: defaultLevel?.key ?? "",
+            name: null,
+            notes: null,
+            section: result.draft.section,
+          },
+        ];
 
     setName(result.draft.name);
     setDescription(result.draft.description ?? "");
     setTypeKey(result.draft.typeKey);
     setIsBenchmark(false);
-    setVariants([
-      {
+    setVariants(
+      importedVariants.map((variant) => ({
         id: crypto.randomUUID(),
-        levelKey: defaultLevel?.key ?? "",
-        name: "",
-        notes: "",
+        levelKey: variant.levelKey,
+        name: variant.name ?? "",
+        notes: variant.notes ?? "",
         sections: [
           {
             id: crypto.randomUUID(),
-            typeKey: section.typeKey,
-            rounds: formValue(section.rounds),
-            durationSeconds: formValue(section.durationSeconds),
-            restSeconds: formValue(section.restSeconds),
-            repScheme: section.repScheme.join("-"),
-            notes: section.notes ?? "",
-            movements: section.movements.map((item) => ({
+            typeKey: variant.section.typeKey,
+            rounds: formValue(variant.section.rounds),
+            durationSeconds: formValue(variant.section.durationSeconds),
+            restSeconds: formValue(variant.section.restSeconds),
+            repScheme: variant.section.repScheme.join("-"),
+            notes: variant.section.notes ?? "",
+            movements: variant.section.movements.map((item) => ({
               id: crypto.randomUUID(),
               movementId: item.movement?.id ?? "",
               movementName: item.movement?.name ?? item.notes ?? "",
@@ -460,12 +469,23 @@ export default function WorkoutForm({
               calories: formValue(item.calories),
               durationSeconds: formValue(item.durationSeconds),
               notes: item.matchStatus === "MATCHED" ? "" : item.source,
-              prescriptions: [],
+              prescriptions: item.prescriptions.map((prescription) => ({
+                categoryKey: prescription.categoryKey,
+                reps: formValue(prescription.reps),
+                weight: formValue(prescription.weight),
+                weightUnit: prescription.weightUnit ?? "",
+                percentage: "",
+                referenceRepMax: "",
+                distance: formValue(prescription.distance),
+                calories: formValue(prescription.calories),
+                durationSeconds: formValue(prescription.durationSeconds),
+                notes: prescription.notes ?? "",
+              })),
             })),
           },
         ],
-      },
-    ]);
+      })),
+    );
     setError(null);
     setFieldErrors({});
     setCurrentStep("details");
