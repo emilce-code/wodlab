@@ -12,6 +12,13 @@ const items = [
 ] as const;
 
 const athleteDetailPath = /^\/coach\/[^/]+$/;
+const coachModulePaths = new Set<string>(items.map((item) => item.href));
+
+function isOverviewActive(pathname: string) {
+  if (pathname === "/coach") return true;
+
+  return athleteDetailPath.test(pathname) && !coachModulePaths.has(pathname);
+}
 
 export default function CoachModuleNavigation() {
   const t = useTranslations("coachNavigation");
@@ -26,8 +33,8 @@ export default function CoachModuleNavigation() {
         {items.map((item) => {
           const active =
             item.href === "/coach"
-              ? pathname === "/coach" || athleteDetailPath.test(pathname)
-              : pathname.startsWith(item.href);
+              ? isOverviewActive(pathname)
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link
@@ -35,7 +42,7 @@ export default function CoachModuleNavigation() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={[
-                "inline-flex min-h-10 items-center rounded-lg px-4 py-2 text-sm font-semibold transition",
+                "inline-flex min-h-11 items-center rounded-lg px-4 py-2 text-sm font-semibold transition",
                 active
                   ? "bg-accent text-accent-foreground shadow-sm"
                   : "text-muted hover:bg-surface-elevated hover:text-foreground",

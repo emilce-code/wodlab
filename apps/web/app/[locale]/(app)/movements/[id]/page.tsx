@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
+import MobileTabs, { MobileTabPanel } from "@/components/ui/MobileTabs";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
@@ -187,256 +188,287 @@ export default async function MovementDetailPage({ params }: Props) {
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
           {currentMovement.name}
         </h1>
-
-        {currentMovement.aliases.length > 0 && (
-          <p className="mt-3 text-sm text-muted">
-            {t("alsoKnownAs")}: {currentMovement.aliases.join(" · ")}
-          </p>
-        )}
-
-        {currentMovement.description ? (
-          <section
-            className="mt-6 max-w-3xl"
-            aria-labelledby="movement-instructions"
-          >
-            <h2
-              id="movement-instructions"
-              className="text-sm font-bold uppercase tracking-[0.14em] text-muted"
-            >
-              {t("instructions")}
-            </h2>
-            <p className="mt-3 whitespace-pre-line text-base leading-7">
-              {currentMovement.description}
-            </p>
-          </section>
-        ) : null}
-
-        {currentMovement.videoUrl ? (
-          <a
-            href={currentMovement.videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-5 inline-flex min-h-11 items-center rounded-lg border border-border px-4 py-2 text-sm font-semibold transition hover:border-accent/50 hover:text-accent"
-          >
-            {t("watchVideo")} ↗
-          </a>
-        ) : null}
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {currentMovement.measurementTypes.map((type) => (
-            <Badge key={type.key}>{getMeasurementName(type)}</Badge>
-          ))}
-        </div>
-
-        {currentMovement.canEdit ? (
-          <MovementEditor
-            movement={currentMovement}
-            categories={categories}
-            measurementTypes={measurementTypes}
-          />
-        ) : null}
       </header>
 
-      <section className="mt-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t("personalRecords.eyebrow")}
-        </p>
-
-        <h2 className="mt-2 text-2xl font-bold">
-          {t("personalRecords.title")}
-        </h2>
-
-        <p className="mt-2 text-sm text-muted">
-          {t("personalRecords.description")}
-        </p>
-
-        {!hasPersonalRecords ? (
-          <Card className="mt-5 p-4 sm:p-6">
-            <p className="font-semibold">{t("personalRecords.emptyTitle")}</p>
-
-            <p className="mt-2 text-sm text-muted">
-              {t("personalRecords.emptyDescription")}
-            </p>
-          </Card>
-        ) : (
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {personalRecords.flatMap((group) => {
-              if (group.measurementType.key === "WEIGHT") {
-                return (group.records ?? [])
-                  .filter((record) => record.result !== null)
-                  .map((record) => {
-                    const result = record.result;
-
-                    if (!result) {
-                      return null;
-                    }
-
-                    return (
-                      <Card key={`WEIGHT-${record.reps}`} className="p-5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                          {record.reps}RM
-                        </p>
-
-                        <p className="mt-3 text-3xl font-black text-accent">
-                          {result.load} {result.weightUnit}
-                        </p>
-
-                        <p className="mt-2 text-sm text-muted">
-                          {formatDate(result.performedAt, locale)}
-                        </p>
-
-                        <div className="mt-4 border-t border-border pt-4">
-                          <MovementResultSource
-                            source={result.source}
-                            locale={locale}
-                            compact
-                          />
-                        </div>
-                      </Card>
-                    );
-                  });
-              }
-
-              if (!group.result) {
-                return [];
-              }
-
-              return [
-                <Card key={group.measurementType.key} className="p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                    {getMeasurementName(group.measurementType)}
-                  </p>
-
-                  <p className="mt-3 text-3xl font-black text-accent">
-                    {formatResult(group.result)}
-                  </p>
-
-                  <p className="mt-2 text-sm text-muted">
-                    {formatDate(group.result.performedAt, locale)}
-                  </p>
-
-                  <div className="mt-4 border-t border-border pt-4">
-                    <MovementResultSource
-                      source={group.result.source}
-                      locale={locale}
-                      compact
-                    />
-                  </div>
-                </Card>,
-              ];
-            })}
-          </div>
-        )}
-      </section>
-
-      <section className="mt-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {t("progress.eyebrow")}
-        </p>
-
-        <h2 className="mt-2 text-2xl font-bold">{t("progress.title")}</h2>
-
-        <p className="mt-2 text-sm text-muted">{t("progress.description")}</p>
-
-        <Card className="mt-5 p-5 sm:p-6">
-          <MovementProgressChart
-            measurementTypes={currentMovement.measurementTypes}
-            results={results}
-          />
-        </Card>
-      </section>
-
-      <section className="mt-12">
-        <LogMovementResultForm
-          movementId={currentMovement.id}
-          measurementTypes={currentMovement.measurementTypes}
-          preferredWeightUnit={preferredWeightUnit}
-        />
-      </section>
-
-      <section className="mt-12">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              {t("history.eyebrow")}
-            </p>
-
-            <h2 className="mt-2 text-2xl font-bold">{t("history.title")}</h2>
-          </div>
-
-          {results.length > 0 && (
+      <MobileTabs
+        ariaLabel={t("tabs.ariaLabel")}
+        defaultTab="overview"
+        tabs={[
+          { id: "overview", label: t("tabs.overview") },
+          { id: "log", label: t("tabs.log") },
+          { id: "progress", label: t("tabs.progress") },
+          {
+            id: "history",
+            label: t("tabs.history"),
+            badge: results.length,
+          },
+        ]}
+      >
+        <MobileTabPanel tabId="overview" className="pt-6">
+          {currentMovement.aliases.length > 0 && (
             <p className="text-sm text-muted">
-              {t("history.resultCount", {
-                count: results.length,
-              })}
+              {t("alsoKnownAs")}: {currentMovement.aliases.join(" · ")}
             </p>
           )}
-        </div>
 
-        {results.length === 0 ? (
-          <Card className="mt-5 p-4 sm:p-6">
-            <p className="font-semibold">{t("history.emptyTitle")}</p>
+          {currentMovement.description ? (
+            <section
+              className="mt-6 max-w-3xl"
+              aria-labelledby="movement-instructions"
+            >
+              <h2
+                id="movement-instructions"
+                className="text-sm font-bold uppercase tracking-[0.14em] text-muted"
+              >
+                {t("instructions")}
+              </h2>
+              <p className="mt-3 whitespace-pre-line text-base leading-7">
+                {currentMovement.description}
+              </p>
+            </section>
+          ) : null}
+
+          {currentMovement.videoUrl ? (
+            <a
+              href={currentMovement.videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex min-h-11 items-center rounded-lg border border-border px-4 py-2 text-sm font-semibold transition hover:border-accent/50 hover:text-accent"
+            >
+              {t("watchVideo")} ↗
+            </a>
+          ) : null}
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {currentMovement.measurementTypes.map((type) => (
+              <Badge key={type.key}>{getMeasurementName(type)}</Badge>
+            ))}
+          </div>
+
+          {currentMovement.canEdit ? (
+            <MovementEditor
+              movement={currentMovement}
+              categories={categories}
+              measurementTypes={measurementTypes}
+            />
+          ) : null}
+        </MobileTabPanel>
+
+        <MobileTabPanel tabId="progress" className="pt-6">
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+              {t("personalRecords.eyebrow")}
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold">
+              {t("personalRecords.title")}
+            </h2>
 
             <p className="mt-2 text-sm text-muted">
-              {t("history.emptyDescription")}
+              {t("personalRecords.description")}
             </p>
-          </Card>
-        ) : (
-          <Card className="mt-5 overflow-hidden">
-            <ProgressiveList
-              initialCount={10}
-              increment={10}
-              className="divide-y divide-border"
-            >
-              {results.map((result) => (
-                <div key={result.id} className="p-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-lg font-bold">
-                          {formatResult(result)}
-                        </p>
 
-                        <Badge>
-                          {getMeasurementName(result.measurementType)}
-                        </Badge>
-                      </div>
+            {!hasPersonalRecords ? (
+              <Card className="mt-5 p-4 sm:p-6">
+                <p className="font-semibold">
+                  {t("personalRecords.emptyTitle")}
+                </p>
 
-                      {result.notes && (
-                        <p className="mt-2 text-sm text-muted">
-                          {result.notes}
-                        </p>
-                      )}
+                <p className="mt-2 text-sm text-muted">
+                  {t("personalRecords.emptyDescription")}
+                </p>
+              </Card>
+            ) : (
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {personalRecords.flatMap((group) => {
+                  if (group.measurementType.key === "WEIGHT") {
+                    return (group.records ?? [])
+                      .filter((record) => record.result !== null)
+                      .map((record) => {
+                        const result = record.result;
 
-                      <div className="mt-3">
-                        <MovementResultSource
-                          source={result.source}
-                          locale={locale}
-                        />
-                      </div>
-                    </div>
+                        if (!result) {
+                          return null;
+                        }
 
-                    <div className="shrink-0 sm:text-right">
-                      <p className="text-sm text-muted">
-                        {formatDate(result.performedAt, locale)}
+                        return (
+                          <Card key={`WEIGHT-${record.reps}`} className="p-5">
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                              {record.reps}RM
+                            </p>
+
+                            <p className="mt-3 text-3xl font-black text-accent">
+                              {result.load} {result.weightUnit}
+                            </p>
+
+                            <p className="mt-2 text-sm text-muted">
+                              {formatDate(result.performedAt, locale)}
+                            </p>
+
+                            <div className="mt-4 border-t border-border pt-4">
+                              <MovementResultSource
+                                source={result.source}
+                                locale={locale}
+                                compact
+                              />
+                            </div>
+                          </Card>
+                        );
+                      });
+                  }
+
+                  if (!group.result) {
+                    return [];
+                  }
+
+                  return [
+                    <Card key={group.measurementType.key} className="p-5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                        {getMeasurementName(group.measurementType)}
                       </p>
 
-                      {result.source.type === "MANUAL" && (
-                        <MovementResultActions
-                          movementId={currentMovement.id}
-                          result={result}
-                          measurementTypes={currentMovement.measurementTypes}
-                          preferredWeightUnit={preferredWeightUnit}
+                      <p className="mt-3 text-3xl font-black text-accent">
+                        {formatResult(group.result)}
+                      </p>
+
+                      <p className="mt-2 text-sm text-muted">
+                        {formatDate(group.result.performedAt, locale)}
+                      </p>
+
+                      <div className="mt-4 border-t border-border pt-4">
+                        <MovementResultSource
+                          source={group.result.source}
+                          locale={locale}
+                          compact
                         />
-                      )}
+                      </div>
+                    </Card>,
+                  ];
+                })}
+              </div>
+            )}
+          </section>
+
+          <section className="mt-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+              {t("progress.eyebrow")}
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold">{t("progress.title")}</h2>
+
+            <p className="mt-2 text-sm text-muted">
+              {t("progress.description")}
+            </p>
+
+            <Card className="mt-5 p-5 sm:p-6">
+              <MovementProgressChart
+                measurementTypes={currentMovement.measurementTypes}
+                results={results}
+              />
+            </Card>
+          </section>
+        </MobileTabPanel>
+
+        <MobileTabPanel tabId="log" className="pt-6">
+          <section>
+            <LogMovementResultForm
+              movementId={currentMovement.id}
+              measurementTypes={currentMovement.measurementTypes}
+              preferredWeightUnit={preferredWeightUnit}
+            />
+          </section>
+        </MobileTabPanel>
+
+        <MobileTabPanel tabId="history" className="pt-6">
+          <section>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  {t("history.eyebrow")}
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold">
+                  {t("history.title")}
+                </h2>
+              </div>
+
+              {results.length > 0 && (
+                <p className="text-sm text-muted">
+                  {t("history.resultCount", {
+                    count: results.length,
+                  })}
+                </p>
+              )}
+            </div>
+
+            {results.length === 0 ? (
+              <Card className="mt-5 p-4 sm:p-6">
+                <p className="font-semibold">{t("history.emptyTitle")}</p>
+
+                <p className="mt-2 text-sm text-muted">
+                  {t("history.emptyDescription")}
+                </p>
+              </Card>
+            ) : (
+              <Card className="mt-5 overflow-hidden">
+                <ProgressiveList
+                  initialCount={10}
+                  increment={10}
+                  className="divide-y divide-border"
+                >
+                  {results.map((result) => (
+                    <div key={result.id} className="p-5">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-lg font-bold">
+                              {formatResult(result)}
+                            </p>
+
+                            <Badge>
+                              {getMeasurementName(result.measurementType)}
+                            </Badge>
+                          </div>
+
+                          {result.notes && (
+                            <p className="mt-2 text-sm text-muted">
+                              {result.notes}
+                            </p>
+                          )}
+
+                          <div className="mt-3">
+                            <MovementResultSource
+                              source={result.source}
+                              locale={locale}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 sm:text-right">
+                          <p className="text-sm text-muted">
+                            {formatDate(result.performedAt, locale)}
+                          </p>
+
+                          {result.source.type === "MANUAL" && (
+                            <MovementResultActions
+                              movementId={currentMovement.id}
+                              result={result}
+                              measurementTypes={
+                                currentMovement.measurementTypes
+                              }
+                              preferredWeightUnit={preferredWeightUnit}
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </ProgressiveList>
-          </Card>
-        )}
-      </section>
+                  ))}
+                </ProgressiveList>
+              </Card>
+            )}
+          </section>
+        </MobileTabPanel>
+      </MobileTabs>
     </div>
   );
 }

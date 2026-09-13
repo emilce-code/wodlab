@@ -834,6 +834,14 @@
       }
     },
     "detail": {
+      "tabs": {
+        "ariaLabel": "Workout sections",
+        "overview": "Overview",
+        "log": "Log result",
+        "progress": "Progress",
+        "more": "More",
+        "moreHint": "Plan this workout, review your pacing strategy, or compare leaderboard results."
+      },
       "backToWorkouts": "Workouts",
       "editWorkout": "Edit workout",
       "benchmark": "Benchmark",
@@ -1018,6 +1026,12 @@
     }
   },
   "progress": {
+    "tabs": {
+      "ariaLabel": "Progress sections",
+      "overview": "Overview",
+      "trainingLoad": "Training load",
+      "results": "Results"
+    },
     "eyebrow": "Progress",
     "title": "See how you're evolving",
     "description": "Track personal bests, repeated attempts, and performance trends across your workouts.",
@@ -1236,6 +1250,13 @@
       "deleteError": "Unable to delete the movement."
     },
     "detail": {
+      "tabs": {
+        "ariaLabel": "Movement sections",
+        "overview": "Overview",
+        "log": "Log result",
+        "progress": "Progress",
+        "history": "History"
+      },
       "backToMovements": "Movements",
       "foundational": "Foundational",
       "alsoKnownAs": "Also known as",
