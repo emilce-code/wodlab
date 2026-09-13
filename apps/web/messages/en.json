@@ -660,9 +660,9 @@
       },
       "importer": {
         "title": "Import workout text",
-        "description": "Paste a workout and turn it into an editable draft.",
+        "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
         "label": "Workout text",
-        "placeholder": "Fran\nFor time\n21-15-9\nThrusters 95 lb\nPull-ups",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nMen: Thrusters 95 lb\nWomen: Thrusters 65 lb\nPull-ups\n\nIntermediate\nMen: Thrusters 75 lb\nWomen: Thrusters 55 lb\nJumping pull-ups\n\nBeginner\nMen: Thrusters 45 lb\nWomen: Thrusters 35 lb\nRing rows",
         "parse": "Preview import",
         "parsing": "Reading workout...",
         "parseError": "Unable to read this workout. Check the text and try again.",
@@ -675,7 +675,10 @@
           "AMBIGUOUS_MOVEMENT": "Line {line}: choose the intended movement",
           "UNKNOWN_MOVEMENT": "Line {line}: movement was not recognized",
           "MULTIPLE_LOADS": "Line {line}: multiple loads need manual review"
-        }
+        },
+        "formatHint": "Use a level heading (RX, Intermediate, or Beginner). Prefix category-specific movements with Men or Women.",
+        "variantsDetected": "{count, plural, =1 {1 variation detected} other {# variations detected}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}"
       },
       "steps": {
         "ariaLabel": "Workout creation progress",
@@ -852,7 +855,11 @@
         "description": "Best score per athlete for this variation.",
         "yourRank": "Your rank",
         "periodLabel": "Leaderboard period",
-        "periods": { "30D": "30 days", "90D": "90 days", "ALL": "All time" },
+        "periods": {
+          "30D": "30 days",
+          "90D": "90 days",
+          "ALL": "All time"
+        },
         "loading": "Loading leaderboard…",
         "error": "The leaderboard is temporarily unavailable.",
         "empty": "No ranked results in this period yet.",
