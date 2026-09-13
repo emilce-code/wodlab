@@ -834,6 +834,14 @@
       }
     },
     "detail": {
+      "tabs": {
+        "ariaLabel": "Seções do treino",
+        "overview": "Resumo",
+        "log": "Registrar",
+        "progress": "Progresso",
+        "more": "Mais",
+        "moreHint": "Planeje este treino, revise a estratégia de ritmo ou compare os resultados do ranking."
+      },
       "backToWorkouts": "Treinos",
       "editWorkout": "Editar treino",
       "benchmark": "Benchmark",
@@ -1018,6 +1026,12 @@
     }
   },
   "progress": {
+    "tabs": {
+      "ariaLabel": "Seções de progresso",
+      "overview": "Resumo",
+      "trainingLoad": "Carga",
+      "results": "Resultados"
+    },
     "eyebrow": "Progresso",
     "title": "Veja como você está evoluindo",
     "description": "Acompanhe suas melhores marcas, tentativas repetidas e tendências de desempenho nos seus treinos.",
@@ -1236,6 +1250,13 @@
       "deleteError": "Não foi possível excluir o movimento."
     },
     "detail": {
+      "tabs": {
+        "ariaLabel": "Seções do movimento",
+        "overview": "Resumo",
+        "log": "Registrar",
+        "progress": "Progresso",
+        "history": "Histórico"
+      },
       "backToMovements": "Movimentos",
       "foundational": "Fundamental",
       "alsoKnownAs": "Também conhecido como",

@@ -5,6 +5,7 @@ import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import Alert from "@/components/ui/Alert";
+import MobileTabs, { MobileTabPanel } from "@/components/ui/MobileTabs";
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetchJson } from "@/lib/api";
 import { formatDate } from "@/lib/date-formatters";
@@ -338,459 +339,490 @@ export default async function ProgressPage() {
         description={t("description")}
       />
 
-      <TrainingLoadDashboard />
-      <AthleteInsightsDashboard />
+      <MobileTabs
+        ariaLabel={t("tabs.ariaLabel")}
+        defaultTab="overview"
+        tabs={[
+          { id: "overview", label: t("tabs.overview") },
+          { id: "load", label: t("tabs.trainingLoad") },
+          {
+            id: "results",
+            label: t("tabs.results"),
+            badge: totalResults,
+          },
+        ]}
+      >
+        <MobileTabPanel tabId="load" className="pt-2">
+          <TrainingLoadDashboard />
+        </MobileTabPanel>
 
-      {(workoutProgressFailed || movementProgressFailed) && (
-        <Alert className="mt-8">
-          {workoutProgressFailed
-            ? t("partial.workouts")
-            : t("partial.movements")}
-        </Alert>
-      )}
+        <MobileTabPanel tabId="overview" className="pt-2">
+          <AthleteInsightsDashboard />
+        </MobileTabPanel>
 
-      {totalResults === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-border px-6 py-14 text-center">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent">
-            +
-          </div>
-
-          <p className="mt-4 font-semibold">{t("empty.title")}</p>
-
-          <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-            {t("empty.description")}
-          </p>
-
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <ButtonLink href="/workouts" className="px-5">
-              {t("empty.browseWorkouts")}
-            </ButtonLink>
-
-            <ButtonLink href="/movements" variant="secondary" className="px-5">
-              {t("empty.browseMovements")}
-            </ButtonLink>
-          </div>
-        </div>
-      ) : (
-        <>
-          <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.workoutResults")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black">
-                {workoutSummary.totalResults}
-              </p>
-            </Card>
-
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.workoutsTracked")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black">
-                {workoutSummary.uniqueWorkouts}
-              </p>
-            </Card>
-
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.movementResults")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black">
-                {movementSummary.totalResults}
-              </p>
-            </Card>
-
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.movementsTracked")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black">
-                {movementSummary.uniqueMovements}
-              </p>
-            </Card>
-
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.personalRecords")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black text-accent">
-                {movementSummary.personalRecords}
-              </p>
-            </Card>
-
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("summary.benchmarksTracked")}
-              </p>
-
-              <p className="mt-3 text-3xl font-black">
-                {workoutSummary.benchmarkWorkouts}
-              </p>
-            </Card>
-          </section>
-
-          {workoutSummary.levelBreakdown.length > 0 && (
-            <section className="mt-5">
-              <Card className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                  {t("summary.levelBreakdown")}
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {workoutSummary.levelBreakdown.map((level) => (
-                    <Badge
-                      key={level.key}
-                      variant={level.key === "RX" ? "accent" : undefined}
-                    >
-                      {level.name}: {level.count}
-                    </Badge>
-                  ))}
-                </div>
-              </Card>
-            </section>
+        <MobileTabPanel tabId="results" className="pt-6">
+          {(workoutProgressFailed || movementProgressFailed) && (
+            <Alert>
+              {workoutProgressFailed
+                ? t("partial.workouts")
+                : t("partial.movements")}
+            </Alert>
           )}
 
-          <section className="mt-12">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                {t("movements.eyebrow")}
+          {totalResults === 0 ? (
+            <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent">
+                +
+              </div>
+
+              <p className="mt-4 font-semibold">{t("empty.title")}</p>
+
+              <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
+                {t("empty.description")}
               </p>
 
-              <h2 className="mt-2 text-2xl font-bold">
-                {t("movements.title")}
-              </h2>
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                <ButtonLink href="/workouts" className="px-5">
+                  {t("empty.browseWorkouts")}
+                </ButtonLink>
 
-              <p className="mt-2 text-sm text-muted">
-                {t("movements.description")}
-              </p>
-            </div>
-
-            {movementTracks.length === 0 ? (
-              <Card className="mt-6 p-6">
-                <p className="font-semibold">{t("movements.emptyTitle")}</p>
-
-                <p className="mt-2 text-sm text-muted">
-                  {t("movements.emptyDescription")}
-                </p>
-
-                <Link
+                <ButtonLink
                   href="/movements"
-                  className="mt-4 inline-flex text-sm font-semibold text-accent hover:underline"
+                  variant="secondary"
+                  className="px-5"
                 >
-                  {t("movements.browse")}
-                </Link>
-              </Card>
-            ) : (
-              <div className="mt-6 space-y-5">
-                {movementTracks.map((track) => (
-                  <Card
-                    key={[
-                      track.movement.id,
-                      track.measurementType.key,
-                      track.reps ?? "none",
-                    ].join(":")}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-5 sm:p-6">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Link
-                              href={`/movements/${track.movement.id}`}
-                              className="text-lg font-bold transition hover:text-accent"
-                            >
-                              {track.movement.name}
-                            </Link>
+                  {t("empty.browseMovements")}
+                </ButtonLink>
+              </div>
+            </div>
+          ) : (
+            <>
+              <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.workoutResults")}
+                  </p>
 
-                            {track.reps !== null && (
-                              <Badge variant="accent">
-                                {track.reps}
-                                RM
-                              </Badge>
-                            )}
-                          </div>
+                  <p className="mt-3 text-3xl font-black">
+                    {workoutSummary.totalResults}
+                  </p>
+                </Card>
 
-                          <p className="mt-1 text-sm text-muted">
-                            {getCategoryName(
-                              track.movement.category.key,
-                              track.movement.category.name,
-                            )}
-                            {" · "}
-                            {getMeasurementName(
-                              track.measurementType.key,
-                              track.measurementType.name,
-                            )}
-                          </p>
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.workoutsTracked")}
+                  </p>
 
-                          <p className="mt-2 text-xs text-muted">
-                            {t("attemptCount", {
-                              count: track.attemptCount,
-                            })}
-                          </p>
-                        </div>
-                      </div>
+                  <p className="mt-3 text-3xl font-black">
+                    {workoutSummary.uniqueWorkouts}
+                  </p>
+                </Card>
 
-                      <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                            {t("firstResult")}
-                          </p>
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.movementResults")}
+                  </p>
 
-                          <p className="mt-2 text-xl font-bold">
-                            {formatMovementResult(track.firstResult)}
-                          </p>
+                  <p className="mt-3 text-3xl font-black">
+                    {movementSummary.totalResults}
+                  </p>
+                </Card>
 
-                          <p className="mt-1 text-xs text-muted">
-                            {formatDate(track.firstResult.performedAt, locale)}
-                          </p>
-                        </div>
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.movementsTracked")}
+                  </p>
 
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                            {t("personalBest")}
-                          </p>
+                  <p className="mt-3 text-3xl font-black">
+                    {movementSummary.uniqueMovements}
+                  </p>
+                </Card>
 
-                          <p className="mt-2 text-xl font-black text-accent">
-                            {formatMovementResult(track.personalBest)}
-                          </p>
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.personalRecords")}
+                  </p>
 
-                          {track.personalBest && (
-                            <p className="mt-1 text-xs text-muted">
-                              {formatDate(
-                                track.personalBest.performedAt,
-                                locale,
-                              )}
-                            </p>
-                          )}
-                        </div>
+                  <p className="mt-3 text-3xl font-black text-accent">
+                    {movementSummary.personalRecords}
+                  </p>
+                </Card>
 
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                            {t("latest")}
-                          </p>
+                <Card className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                    {t("summary.benchmarksTracked")}
+                  </p>
 
-                          <p className="mt-2 text-xl font-bold">
-                            {formatMovementResult(track.latestResult)}
-                          </p>
+                  <p className="mt-3 text-3xl font-black">
+                    {workoutSummary.benchmarkWorkouts}
+                  </p>
+                </Card>
+              </section>
 
-                          <p className="mt-1 text-xs text-muted">
-                            {formatDate(track.latestResult.performedAt, locale)}
-                          </p>
-                        </div>
-                      </div>
+              {workoutSummary.levelBreakdown.length > 0 && (
+                <section className="mt-5">
+                  <Card className="p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                      {t("summary.levelBreakdown")}
+                    </p>
 
-                      <div className="mt-6 border-t border-border pt-6">
-                        <div className="mb-4">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                            {t("trend.title")}
-                          </p>
-
-                          <p className="mt-1 text-sm text-muted">
-                            {t("trend.description")}
-                          </p>
-                        </div>
-
-                        <MovementTrendChart
-                          measurementType={track.measurementType}
-                          reps={track.reps}
-                          history={track.history}
-                        />
-                      </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {workoutSummary.levelBreakdown.map((level) => (
+                        <Badge
+                          key={level.key}
+                          variant={level.key === "RX" ? "accent" : undefined}
+                        >
+                          {level.name}: {level.count}
+                        </Badge>
+                      ))}
                     </div>
                   </Card>
-                ))}
-              </div>
-            )}
-          </section>
+                </section>
+              )}
 
-          {workoutTracks.length > 0 && (
-            <section className="mt-12">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                  {t("workouts.eyebrow")}
-                </p>
+              <section className="mt-12">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                    {t("movements.eyebrow")}
+                  </p>
 
-                <h2 className="mt-2 text-2xl font-bold">
-                  {t("workouts.title")}
-                </h2>
+                  <h2 className="mt-2 text-2xl font-bold">
+                    {t("movements.title")}
+                  </h2>
 
-                <p className="mt-2 text-sm text-muted">
-                  {t("workouts.description")}
-                </p>
-              </div>
+                  <p className="mt-2 text-sm text-muted">
+                    {t("movements.description")}
+                  </p>
+                </div>
 
-              <div className="mt-6 space-y-5">
-                {workoutTracks.map((track) => {
-                  const improvement = getWorkoutImprovement(track);
+                {movementTracks.length === 0 ? (
+                  <Card className="mt-6 p-6">
+                    <p className="font-semibold">{t("movements.emptyTitle")}</p>
 
-                  return (
-                    <Card
-                      key={`${track.workout.id}:${track.level.key}`}
-                      className="overflow-hidden"
+                    <p className="mt-2 text-sm text-muted">
+                      {t("movements.emptyDescription")}
+                    </p>
+
+                    <Link
+                      href="/movements"
+                      className="mt-4 inline-flex text-sm font-semibold text-accent hover:underline"
                     >
-                      <div className="p-5 sm:p-6">
-                        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Link
-                                href={`/workouts/${track.workout.id}`}
-                                className="text-lg font-bold transition hover:text-accent"
-                              >
-                                {track.workout.name}
-                              </Link>
+                      {t("movements.browse")}
+                    </Link>
+                  </Card>
+                ) : (
+                  <div className="mt-6 space-y-5">
+                    {movementTracks.map((track) => (
+                      <Card
+                        key={[
+                          track.movement.id,
+                          track.measurementType.key,
+                          track.reps ?? "none",
+                        ].join(":")}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-5 sm:p-6">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Link
+                                  href={`/movements/${track.movement.id}`}
+                                  className="text-lg font-bold transition hover:text-accent"
+                                >
+                                  {track.movement.name}
+                                </Link>
 
-                              {track.workout.isBenchmark && (
-                                <Badge>{t("benchmark")}</Badge>
-                              )}
-
-                              <Badge
-                                variant={
-                                  track.level.key === "RX"
-                                    ? "accent"
-                                    : undefined
-                                }
-                              >
-                                {track.level.name}
-                              </Badge>
-                            </div>
-
-                            <p className="mt-1 text-sm text-muted">
-                              {getWorkoutTypeName(
-                                track.workout.type.key,
-                                track.workout.type.name,
-                              )}
-                              {" · "}
-                              {getResultTypeName(
-                                track.resultType.key,
-                                track.resultType.name,
-                              )}
-                            </p>
-
-                            <p className="mt-2 text-xs text-muted">
-                              {t("attemptCount", {
-                                count: track.attemptCount,
-                              })}
-                            </p>
-                          </div>
-
-                          {improvement && (
-                            <div className="sm:text-right">
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                                {t("improvement.label")}
-                              </p>
-
-                              <p
-                                className={[
-                                  "mt-1 text-lg font-black",
-                                  improvement.improved ? "text-accent" : "",
-                                ].join(" ")}
-                              >
-                                {improvement.label}
-                              </p>
-
-                              {improvement.percentage !== null &&
-                                improvement.percentage > 0 && (
-                                  <p className="mt-0.5 text-xs text-muted">
-                                    {improvement.percentage.toLocaleString(
-                                      locale,
-                                      {
-                                        minimumFractionDigits: 1,
-                                        maximumFractionDigits: 1,
-                                      },
-                                    )}
-                                    %
-                                  </p>
+                                {track.reps !== null && (
+                                  <Badge variant="accent">
+                                    {track.reps}
+                                    RM
+                                  </Badge>
                                 )}
+                              </div>
+
+                              <p className="mt-1 text-sm text-muted">
+                                {getCategoryName(
+                                  track.movement.category.key,
+                                  track.movement.category.name,
+                                )}
+                                {" · "}
+                                {getMeasurementName(
+                                  track.measurementType.key,
+                                  track.measurementType.name,
+                                )}
+                              </p>
+
+                              <p className="mt-2 text-xs text-muted">
+                                {t("attemptCount", {
+                                  count: track.attemptCount,
+                                })}
+                              </p>
                             </div>
-                          )}
-                        </div>
-
-                        <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                              {t("firstResult")}
-                            </p>
-
-                            <p className="mt-2 text-xl font-bold">
-                              {formatWorkoutResult(track.firstResult)}
-                            </p>
-
-                            <p className="mt-1 text-xs text-muted">
-                              {formatDate(
-                                track.firstResult.performedAt,
-                                locale,
-                              )}
-                            </p>
                           </div>
 
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                              {t("personalBest")}
-                            </p>
+                          <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t("firstResult")}
+                              </p>
 
-                            <p className="mt-2 text-xl font-black text-accent">
-                              {formatWorkoutResult(track.personalBest)}
-                            </p>
+                              <p className="mt-2 text-xl font-bold">
+                                {formatMovementResult(track.firstResult)}
+                              </p>
 
-                            {track.personalBest && (
                               <p className="mt-1 text-xs text-muted">
                                 {formatDate(
-                                  track.personalBest.performedAt,
+                                  track.firstResult.performedAt,
                                   locale,
                                 )}
                               </p>
-                            )}
-                          </div>
+                            </div>
 
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                              {t("latest")}
-                            </p>
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t("personalBest")}
+                              </p>
 
-                            <p className="mt-2 text-xl font-bold">
-                              {formatWorkoutResult(track.latestResult)}
-                            </p>
+                              <p className="mt-2 text-xl font-black text-accent">
+                                {formatMovementResult(track.personalBest)}
+                              </p>
 
-                            <p className="mt-1 text-xs text-muted">
-                              {formatDate(
-                                track.latestResult.performedAt,
-                                locale,
+                              {track.personalBest && (
+                                <p className="mt-1 text-xs text-muted">
+                                  {formatDate(
+                                    track.personalBest.performedAt,
+                                    locale,
+                                  )}
+                                </p>
                               )}
-                            </p>
+                            </div>
+
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                {t("latest")}
+                              </p>
+
+                              <p className="mt-2 text-xl font-bold">
+                                {formatMovementResult(track.latestResult)}
+                              </p>
+
+                              <p className="mt-1 text-xs text-muted">
+                                {formatDate(
+                                  track.latestResult.performedAt,
+                                  locale,
+                                )}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-6 border-t border-border pt-6">
+                            <div className="mb-4">
+                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                                {t("trend.title")}
+                              </p>
+
+                              <p className="mt-1 text-sm text-muted">
+                                {t("trend.description")}
+                              </p>
+                            </div>
+
+                            <MovementTrendChart
+                              measurementType={track.measurementType}
+                              reps={track.reps}
+                              history={track.history}
+                            />
                           </div>
                         </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </section>
 
-                        <div className="mt-6 border-t border-border pt-6">
-                          <div className="mb-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                              {t("trend.title")}
-                            </p>
+              {workoutTracks.length > 0 && (
+                <section className="mt-12">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                      {t("workouts.eyebrow")}
+                    </p>
 
-                            <p className="mt-1 text-sm text-muted">
-                              {t("trend.description")}
-                            </p>
+                    <h2 className="mt-2 text-2xl font-bold">
+                      {t("workouts.title")}
+                    </h2>
+
+                    <p className="mt-2 text-sm text-muted">
+                      {t("workouts.description")}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 space-y-5">
+                    {workoutTracks.map((track) => {
+                      const improvement = getWorkoutImprovement(track);
+
+                      return (
+                        <Card
+                          key={`${track.workout.id}:${track.level.key}`}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-5 sm:p-6">
+                            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <Link
+                                    href={`/workouts/${track.workout.id}`}
+                                    className="text-lg font-bold transition hover:text-accent"
+                                  >
+                                    {track.workout.name}
+                                  </Link>
+
+                                  {track.workout.isBenchmark && (
+                                    <Badge>{t("benchmark")}</Badge>
+                                  )}
+
+                                  <Badge
+                                    variant={
+                                      track.level.key === "RX"
+                                        ? "accent"
+                                        : undefined
+                                    }
+                                  >
+                                    {track.level.name}
+                                  </Badge>
+                                </div>
+
+                                <p className="mt-1 text-sm text-muted">
+                                  {getWorkoutTypeName(
+                                    track.workout.type.key,
+                                    track.workout.type.name,
+                                  )}
+                                  {" · "}
+                                  {getResultTypeName(
+                                    track.resultType.key,
+                                    track.resultType.name,
+                                  )}
+                                </p>
+
+                                <p className="mt-2 text-xs text-muted">
+                                  {t("attemptCount", {
+                                    count: track.attemptCount,
+                                  })}
+                                </p>
+                              </div>
+
+                              {improvement && (
+                                <div className="sm:text-right">
+                                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                                    {t("improvement.label")}
+                                  </p>
+
+                                  <p
+                                    className={[
+                                      "mt-1 text-lg font-black",
+                                      improvement.improved ? "text-accent" : "",
+                                    ].join(" ")}
+                                  >
+                                    {improvement.label}
+                                  </p>
+
+                                  {improvement.percentage !== null &&
+                                    improvement.percentage > 0 && (
+                                      <p className="mt-0.5 text-xs text-muted">
+                                        {improvement.percentage.toLocaleString(
+                                          locale,
+                                          {
+                                            minimumFractionDigits: 1,
+                                            maximumFractionDigits: 1,
+                                          },
+                                        )}
+                                        %
+                                      </p>
+                                    )}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t("firstResult")}
+                                </p>
+
+                                <p className="mt-2 text-xl font-bold">
+                                  {formatWorkoutResult(track.firstResult)}
+                                </p>
+
+                                <p className="mt-1 text-xs text-muted">
+                                  {formatDate(
+                                    track.firstResult.performedAt,
+                                    locale,
+                                  )}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t("personalBest")}
+                                </p>
+
+                                <p className="mt-2 text-xl font-black text-accent">
+                                  {formatWorkoutResult(track.personalBest)}
+                                </p>
+
+                                {track.personalBest && (
+                                  <p className="mt-1 text-xs text-muted">
+                                    {formatDate(
+                                      track.personalBest.performedAt,
+                                      locale,
+                                    )}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                                  {t("latest")}
+                                </p>
+
+                                <p className="mt-2 text-xl font-bold">
+                                  {formatWorkoutResult(track.latestResult)}
+                                </p>
+
+                                <p className="mt-1 text-xs text-muted">
+                                  {formatDate(
+                                    track.latestResult.performedAt,
+                                    locale,
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-6 border-t border-border pt-6">
+                              <div className="mb-4">
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                                  {t("trend.title")}
+                                </p>
+
+                                <p className="mt-1 text-sm text-muted">
+                                  {t("trend.description")}
+                                </p>
+                              </div>
+
+                              <WorkoutTrendChart
+                                resultType={track.resultType}
+                                history={track.history}
+                              />
+                            </div>
                           </div>
-
-                          <WorkoutTrendChart
-                            resultType={track.resultType}
-                            history={track.history}
-                          />
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </section>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+            </>
           )}
-        </>
-      )}
+        </MobileTabPanel>
+      </MobileTabs>
     </div>
   );
 }
