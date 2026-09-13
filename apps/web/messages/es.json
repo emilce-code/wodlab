@@ -662,7 +662,7 @@
         "title": "Importar texto del entrenamiento",
         "description": "Pega un entrenamiento con niveles y prescripciones por categoría para crear un borrador editable.",
         "label": "Texto del entrenamiento",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHombres: Thrusters 95 lb\nMujeres: Thrusters 65 lb\nPull-ups\n\nIntermedio\nH-Term Finestombres: Thrusters 75 lb\nMujeres: Thrusters 55 lb\nJumping pull-ups\n\nPrincipiante\nHombres: Thrusters 45 lb\nMujeres: Thrusters 35 lb\nRing rows",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHombres: Thrusters 95 lb\nMujeres: Thrusters 65 lb\nPull-ups\n\nIntermedio\nHombres: Thrusters 75 lb\nMujeres: Thrusters 55 lb\nJumping pull-ups\n\nPrincipiante\nHombres: Thrusters 45 lb\nMujeres: Thrusters 35 lb\nRing rows",
         "parse": "Vista previa",
         "parsing": "Leyendo entrenamiento...",
         "parseError": "No se pudo leer el entrenamiento. Revisa el texto e inténtalo de nuevo.",
