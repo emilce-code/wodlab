@@ -70,6 +70,9 @@
     "accountMenu": "Abrir menu da conta",
     "closeAccountMenu": "Fechar menu da conta"
   },
+  "boxContext": {
+    "label": "Box ativo"
+  },
   "adminUsers": {
     "eyebrow": "Administração",
     "title": "Acesso de usuários",
@@ -137,6 +140,14 @@
       "name": "Nome do box",
       "boxDescription": "Descrição curta (opcional)",
       "submit": "Criar box"
+    },
+    "edit": {
+      "open": "Editar box",
+      "cancel": "Cancelar edição",
+      "title": "Informações do box",
+      "timezone": "Fuso horário",
+      "submit": "Salvar box",
+      "saving": "Salvando..."
     },
     "classForm": {
       "open": "Agendar aula",

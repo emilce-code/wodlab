@@ -1,0 +1,11 @@
+-- DropIndex
+DROP INDEX "ScheduledWorkout_athleteProfileId_workoutVariantId_schedule_key";
+
+-- RenameIndex
+ALTER INDEX "CoachAthleteRelationship_boxId_coachProfileId_athleteProfileId_" RENAME TO "CoachAthleteRelationship_boxId_coachProfileId_athleteProfil_key";
+
+-- RenameIndex
+ALTER INDEX "ScheduledWorkout_boxId_athleteProfileId_status_scheduledDate_id" RENAME TO "ScheduledWorkout_boxId_athleteProfileId_status_scheduledDat_idx";
+
+-- RenameIndex
+ALTER INDEX "ScheduledWorkout_boxId_athleteProfileId_workoutVariantId_schedu" RENAME TO "ScheduledWorkout_boxId_athleteProfileId_workoutVariantId_sc_key";

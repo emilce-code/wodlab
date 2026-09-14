@@ -36,38 +36,45 @@ export class CoachesService {
       include: {
         coachProfile: true,
         athleteProfile: { select: { id: true } },
+        activeBox: { select: { id: true, name: true } },
       },
     });
 
     if (!user) throw new NotFoundException('User not found');
 
-    const athleteRelationships = user.athleteProfile
-      ? await this.prisma.coachAthleteRelationship.findMany({
-          where: {
-            athleteProfileId: user.athleteProfile.id,
-            status: {
-              in: [CoachAthleteStatus.PENDING, CoachAthleteStatus.ACTIVE],
+    const boxId = user.activeBox?.id;
+    const athleteRelationships =
+      user.athleteProfile && boxId
+        ? await this.prisma.coachAthleteRelationship.findMany({
+            where: {
+              athleteProfileId: user.athleteProfile.id,
+              boxId,
+              status: {
+                in: [CoachAthleteStatus.PENDING, CoachAthleteStatus.ACTIVE],
+              },
             },
-          },
-          include: relationshipInclude,
-          orderBy: { createdAt: 'desc' },
-        })
-      : [];
+            include: relationshipInclude,
+            orderBy: { createdAt: 'desc' },
+          })
+        : [];
 
-    const relationships = user.coachProfile
-      ? await this.prisma.coachAthleteRelationship.findMany({
-          where: {
-            coachProfileId: user.coachProfile.id,
-            status: {
-              in: [CoachAthleteStatus.PENDING, CoachAthleteStatus.ACTIVE],
+    const relationships =
+      user.coachProfile && boxId
+        ? await this.prisma.coachAthleteRelationship.findMany({
+            where: {
+              coachProfileId: user.coachProfile.id,
+              boxId,
+              status: {
+                in: [CoachAthleteStatus.PENDING, CoachAthleteStatus.ACTIVE],
+              },
             },
-          },
-          include: relationshipInclude,
-          orderBy: { createdAt: 'desc' },
-        })
-      : [];
+            include: relationshipInclude,
+            orderBy: { createdAt: 'desc' },
+          })
+        : [];
 
     return {
+      activeBox: user.activeBox,
       coachProfile: user.coachProfile,
       receivedInvitations: athleteRelationships.filter(
         (relationship) => relationship.status === CoachAthleteStatus.PENDING,
@@ -103,7 +110,7 @@ export class CoachesService {
   }
 
   async getAssignmentOptions(userId: string) {
-    await this.getCoach(userId);
+    await this.getCoachContext(userId);
     const [workouts, prescriptionCategories] = await Promise.all([
       this.prisma.workout.findMany({
         where: { isActive: true },
@@ -131,7 +138,7 @@ export class CoachesService {
   }
 
   async inviteAthlete(userId: string, email: string) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const athlete = await this.prisma.athleteProfile.findFirst({
       where: { user: { email: { equals: email.trim(), mode: 'insensitive' } } },
       include: { user: { select: { email: true } } },
@@ -142,9 +149,17 @@ export class CoachesService {
       throw new BadRequestException('You cannot invite yourself');
     }
 
+    const athleteMembership = await this.prisma.boxMembership.findUnique({
+      where: { boxId_userId: { boxId, userId: athlete.userId } },
+    });
+    if (!athleteMembership) {
+      throw new ForbiddenException('Athlete must belong to the active box');
+    }
+
     const existing = await this.prisma.coachAthleteRelationship.findUnique({
       where: {
-        coachProfileId_athleteProfileId: {
+        boxId_coachProfileId_athleteProfileId: {
+          boxId,
           coachProfileId: coach.id,
           athleteProfileId: athlete.id,
         },
@@ -157,12 +172,14 @@ export class CoachesService {
 
     return this.prisma.coachAthleteRelationship.upsert({
       where: {
-        coachProfileId_athleteProfileId: {
+        boxId_coachProfileId_athleteProfileId: {
+          boxId,
           coachProfileId: coach.id,
           athleteProfileId: athlete.id,
         },
       },
       create: {
+        boxId,
         coachProfileId: coach.id,
         athleteProfileId: athlete.id,
       },
@@ -177,10 +194,12 @@ export class CoachesService {
     response: 'ACCEPT' | 'DECLINE',
   ) {
     const athlete = await this.getAthlete(userId);
+    const boxId = await this.getActiveBoxId(userId);
     const relationship = await this.prisma.coachAthleteRelationship.findFirst({
       where: {
         id: relationshipId,
         athleteProfileId: athlete.id,
+        boxId,
         status: CoachAthleteStatus.PENDING,
       },
     });
@@ -200,6 +219,7 @@ export class CoachesService {
   }
 
   async archiveRelationship(userId: string, relationshipId: string) {
+    const boxId = await this.getActiveBoxId(userId);
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -213,6 +233,7 @@ export class CoachesService {
     const relationship = await this.prisma.coachAthleteRelationship.findFirst({
       where: {
         id: relationshipId,
+        boxId,
         OR: [
           ...(user.coachProfile
             ? [{ coachProfileId: user.coachProfile.id }]
@@ -232,7 +253,10 @@ export class CoachesService {
   }
 
   async getAthleteOverview(userId: string, athleteProfileId: string) {
-    await this.requireActiveRelationship(userId, athleteProfileId);
+    const { boxId } = await this.requireActiveRelationship(
+      userId,
+      athleteProfileId,
+    );
     const athlete = await this.prisma.athleteProfile.findUnique({
       where: { id: athleteProfileId },
       select: {
@@ -259,6 +283,7 @@ export class CoachesService {
           },
         },
         scheduledWorkouts: {
+          where: { boxId },
           take: 30,
           orderBy: { scheduledDate: 'asc' },
           include: {
@@ -280,7 +305,7 @@ export class CoachesService {
     athleteProfileId: string,
     dto: AssignWorkoutDto,
   ) {
-    const coach = await this.requireActiveRelationship(
+    const { coach, boxId } = await this.requireActiveRelationship(
       userId,
       athleteProfileId,
     );
@@ -304,6 +329,7 @@ export class CoachesService {
     try {
       return await this.prisma.scheduledWorkout.create({
         data: {
+          boxId,
           athleteProfileId,
           workoutId: dto.workoutId,
           workoutVariantId: dto.workoutVariantId,
@@ -331,7 +357,7 @@ export class CoachesService {
     athleteProfileId: string,
     weekStartValue: string,
   ) {
-    const coach = await this.requireActiveRelationship(
+    const { coach, boxId } = await this.requireActiveRelationship(
       userId,
       athleteProfileId,
     );
@@ -342,6 +368,7 @@ export class CoachesService {
     const assignments = await this.prisma.scheduledWorkout.findMany({
       where: {
         athleteProfileId,
+        boxId,
         scheduledDate: { gte: weekStart, lt: weekEnd },
       },
       orderBy: [{ scheduledDate: 'asc' }, { createdAt: 'asc' }],
@@ -383,10 +410,11 @@ export class CoachesService {
   }
 
   async removeAssignment(userId: string, scheduledWorkoutId: string) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const assignment = await this.prisma.scheduledWorkout.findFirst({
       where: {
         id: scheduledWorkoutId,
+        boxId,
         assignedByCoachProfileId: coach.id,
         status: 'PLANNED',
         workoutResultId: null,
@@ -394,6 +422,7 @@ export class CoachesService {
           coachRelationships: {
             some: {
               coachProfileId: coach.id,
+              boxId,
               status: CoachAthleteStatus.ACTIVE,
             },
           },
@@ -415,10 +444,11 @@ export class CoachesService {
     scheduledWorkoutId: string,
     dto: ReviewAssignmentDto,
   ) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const assignment = await this.prisma.scheduledWorkout.findFirst({
       where: {
         id: scheduledWorkoutId,
+        boxId,
         assignedByCoachProfileId: coach.id,
         status: 'COMPLETED',
       },
@@ -435,12 +465,13 @@ export class CoachesService {
     });
   }
 
-  private async getCoach(userId: string) {
+  private async getCoachContext(userId: string) {
     const coach = await this.prisma.coachProfile.findUnique({
       where: { userId },
     });
     if (!coach) throw new ForbiddenException('Coach profile required');
-    return coach;
+    const boxId = await this.getActiveBoxId(userId, ['OWNER', 'COACH']);
+    return { coach, boxId };
   }
 
   private async getAthlete(userId: string) {
@@ -455,17 +486,40 @@ export class CoachesService {
     userId: string,
     athleteProfileId: string,
   ) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const relationship = await this.prisma.coachAthleteRelationship.findFirst({
       where: {
         coachProfileId: coach.id,
+        boxId,
         athleteProfileId,
         status: CoachAthleteStatus.ACTIVE,
       },
     });
     if (!relationship)
       throw new ForbiddenException('Active coach relationship required');
-    return coach;
+    return { coach, boxId };
+  }
+
+  private async getActiveBoxId(
+    userId: string,
+    roles?: Array<'OWNER' | 'COACH' | 'ATHLETE'>,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { activeBoxId: true },
+    });
+    if (!user?.activeBoxId) {
+      throw new ForbiddenException('Select an active box to continue');
+    }
+    const membership = await this.prisma.boxMembership.findUnique({
+      where: {
+        boxId_userId: { boxId: user.activeBoxId, userId },
+      },
+    });
+    if (!membership || (roles && !roles.includes(membership.role))) {
+      throw new ForbiddenException('Active box membership required');
+    }
+    return user.activeBoxId;
   }
 
   private parseDate(value: string) {

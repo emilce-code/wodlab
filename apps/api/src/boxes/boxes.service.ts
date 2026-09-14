@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
+import { UpdateBoxDto } from './dto/update-box.dto';
 
 const activeBookingStatuses: Array<'BOOKED' | 'ATTENDED'> = [
   'BOOKED',
@@ -48,27 +49,37 @@ export class BoxesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(userId: string) {
-    const memberships = await this.prisma.boxMembership.findMany({
-      where: { userId },
-      include: {
-        box: {
-          include: {
-            _count: { select: { memberships: true } },
+    const [user, memberships] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { activeBoxId: true },
+      }),
+      this.prisma.boxMembership.findMany({
+        where: { userId },
+        include: {
+          box: {
+            include: {
+              _count: { select: { memberships: true } },
+            },
           },
         },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-    return memberships.map(({ box, role }) => ({ ...box, role }));
+        orderBy: { createdAt: 'asc' },
+      }),
+    ]);
+    return memberships.map(({ box, role }) => ({
+      ...box,
+      role,
+      isActive: box.id === user?.activeBoxId,
+    }));
   }
 
   async create(userId: string, dto: CreateBoxDto) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { coachProfile: { select: { id: true } } },
+      select: { role: true },
     });
-    if (!user?.coachProfile) {
-      throw new ForbiddenException('Coach profile required to create a box');
+    if (user?.role !== 'ADMIN') {
+      throw new ForbiddenException('Administrator access required');
     }
     const name = dto.name.trim();
     if (!name) throw new BadRequestException('Box name is required');
@@ -76,14 +87,57 @@ export class BoxesService {
     while (await this.prisma.box.findUnique({ where: { joinCode } })) {
       joinCode = randomBytes(4).toString('hex').toUpperCase();
     }
-    return this.prisma.box.create({
+    return this.prisma.$transaction(async (transaction) => {
+      const box = await transaction.box.create({
+        data: {
+          name,
+          description: dto.description?.trim() || null,
+          timezone: dto.timezone?.trim() || 'UTC',
+          joinCode,
+          ownerUserId: userId,
+          memberships: { create: { userId, role: 'OWNER' } },
+        },
+      });
+      await transaction.user.update({
+        where: { id: userId },
+        data: { activeBoxId: box.id },
+      });
+      return box;
+    });
+  }
+
+  async update(userId: string, boxId: string, dto: UpdateBoxDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    if (user.role !== 'ADMIN') {
+      await this.requireOwner(userId, boxId);
+    } else {
+      const box = await this.prisma.box.findUnique({
+        where: { id: boxId },
+        select: { id: true },
+      });
+      if (!box) throw new NotFoundException('Box not found');
+    }
+
+    const name = dto.name?.trim();
+    if (dto.name !== undefined && !name) {
+      throw new BadRequestException('Box name is required');
+    }
+
+    return this.prisma.box.update({
+      where: { id: boxId },
       data: {
-        name,
-        description: dto.description?.trim() || null,
-        timezone: dto.timezone?.trim() || 'UTC',
-        joinCode,
-        ownerUserId: userId,
-        memberships: { create: { userId, role: 'OWNER' } },
+        ...(dto.name !== undefined ? { name } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description.trim() || null }
+          : {}),
+        ...(dto.timezone !== undefined
+          ? { timezone: dto.timezone.trim() || 'UTC' }
+          : {}),
       },
     });
   }
@@ -97,10 +151,29 @@ export class BoxesService {
       where: { boxId_userId: { boxId: box.id, userId } },
     });
     if (existing) throw new ConflictException('You already belong to this box');
-    await this.prisma.boxMembership.create({
-      data: { boxId: box.id, userId, role: 'ATHLETE' },
-    });
+    await this.prisma.$transaction([
+      this.prisma.boxMembership.create({
+        data: { boxId: box.id, userId, role: 'ATHLETE' },
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { activeBoxId: box.id },
+      }),
+    ]);
     return box;
+  }
+
+  async setActiveBox(userId: string, boxId: string) {
+    const membership = await this.requireMember(userId, boxId);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { activeBoxId: boxId },
+    });
+    return {
+      boxId,
+      role: membership.role,
+      active: true,
+    };
   }
 
   async options(userId: string, boxId: string) {

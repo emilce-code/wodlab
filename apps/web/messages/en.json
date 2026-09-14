@@ -70,6 +70,9 @@
     "accountMenu": "Open account menu",
     "closeAccountMenu": "Close account menu"
   },
+  "boxContext": {
+    "label": "Active box"
+  },
   "adminUsers": {
     "eyebrow": "Administration",
     "title": "User access",
@@ -137,6 +140,14 @@
       "name": "Box name",
       "boxDescription": "Short description (optional)",
       "submit": "Create box"
+    },
+    "edit": {
+      "open": "Edit box",
+      "cancel": "Cancel editing",
+      "title": "Box information",
+      "timezone": "Time zone",
+      "submit": "Save box",
+      "saving": "Saving..."
     },
     "classForm": {
       "open": "Schedule class",

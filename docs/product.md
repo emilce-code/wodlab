@@ -324,6 +324,21 @@ from templates, secondary creation forms remain collapsed until requested, and
 monitoring feedback opens only for the selected assignment. Analytics and
 monitoring filters collapse into compact summaries after they are applied.
 
+### Multi-tenant Box isolation
+
+Users who belong to multiple Boxes choose one active Box from a compact,
+mobile-friendly selector. Coach relationships, athlete groups, program
+templates, coach assignments, monitoring, and analytics are isolated to that
+Box. Switching Boxes reloads the current experience so data from the previous
+tenant cannot remain visible. Personal athlete history remains owned by the
+athlete and can follow them between Boxes.
+
+Box creation is an application administration responsibility. The
+administrator who creates a Box becomes its first owner. After creation, Box
+information can be updated only by an application administrator or an owner of
+that specific Box; coaches and athletes can continue using their operational
+features without receiving organization-management access.
+
 ## Future features
 
 Possible future capabilities include:

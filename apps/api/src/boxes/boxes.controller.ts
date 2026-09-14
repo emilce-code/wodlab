@@ -20,7 +20,9 @@ import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
 import { JoinBoxDto } from './dto/join-box.dto';
+import { SetActiveBoxDto } from './dto/set-active-box.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { UpdateBoxDto } from './dto/update-box.dto';
 import { UpdateBoxMemberDto } from './dto/update-box-member.dto';
 
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
@@ -36,7 +38,7 @@ export class BoxesController {
   }
 
   @Post()
-  @Roles('COACH', 'ADMIN')
+  @Roles('ADMIN')
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateBoxDto) {
     return this.boxes.create(request.user.userId, dto);
   }
@@ -44,6 +46,23 @@ export class BoxesController {
   @Post('join')
   join(@Req() request: AuthenticatedRequest, @Body() dto: JoinBoxDto) {
     return this.boxes.join(request.user.userId, dto.joinCode);
+  }
+
+  @Patch('active')
+  setActiveBox(
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: SetActiveBoxDto,
+  ) {
+    return this.boxes.setActiveBox(request.user.userId, dto.boxId);
+  }
+
+  @Patch(':boxId')
+  update(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Body() dto: UpdateBoxDto,
+  ) {
+    return this.boxes.update(request.user.userId, boxId, dto);
   }
 
   @Get(':boxId/options')

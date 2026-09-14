@@ -26,6 +26,7 @@ function firstCall<T>(mock: jest.Mock): T {
 describe('CoachesService', () => {
   const prisma = {
     user: delegate(),
+    boxMembership: delegate(),
     athleteProfile: delegate(),
     coachProfile: delegate(),
     coachAthleteRelationship: delegate(),
@@ -35,7 +36,15 @@ describe('CoachesService', () => {
   };
   const service = new CoachesService(prisma as never);
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma.user.findUnique.mockResolvedValue({ activeBoxId: 'box-1' });
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'user-1',
+      role: 'COACH',
+    });
+  });
 
   it('creates a coach profile for an athlete user', async () => {
     prisma.coachProfile.upsert.mockResolvedValue({

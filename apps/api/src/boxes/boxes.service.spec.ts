@@ -11,6 +11,8 @@ import { BoxesService } from './boxes.service';
 describe('BoxesService', () => {
   let service: BoxesService;
   const transaction = {
+    box: { create: jest.fn() },
+    user: { update: jest.fn() },
     classSession: { findFirst: jest.fn() },
     classBooking: {
       count: jest.fn(),
@@ -19,8 +21,8 @@ describe('BoxesService', () => {
     },
   };
   const prisma = {
-    user: { findUnique: jest.fn() },
-    box: { findUnique: jest.fn(), create: jest.fn() },
+    user: { findUnique: jest.fn(), update: jest.fn() },
+    box: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
     boxMembership: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -45,7 +47,8 @@ describe('BoxesService', () => {
     }).compile();
     service = module.get(BoxesService);
     prisma.user.findUnique.mockResolvedValue({
-      coachProfile: { id: 'coach-1' },
+      role: 'ADMIN',
+      activeBoxId: 'box-1',
     });
     prisma.boxMembership.findUnique.mockResolvedValue({
       boxId: 'box-1',
@@ -61,15 +64,15 @@ describe('BoxesService', () => {
       { role: 'ATHLETE', box: { id: 'box-1', name: 'Downtown' } },
     ]);
     await expect(service.findAll('user-1')).resolves.toEqual([
-      { id: 'box-1', name: 'Downtown', role: 'ATHLETE' },
+      { id: 'box-1', name: 'Downtown', role: 'ATHLETE', isActive: true },
     ]);
   });
 
   it('creates a box and owner membership', async () => {
     prisma.box.findUnique.mockResolvedValue(null);
-    prisma.box.create.mockResolvedValue({ id: 'box-1' });
+    transaction.box.create.mockResolvedValue({ id: 'box-1' });
     await service.create('user-1', { name: 'Downtown' });
-    expect(prisma.box.create).toHaveBeenCalledWith(
+    expect(transaction.box.create).toHaveBeenCalledWith(
       expect.objectContaining({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
@@ -79,6 +82,62 @@ describe('BoxesService', () => {
         }),
       }),
     );
+  });
+
+  it('prevents non-administrators from creating a box', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+
+    await expect(
+      service.create('user-1', { name: 'Downtown' }),
+    ).rejects.toThrow('Administrator access required');
+  });
+
+  it('allows a box owner to update box information', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'user-1',
+      role: 'OWNER',
+    });
+    prisma.box.update.mockResolvedValue({ id: 'box-1', name: 'North Box' });
+
+    await service.update('user-1', 'box-1', {
+      name: ' North Box ',
+      description: ' Strength and conditioning ',
+    });
+
+    expect(prisma.box.update).toHaveBeenCalledWith({
+      where: { id: 'box-1' },
+      data: {
+        name: 'North Box',
+        description: 'Strength and conditioning',
+      },
+    });
+  });
+
+  it('allows an administrator to update any existing box', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-2' });
+    prisma.box.update.mockResolvedValue({ id: 'box-2' });
+
+    await service.update('admin-1', 'box-2', { timezone: 'America/Asuncion' });
+
+    expect(prisma.box.update).toHaveBeenCalledWith({
+      where: { id: 'box-2' },
+      data: { timezone: 'America/Asuncion' },
+    });
+  });
+
+  it('only activates a box joined by the user', async () => {
+    await expect(service.setActiveBox('user-1', 'box-1')).resolves.toEqual({
+      boxId: 'box-1',
+      role: 'ATHLETE',
+      active: true,
+    });
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { activeBoxId: 'box-1' },
+    });
   });
 
   it('does not allow athletes to create classes', async () => {

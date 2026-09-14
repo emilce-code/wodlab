@@ -70,6 +70,9 @@
     "accountMenu": "Abrir menú de cuenta",
     "closeAccountMenu": "Cerrar menú de cuenta"
   },
+  "boxContext": {
+    "label": "Box activo"
+  },
   "adminUsers": {
     "eyebrow": "Administración",
     "title": "Acceso de usuarios",
@@ -137,6 +140,14 @@
       "name": "Nombre del box",
       "boxDescription": "Descripción breve (opcional)",
       "submit": "Crear box"
+    },
+    "edit": {
+      "open": "Editar box",
+      "cancel": "Cancelar edición",
+      "title": "Información del box",
+      "timezone": "Zona horaria",
+      "submit": "Guardar box",
+      "saving": "Guardando..."
     },
     "classForm": {
       "open": "Programar clase",

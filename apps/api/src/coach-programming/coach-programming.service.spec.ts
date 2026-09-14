@@ -21,6 +21,8 @@ function firstCall<T>(mock: jest.Mock): T {
 
 describe('CoachProgrammingService', () => {
   const prisma = {
+    user: delegate(),
+    boxMembership: delegate(),
     coachProfile: delegate(),
     coachGroup: delegate(),
     coachGroupMember: delegate(),
@@ -33,7 +35,15 @@ describe('CoachProgrammingService', () => {
   };
   const service = new CoachProgrammingService(prisma as never);
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma.user.findUnique.mockResolvedValue({ activeBoxId: 'box-1' });
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'user-1',
+      role: 'COACH',
+    });
+  });
 
   it('requires a coach profile', async () => {
     prisma.coachProfile.findUnique.mockResolvedValue(null);
@@ -60,6 +70,7 @@ describe('CoachProgrammingService', () => {
       };
     }>(prisma.coachGroup.create);
     expect(call.data).toEqual({
+      boxId: 'box-1',
       coachProfileId: 'coach-1',
       name: 'Competition',
       description: 'Open athletes',
