@@ -1,4 +1,4 @@
-export type WeightUnit = 'KG' | 'LB';
+export type WeightUnit = "KG" | "LB";
 
 export type NamedKey = {
   key: string;
@@ -30,6 +30,13 @@ export type PerformedMovement = {
   calories: number | null;
   durationSeconds: number | null;
   notes: string | null;
+  workoutMovementPrescriptionId: string | null;
+  prescribedPercentage: number | null;
+  referenceRepMax: number | null;
+  referenceLoad: number | null;
+  referenceWeightUnit: WeightUnit | null;
+  targetLoad: number | null;
+  targetWeightUnit: WeightUnit | null;
 
   workoutMovement?: {
     id: string;
@@ -101,15 +108,16 @@ export type WorkoutResultForEdit = {
   performedMovements: Array<
     Pick<
       PerformedMovement,
-      | 'id'
-      | 'workoutMovementId'
-      | 'reps'
-      | 'load'
-      | 'weightUnit'
-      | 'distance'
-      | 'calories'
-      | 'durationSeconds'
-      | 'notes'
+      | "id"
+      | "workoutMovementId"
+      | "reps"
+      | "load"
+      | "weightUnit"
+      | "distance"
+      | "calories"
+      | "durationSeconds"
+      | "notes"
+      | "workoutMovementPrescriptionId"
     >
   >;
 };
@@ -125,10 +133,10 @@ export type MeasurementResultValues = {
 
 export type MovementResultSource =
   | {
-      type: 'MANUAL';
+      type: "MANUAL";
     }
   | {
-      type: 'WORKOUT';
+      type: "WORKOUT";
       workoutResultId: string;
       workout: {
         id: string;

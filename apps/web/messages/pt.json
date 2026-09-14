@@ -913,6 +913,7 @@
       "ofRepMax": "de {reps}RM",
       "percentageTargetFromRm": "com base no seu {reps}RM de {rm} {unit}",
       "percentageTargetMissingRm": "Registre um {reps}RM exato de {movement} para calcular seu alvo.",
+      "percentageResult": "Meta de {percentage}%: {load} {unit}",
       "leaderboard": {
         "eyebrow": "Comunidade",
         "title": "Ranking do treino",
@@ -966,6 +967,10 @@
       "score": "Resultado do treino",
       "movementDetails": "Desempenho por movimento",
       "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
+      "percentageTarget": "{percentage}% do seu {reps}RM",
+      "percentageSource": "Com base na sua melhor marca de {load} {unit}",
+      "percentageMissingRm": "Registre um {reps}RM exato de {movement} para calcular esta carga.",
+      "useTarget": "Usar objetivo",
       "resultDetails": "Detalhes do resultado",
       "resultDetailsSummary": "{date} às {time}",
       "today": "Hoje",

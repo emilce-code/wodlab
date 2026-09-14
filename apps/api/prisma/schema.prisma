@@ -524,6 +524,16 @@ model WorkoutResultMovement {
   workoutMovementId String
   workoutMovement   WorkoutMovement @relation(fields: [workoutMovementId], references: [id], onDelete: Cascade)
 
+  workoutMovementPrescriptionId String?
+  workoutMovementPrescription   WorkoutMovementPrescription? @relation(fields: [workoutMovementPrescriptionId], references: [id], onDelete: SetNull)
+
+  prescribedPercentage Decimal?    @db.Decimal(5, 2)
+  referenceRepMax      Int?
+  referenceLoad        Decimal?
+  referenceWeightUnit  WeightUnit?
+  targetLoad           Decimal?
+  targetWeightUnit     WeightUnit?
+
   reps            Int?
   load            Decimal?
   weightUnit      WeightUnit?
@@ -537,6 +547,7 @@ model WorkoutResultMovement {
 
   @@unique([workoutResultId, workoutMovementId])
   @@index([workoutMovementId])
+  @@index([workoutMovementPrescriptionId])
 }
 
 model WorkoutLevel {
@@ -597,14 +608,15 @@ model WorkoutMovementPrescription {
   reps                Int?
   weight              Decimal?
   weightUnit          WeightUnit?
-  percentage          Decimal?    @db.Decimal(5, 2)
+  percentage          Decimal?                @db.Decimal(5, 2)
   referenceRepMax     Int?
   referenceMovementId String?
-  referenceMovement   Movement?   @relation("PrescriptionReferenceMovement", fields: [referenceMovementId], references: [id], onDelete: SetNull)
+  referenceMovement   Movement?               @relation("PrescriptionReferenceMovement", fields: [referenceMovementId], references: [id], onDelete: SetNull)
   distance            Int?
   calories            Int?
   durationSeconds     Int?
   notes               String?
+  performedResults    WorkoutResultMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

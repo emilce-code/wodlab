@@ -339,6 +339,15 @@ information can be updated only by an application administrator or an owner of
 that specific Box; coaches and athletes can continue using their operational
 features without receiving organization-management access.
 
+### Percentage-based workout execution
+
+When a selected workout category prescribes a percentage of an exact rep max,
+the result form shows the athlete's calculated target beside the movement and
+pre-fills the load when a matching RM exists. Athletes can restore the target
+with one tap or record the load they actually used. Missing RMs produce a clear
+next action instead of an invented estimate. Saved results retain the prescribed
+percentage, reference RM, calculated target, and actual performed load.
+
 ## Future features
 
 Possible future capabilities include:

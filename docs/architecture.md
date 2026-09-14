@@ -486,3 +486,13 @@ metadata is authorized in the Boxes service and permits either an application
 administrator or a membership with the contextual `OWNER` role for the target
 Box. This endpoint intentionally does not use a global coach-role restriction,
 because Box ownership and application roles are separate authorization axes.
+
+## Percentage execution boundary
+
+The calculator API resolves percentage prescriptions from the athlete's best
+exact matching rep max and converts them to the preferred weight unit using a
+0.5-unit training increment. Result writes accept only a prescription identity;
+the API verifies its workout movement and category, recalculates the target from
+owned athlete data, and stores an immutable prescription snapshot alongside the
+actual load. Historical results therefore remain explainable after an RM or
+workout prescription changes.

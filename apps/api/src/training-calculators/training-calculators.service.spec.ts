@@ -34,6 +34,8 @@ describe('TrainingCalculatorsService', () => {
     prismaMock.workoutMovementPrescription.findMany.mockResolvedValue([
       {
         id: 'prescription-1',
+        workoutMovementId: 'workout-movement-1',
+        prescriptionCategory: { key: 'MEN' },
         percentage: 75,
         referenceRepMax: 3,
         referenceMovement: { id: 'movement-1', name: 'Back Squat' },
@@ -76,6 +78,8 @@ describe('TrainingCalculatorsService', () => {
     prismaMock.workoutMovementPrescription.findMany.mockResolvedValue([
       {
         id: 'prescription-1',
+        workoutMovementId: 'workout-movement-1',
+        prescriptionCategory: { key: 'MEN' },
         percentage: 80,
         referenceRepMax: 5,
         referenceMovement: { id: 'movement-1', name: 'Deadlift' },

@@ -913,6 +913,7 @@
       "ofRepMax": "of {reps}RM",
       "percentageTargetFromRm": "based on your {reps}RM of {rm} {unit}",
       "percentageTargetMissingRm": "Log an exact {reps}RM for {movement} to calculate your target.",
+      "percentageResult": "{percentage}% target: {load} {unit}",
       "leaderboard": {
         "eyebrow": "Community",
         "title": "Workout leaderboard",
@@ -966,6 +967,10 @@
       "score": "Workout score",
       "movementDetails": "Movement performance",
       "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+      "percentageTarget": "{percentage}% of your {reps}RM",
+      "percentageSource": "Based on your best {load} {unit}",
+      "percentageMissingRm": "Log an exact {reps}RM for {movement} to calculate this load.",
+      "useTarget": "Use target",
       "resultDetails": "Result details",
       "resultDetailsSummary": "{date} at {time}",
       "today": "Today",
