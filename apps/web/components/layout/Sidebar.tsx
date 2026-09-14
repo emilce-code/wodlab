@@ -190,6 +190,13 @@ export default function Sidebar({ user }: Props) {
                 icon: "admin",
               })
             : null}
+          {user.permissions.includes("box:manage")
+            ? renderNavigationItem({
+                key: "boxAdmin",
+                href: "/box-admin",
+                icon: "boxes",
+              })
+            : null}
         </div>
       </nav>
 

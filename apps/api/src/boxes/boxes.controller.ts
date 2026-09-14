@@ -37,6 +37,12 @@ export class BoxesController {
     return this.boxes.findAll(request.user.userId);
   }
 
+  @Get('administration')
+  @Roles('ADMIN')
+  findAllForAdministration() {
+    return this.boxes.findAllForAdministration();
+  }
+
   @Post()
   @Roles('ADMIN')
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateBoxDto) {
@@ -76,7 +82,6 @@ export class BoxesController {
   }
 
   @Patch(':boxId/members/:memberId')
-  @Roles('COACH', 'ADMIN')
   updateMember(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -89,6 +94,23 @@ export class BoxesController {
       memberId,
       dto.role,
     );
+  }
+
+  @Delete(':boxId/members/:memberId')
+  removeMember(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('memberId') memberId: string,
+  ) {
+    return this.boxes.removeMember(request.user.userId, boxId, memberId);
+  }
+
+  @Post(':boxId/join-code')
+  rotateJoinCode(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+  ) {
+    return this.boxes.rotateJoinCode(request.user.userId, boxId);
   }
 
   @Get(':boxId/classes')

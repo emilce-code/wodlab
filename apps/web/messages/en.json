@@ -6,6 +6,7 @@
     "notifications": "Notifications",
     "coach": "Coach",
     "admin": "Admin",
+    "boxAdmin": "Box administration",
     "history": "History",
     "progress": "Progress",
     "account": "Account",
@@ -68,7 +69,8 @@
     "mobileLabel": "Main navigation",
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
-    "closeAccountMenu": "Close account menu"
+    "closeAccountMenu": "Close account menu",
+    "boxAdmin": "Box administration"
   },
   "boxContext": {
     "label": "Active box"
@@ -99,6 +101,56 @@
       "USER": "Athlete",
       "COACH": "Coach",
       "ADMIN": "Administrator"
+    }
+  },
+  "boxAdministration": {
+    "eyebrow": "Box operations",
+    "title": "Box administration",
+    "description": "Manage Box information, access, and member roles from one place.",
+    "selectBox": "Box to manage",
+    "cancel": "Cancel",
+    "working": "Saving...",
+    "loading": "Loading members...",
+    "empty": "There are no Boxes available to manage.",
+    "saved": "Box information saved.",
+    "created": "Box created.",
+    "tabs": {
+      "label": "Box administration sections",
+      "details": "Details",
+      "members": "Members"
+    },
+    "fields": {
+      "name": "Box name",
+      "description": "Description",
+      "timezone": "Time zone"
+    },
+    "details": { "title": "Box information", "save": "Save changes" },
+    "create": {
+      "open": "New Box",
+      "title": "Create a Box",
+      "submit": "Create Box"
+    },
+    "joinCode": {
+      "title": "Join code",
+      "description": "Athletes use this code to join the Box.",
+      "rotate": "Generate new code",
+      "confirm": "Replace the current join code? The old code will stop working.",
+      "rotated": "A new join code was generated."
+    },
+    "members": {
+      "title": "Members",
+      "description": "{count, plural, =1 {1 Box member} other {# Box members}}",
+      "roleFor": "Role for {name}",
+      "roleSaved": "Member role updated.",
+      "remove": "Remove",
+      "removeConfirm": "Remove this member from the Box?",
+      "removed": "Member removed from the Box."
+    },
+    "roles": { "owner": "Owner", "coach": "Coach", "athlete": "Athlete" },
+    "errors": {
+      "load": "Unable to load Box members.",
+      "save": "Unable to save the Box.",
+      "action": "Unable to complete this action."
     }
   },
   "boxes": {

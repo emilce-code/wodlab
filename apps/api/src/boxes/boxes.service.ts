@@ -73,6 +73,17 @@ export class BoxesService {
     }));
   }
 
+  async findAllForAdministration() {
+    return this.prisma.box.findMany({
+      include: {
+        _count: {
+          select: { memberships: true, classes: true },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async create(userId: string, dto: CreateBoxDto) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -196,7 +207,7 @@ export class BoxesService {
   }
 
   async findMembers(userId: string, boxId: string) {
-    await this.requireStaff(userId, boxId);
+    await this.requireOwnerOrAdmin(userId, boxId);
     return this.prisma.boxMembership.findMany({
       where: { boxId },
       select: {
@@ -221,7 +232,7 @@ export class BoxesService {
     memberId: string,
     role: 'COACH' | 'ATHLETE',
   ) {
-    await this.requireOwner(userId, boxId);
+    await this.requireOwnerOrAdmin(userId, boxId);
     const membership = await this.prisma.boxMembership.findFirst({
       where: { id: memberId, boxId, role: { not: 'OWNER' } },
     });
@@ -238,6 +249,42 @@ export class BoxesService {
     return this.prisma.boxMembership.update({
       where: { id: memberId },
       data: { role },
+    });
+  }
+
+  async removeMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const membership = await this.prisma.boxMembership.findFirst({
+      where: { id: memberId, boxId },
+      select: { id: true, userId: true, role: true },
+    });
+    if (!membership) throw new NotFoundException('Box member not found');
+    if (membership.role === 'OWNER') {
+      throw new ConflictException('The Box owner cannot be removed');
+    }
+    if (membership.userId === userId) {
+      throw new ConflictException('You cannot remove your own membership');
+    }
+    await this.prisma.$transaction([
+      this.prisma.boxMembership.delete({ where: { id: membership.id } }),
+      this.prisma.user.updateMany({
+        where: { id: membership.userId, activeBoxId: boxId },
+        data: { activeBoxId: null },
+      }),
+    ]);
+    return { id: membership.id, deleted: true };
+  }
+
+  async rotateJoinCode(userId: string, boxId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    let joinCode = randomBytes(4).toString('hex').toUpperCase();
+    while (await this.prisma.box.findUnique({ where: { joinCode } })) {
+      joinCode = randomBytes(4).toString('hex').toUpperCase();
+    }
+    return this.prisma.box.update({
+      where: { id: boxId },
+      data: { joinCode },
+      select: { id: true, joinCode: true },
     });
   }
 
@@ -409,5 +456,20 @@ export class BoxesService {
       throw new ForbiddenException('Box owner access required');
     }
     return membership;
+  }
+
+  private async requireOwnerOrAdmin(userId: string, boxId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    const box = await this.prisma.box.findUnique({
+      where: { id: boxId },
+      select: { id: true },
+    });
+    if (!box) throw new NotFoundException('Box not found');
+    if (user.role === 'ADMIN') return;
+    return this.requireOwner(userId, boxId);
   }
 }

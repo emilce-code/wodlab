@@ -348,6 +348,15 @@ with one tap or record the load they actually used. Missing RMs produce a clear
 next action instead of an invented estimate. Saved results retain the prescribed
 percentage, reference RM, calculated target, and actual performed load.
 
+### Box administration
+
+Application administrators can create and inspect every Box. Box owners and
+application administrators have a dedicated mobile-first workspace for editing
+Box information, rotating athlete join codes, reviewing membership, assigning
+contextual coach or athlete roles, and removing non-owner members. Operational
+class scheduling remains separate so organization controls do not overload the
+daily class experience.
+
 ## Future features
 
 Possible future capabilities include:

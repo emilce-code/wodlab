@@ -6,6 +6,7 @@
     "notifications": "Notificações",
     "coach": "Coach",
     "admin": "Administração",
+    "boxAdmin": "Administrar Box",
     "history": "Histórico",
     "progress": "Progresso",
     "account": "Conta",
@@ -68,7 +69,8 @@
     "mobileLabel": "Navegação principal",
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
-    "closeAccountMenu": "Fechar menu da conta"
+    "closeAccountMenu": "Fechar menu da conta",
+    "boxAdmin": "Administrar Box"
   },
   "boxContext": {
     "label": "Box ativo"
@@ -99,6 +101,56 @@
       "USER": "Atleta",
       "COACH": "Coach",
       "ADMIN": "Administrador"
+    }
+  },
+  "boxAdministration": {
+    "eyebrow": "Operações do Box",
+    "title": "Administração do Box",
+    "description": "Gerencie informações, acesso e funções dos membros em um só lugar.",
+    "selectBox": "Box para administrar",
+    "cancel": "Cancelar",
+    "working": "Salvando...",
+    "loading": "Carregando membros...",
+    "empty": "Não há Boxes disponíveis para administrar.",
+    "saved": "Informações do Box salvas.",
+    "created": "Box criado.",
+    "tabs": {
+      "label": "Seções de administração do Box",
+      "details": "Detalhes",
+      "members": "Membros"
+    },
+    "fields": {
+      "name": "Nome do Box",
+      "description": "Descrição",
+      "timezone": "Fuso horário"
+    },
+    "details": { "title": "Informações do Box", "save": "Salvar alterações" },
+    "create": {
+      "open": "Novo Box",
+      "title": "Criar um Box",
+      "submit": "Criar Box"
+    },
+    "joinCode": {
+      "title": "Código de entrada",
+      "description": "Os atletas usam este código para entrar no Box.",
+      "rotate": "Gerar novo código",
+      "confirm": "Substituir o código atual? O código anterior deixará de funcionar.",
+      "rotated": "Um novo código de entrada foi gerado."
+    },
+    "members": {
+      "title": "Membros",
+      "description": "{count, plural, =1 {1 membro do Box} other {# membros do Box}}",
+      "roleFor": "Função de {name}",
+      "roleSaved": "Função do membro atualizada.",
+      "remove": "Remover",
+      "removeConfirm": "Remover este membro do Box?",
+      "removed": "Membro removido do Box."
+    },
+    "roles": { "owner": "Proprietário", "coach": "Coach", "athlete": "Atleta" },
+    "errors": {
+      "load": "Não foi possível carregar os membros.",
+      "save": "Não foi possível salvar o Box.",
+      "action": "Não foi possível concluir esta ação."
     }
   },
   "boxes": {

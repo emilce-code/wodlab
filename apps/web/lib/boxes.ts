@@ -6,7 +6,12 @@ export type BoxSummary = {
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";
   isActive: boolean;
-  _count: { memberships: number };
+  _count: { memberships: number; classes?: number };
+};
+
+export type ManagedBox = Omit<BoxSummary, "role" | "isActive"> & {
+  role?: BoxSummary["role"];
+  isActive?: boolean;
 };
 
 export type ClassSession = {

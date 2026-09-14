@@ -21,12 +21,15 @@ describe('BoxesService', () => {
     },
   };
   const prisma = {
-    user: { findUnique: jest.fn(), update: jest.fn() },
+    user: { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
     box: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
     boxMembership: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
     },
     workout: { findMany: jest.fn(), findFirst: jest.fn() },
     classSession: {
@@ -36,8 +39,12 @@ describe('BoxesService', () => {
       delete: jest.fn(),
     },
     classBooking: { findFirst: jest.fn(), update: jest.fn() },
-    $transaction: jest.fn((callback: (client: typeof transaction) => unknown) =>
-      Promise.resolve(callback(transaction)),
+    $transaction: jest.fn((operation: unknown) =>
+      Promise.resolve(
+        typeof operation === 'function'
+          ? (operation as (client: typeof transaction) => unknown)(transaction)
+          : operation,
+      ),
     ),
   };
 
@@ -199,5 +206,34 @@ describe('BoxesService', () => {
     await expect(
       service.book('user-1', 'box-1', 'class-1'),
     ).resolves.toMatchObject({ status: 'BOOKED' });
+  });
+
+  it('allows an administrator to rotate a Box join code', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
+    prisma.box.findUnique
+      .mockResolvedValueOnce({ id: 'box-1' })
+      .mockResolvedValueOnce(null);
+    prisma.box.update.mockResolvedValue({ id: 'box-1', joinCode: 'NEWCODE1' });
+
+    await expect(
+      service.rotateJoinCode('admin-1', 'box-1'),
+    ).resolves.toMatchObject({ joinCode: 'NEWCODE1' });
+    expect(prisma.box.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'box-1' } }),
+    );
+  });
+
+  it('protects the Box owner from member removal', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+    prisma.boxMembership.findFirst.mockResolvedValue({
+      id: 'member-1',
+      userId: 'owner-1',
+      role: 'OWNER',
+    });
+
+    await expect(
+      service.removeMember('admin-1', 'box-1', 'member-1'),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });
