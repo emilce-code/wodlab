@@ -5,6 +5,7 @@ export type BoxSummary = {
   timezone: string;
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";
+  isActive: boolean;
   _count: { memberships: number };
 };
 

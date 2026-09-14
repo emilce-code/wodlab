@@ -465,3 +465,24 @@ Mutation permissions, relationship ownership, assignment visibility, and
 analytics scope continue to be enforced by the NestJS modules. Shared coach tab
 components keep touch targets and selected-state semantics consistent across the
 mobile experience.
+
+## Box tenant boundary
+
+`User.activeBoxId` identifies the tenant selected for the current application
+session and is accepted only when a matching `BoxMembership` exists. Box staff
+operations additionally require an `OWNER` or `COACH` membership. Coach
+relationships, groups, templates, and coach-created scheduled workouts persist
+`boxId`; every read and mutation in the coach and coach-programming modules
+combines that tenant key with the authenticated profile key.
+
+Box-leading compound indexes support these filters without scanning another
+tenant's records. Shared catalog records and personal athlete result history are
+not duplicated per Box. The web selector calls the authenticated Boxes API and
+reloads after a switch, while authorization and isolation remain exclusively
+enforced by the API.
+
+Creating a Box requires the application-level `ADMIN` role. Updating Box
+metadata is authorized in the Boxes service and permits either an application
+administrator or a membership with the contextual `OWNER` role for the target
+Box. This endpoint intentionally does not use a global coach-role restriction,
+because Box ownership and application roles are separate authorization axes.

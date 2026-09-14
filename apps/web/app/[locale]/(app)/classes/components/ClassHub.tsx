@@ -11,7 +11,11 @@ import type {
   WorkoutOption,
 } from "@/lib/boxes";
 
-type Props = { initialBoxes: BoxSummary[]; canManageBoxes: boolean };
+type Props = {
+  initialBoxes: BoxSummary[];
+  canCreateBoxes: boolean;
+  isApplicationAdmin: boolean;
+};
 
 function requestMessage(data: unknown, fallback: string) {
   if (data && typeof data === "object" && "message" in data) {
@@ -21,11 +25,17 @@ function requestMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
+export default function ClassHub({
+  initialBoxes,
+  canCreateBoxes,
+  isApplicationAdmin,
+}: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
   const [boxes, setBoxes] = useState(initialBoxes);
-  const [boxId, setBoxId] = useState(initialBoxes[0]?.id ?? "");
+  const [boxId, setBoxId] = useState(
+    initialBoxes.find((box) => box.isActive)?.id ?? initialBoxes[0]?.id ?? "",
+  );
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [options, setOptions] = useState<WorkoutOption[]>([]);
   const [members, setMembers] = useState<BoxMember[]>([]);
@@ -34,9 +44,11 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showSetup, setShowSetup] = useState(initialBoxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
+  const [showEditBox, setShowEditBox] = useState(false);
   const selectedBox = boxes.find((box) => box.id === boxId);
   const role = selectedBox?.role ?? null;
   const isStaff = role === "OWNER" || role === "COACH";
+  const canEditBox = isApplicationAdmin || role === "OWNER";
 
   async function loadClasses(selectedId: string) {
     setLoading(true);
@@ -123,6 +135,24 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
     if (!boxId && data[0]) setBoxId(data[0].id);
   }
 
+  async function selectBox(nextBoxId: string) {
+    setLoading(true);
+    const response = await fetch("/api/boxes/active", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ boxId: nextBoxId }),
+    });
+    if (!response.ok) {
+      setError(t("errors.action"));
+      setLoading(false);
+      return;
+    }
+    setBoxes((current) =>
+      current.map((box) => ({ ...box, isActive: box.id === nextBoxId })),
+    );
+    setBoxId(nextBoxId);
+  }
+
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -183,6 +213,35 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
     await loadClasses(boxId);
   }
 
+  async function submitBoxUpdate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedBox) return;
+    setBusyId(selectedBox.id);
+    setError(null);
+    const form = new FormData(event.currentTarget);
+    const response = await fetch(`/api/boxes/${selectedBox.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: String(form.get("name")),
+        description: String(form.get("description")),
+        timezone: String(form.get("timezone")),
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      setError(requestMessage(data, t("errors.save")));
+    } else {
+      setBoxes((current) =>
+        current.map((box) =>
+          box.id === selectedBox.id ? { ...box, ...data } : box,
+        ),
+      );
+      setShowEditBox(false);
+    }
+    setBusyId(null);
+  }
+
   async function classAction(
     classId: string,
     method: "POST" | "PATCH" | "DELETE",
@@ -238,10 +297,7 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
             <select
               id="box-selector"
               value={boxId}
-              onChange={(event) => {
-                setLoading(true);
-                setBoxId(event.target.value);
-              }}
+              onChange={(event) => void selectBox(event.target.value)}
               className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3"
             >
               {boxes.map((box) => (
@@ -263,11 +319,10 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
 
       {showSetup ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          {canManageBoxes ? (
-            <form
-              onSubmit={submitBox}
-              className="rounded-xl border border-border bg-surface p-4"
-            >
+          <form
+            onSubmit={submitBox}
+            className="rounded-xl border border-border bg-surface p-4"
+          >
               <input type="hidden" name="mode" value="join" />
               <h2 className="font-bold">{t("join.title")}</h2>
               <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
@@ -281,12 +336,12 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
                 className="mt-4 min-h-11 w-full rounded-lg border border-border bg-background px-3 uppercase"
               />
               <Button className="mt-3 w-full">{t("join.submit")}</Button>
-            </form>
-          ) : null}
-          <form
-            onSubmit={submitBox}
-            className="rounded-xl border border-border bg-surface p-4"
-          >
+          </form>
+          {canCreateBoxes ? (
+            <form
+              onSubmit={submitBox}
+              className="rounded-xl border border-border bg-surface p-4"
+            >
             <input type="hidden" name="mode" value="create" />
             <h2 className="font-bold">{t("create.title")}</h2>
             <p className="mt-1 text-sm text-muted">{t("create.description")}</p>
@@ -306,7 +361,8 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
               className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2"
             />
             <Button className="mt-3 w-full">{t("create.submit")}</Button>
-          </form>
+            </form>
+          ) : null}
           {role === "OWNER" && members.length ? (
             <section className="rounded-xl border border-border bg-surface p-4 sm:col-span-2">
               <h2 className="font-bold">{t("memberManagement")}</h2>
@@ -373,17 +429,74 @@ export default function ClassHub({ initialBoxes, canManageBoxes }: Props) {
                 </p>
               ) : null}
             </div>
-            {isStaff ? (
-              <Button
-                type="button"
-                onClick={() => setShowCreateClass((value) => !value)}
-                className="w-full sm:w-auto"
-              >
-                {showCreateClass ? t("classForm.cancel") : t("classForm.open")}
-              </Button>
-            ) : null}
+            <div className="grid w-full gap-2 sm:flex sm:w-auto">
+              {canEditBox ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowEditBox((value) => !value)}
+                >
+                  {showEditBox ? t("edit.cancel") : t("edit.open")}
+                </Button>
+              ) : null}
+              {isStaff ? (
+                <Button
+                  type="button"
+                  onClick={() => setShowCreateClass((value) => !value)}
+                >
+                  {showCreateClass
+                    ? t("classForm.cancel")
+                    : t("classForm.open")}
+                </Button>
+              ) : null}
+            </div>
           </div>
         </section>
+      ) : null}
+
+      {showEditBox && selectedBox && canEditBox ? (
+        <form
+          onSubmit={submitBoxUpdate}
+          className="rounded-xl border border-accent/30 bg-surface p-4"
+        >
+          <h2 className="font-bold">{t("edit.title")}</h2>
+          <div className="mt-4 grid gap-3">
+            <label className="text-sm font-semibold">
+              {t("create.name")}
+              <input
+                name="name"
+                required
+                minLength={2}
+                maxLength={80}
+                defaultValue={selectedBox.name}
+                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+              />
+            </label>
+            <label className="text-sm font-semibold">
+              {t("create.boxDescription")}
+              <textarea
+                name="description"
+                rows={3}
+                maxLength={500}
+                defaultValue={selectedBox.description ?? ""}
+                className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-base"
+              />
+            </label>
+            <label className="text-sm font-semibold">
+              {t("edit.timezone")}
+              <input
+                name="timezone"
+                required
+                maxLength={80}
+                defaultValue={selectedBox.timezone}
+                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+              />
+            </label>
+            <Button disabled={busyId === selectedBox.id} className="w-full">
+              {busyId === selectedBox.id ? t("edit.saving") : t("edit.submit")}
+            </Button>
+          </div>
+        </form>
       ) : null}
 
       {showCreateClass && isStaff ? (

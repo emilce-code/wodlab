@@ -23,7 +23,8 @@ export default async function ClassesPage() {
       />
       <ClassHub
         initialBoxes={boxes}
-        canManageBoxes={user?.permissions.includes("box:manage") ?? false}
+        canCreateBoxes={user?.permissions.includes("box:create") ?? false}
+        isApplicationAdmin={user?.role === "ADMIN"}
       />
     </div>
   );

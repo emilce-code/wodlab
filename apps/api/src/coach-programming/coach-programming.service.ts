@@ -51,21 +51,21 @@ export class CoachProgrammingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWorkspace(userId: string) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const [groups, templates, relationships, workouts, categories] =
       await Promise.all([
         this.prisma.coachGroup.findMany({
-          where: { coachProfileId: coach.id },
+          where: { boxId, coachProfileId: coach.id },
           orderBy: { name: 'asc' },
           include: groupInclude,
         }),
         this.prisma.programTemplate.findMany({
-          where: { coachProfileId: coach.id },
+          where: { boxId, coachProfileId: coach.id },
           orderBy: { name: 'asc' },
           include: templateInclude,
         }),
         this.prisma.coachAthleteRelationship.findMany({
-          where: { coachProfileId: coach.id, status: 'ACTIVE' },
+          where: { boxId, coachProfileId: coach.id, status: 'ACTIVE' },
           orderBy: { athleteProfile: { displayName: 'asc' } },
           select: {
             athleteProfile: {
@@ -100,6 +100,7 @@ export class CoachProgrammingService {
       ]);
 
     return {
+      activeBoxId: boxId,
       groups,
       templates,
       athletes: relationships.map((item) => item.athleteProfile),
@@ -109,7 +110,7 @@ export class CoachProgrammingService {
   }
 
   async getMonitoring(userId: string, query: FindCoachMonitoringQueryDto) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const from = query.from ? this.parseDate(query.from) : undefined;
     const to = query.to ? this.parseDate(query.to) : undefined;
     if (from && to && from > to) {
@@ -121,7 +122,7 @@ export class CoachProgrammingService {
     let athleteIds: string[] | undefined;
     if (query.groupId) {
       const group = await this.prisma.coachGroup.findFirst({
-        where: { id: query.groupId, coachProfileId: coach.id },
+        where: { id: query.groupId, boxId, coachProfileId: coach.id },
         select: { members: { select: { athleteProfileId: true } } },
       });
       if (!group) throw new NotFoundException('Coach group not found');
@@ -132,6 +133,7 @@ export class CoachProgrammingService {
         {
           where: {
             coachProfileId: coach.id,
+            boxId,
             athleteProfileId: query.athleteProfileId,
             status: 'ACTIVE',
           },
@@ -146,6 +148,7 @@ export class CoachProgrammingService {
     const status = query.status ?? 'ALL';
     const items = await this.prisma.scheduledWorkout.findMany({
       where: {
+        boxId,
         assignedByCoachProfileId: coach.id,
         athleteProfileId: athleteIds ? { in: athleteIds } : undefined,
         scheduledDate: from || to ? { gte: from, lte: to } : undefined,
@@ -196,7 +199,7 @@ export class CoachProgrammingService {
   }
 
   async getAnalytics(userId: string, query: FindCoachAnalyticsQueryDto) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const from = this.parseDate(query.from);
     const to = this.parseDate(query.to);
     if (from > to) {
@@ -207,11 +210,13 @@ export class CoachProgrammingService {
 
     const athleteIds = await this.resolveAnalyticsAthleteIds(
       coach.id,
+      boxId,
       query.groupId,
       query.athleteProfileId,
     );
     const assignments = await this.prisma.scheduledWorkout.findMany({
       where: {
+        boxId,
         assignedByCoachProfileId: coach.id,
         athleteProfileId: athleteIds ? { in: athleteIds } : undefined,
         scheduledDate: { gte: from, lte: to },
@@ -401,13 +406,14 @@ export class CoachProgrammingService {
   }
 
   async createGroup(userId: string, dto: CreateCoachGroupDto) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const name = dto.name.trim();
     if (!name) throw new BadRequestException('Group name is required');
 
     try {
       return await this.prisma.coachGroup.create({
         data: {
+          boxId,
           coachProfileId: coach.id,
           name,
           description: dto.description?.trim() || null,
@@ -420,8 +426,8 @@ export class CoachProgrammingService {
   }
 
   async deleteGroup(userId: string, groupId: string) {
-    const coach = await this.getCoach(userId);
-    const group = await this.requireGroup(coach.id, groupId);
+    const { coach, boxId } = await this.getCoachContext(userId);
+    const group = await this.requireGroup(coach.id, boxId, groupId);
     return this.prisma.coachGroup.delete({ where: { id: group.id } });
   }
 
@@ -430,11 +436,12 @@ export class CoachProgrammingService {
     groupId: string,
     athleteProfileId: string,
   ) {
-    const coach = await this.getCoach(userId);
-    await this.requireGroup(coach.id, groupId);
+    const { coach, boxId } = await this.getCoachContext(userId);
+    await this.requireGroup(coach.id, boxId, groupId);
     const relationship = await this.prisma.coachAthleteRelationship.findFirst({
       where: {
         coachProfileId: coach.id,
+        boxId,
         athleteProfileId,
         status: 'ACTIVE',
       },
@@ -455,8 +462,8 @@ export class CoachProgrammingService {
     groupId: string,
     athleteProfileId: string,
   ) {
-    const coach = await this.getCoach(userId);
-    await this.requireGroup(coach.id, groupId);
+    const { coach, boxId } = await this.getCoachContext(userId);
+    await this.requireGroup(coach.id, boxId, groupId);
     const member = await this.prisma.coachGroupMember.findUnique({
       where: { groupId_athleteProfileId: { groupId, athleteProfileId } },
     });
@@ -465,7 +472,7 @@ export class CoachProgrammingService {
   }
 
   async createTemplate(userId: string, dto: CreateProgramTemplateDto) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const name = dto.name.trim();
     if (!name) throw new BadRequestException('Template name is required');
     if (dto.items.length === 0) {
@@ -506,6 +513,7 @@ export class CoachProgrammingService {
     try {
       return await this.prisma.programTemplate.create({
         data: {
+          boxId,
           coachProfileId: coach.id,
           name,
           description: dto.description?.trim() || null,
@@ -522,8 +530,8 @@ export class CoachProgrammingService {
   }
 
   async deleteTemplate(userId: string, templateId: string) {
-    const coach = await this.getCoach(userId);
-    const template = await this.requireTemplate(coach.id, templateId);
+    const { coach, boxId } = await this.getCoachContext(userId);
+    const template = await this.requireTemplate(coach.id, boxId, templateId);
     return this.prisma.programTemplate.delete({ where: { id: template.id } });
   }
 
@@ -532,17 +540,17 @@ export class CoachProgrammingService {
     templateId: string,
     dto: ApplyProgramTemplateDto,
   ) {
-    const coach = await this.getCoach(userId);
+    const { coach, boxId } = await this.getCoachContext(userId);
     const weekStart = this.parseDate(dto.weekStart);
     const [group, template] = await Promise.all([
       this.prisma.coachGroup.findFirst({
-        where: { id: dto.groupId, coachProfileId: coach.id },
+        where: { id: dto.groupId, boxId, coachProfileId: coach.id },
         include: {
           members: {
             where: {
               athleteProfile: {
                 coachRelationships: {
-                  some: { coachProfileId: coach.id, status: 'ACTIVE' },
+                  some: { boxId, coachProfileId: coach.id, status: 'ACTIVE' },
                 },
               },
             },
@@ -550,7 +558,7 @@ export class CoachProgrammingService {
         },
       }),
       this.prisma.programTemplate.findFirst({
-        where: { id: templateId, coachProfileId: coach.id },
+        where: { id: templateId, boxId, coachProfileId: coach.id },
         include: { items: { include: { workout: true } } },
       }),
     ]);
@@ -567,6 +575,7 @@ export class CoachProgrammingService {
 
     const data = group.members.flatMap((member) =>
       template.items.map((item) => ({
+        boxId,
         athleteProfileId: member.athleteProfileId,
         workoutId: item.workoutId,
         workoutVariantId: item.workoutVariantId,
@@ -588,23 +597,39 @@ export class CoachProgrammingService {
     };
   }
 
-  private async getCoach(userId: string) {
+  private async getCoachContext(userId: string) {
     const coach = await this.prisma.coachProfile.findUnique({
       where: { userId },
     });
     if (!coach) throw new ForbiddenException('Coach profile required');
-    return coach;
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { activeBoxId: true },
+    });
+    if (!user?.activeBoxId) {
+      throw new ForbiddenException('Select an active box to continue');
+    }
+    const membership = await this.prisma.boxMembership.findUnique({
+      where: {
+        boxId_userId: { boxId: user.activeBoxId, userId },
+      },
+    });
+    if (!membership || membership.role === 'ATHLETE') {
+      throw new ForbiddenException('Active box staff access required');
+    }
+    return { coach, boxId: user.activeBoxId };
   }
 
   private async resolveAnalyticsAthleteIds(
     coachProfileId: string,
+    boxId: string,
     groupId?: string,
     athleteProfileId?: string,
   ) {
     if (athleteProfileId) {
       const relationship = await this.prisma.coachAthleteRelationship.findFirst(
         {
-          where: { coachProfileId, athleteProfileId, status: 'ACTIVE' },
+          where: { boxId, coachProfileId, athleteProfileId, status: 'ACTIVE' },
         },
       );
       if (!relationship) {
@@ -614,7 +639,7 @@ export class CoachProgrammingService {
     }
     if (!groupId) return undefined;
     const group = await this.prisma.coachGroup.findFirst({
-      where: { id: groupId, coachProfileId },
+      where: { id: groupId, boxId, coachProfileId },
       select: { members: { select: { athleteProfileId: true } } },
     });
     if (!group) throw new NotFoundException('Coach group not found');
@@ -637,17 +662,25 @@ export class CoachProgrammingService {
     return unit === 'LB' ? amount * 0.45359237 : amount;
   }
 
-  private async requireGroup(coachProfileId: string, groupId: string) {
+  private async requireGroup(
+    coachProfileId: string,
+    boxId: string,
+    groupId: string,
+  ) {
     const group = await this.prisma.coachGroup.findFirst({
-      where: { id: groupId, coachProfileId },
+      where: { id: groupId, boxId, coachProfileId },
     });
     if (!group) throw new NotFoundException('Coach group not found');
     return group;
   }
 
-  private async requireTemplate(coachProfileId: string, templateId: string) {
+  private async requireTemplate(
+    coachProfileId: string,
+    boxId: string,
+    templateId: string,
+  ) {
     const template = await this.prisma.programTemplate.findFirst({
-      where: { id: templateId, coachProfileId },
+      where: { id: templateId, boxId, coachProfileId },
     });
     if (!template) throw new NotFoundException('Program template not found');
     return template;

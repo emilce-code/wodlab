@@ -7,6 +7,7 @@ export const permissionsByRole = {
     'athlete:use',
     'coach:use',
     'box:manage',
+    'box:create',
     'users:manage',
     'catalog:manage',
   ],

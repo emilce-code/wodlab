@@ -4,6 +4,7 @@ import MobileNavigation from "./MobileNavigation";
 import Sidebar from "./Sidebar";
 import PwaManager from "@/components/pwa/PwaManager";
 import type { CurrentUser } from "@/lib/auth";
+import ActiveBoxSwitcher from "./ActiveBoxSwitcher";
 
 type Props = {
   children: ReactNode;
@@ -28,6 +29,7 @@ export default async function AppShell({ children, user }: Props) {
         <Sidebar user={user} />
 
         <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
+          <ActiveBoxSwitcher />
           <div className="mx-auto max-w-7xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-10 lg:py-8 lg:pb-8">
             {children}
           </div>
