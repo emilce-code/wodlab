@@ -456,3 +456,12 @@ is recorded in `UserRoleChange`, administrators cannot change their own role,
 and the final administrator cannot be demoted. Revoking coach access preserves
 historical profiles, relationships, assignments, and feedback while immediately
 blocking new coach operations.
+
+## Coach workspace presentation boundary
+
+Coach workspace tabs and disclosures are presentation state owned by the Next.js
+client components. They do not change coach authorization or API contracts.
+Mutation permissions, relationship ownership, assignment visibility, and
+analytics scope continue to be enforced by the NestJS modules. Shared coach tab
+components keep touch targets and selected-state semantics consistent across the
+mobile experience.

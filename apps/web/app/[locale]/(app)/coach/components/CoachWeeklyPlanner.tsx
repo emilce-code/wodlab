@@ -76,6 +76,7 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [assignmentOpen, setAssignmentOpen] = useState(false);
 
   const loadWeek = useCallback(
     async (targetWeek: string) => {
@@ -192,6 +193,7 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
       setVariantId("");
       setPrescriptionCategoryKey("");
       setNotes("");
+      setAssignmentOpen(false);
       setSuccess(t("saved"));
       await loadWeek(weekStart);
       await onChanged?.();
@@ -414,80 +416,115 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
         })}
       </div>
 
-      <Card className="scroll-mt-24 p-5" id="coach-add-assignment">
-        <h3 className="font-bold">{t("addTitle", { date: selectedDate })}</h3>
-        <form
-          onSubmit={assign}
-          className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
-        >
-          <label className="text-sm font-medium">
-            {t("workout")}
-            <select
-              required
-              value={workoutId}
-              onChange={(event) => chooseWorkout(event.target.value)}
-              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+      <Button
+        type="button"
+        onClick={() => setAssignmentOpen((open) => !open)}
+        aria-expanded={assignmentOpen}
+        aria-controls="coach-add-assignment"
+        className="sticky bottom-20 z-10 w-full shadow-lg sm:static sm:w-auto sm:shadow-none"
+      >
+        {assignmentOpen ? t("closeAssignment") : t("openAssignment")}
+      </Button>
+
+      {assignmentOpen ? (
+        <Card className="scroll-mt-24 p-5" id="coach-add-assignment">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                {t("selectedDay")}
+              </p>
+              <h3 className="mt-1 font-bold">
+                {t("addTitle", {
+                  date: new Intl.DateTimeFormat(locale, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  }).format(new Date(`${selectedDate}T12:00:00`)),
+                })}
+              </h3>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setAssignmentOpen(false)}
             >
-              <option value="">{t("selectWorkout")}</option>
-              {options?.workouts.map((workout) => (
-                <option key={workout.id} value={workout.id}>
-                  {workout.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-medium">
-            {t("variation")}
-            <select
-              required
-              value={variantId}
-              onChange={(event) => setVariantId(event.target.value)}
-              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-            >
-              <option value="">{t("selectVariation")}</option>
-              {selectedWorkout?.variants.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                  {variant.level.name}
-                  {variant.name ? ` · ${variant.name}` : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-medium">
-            {t("prescription")}
-            <select
-              value={prescriptionCategoryKey}
-              onChange={(event) =>
-                setPrescriptionCategoryKey(event.target.value)
-              }
-              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
-            >
-              <option value="">{t("noPrescription")}</option>
-              {options?.prescriptionCategories.map((category) => (
-                <option key={category.key} value={category.key}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-medium lg:col-span-2">
-            {t("notes")}
-            <input
-              value={notes}
-              maxLength={1000}
-              onChange={(event) => setNotes(event.target.value)}
-              className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
-          <Button
-            type="submit"
-            isLoading={submitting}
-            className="w-full sm:w-fit"
+              {t("cancel")}
+            </Button>
+          </div>
+          <form
+            onSubmit={assign}
+            className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5"
           >
-            {t("add")}
-          </Button>
-        </form>
-      </Card>
+            <label className="text-sm font-medium">
+              {t("workout")}
+              <select
+                required
+                value={workoutId}
+                onChange={(event) => chooseWorkout(event.target.value)}
+                className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+              >
+                <option value="">{t("selectWorkout")}</option>
+                {options?.workouts.map((workout) => (
+                  <option key={workout.id} value={workout.id}>
+                    {workout.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-medium">
+              {t("variation")}
+              <select
+                required
+                value={variantId}
+                onChange={(event) => setVariantId(event.target.value)}
+                className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+              >
+                <option value="">{t("selectVariation")}</option>
+                {selectedWorkout?.variants.map((variant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {variant.level.name}
+                    {variant.name ? ` · ${variant.name}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-medium">
+              {t("prescription")}
+              <select
+                value={prescriptionCategoryKey}
+                onChange={(event) =>
+                  setPrescriptionCategoryKey(event.target.value)
+                }
+                className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3 text-base"
+              >
+                <option value="">{t("noPrescription")}</option>
+                {options?.prescriptionCategories.map((category) => (
+                  <option key={category.key} value={category.key}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-medium lg:col-span-2">
+              {t("notes")}
+              <input
+                value={notes}
+                maxLength={1000}
+                onChange={(event) => setNotes(event.target.value)}
+                className="mt-1.5 min-h-12 w-full rounded-lg border border-border bg-background px-3"
+              />
+            </label>
+            <Button
+              type="submit"
+              isLoading={submitting}
+              className="w-full sm:w-fit"
+            >
+              {t("add")}
+            </Button>
+          </form>
+        </Card>
+      ) : null}
     </section>
   );
 }

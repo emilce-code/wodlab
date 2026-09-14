@@ -52,6 +52,8 @@ export default function CoachMonitoringDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [feedbackOpenId, setFeedbackOpenId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -135,6 +137,7 @@ export default function CoachMonitoringDashboard() {
       );
       if (!response.ok) throw new Error();
       setFeedback((current) => ({ ...current, [assignmentId]: "" }));
+      setFeedbackOpenId(null);
       await load();
     } catch {
       setError(t("feedbackError"));
@@ -149,84 +152,100 @@ export default function CoachMonitoringDashboard() {
   return (
     <div className="mt-8 space-y-6">
       {error ? <Alert variant="error">{error}</Alert> : null}
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void load();
-        }}
+      <button
+        type="button"
+        aria-expanded={filtersOpen}
+        aria-controls="coach-monitoring-filters"
+        onClick={() => setFiltersOpen((open) => !open)}
+        className="flex min-h-12 w-full items-center justify-between gap-4 rounded-xl border border-border bg-surface px-4 py-3 text-left font-semibold"
       >
-        <Card className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-6">
-          <MobileDateField
-            label={t("from")}
-            value={from}
-            onChange={setFrom}
-            max={to}
-          />
-          <MobileDateField
-            label={t("to")}
-            value={to}
-            onChange={setTo}
-            min={from}
-          />
-          <label className="text-sm font-semibold">
-            {t("group")}
-            <select
-              value={groupId}
-              onChange={(event) => {
-                setGroupId(event.target.value);
-                setAthleteId("");
-              }}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            >
-              <option value="">{t("allGroups")}</option>
-              {workspace?.groups.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-semibold">
-            {t("athlete")}
-            <select
-              value={athleteId}
-              onChange={(event) => {
-                setAthleteId(event.target.value);
-                setGroupId("");
-              }}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            >
-              <option value="">{t("allAthletes")}</option>
-              {workspace?.athletes.map((athlete) => (
-                <option key={athlete.id} value={athlete.id}>
-                  {athlete.displayName}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm font-semibold">
-            {t("status")}
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value as CoachMonitoringStatus)
-              }
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            >
-              {statusValues.map((value) => (
-                <option key={value} value={value}>
-                  {t(`status${value}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="flex items-end">
-            <Button type="submit" className="w-full" isLoading={loading}>
-              {t("applyFilters")}
-            </Button>
-          </div>
-        </Card>
-      </form>
+        <span>
+          {t("filters")} · {t(`status${status}`)}
+        </span>
+        <span aria-hidden="true">{filtersOpen ? "−" : "+"}</span>
+      </button>
+      {filtersOpen ? (
+        <form
+          id="coach-monitoring-filters"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setFiltersOpen(false);
+            void load();
+          }}
+        >
+          <Card className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-6">
+            <MobileDateField
+              label={t("from")}
+              value={from}
+              onChange={setFrom}
+              max={to}
+            />
+            <MobileDateField
+              label={t("to")}
+              value={to}
+              onChange={setTo}
+              min={from}
+            />
+            <label className="text-sm font-semibold">
+              {t("group")}
+              <select
+                value={groupId}
+                onChange={(event) => {
+                  setGroupId(event.target.value);
+                  setAthleteId("");
+                }}
+                className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+              >
+                <option value="">{t("allGroups")}</option>
+                {workspace?.groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-semibold">
+              {t("athlete")}
+              <select
+                value={athleteId}
+                onChange={(event) => {
+                  setAthleteId(event.target.value);
+                  setGroupId("");
+                }}
+                className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+              >
+                <option value="">{t("allAthletes")}</option>
+                {workspace?.athletes.map((athlete) => (
+                  <option key={athlete.id} value={athlete.id}>
+                    {athlete.displayName}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-semibold">
+              {t("status")}
+              <select
+                value={status}
+                onChange={(event) =>
+                  setStatus(event.target.value as CoachMonitoringStatus)
+                }
+                className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+              >
+                {statusValues.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`status${value}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="flex items-end">
+              <Button type="submit" className="w-full" isLoading={loading}>
+                {t("applyFilters")}
+              </Button>
+            </div>
+          </Card>
+        </form>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {(
@@ -307,8 +326,26 @@ export default function CoachMonitoringDashboard() {
                 >
                   {t("openAthlete")}
                 </ButtonLink>
+                {item.status === "COMPLETED" && !item.reviewedAt ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() =>
+                      setFeedbackOpenId((current) =>
+                        current === item.id ? null : item.id,
+                      )
+                    }
+                    aria-expanded={feedbackOpenId === item.id}
+                  >
+                    {feedbackOpenId === item.id
+                      ? t("closeFeedback")
+                      : t("addFeedback")}
+                  </Button>
+                ) : null}
               </div>
-              {item.status === "COMPLETED" && !item.reviewedAt ? (
+              {item.status === "COMPLETED" &&
+              !item.reviewedAt &&
+              feedbackOpenId === item.id ? (
                 <form
                   onSubmit={(event) => void submitFeedback(event, item.id)}
                   className="mt-4 border-t border-border pt-4"
