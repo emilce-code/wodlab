@@ -401,6 +401,10 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         order: section.order,
         movements: section.movements.map((movement) => ({
           id: movement.id,
+          prescriptions: movement.prescriptions.map((prescription) => ({
+            id: prescription.id,
+            categoryKey: prescription.category.key,
+          })),
           movement: {
             id: movement.movement.id,
             name: movement.movement.name,
@@ -433,6 +437,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         calories: movement.calories,
         durationSeconds: movement.durationSeconds,
         notes: movement.notes,
+        workoutMovementPrescriptionId: movement.workoutMovementPrescriptionId,
       })),
     };
   }
@@ -789,6 +794,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                 preferredPrescriptionCategoryKey={
                   athletePreferences.preferredPrescriptionCategoryKey
                 }
+                percentageTargets={percentageTargets.targets}
               />
             </section>
           </MobileTabPanel>
@@ -1033,9 +1039,24 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                                     </span>
 
                                     {performance && (
-                                      <span className="text-muted">
-                                        {performance}
-                                      </span>
+                                      <div className="text-right">
+                                        <span className="text-muted">
+                                          {performance}
+                                        </span>
+                                        {movement.targetLoad !== null && (
+                                          <p className="mt-0.5 text-xs text-accent">
+                                            {t("percentageResult", {
+                                              percentage:
+                                                movement.prescribedPercentage ??
+                                                0,
+                                              load: movement.targetLoad,
+                                              unit:
+                                                movement.targetWeightUnit ??
+                                                "KG",
+                                            })}
+                                          </p>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
                                 );

@@ -18,6 +18,10 @@ class UpdateWorkoutResultMovementDto {
   workoutMovementId!: string;
 
   @IsOptional()
+  @IsString()
+  workoutMovementPrescriptionId?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   reps?: number;

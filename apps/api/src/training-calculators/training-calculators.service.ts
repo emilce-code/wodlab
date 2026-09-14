@@ -23,8 +23,10 @@ export class TrainingCalculatorsService {
         },
         select: {
           id: true,
+          workoutMovementId: true,
           percentage: true,
           referenceRepMax: true,
+          prescriptionCategory: { select: { key: true } },
           referenceMovement: { select: { id: true, name: true } },
         },
       });
@@ -83,6 +85,8 @@ export class TrainingCalculatorsService {
         ) {
           return {
             prescriptionId: prescription.id,
+            workoutMovementId: prescription.workoutMovementId,
+            prescriptionCategoryKey: prescription.prescriptionCategory.key,
             percentage: Number(prescription.percentage),
             referenceRepMax: prescription.referenceRepMax,
             movement: prescription.referenceMovement,
@@ -97,6 +101,8 @@ export class TrainingCalculatorsService {
         );
         return {
           prescriptionId: prescription.id,
+          workoutMovementId: prescription.workoutMovementId,
+          prescriptionCategoryKey: prescription.prescriptionCategory.key,
           percentage: Number(prescription.percentage),
           referenceRepMax: prescription.referenceRepMax,
           movement: prescription.referenceMovement,

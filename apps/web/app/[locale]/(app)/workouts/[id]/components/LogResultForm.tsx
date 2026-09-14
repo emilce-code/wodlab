@@ -9,6 +9,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
 import { formatCalendarDate, formatClockTime } from "@/lib/date-formatters";
+import type { PercentageTarget } from "@/lib/training-calculators";
 import type {
   MeasurementType,
   PrescriptionCategory,
@@ -32,6 +33,7 @@ export type WorkoutMovement = {
     name: string;
     measurementTypes: MeasurementType[];
   };
+  prescriptions: Array<{ id: string; categoryKey: string }>;
 };
 
 export type WorkoutSection = {
@@ -72,6 +74,7 @@ type ValidationIssue = {
 
 type SubmittedMovement = {
   workoutMovementId: string;
+  workoutMovementPrescriptionId?: string;
   reps?: number;
   load?: number;
   weightUnit?: WeightUnit;
@@ -90,6 +93,7 @@ type Props = {
   preferredWorkoutLevelKey?: string | null;
   preferredPrescriptionCategoryKey?: string | null;
   result?: WorkoutResultForEdit;
+  percentageTargets?: PercentageTarget[];
   onCancel?: () => void;
   onSaved?: () => void;
 };
@@ -153,6 +157,7 @@ export default function LogResultForm({
   preferredWorkoutLevelKey = null,
   preferredPrescriptionCategoryKey = null,
   result,
+  percentageTargets = [],
   onCancel,
   onSaved,
 }: Props) {
@@ -225,7 +230,28 @@ export default function LogResultForm({
 
   const [movementPerformances, setMovementPerformances] =
     useState<MovementPerformanceState>(() =>
-      buildMovementPerformanceState(result, preferredWeightUnit),
+      result
+        ? buildMovementPerformanceState(result, preferredWeightUnit)
+        : Object.fromEntries(
+            percentageTargets
+              .filter(
+                (target) =>
+                  target.prescriptionCategoryKey ===
+                    defaultPrescriptionCategoryKey && target.target,
+              )
+              .map((target) => [
+                target.workoutMovementId,
+                {
+                  reps: "",
+                  load: String(target.target!.load),
+                  weightUnit: target.target!.weightUnit,
+                  distance: "",
+                  durationMinutes: "",
+                  durationSeconds: "",
+                  calories: "",
+                },
+              ]),
+          ),
     );
 
   const [performedDate, setPerformedDate] = useState(
@@ -238,7 +264,7 @@ export default function LogResultForm({
 
   const [notes, setNotes] = useState(result?.notes ?? "");
   const [movementDetailsOpen, setMovementDetailsOpen] = useState(
-    Boolean(result?.performedMovements.length),
+    Boolean(result?.performedMovements.length || percentageTargets.length),
   );
   const [resultDetailsOpen, setResultDetailsOpen] = useState(
     isEditing || Boolean(result?.notes),
@@ -291,6 +317,34 @@ export default function LogResultForm({
 
   function getMeasurementKeys(item: WorkoutMovement) {
     return new Set(item.movement.measurementTypes.map((type) => type.key));
+  }
+
+  function getPercentageTarget(
+    item: WorkoutMovement,
+    categoryKey = prescriptionCategoryKey,
+  ) {
+    return percentageTargets.find(
+      (target) =>
+        target.workoutMovementId === item.id &&
+        target.prescriptionCategoryKey === categoryKey,
+    );
+  }
+
+  function selectPrescriptionCategory(categoryKey: string) {
+    setPrescriptionCategoryKey(categoryKey);
+    setMovementPerformances((current) => {
+      const next = { ...current };
+      for (const item of trackableMovements) {
+        const target = getPercentageTarget(item, categoryKey);
+        if (!target?.target || next[item.id]?.load) continue;
+        next[item.id] = {
+          ...getMovementPerformance(item.id),
+          load: String(target.target.load),
+          weightUnit: target.target.weightUnit,
+        };
+      }
+      return next;
+    });
   }
 
   function getMovementPerformance(
@@ -365,6 +419,14 @@ export default function LogResultForm({
       const submitted: SubmittedMovement = {
         workoutMovementId: item.id,
       };
+      const percentageTarget = getPercentageTarget(item);
+      const savedPrescriptionId = result?.performedMovements.find(
+        (movement) => movement.workoutMovementId === item.id,
+      )?.workoutMovementPrescriptionId;
+      if (percentageTarget?.target || savedPrescriptionId) {
+        submitted.workoutMovementPrescriptionId =
+          percentageTarget?.prescriptionId ?? savedPrescriptionId ?? undefined;
+      }
 
       const repsValue = optionalNumber(performance.reps);
       const loadValue = optionalNumber(performance.load);
@@ -794,7 +856,7 @@ export default function LogResultForm({
               <button
                 type="button"
                 aria-pressed={!prescriptionCategoryKey}
-                onClick={() => setPrescriptionCategoryKey("")}
+                onClick={() => selectPrescriptionCategory("")}
                 className={[
                   "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
                   !prescriptionCategoryKey
@@ -813,7 +875,7 @@ export default function LogResultForm({
                     key={category.key}
                     type="button"
                     aria-pressed={selected}
-                    onClick={() => setPrescriptionCategoryKey(category.key)}
+                    onClick={() => selectPrescriptionCategory(category.key)}
                     className={[
                       "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
                       selected
@@ -981,6 +1043,7 @@ export default function LogResultForm({
                   const supportsCalories = measurementKeys.has("CALORIES");
 
                   const showReps = supportsWeight || supportsReps;
+                  const percentageTarget = getPercentageTarget(item);
 
                   return (
                     <div
@@ -1001,6 +1064,56 @@ export default function LogResultForm({
                           ))}
                         </div>
                       </div>
+
+                      {percentageTarget && (
+                        <div className="mt-3 rounded-xl border border-accent/25 bg-accent/5 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
+                            {t("percentageTarget", {
+                              percentage: percentageTarget.percentage,
+                              reps: percentageTarget.referenceRepMax,
+                            })}
+                          </p>
+                          {percentageTarget.target &&
+                          percentageTarget.repMax ? (
+                            <div className="mt-2 flex items-end justify-between gap-3">
+                              <div>
+                                <p className="text-2xl font-bold tabular-nums">
+                                  {percentageTarget.target.load}{" "}
+                                  {percentageTarget.target.weightUnit}
+                                </p>
+                                <p className="mt-1 text-xs text-muted">
+                                  {t("percentageSource", {
+                                    load: percentageTarget.repMax.load,
+                                    unit: percentageTarget.repMax.weightUnit,
+                                  })}
+                                </p>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() =>
+                                  updateMovementPerformance(item.id, {
+                                    load: String(percentageTarget.target!.load),
+                                    weightUnit:
+                                      percentageTarget.target!.weightUnit,
+                                  })
+                                }
+                              >
+                                {t("useTarget")}
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-sm text-muted">
+                              {t("percentageMissingRm", {
+                                reps: percentageTarget.referenceRepMax,
+                                movement:
+                                  percentageTarget.movement?.name ??
+                                  item.movement.name,
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {showReps && (

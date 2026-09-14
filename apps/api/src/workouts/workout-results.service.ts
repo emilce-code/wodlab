@@ -92,6 +92,20 @@ type WorkoutMovementForResult = {
       };
     }[];
   };
+  prescriptions: {
+    id: string;
+    prescriptionCategoryId: string;
+  }[];
+};
+
+type PercentageExecutionSnapshot = {
+  workoutMovementPrescriptionId: string;
+  prescribedPercentage: number;
+  referenceRepMax: number;
+  referenceLoad: number;
+  referenceWeightUnit: 'KG' | 'LB';
+  targetLoad: number;
+  targetWeightUnit: 'KG' | 'LB';
 };
 
 @Injectable()
@@ -514,6 +528,9 @@ export class WorkoutResultsService {
                     },
                   },
                 },
+                prescriptions: {
+                  select: { id: true, prescriptionCategoryId: true },
+                },
               },
             },
           },
@@ -602,6 +619,14 @@ export class WorkoutResultsService {
       }
     }
 
+    const percentageSnapshots = await this.resolvePercentageSnapshots(
+      athleteProfile.id,
+      athleteProfile.preferredWeightUnit,
+      submittedMovements,
+      workoutMovementMap,
+      prescriptionCategory?.id,
+    );
+
     const performedAt = dto.performedAt
       ? new Date(dto.performedAt)
       : new Date();
@@ -668,6 +693,7 @@ export class WorkoutResultsService {
                     calories: movement.calories,
                     durationSeconds: movement.durationSeconds,
                     notes: movement.notes,
+                    ...percentageSnapshots.get(movement.workoutMovementId),
                   })),
                 }
               : undefined,
@@ -771,6 +797,9 @@ export class WorkoutResultsService {
                         },
                       },
                     },
+                    prescriptions: {
+                      select: { id: true, prescriptionCategoryId: true },
+                    },
                   },
                 },
               },
@@ -846,6 +875,9 @@ export class WorkoutResultsService {
                     },
                   },
                 },
+                prescriptions: {
+                  select: { id: true, prescriptionCategoryId: true },
+                },
               },
             },
           },
@@ -906,6 +938,8 @@ export class WorkoutResultsService {
             durationSeconds: movement.durationSeconds ?? undefined,
 
             notes: movement.notes ?? undefined,
+            workoutMovementPrescriptionId:
+              movement.workoutMovementPrescriptionId ?? undefined,
           }));
 
     const submittedMovementIds = finalMovements.map(
@@ -933,6 +967,14 @@ export class WorkoutResultsService {
         );
       }
     }
+
+    const percentageSnapshots = await this.resolvePercentageSnapshots(
+      athleteProfile.id,
+      athleteProfile.preferredWeightUnit,
+      finalMovements,
+      workoutMovementMap,
+      prescriptionCategory?.id,
+    );
 
     const finalResultDto: CreateWorkoutResultDto = {
       workoutVariantId,
@@ -1058,6 +1100,7 @@ export class WorkoutResultsService {
                     durationSeconds: movement.durationSeconds,
 
                     notes: movement.notes,
+                    ...percentageSnapshots.get(movement.workoutMovementId),
                   })),
                 }
               : undefined,
@@ -1419,6 +1462,116 @@ export class WorkoutResultsService {
     }
   }
 
+  private async resolvePercentageSnapshots(
+    athleteProfileId: string,
+    preferredWeightUnit: 'KG' | 'LB',
+    movements: NonNullable<CreateWorkoutResultDto['movements']>,
+    workoutMovementMap: Map<string, WorkoutMovementForResult>,
+    prescriptionCategoryId?: string,
+  ) {
+    const snapshots = new Map<string, PercentageExecutionSnapshot>();
+
+    for (const movement of movements) {
+      const prescriptionId = movement.workoutMovementPrescriptionId;
+      if (!prescriptionId) continue;
+
+      const allowed = workoutMovementMap
+        .get(movement.workoutMovementId)
+        ?.prescriptions.find(
+          (item) =>
+            item.id === prescriptionId &&
+            item.prescriptionCategoryId === prescriptionCategoryId,
+        );
+
+      if (!allowed) {
+        throw new BadRequestException(
+          'Percentage prescription does not match the selected movement and category',
+        );
+      }
+
+      const prescription =
+        await this.prisma.workoutMovementPrescription.findUnique({
+          where: { id: prescriptionId },
+          select: {
+            percentage: true,
+            referenceRepMax: true,
+            referenceMovementId: true,
+          },
+        });
+
+      if (
+        !prescription?.percentage ||
+        !prescription.referenceRepMax ||
+        !prescription.referenceMovementId
+      ) {
+        throw new BadRequestException('Percentage prescription is incomplete');
+      }
+
+      const candidates = await this.prisma.movementResult.findMany({
+        where: {
+          athleteProfileId,
+          movementId: prescription.referenceMovementId,
+          reps: prescription.referenceRepMax,
+          measurementType: { key: 'WEIGHT' },
+          load: { not: null },
+        },
+        select: { load: true, weightUnit: true },
+      });
+      const best = candidates.reduce<(typeof candidates)[number] | null>(
+        (current, candidate) =>
+          !current || this.toKilograms(candidate) > this.toKilograms(current)
+            ? candidate
+            : current,
+        null,
+      );
+
+      if (!best?.load) {
+        throw new BadRequestException(
+          'Log the referenced rep max before using this percentage target',
+        );
+      }
+
+      const referenceLoad = this.convertWeight(
+        Number(best.load),
+        best.weightUnit ?? 'KG',
+        preferredWeightUnit,
+      );
+      const percentage = Number(prescription.percentage);
+
+      snapshots.set(movement.workoutMovementId, {
+        workoutMovementPrescriptionId: prescriptionId,
+        prescribedPercentage: percentage,
+        referenceRepMax: prescription.referenceRepMax,
+        referenceLoad: this.roundLoad(referenceLoad),
+        referenceWeightUnit: preferredWeightUnit,
+        targetLoad: this.roundLoad(referenceLoad * (percentage / 100)),
+        targetWeightUnit: preferredWeightUnit,
+      });
+    }
+
+    return snapshots;
+  }
+
+  private toKilograms(result: {
+    load: unknown;
+    weightUnit: 'KG' | 'LB' | null;
+  }) {
+    return this.convertWeight(
+      Number(result.load),
+      result.weightUnit ?? 'KG',
+      'KG',
+    );
+  }
+
+  private convertWeight(value: number, from: 'KG' | 'LB', to: 'KG' | 'LB') {
+    if (from === to) return value;
+    return from === 'LB' ? value * 0.45359237 : value / 0.45359237;
+  }
+
+  private roundLoad(value: number) {
+    return Math.round(value * 2) / 2;
+  }
+
   private mapWorkoutResult<T extends WorkoutResultWithDetails>(result: T) {
     const workoutVariant = result.workoutVariant
       ? {
@@ -1455,6 +1608,23 @@ export class WorkoutResultsService {
           calories: performedMovement.calories,
           durationSeconds: performedMovement.durationSeconds,
           notes: performedMovement.notes,
+          workoutMovementPrescriptionId:
+            performedMovement.workoutMovementPrescriptionId,
+          prescribedPercentage:
+            performedMovement.prescribedPercentage !== null
+              ? Number(performedMovement.prescribedPercentage)
+              : null,
+          referenceRepMax: performedMovement.referenceRepMax,
+          referenceLoad:
+            performedMovement.referenceLoad !== null
+              ? Number(performedMovement.referenceLoad)
+              : null,
+          referenceWeightUnit: performedMovement.referenceWeightUnit,
+          targetLoad:
+            performedMovement.targetLoad !== null
+              ? Number(performedMovement.targetLoad)
+              : null,
+          targetWeightUnit: performedMovement.targetWeightUnit,
 
           workoutMovement: performedMovement.workoutMovement
             ? {

@@ -2,6 +2,8 @@ import type { WeightUnit } from "./result-types";
 
 export type PercentageTarget = {
   prescriptionId: string;
+  workoutMovementId: string;
+  prescriptionCategoryKey: string;
   percentage: number;
   referenceRepMax: number;
   movement: { id: string; name: string } | null;
