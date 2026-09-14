@@ -184,6 +184,19 @@
     "upcoming": "Upcoming classes",
     "loading": "Loading classes...",
     "empty": "No classes are scheduled for the next 30 days.",
+    "emptyMine": "You have no upcoming class reservations.",
+    "classCount": "{count, plural, =1 {1 class} other {# classes}}",
+    "openAdministration": "Open Box administration",
+    "roles": {
+      "owner": "Owner",
+      "coach": "Coach",
+      "athlete": "Athlete"
+    },
+    "views": {
+      "label": "Class views",
+      "all": "All classes",
+      "mine": "My reservations"
+    },
     "classMeta": "{duration} min · {booked}/{capacity} booked",
     "spots": "{count, plural, =1 {1 spot} other {# spots}}",
     "full": "Full",
@@ -199,6 +212,9 @@
       "title": "Join a box",
       "description": "Ask your coach for the box join code.",
       "code": "Join code",
+      "placeholder": "ENTER CODE",
+      "another": "Join",
+      "close": "Close",
       "submit": "Join box"
     },
     "create": {

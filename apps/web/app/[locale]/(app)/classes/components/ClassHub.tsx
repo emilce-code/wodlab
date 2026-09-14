@@ -4,17 +4,12 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/ui/Button";
-import type {
-  BoxMember,
-  BoxSummary,
-  ClassSession,
-  WorkoutOption,
-} from "@/lib/boxes";
+import ProgressiveList from "@/components/ui/ProgressiveList";
+import { Link } from "@/i18n/navigation";
+import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
 
 type Props = {
   initialBoxes: BoxSummary[];
-  canCreateBoxes: boolean;
-  isApplicationAdmin: boolean;
 };
 
 function requestMessage(data: unknown, fallback: string) {
@@ -25,11 +20,7 @@ function requestMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-export default function ClassHub({
-  initialBoxes,
-  canCreateBoxes,
-  isApplicationAdmin,
-}: Props) {
+export default function ClassHub({ initialBoxes }: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
   const [boxes, setBoxes] = useState(initialBoxes);
@@ -38,17 +29,19 @@ export default function ClassHub({
   );
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [options, setOptions] = useState<WorkoutOption[]>([]);
-  const [members, setMembers] = useState<BoxMember[]>([]);
   const [loading, setLoading] = useState(Boolean(initialBoxes.length));
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showSetup, setShowSetup] = useState(initialBoxes.length === 0);
+  const [showJoin, setShowJoin] = useState(initialBoxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
-  const [showEditBox, setShowEditBox] = useState(false);
+  const [view, setView] = useState<"all" | "mine">("all");
   const selectedBox = boxes.find((box) => box.id === boxId);
   const role = selectedBox?.role ?? null;
   const isStaff = role === "OWNER" || role === "COACH";
-  const canEditBox = isApplicationAdmin || role === "OWNER";
+  const visibleClasses =
+    !isStaff && view === "mine"
+      ? classes.filter((session) => Boolean(session.currentUserBooking))
+      : classes;
 
   async function loadClasses(selectedId: string) {
     setLoading(true);
@@ -117,16 +110,6 @@ export default function ClassHub({
     return () => controller.abort();
   }, [boxId, isStaff]);
 
-  useEffect(() => {
-    if (!boxId || role !== "OWNER") return;
-    const controller = new AbortController();
-    void fetch(`/api/boxes/${boxId}/members`, { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : []))
-      .then((data: BoxMember[]) => setMembers(data))
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [boxId, role]);
-
   async function refreshBoxes() {
     const response = await fetch("/api/boxes");
     if (!response.ok) return;
@@ -157,23 +140,11 @@ export default function ClassHub({
     event.preventDefault();
     setError(null);
     const form = new FormData(event.currentTarget);
-    const mode = String(form.get("mode"));
-    const body =
-      mode === "join"
-        ? { joinCode: String(form.get("joinCode")) }
-        : {
-            name: String(form.get("name")),
-            description: String(form.get("description")) || undefined,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          };
-    const response = await fetch(
-      mode === "join" ? "/api/boxes/join" : "/api/boxes",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      },
-    );
+    const response = await fetch("/api/boxes/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ joinCode: String(form.get("joinCode")) }),
+    });
     const data = await response.json();
     if (!response.ok) {
       setError(requestMessage(data, t("errors.save")));
@@ -181,7 +152,7 @@ export default function ClassHub({
     }
     await refreshBoxes();
     setBoxId(data.id);
-    setShowSetup(false);
+    setShowJoin(false);
     event.currentTarget.reset();
   }
 
@@ -213,35 +184,6 @@ export default function ClassHub({
     await loadClasses(boxId);
   }
 
-  async function submitBoxUpdate(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selectedBox) return;
-    setBusyId(selectedBox.id);
-    setError(null);
-    const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/boxes/${selectedBox.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: String(form.get("name")),
-        description: String(form.get("description")),
-        timezone: String(form.get("timezone")),
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setError(requestMessage(data, t("errors.save")));
-    } else {
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === selectedBox.id ? { ...box, ...data } : box,
-        ),
-      );
-      setShowEditBox(false);
-    }
-    setBusyId(null);
-  }
-
   async function classAction(
     classId: string,
     method: "POST" | "PATCH" | "DELETE",
@@ -261,25 +203,6 @@ export default function ClassHub({
     const data = await response.json();
     if (!response.ok) setError(requestMessage(data, t("errors.action")));
     else await loadClasses(boxId);
-    setBusyId(null);
-  }
-
-  async function updateMember(memberId: string, nextRole: "COACH" | "ATHLETE") {
-    setBusyId(memberId);
-    const response = await fetch(`/api/boxes/${boxId}/members/${memberId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: nextRole }),
-    });
-    if (response.ok) {
-      setMembers((current) =>
-        current.map((member) =>
-          member.id === memberId ? { ...member, role: nextRole } : member,
-        ),
-      );
-    } else {
-      setError(t("errors.action"));
-    }
     setBusyId(null);
   }
 
@@ -309,101 +232,34 @@ export default function ClassHub({
             <Button
               type="button"
               variant="secondary"
-              onClick={() => setShowSetup((value) => !value)}
+              onClick={() => setShowJoin((value) => !value)}
             >
-              {t("manage")}
+              {showJoin ? t("join.close") : t("join.another")}
             </Button>
           </div>
         </div>
       ) : null}
 
-      {showSetup ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <form
-            onSubmit={submitBox}
-            className="rounded-xl border border-border bg-surface p-4"
-          >
-              <input type="hidden" name="mode" value="join" />
-              <h2 className="font-bold">{t("join.title")}</h2>
-              <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
-              <input
-                name="joinCode"
-                aria-label={t("join.code")}
-                required
-                minLength={6}
-                maxLength={12}
-                placeholder={t("join.code")}
-                className="mt-4 min-h-11 w-full rounded-lg border border-border bg-background px-3 uppercase"
-              />
-              <Button className="mt-3 w-full">{t("join.submit")}</Button>
-          </form>
-          {canCreateBoxes ? (
-            <form
-              onSubmit={submitBox}
-              className="rounded-xl border border-border bg-surface p-4"
-            >
-            <input type="hidden" name="mode" value="create" />
-            <h2 className="font-bold">{t("create.title")}</h2>
-            <p className="mt-1 text-sm text-muted">{t("create.description")}</p>
-            <input
-              name="name"
-              aria-label={t("create.name")}
-              required
-              minLength={2}
-              placeholder={t("create.name")}
-              className="mt-4 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-            <textarea
-              name="description"
-              aria-label={t("create.boxDescription")}
-              rows={2}
-              placeholder={t("create.boxDescription")}
-              className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2"
-            />
-            <Button className="mt-3 w-full">{t("create.submit")}</Button>
-            </form>
-          ) : null}
-          {role === "OWNER" && members.length ? (
-            <section className="rounded-xl border border-border bg-surface p-4 sm:col-span-2">
-              <h2 className="font-bold">{t("memberManagement")}</h2>
-              <div className="mt-3 space-y-2">
-                {members.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between gap-3 rounded-lg bg-background p-3"
-                  >
-                    <span className="min-w-0 truncate text-sm">
-                      {member.user.athleteProfile?.displayName ??
-                        member.user.coachProfile?.displayName ??
-                        member.user.email}
-                    </span>
-                    {member.role === "OWNER" ? (
-                      <span className="text-xs font-semibold text-accent">
-                        {t("owner")}
-                      </span>
-                    ) : (
-                      <select
-                        aria-label={t("memberRole")}
-                        value={member.role}
-                        disabled={busyId === member.id}
-                        onChange={(event) =>
-                          void updateMember(
-                            member.id,
-                            event.target.value as "COACH" | "ATHLETE",
-                          )
-                        }
-                        className="min-h-11 rounded-lg border border-border bg-surface px-2 text-sm"
-                      >
-                        <option value="ATHLETE">{t("athlete")}</option>
-                        <option value="COACH">{t("coach")}</option>
-                      </select>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-        </div>
+      {showJoin ? (
+        <form
+          onSubmit={submitBox}
+          className="rounded-2xl border border-border bg-surface p-4"
+        >
+          <h2 className="font-bold">{t("join.title")}</h2>
+          <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
+          <input
+            name="joinCode"
+            aria-label={t("join.code")}
+            required
+            minLength={6}
+            maxLength={12}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            placeholder={t("join.placeholder")}
+            className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-lg uppercase tracking-[0.15em]"
+          />
+          <Button className="mt-3 w-full">{t("join.submit")}</Button>
+        </form>
       ) : null}
 
       {error ? (
@@ -416,87 +272,37 @@ export default function ClassHub({
       ) : null}
 
       {selectedBox ? (
-        <section className="rounded-xl border border-border bg-surface p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <section className="rounded-2xl border border-border bg-surface p-4">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold">{selectedBox.name}</h2>
               <p className="mt-1 text-sm text-muted">
                 {t("members", { count: selectedBox._count.memberships })}
               </p>
-              {isStaff ? (
-                <p className="mt-1 font-mono text-xs text-accent">
-                  {t("joinCode", { code: selectedBox.joinCode })}
-                </p>
-              ) : null}
             </div>
-            <div className="grid w-full gap-2 sm:flex sm:w-auto">
-              {canEditBox ? (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowEditBox((value) => !value)}
-                >
-                  {showEditBox ? t("edit.cancel") : t("edit.open")}
-                </Button>
-              ) : null}
-              {isStaff ? (
-                <Button
-                  type="button"
-                  onClick={() => setShowCreateClass((value) => !value)}
-                >
-                  {showCreateClass
-                    ? t("classForm.cancel")
-                    : t("classForm.open")}
-                </Button>
-              ) : null}
-            </div>
+            <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+              {t(`roles.${role?.toLowerCase() ?? "athlete"}`)}
+            </span>
           </div>
+          {role === "OWNER" ? (
+            <Link
+              href="/box-admin"
+              className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent"
+            >
+              {t("openAdministration")}
+            </Link>
+          ) : null}
         </section>
       ) : null}
 
-      {showEditBox && selectedBox && canEditBox ? (
-        <form
-          onSubmit={submitBoxUpdate}
-          className="rounded-xl border border-accent/30 bg-surface p-4"
+      {isStaff ? (
+        <Button
+          type="button"
+          className="w-full"
+          onClick={() => setShowCreateClass((value) => !value)}
         >
-          <h2 className="font-bold">{t("edit.title")}</h2>
-          <div className="mt-4 grid gap-3">
-            <label className="text-sm font-semibold">
-              {t("create.name")}
-              <input
-                name="name"
-                required
-                minLength={2}
-                maxLength={80}
-                defaultValue={selectedBox.name}
-                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
-              />
-            </label>
-            <label className="text-sm font-semibold">
-              {t("create.boxDescription")}
-              <textarea
-                name="description"
-                rows={3}
-                maxLength={500}
-                defaultValue={selectedBox.description ?? ""}
-                className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-base"
-              />
-            </label>
-            <label className="text-sm font-semibold">
-              {t("edit.timezone")}
-              <input
-                name="timezone"
-                required
-                maxLength={80}
-                defaultValue={selectedBox.timezone}
-                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
-              />
-            </label>
-            <Button disabled={busyId === selectedBox.id} className="w-full">
-              {busyId === selectedBox.id ? t("edit.saving") : t("edit.submit")}
-            </Button>
-          </div>
-        </form>
+          {showCreateClass ? t("classForm.cancel") : t("classForm.open")}
+        </Button>
       ) : null}
 
       {showCreateClass && isStaff ? (
@@ -504,19 +310,44 @@ export default function ClassHub({
       ) : null}
 
       <section aria-busy={loading}>
-        <h2 className="mb-3 text-lg font-bold">{t("upcoming")}</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">{t("upcoming")}</h2>
+          <span className="text-xs font-semibold text-muted">
+            {t("classCount", { count: visibleClasses.length })}
+          </span>
+        </div>
+        {!isStaff ? (
+          <div
+            role="tablist"
+            aria-label={t("views.label")}
+            className="mb-4 grid grid-cols-2 rounded-xl bg-surface-elevated p-1"
+          >
+            {(["all", "mine"] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                role="tab"
+                aria-selected={view === item}
+                onClick={() => setView(item)}
+                className={`min-h-11 rounded-lg px-3 text-sm font-semibold ${view === item ? "bg-surface text-accent shadow-sm" : "text-muted"}`}
+              >
+                {t(`views.${item}`)}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {loading ? (
           <p className="rounded-xl border border-border bg-surface p-5 text-sm text-muted">
             {t("loading")}
           </p>
         ) : null}
-        {!loading && !classes.length ? (
+        {!loading && !visibleClasses.length ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
-            {t("empty")}
+            {view === "mine" ? t("emptyMine") : t("empty")}
           </p>
         ) : null}
-        <div className="space-y-3">
-          {classes.map((session) => {
+        <ProgressiveList className="space-y-3" initialCount={8} increment={8}>
+          {visibleClasses.map((session) => {
             const full = session.bookedCount >= session.capacity;
             return (
               <article
@@ -550,6 +381,11 @@ export default function ClassHub({
                         {session.workoutVariant
                           ? ` · ${session.workoutVariant.level.name}`
                           : ""}
+                      </p>
+                    ) : null}
+                    {session.description ? (
+                      <p className="mt-2 line-clamp-2 text-sm text-muted">
+                        {session.description}
                       </p>
                     ) : null}
                   </div>
@@ -648,7 +484,7 @@ export default function ClassHub({
               </article>
             );
           })}
-        </div>
+        </ProgressiveList>
       </section>
     </div>
   );
@@ -690,53 +526,63 @@ function ClassForm({
             className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
           />
         </label>
-        <input
-          name="durationMinutes"
-          type="number"
-          min={15}
-          max={240}
-          defaultValue={60}
-          required
-          aria-label={t("classForm.duration")}
-          className="min-h-11 rounded-lg border border-border bg-background px-3"
-        />
-        <input
-          name="capacity"
-          type="number"
-          min={1}
-          max={200}
-          defaultValue={12}
-          required
-          aria-label={t("classForm.capacity")}
-          className="min-h-11 rounded-lg border border-border bg-background px-3"
-        />
-        <select
-          name="workoutId"
-          aria-label={t("classForm.workout")}
-          value={workoutId}
-          onChange={(event) => setWorkoutId(event.target.value)}
-          className="min-h-11 rounded-lg border border-border bg-background px-3"
-        >
-          <option value="">{t("classForm.noWorkout")}</option>
-          {options.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-        <select
-          name="workoutVariantId"
-          aria-label={t("classForm.variation")}
-          disabled={!workoutId}
-          className="min-h-11 rounded-lg border border-border bg-background px-3"
-        >
-          <option value="">{t("classForm.noVariation")}</option>
-          {variants.map((variant) => (
-            <option key={variant.id} value={variant.id}>
-              {variant.name ?? variant.level.name}
-            </option>
-          ))}
-        </select>
+        <label className="text-sm font-semibold">
+          {t("classForm.duration")}
+          <input
+            name="durationMinutes"
+            type="number"
+            inputMode="numeric"
+            min={15}
+            max={240}
+            defaultValue={60}
+            required
+            className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+          />
+        </label>
+        <label className="text-sm font-semibold">
+          {t("classForm.capacity")}
+          <input
+            name="capacity"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={200}
+            defaultValue={12}
+            required
+            className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+          />
+        </label>
+        <label className="text-sm font-semibold">
+          {t("classForm.workout")}
+          <select
+            name="workoutId"
+            value={workoutId}
+            onChange={(event) => setWorkoutId(event.target.value)}
+            className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+          >
+            <option value="">{t("classForm.noWorkout")}</option>
+            {options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-semibold">
+          {t("classForm.variation")}
+          <select
+            name="workoutVariantId"
+            disabled={!workoutId}
+            className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50"
+          >
+            <option value="">{t("classForm.noVariation")}</option>
+            {variants.map((variant) => (
+              <option key={variant.id} value={variant.id}>
+                {variant.name ?? variant.level.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <textarea
           name="description"
           aria-label={t("classForm.description")}

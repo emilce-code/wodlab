@@ -184,6 +184,19 @@
     "upcoming": "Próximas aulas",
     "loading": "Carregando aulas...",
     "empty": "Não há aulas programadas para os próximos 30 dias.",
+    "emptyMine": "Você não tem reservas de aulas próximas.",
+    "classCount": "{count, plural, =1 {1 aula} other {# aulas}}",
+    "openAdministration": "Abrir administração do Box",
+    "roles": {
+      "owner": "Proprietário",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    },
+    "views": {
+      "label": "Visualizações de aulas",
+      "all": "Todas",
+      "mine": "Minhas reservas"
+    },
     "classMeta": "{duration} min · {booked}/{capacity} reservas",
     "spots": "{count, plural, =1 {1 vaga} other {# vagas}}",
     "full": "Lotada",
@@ -199,6 +212,9 @@
       "title": "Entrar em um box",
       "description": "Peça ao coach o código do box.",
       "code": "Código",
+      "placeholder": "DIGITE O CÓDIGO",
+      "another": "Entrar",
+      "close": "Fechar",
       "submit": "Entrar"
     },
     "create": {
