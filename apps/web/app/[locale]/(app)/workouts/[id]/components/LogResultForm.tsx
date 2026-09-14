@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import NumberField from "@/components/results/ResultNumberField";
+import ResultDateTimeFields from "@/components/results/ResultDateTimeFields";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
@@ -163,9 +164,6 @@ export default function LogResultForm({
 
   const locale = useLocale();
   const router = useRouter();
-
-  const dateInputRef = useRef<HTMLInputElement>(null);
-  const timeInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = Boolean(result);
   const resultDate = result ? new Date(result.performedAt) : null;
@@ -587,14 +585,6 @@ export default function LogResultForm({
 
   function getPerformedAtIso() {
     return new Date(`${performedDate}T${performedTime}`).toISOString();
-  }
-
-  function openDatePicker() {
-    dateInputRef.current?.showPicker();
-  }
-
-  function openTimePicker() {
-    timeInputRef.current?.showPicker();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1186,99 +1176,19 @@ export default function LogResultForm({
               tabIndex={-1}
               className="border-t border-border p-4"
             >
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm font-medium">{t("performedAt")}</p>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPerformedDate(getLocalDateValue())}
-                    className="text-xs font-semibold text-accent hover:underline"
-                  >
-                    {t("today")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPerformedTime(getLocalTimeValue())}
-                    className="text-xs font-semibold text-accent hover:underline"
-                  >
-                    {t("now")}
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <p className="mb-1.5 text-xs font-medium text-muted">
-                    {t("date")}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={openDatePicker}
-                    className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {formatSelectedDate(performedDate)}
-                      </p>
-
-                      <p className="mt-0.5 text-xs text-muted">
-                        {t("chooseDate")}
-                      </p>
-                    </div>
-
-                    <span aria-hidden="true" className="text-lg text-muted">
-                      ◫
-                    </span>
-                  </button>
-
-                  <input
-                    ref={dateInputRef}
-                    type="date"
-                    value={performedDate}
-                    onChange={(event) => setPerformedDate(event.target.value)}
-                    className="sr-only"
-                    tabIndex={-1}
-                  />
-                </div>
-
-                <div>
-                  <p className="mb-1.5 text-xs font-medium text-muted">
-                    {t("time")}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={openTimePicker}
-                    className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-4 py-3 text-left transition hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent/10"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {formatSelectedTime(performedTime)}
-                      </p>
-
-                      <p className="mt-0.5 text-xs text-muted">
-                        {t("chooseTime")}
-                      </p>
-                    </div>
-
-                    <span aria-hidden="true" className="text-lg text-muted">
-                      ◷
-                    </span>
-                  </button>
-
-                  <input
-                    ref={timeInputRef}
-                    type="time"
-                    value={performedTime}
-                    onChange={(event) => setPerformedTime(event.target.value)}
-                    className="sr-only"
-                    tabIndex={-1}
-                  />
-                </div>
-              </div>
-
-              <p className="mt-2 text-xs text-muted">{t("performedAtHelp")}</p>
+              <ResultDateTimeFields
+                date={performedDate}
+                time={performedTime}
+                onDateChange={setPerformedDate}
+                onTimeChange={setPerformedTime}
+                legend={t("performedAt")}
+                dateLabel={t("date")}
+                timeLabel={t("time")}
+                todayLabel={t("today")}
+                nowLabel={t("now")}
+                helpText={t("performedAtHelp")}
+                disabled={isSubmitting}
+              />
 
               <div className="mt-5">
                 <label
