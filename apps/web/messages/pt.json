@@ -6,6 +6,7 @@
     "notifications": "Notificações",
     "coach": "Coach",
     "admin": "Administração",
+    "boxAdmin": "Administrar Box",
     "history": "Histórico",
     "progress": "Progresso",
     "account": "Conta",
@@ -50,6 +51,7 @@
   },
   "navigation": {
     "boxes": "Aulas",
+    "boxAdmin": "Administrar Box",
     "notifications": "Notificações",
     "today": "Hoje",
     "workouts": "Treinos",
@@ -101,6 +103,71 @@
       "ADMIN": "Administrador"
     }
   },
+  "boxAdministration": {
+    "eyebrow": "Operações do Box",
+    "title": "Administração do Box",
+    "description": "Gerencie informações, acesso e funções dos membros em um só lugar.",
+    "selectBox": "Box para administrar",
+    "cancel": "Cancelar",
+    "working": "Salvando...",
+    "loading": "Carregando membros...",
+    "empty": "Não há Boxes disponíveis para administrar.",
+    "saved": "Informações do Box salvas.",
+    "created": "Box criado.",
+    "summary": {
+      "eyebrow": "Box atual",
+      "admin": "Administrador",
+      "owner": "Proprietário",
+      "members": "Membros",
+      "classes": "Aulas",
+      "timezone": "Fuso horário"
+    },
+    "tabs": {
+      "label": "Seções de administração do Box",
+      "details": "Detalhes",
+      "members": "Membros"
+    },
+    "fields": {
+      "name": "Nome do Box",
+      "description": "Descrição",
+      "timezone": "Fuso horário",
+      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box."
+    },
+    "details": { "title": "Informações do Box", "save": "Salvar alterações" },
+    "create": {
+      "open": "Novo Box",
+      "title": "Criar um Box",
+      "submit": "Criar Box"
+    },
+    "joinCode": {
+      "title": "Código de entrada",
+      "description": "Os atletas usam este código para entrar no Box.",
+      "rotate": "Gerar novo código",
+      "confirm": "Substituir o código atual? O código anterior deixará de funcionar.",
+      "rotated": "Um novo código de entrada foi gerado.",
+      "copy": "Copiar código",
+      "copied": "Código de entrada copiado.",
+      "copyError": "Não foi possível copiar o código de entrada."
+    },
+    "members": {
+      "title": "Membros",
+      "description": "{count, plural, =1 {1 membro do Box} other {# membros do Box}}",
+      "roleFor": "Função de {name}",
+      "roleSaved": "Função do membro atualizada.",
+      "remove": "Remover",
+      "removeConfirm": "Remover este membro do Box?",
+      "removed": "Membro removido do Box.",
+      "searchLabel": "Buscar membros",
+      "searchPlaceholder": "Buscar por nome, e-mail ou função",
+      "empty": "Nenhum membro corresponde à busca."
+    },
+    "roles": { "owner": "Proprietário", "coach": "Coach", "athlete": "Atleta" },
+    "errors": {
+      "load": "Não foi possível carregar os membros.",
+      "save": "Não foi possível salvar o Box.",
+      "action": "Não foi possível concluir esta ação."
+    }
+  },
   "boxes": {
     "eyebrow": "Treinem juntos",
     "title": "Boxes e aulas",
@@ -117,6 +184,19 @@
     "upcoming": "Próximas aulas",
     "loading": "Carregando aulas...",
     "empty": "Não há aulas programadas para os próximos 30 dias.",
+    "emptyMine": "Você não tem reservas de aulas próximas.",
+    "classCount": "{count, plural, =1 {1 aula} other {# aulas}}",
+    "openAdministration": "Abrir administração do Box",
+    "roles": {
+      "owner": "Proprietário",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    },
+    "views": {
+      "label": "Visualizações de aulas",
+      "all": "Todas",
+      "mine": "Minhas reservas"
+    },
     "classMeta": "{duration} min · {booked}/{capacity} reservas",
     "spots": "{count, plural, =1 {1 vaga} other {# vagas}}",
     "full": "Lotada",
@@ -132,6 +212,9 @@
       "title": "Entrar em um box",
       "description": "Peça ao coach o código do box.",
       "code": "Código",
+      "placeholder": "DIGITE O CÓDIGO",
+      "another": "Entrar",
+      "close": "Fechar",
       "submit": "Entrar"
     },
     "create": {

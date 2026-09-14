@@ -496,3 +496,13 @@ the API verifies its workout movement and category, recalculates the target from
 owned athlete data, and stores an immutable prescription snapshot alongside the
 actual load. Historical results therefore remain explainable after an RM or
 workout prescription changes.
+
+## Box administration boundary
+
+The Boxes API exposes an application-admin-only organization index while all
+Box mutations continue to validate authorization server-side. Application
+administrators can administer any Box; otherwise the authenticated user must
+hold the contextual `OWNER` membership for that Box. Owners cannot be removed,
+member removal clears a matching active Box context, and join-code rotation
+invalidates the previous code atomically. The `/box-admin` web route separates
+these controls from class operations and uses the existing authenticated proxy.

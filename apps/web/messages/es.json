@@ -6,6 +6,7 @@
     "notifications": "Notificaciones",
     "coach": "Coach",
     "admin": "Administración",
+    "boxAdmin": "Administrar Box",
     "history": "Historial",
     "progress": "Progreso",
     "account": "Cuenta",
@@ -50,6 +51,7 @@
   },
   "navigation": {
     "boxes": "Clases",
+    "boxAdmin": "Administrar Box",
     "notifications": "Notificaciones",
     "today": "Hoy",
     "workouts": "Entrenamientos",
@@ -101,6 +103,71 @@
       "ADMIN": "Administrador"
     }
   },
+  "boxAdministration": {
+    "eyebrow": "Operaciones del Box",
+    "title": "Administración del Box",
+    "description": "Gestiona la información, el acceso y los roles de los miembros desde un solo lugar.",
+    "selectBox": "Box a administrar",
+    "cancel": "Cancelar",
+    "working": "Guardando...",
+    "loading": "Cargando miembros...",
+    "empty": "No hay Boxes disponibles para administrar.",
+    "saved": "Información del Box guardada.",
+    "created": "Box creado.",
+    "summary": {
+      "eyebrow": "Box actual",
+      "admin": "Administrador",
+      "owner": "Propietario",
+      "members": "Miembros",
+      "classes": "Clases",
+      "timezone": "Zona horaria"
+    },
+    "tabs": {
+      "label": "Secciones de administración del Box",
+      "details": "Detalles",
+      "members": "Miembros"
+    },
+    "fields": {
+      "name": "Nombre del Box",
+      "description": "Descripción",
+      "timezone": "Zona horaria",
+      "timezoneHelp": "Se usa para clases, recordatorios y límites del calendario del Box."
+    },
+    "details": { "title": "Información del Box", "save": "Guardar cambios" },
+    "create": {
+      "open": "Nuevo Box",
+      "title": "Crear un Box",
+      "submit": "Crear Box"
+    },
+    "joinCode": {
+      "title": "Código de acceso",
+      "description": "Los atletas usan este código para unirse al Box.",
+      "rotate": "Generar nuevo código",
+      "confirm": "¿Reemplazar el código actual? El código anterior dejará de funcionar.",
+      "rotated": "Se generó un nuevo código de acceso.",
+      "copy": "Copiar código",
+      "copied": "Código de acceso copiado.",
+      "copyError": "No se pudo copiar el código de acceso."
+    },
+    "members": {
+      "title": "Miembros",
+      "description": "{count, plural, =1 {1 miembro del Box} other {# miembros del Box}}",
+      "roleFor": "Rol de {name}",
+      "roleSaved": "Rol del miembro actualizado.",
+      "remove": "Eliminar",
+      "removeConfirm": "¿Eliminar este miembro del Box?",
+      "removed": "Miembro eliminado del Box.",
+      "searchLabel": "Buscar miembros",
+      "searchPlaceholder": "Buscar por nombre, correo o rol",
+      "empty": "No hay miembros que coincidan con la búsqueda."
+    },
+    "roles": { "owner": "Propietario", "coach": "Coach", "athlete": "Atleta" },
+    "errors": {
+      "load": "No se pudieron cargar los miembros.",
+      "save": "No se pudo guardar el Box.",
+      "action": "No se pudo completar esta acción."
+    }
+  },
   "boxes": {
     "eyebrow": "Entrenen juntos",
     "title": "Boxes y clases",
@@ -117,6 +184,19 @@
     "upcoming": "Próximas clases",
     "loading": "Cargando clases...",
     "empty": "No hay clases programadas para los próximos 30 días.",
+    "emptyMine": "No tienes reservas de clases próximas.",
+    "classCount": "{count, plural, =1 {1 clase} other {# clases}}",
+    "openAdministration": "Abrir administración del Box",
+    "roles": {
+      "owner": "Propietario",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    },
+    "views": {
+      "label": "Vistas de clases",
+      "all": "Todas",
+      "mine": "Mis reservas"
+    },
     "classMeta": "{duration} min · {booked}/{capacity} reservas",
     "spots": "{count, plural, =1 {1 lugar} other {# lugares}}",
     "full": "Completa",
@@ -132,6 +212,9 @@
       "title": "Unirse a un box",
       "description": "Pide a tu coach el código del box.",
       "code": "Código",
+      "placeholder": "INGRESA EL CÓDIGO",
+      "another": "Unirse",
+      "close": "Cerrar",
       "submit": "Unirme"
     },
     "create": {
