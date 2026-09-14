@@ -21,6 +21,7 @@ export default function CoachWorkspace({ canCoach }: Props) {
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [athleteEmail, setAthleteEmail] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -82,6 +83,7 @@ export default function CoachWorkspace({ canCoach }: Props) {
           response.status === 404 ? t("athleteNotFound") : t("inviteError"),
         );
       setAthleteEmail("");
+      setInviteOpen(false);
       await load();
     } catch {
       setError(t("connectionError"));
@@ -274,24 +276,42 @@ export default function CoachWorkspace({ canCoach }: Props) {
           </section>
 
           <Card className="p-6">
-            <h2 className="text-xl font-bold">{t("inviteTitle")}</h2>
-            <p className="mt-2 text-sm text-muted">{t("inviteDescription")}</p>
-            <form
-              onSubmit={invite}
-              className="mt-5 flex flex-col gap-3 sm:flex-row"
+            <button
+              type="button"
+              aria-expanded={inviteOpen}
+              aria-controls="coach-invite-form"
+              onClick={() => setInviteOpen((open) => !open)}
+              className="flex min-h-11 w-full items-center justify-between gap-4 text-left"
             >
-              <input
-                type="email"
-                required
-                value={athleteEmail}
-                onChange={(event) => setAthleteEmail(event.target.value)}
-                placeholder={t("athleteEmail")}
-                className="min-h-12 flex-1 rounded-lg border border-border bg-background px-4 outline-none focus:border-accent"
-              />
-              <Button type="submit" isLoading={pendingAction === "invite"}>
-                {t("sendInvitation")}
-              </Button>
-            </form>
+              <span>
+                <span className="block text-xl font-bold">
+                  {t("inviteTitle")}
+                </span>
+                <span className="mt-1 block text-sm font-normal text-muted">
+                  {t("inviteDescription")}
+                </span>
+              </span>
+              <span aria-hidden="true">{inviteOpen ? "−" : "+"}</span>
+            </button>
+            {inviteOpen ? (
+              <form
+                id="coach-invite-form"
+                onSubmit={invite}
+                className="mt-5 flex flex-col gap-3 sm:flex-row"
+              >
+                <input
+                  type="email"
+                  required
+                  value={athleteEmail}
+                  onChange={(event) => setAthleteEmail(event.target.value)}
+                  placeholder={t("athleteEmail")}
+                  className="min-h-12 flex-1 rounded-lg border border-border bg-background px-4 outline-none focus:border-accent"
+                />
+                <Button type="submit" isLoading={pendingAction === "invite"}>
+                  {t("sendInvitation")}
+                </Button>
+              </form>
+            ) : null}
           </Card>
 
           <section>

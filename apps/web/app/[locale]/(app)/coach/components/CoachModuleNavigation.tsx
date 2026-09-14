@@ -27,9 +27,9 @@ export default function CoachModuleNavigation() {
   return (
     <nav
       aria-label={t("label")}
-      className="-mx-4 mt-6 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+      className="sticky top-0 z-30 -mx-4 mt-4 overflow-x-auto border-y border-border/70 bg-background/95 px-4 py-2 backdrop-blur sm:mx-0 sm:mt-6 sm:rounded-xl sm:border sm:px-2"
     >
-      <div className="flex min-w-max gap-1 rounded-xl border border-border bg-surface p-1">
+      <div className="flex min-w-max gap-1 sm:justify-center">
         {items.map((item) => {
           const active =
             item.href === "/coach"

@@ -10,7 +10,10 @@ import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
 import { formatCalendarDate } from "@/lib/date-formatters";
 
+import CoachContentTabs from "./CoachContentTabs";
 import CoachWeeklyPlanner from "./CoachWeeklyPlanner";
+
+type AthleteView = "plan" | "assignments" | "results";
 
 type AthleteOverview = {
   id: string;
@@ -66,6 +69,7 @@ export default function CoachAthleteDetail({
   const [feedback, setFeedback] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [activeView, setActiveView] = useState<AthleteView>("plan");
 
   const load = useCallback(async () => {
     try {
@@ -167,101 +171,133 @@ export default function CoachAthleteDetail({
         </Card>
       </div>
 
-      <CoachWeeklyPlanner athleteId={athleteId} onChanged={load} />
+      <CoachContentTabs
+        value={activeView}
+        onChange={setActiveView}
+        label={t("athleteSections")}
+        tabs={[
+          { key: "plan", label: t("planTab") },
+          {
+            key: "assignments",
+            label: t("assignmentsTab"),
+            count: athlete.scheduledWorkouts.length,
+          },
+          {
+            key: "results",
+            label: t("resultsTab"),
+            count: athlete.workoutResults.length,
+          },
+        ]}
+      />
 
-      <section>
-        <h2 className="text-xl font-bold">{t("assignmentsTitle")}</h2>
-        {athlete.scheduledWorkouts.length === 0 ? (
-          <Card className="mt-4 p-8 text-center text-muted">
-            {t("assignmentsEmpty")}
-          </Card>
-        ) : null}
-        <ProgressiveList
-          initialCount={10}
-          increment={10}
-          className="mt-4 grid gap-4 lg:grid-cols-2"
-        >
-          {athlete.scheduledWorkouts.map((item) => (
-            <Card key={item.id} className="p-5">
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={item.status === "COMPLETED" ? "accent" : "default"}
-                >
-                  {item.status === "COMPLETED" ? t("completed") : t("planned")}
-                </Badge>
-                <Badge>{item.workoutVariant.level.name}</Badge>
-              </div>
-              <h3 className="mt-3 text-lg font-bold">{item.workout.name}</h3>
-              <p className="mt-1 text-sm text-muted">
-                {formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}
-              </p>
-              {item.coachNotes ? (
-                <p className="mt-3 text-sm">{item.coachNotes}</p>
-              ) : null}
-              {item.coachFeedback ? (
-                <Alert variant="success" className="mt-4">
-                  {item.coachFeedback}
-                </Alert>
-              ) : null}
-              {item.status === "COMPLETED" && !item.reviewedAt ? (
-                <div className="mt-4">
-                  <textarea
-                    value={feedback[item.id] ?? ""}
-                    onChange={(event) =>
-                      setFeedback((current) => ({
-                        ...current,
-                        [item.id]: event.target.value,
-                      }))
-                    }
-                    placeholder={t("feedbackPlaceholder")}
-                    className="w-full rounded-lg border border-border bg-background p-3"
-                  />
-                  <Button
-                    size="sm"
-                    disabled={submitting}
-                    onClick={() => void review(item.id)}
-                    className="mt-2"
+      {activeView === "plan" ? (
+        <CoachWeeklyPlanner athleteId={athleteId} onChanged={load} />
+      ) : null}
+
+      {activeView === "assignments" ? (
+        <section>
+          <h2 className="text-xl font-bold">{t("assignmentsTitle")}</h2>
+          {athlete.scheduledWorkouts.length === 0 ? (
+            <Card className="mt-4 p-8 text-center text-muted">
+              {t("assignmentsEmpty")}
+            </Card>
+          ) : null}
+          <ProgressiveList
+            initialCount={10}
+            increment={10}
+            className="mt-4 grid gap-4 lg:grid-cols-2"
+          >
+            {athlete.scheduledWorkouts.map((item) => (
+              <Card key={item.id} className="p-5">
+                <div className="flex flex-wrap gap-2">
+                  <Badge
+                    variant={item.status === "COMPLETED" ? "accent" : "default"}
                   >
-                    {t("markReviewed")}
-                  </Button>
+                    {item.status === "COMPLETED"
+                      ? t("completed")
+                      : t("planned")}
+                  </Badge>
+                  <Badge>{item.workoutVariant.level.name}</Badge>
                 </div>
-              ) : null}
-            </Card>
-          ))}
-        </ProgressiveList>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-bold">{t("recentResults")}</h2>
-        {athlete.workoutResults.length === 0 ? (
-          <Card className="mt-4 p-8 text-center text-muted">
-            {t("resultsEmpty")}
-          </Card>
-        ) : null}
-        <ProgressiveList
-          initialCount={10}
-          increment={10}
-          className="mt-4 space-y-3"
-        >
-          {athlete.workoutResults.map((result) => (
-            <Card
-              key={result.id}
-              className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-semibold">{result.workout.name}</p>
-                <p className="text-sm text-muted">
-                  {formatCalendarDate(result.performedAt.slice(0, 10), locale)}{" "}
-                  · {result.workoutVariant.level.name}
+                <h3 className="mt-3 text-lg font-bold">{item.workout.name}</h3>
+                <p className="mt-1 text-sm text-muted">
+                  {formatCalendarDate(item.scheduledDate.slice(0, 10), locale)}
                 </p>
-              </div>
-              <p className="shrink-0 font-bold text-accent">
-                {resultValue(result)}
-              </p>
+                {item.coachNotes ? (
+                  <p className="mt-3 text-sm">{item.coachNotes}</p>
+                ) : null}
+                {item.coachFeedback ? (
+                  <Alert variant="success" className="mt-4">
+                    {item.coachFeedback}
+                  </Alert>
+                ) : null}
+                {item.status === "COMPLETED" && !item.reviewedAt ? (
+                  <div className="mt-4">
+                    <textarea
+                      value={feedback[item.id] ?? ""}
+                      onChange={(event) =>
+                        setFeedback((current) => ({
+                          ...current,
+                          [item.id]: event.target.value,
+                        }))
+                      }
+                      placeholder={t("feedbackPlaceholder")}
+                      className="w-full rounded-lg border border-border bg-background p-3"
+                    />
+                    <Button
+                      size="sm"
+                      disabled={submitting}
+                      onClick={() => void review(item.id)}
+                      className="mt-2"
+                    >
+                      {t("markReviewed")}
+                    </Button>
+                  </div>
+                ) : null}
+              </Card>
+            ))}
+          </ProgressiveList>
+        </section>
+      ) : null}
+
+      {activeView === "results" ? (
+        <section>
+          <h2 className="text-xl font-bold">{t("recentResults")}</h2>
+          {athlete.workoutResults.length === 0 ? (
+            <Card className="mt-4 p-8 text-center text-muted">
+              {t("resultsEmpty")}
             </Card>
-          ))}
-        </ProgressiveList>
-      </section>
+          ) : null}
+          <ProgressiveList
+            initialCount={10}
+            increment={10}
+            className="mt-4 space-y-3"
+          >
+            {athlete.workoutResults.map((result) => (
+              <Card
+                key={result.id}
+                className="flex min-w-0 flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">
+                    {result.workout.name}
+                  </p>
+                  <p className="text-sm text-muted">
+                    {formatCalendarDate(
+                      result.performedAt.slice(0, 10),
+                      locale,
+                    )}{" "}
+                    · {result.workoutVariant.level.name}
+                  </p>
+                </div>
+                <p className="shrink-0 font-bold text-accent">
+                  {resultValue(result)}
+                </p>
+              </Card>
+            ))}
+          </ProgressiveList>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -315,6 +315,15 @@ management without removing the user's athlete features. Only administrators
 can manage application roles and global catalog permissions. Athletes can still
 respond to coach invitations without receiving coach access themselves.
 
+### Mobile-first coach workspace
+
+Coach navigation remains available while moving between overview, programming,
+monitoring, analytics, and athlete details. Athlete plans, assignments, and
+results use focused tabs instead of one long page. Programming separates groups
+from templates, secondary creation forms remain collapsed until requested, and
+monitoring feedback opens only for the selected assignment. Analytics and
+monitoring filters collapse into compact summaries after they are applied.
+
 ## Future features
 
 Possible future capabilities include:
