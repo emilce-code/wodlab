@@ -51,6 +51,7 @@
   },
   "navigation": {
     "boxes": "Aulas",
+    "boxAdmin": "Administrar Box",
     "notifications": "Notificações",
     "today": "Hoje",
     "workouts": "Treinos",
@@ -69,8 +70,7 @@
     "mobileLabel": "Navegação principal",
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
-    "closeAccountMenu": "Fechar menu da conta",
-    "boxAdmin": "Administrar Box"
+    "closeAccountMenu": "Fechar menu da conta"
   },
   "boxContext": {
     "label": "Box ativo"
@@ -114,6 +114,14 @@
     "empty": "Não há Boxes disponíveis para administrar.",
     "saved": "Informações do Box salvas.",
     "created": "Box criado.",
+    "summary": {
+      "eyebrow": "Box atual",
+      "admin": "Administrador",
+      "owner": "Proprietário",
+      "members": "Membros",
+      "classes": "Aulas",
+      "timezone": "Fuso horário"
+    },
     "tabs": {
       "label": "Seções de administração do Box",
       "details": "Detalhes",
@@ -122,7 +130,8 @@
     "fields": {
       "name": "Nome do Box",
       "description": "Descrição",
-      "timezone": "Fuso horário"
+      "timezone": "Fuso horário",
+      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box."
     },
     "details": { "title": "Informações do Box", "save": "Salvar alterações" },
     "create": {
@@ -135,7 +144,10 @@
       "description": "Os atletas usam este código para entrar no Box.",
       "rotate": "Gerar novo código",
       "confirm": "Substituir o código atual? O código anterior deixará de funcionar.",
-      "rotated": "Um novo código de entrada foi gerado."
+      "rotated": "Um novo código de entrada foi gerado.",
+      "copy": "Copiar código",
+      "copied": "Código de entrada copiado.",
+      "copyError": "Não foi possível copiar o código de entrada."
     },
     "members": {
       "title": "Membros",
@@ -144,7 +156,10 @@
       "roleSaved": "Função do membro atualizada.",
       "remove": "Remover",
       "removeConfirm": "Remover este membro do Box?",
-      "removed": "Membro removido do Box."
+      "removed": "Membro removido do Box.",
+      "searchLabel": "Buscar membros",
+      "searchPlaceholder": "Buscar por nome, e-mail ou função",
+      "empty": "Nenhum membro corresponde à busca."
     },
     "roles": { "owner": "Proprietário", "coach": "Coach", "athlete": "Atleta" },
     "errors": {

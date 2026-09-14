@@ -10,6 +10,7 @@ import type { BoxMember, ManagedBox } from "@/lib/boxes";
 type Props = {
   initialBoxes: ManagedBox[];
   isApplicationAdmin: boolean;
+  timezones: string[];
 };
 
 function message(data: unknown, fallback: string) {
@@ -23,6 +24,7 @@ function message(data: unknown, fallback: string) {
 export default function BoxAdministration({
   initialBoxes,
   isApplicationAdmin,
+  timezones,
 }: Props) {
   const t = useTranslations("boxAdministration");
   const [boxes, setBoxes] = useState(initialBoxes);
@@ -34,7 +36,20 @@ export default function BoxAdministration({
   const [success, setSuccess] = useState<string | null>(null);
   const [tab, setTab] = useState<"details" | "members">("details");
   const [showCreate, setShowCreate] = useState(false);
+  const [memberSearch, setMemberSearch] = useState("");
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
+  const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
+  const visibleMembers = normalizedSearch
+    ? members.filter((member) => {
+        const name =
+          member.user.athleteProfile?.displayName ??
+          member.user.coachProfile?.displayName ??
+          "";
+        return `${name} ${member.user.email} ${member.role}`
+          .toLocaleLowerCase()
+          .includes(normalizedSearch);
+      })
+    : members;
 
   useEffect(() => {
     if (!boxId) return;
@@ -133,6 +148,17 @@ export default function BoxAdministration({
     setBusy(null);
   }
 
+  async function copyJoinCode() {
+    if (!selectedBox) return;
+    try {
+      await navigator.clipboard.writeText(selectedBox.joinCode);
+      setSuccess(t("joinCode.copied"));
+      setError(null);
+    } catch {
+      setError(t("joinCode.copyError"));
+    }
+  }
+
   async function changeRole(member: BoxMember, role: "COACH" | "ATHLETE") {
     clearMessages();
     setBusy(member.id);
@@ -226,11 +252,53 @@ export default function BoxAdministration({
           idPrefix="create"
           busy={busy === "create"}
           onSubmit={createBox}
+          timezones={timezones}
         />
       ) : null}
 
       {selectedBox ? (
         <>
+          <section className="rounded-2xl border border-border bg-surface p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+                  {t("summary.eyebrow")}
+                </p>
+                <h2 className="mt-1 truncate text-xl font-bold">
+                  {selectedBox.name}
+                </h2>
+                {selectedBox.description ? (
+                  <p className="mt-1 line-clamp-2 text-sm text-muted">
+                    {selectedBox.description}
+                  </p>
+                ) : null}
+              </div>
+              <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+                {isApplicationAdmin ? t("summary.admin") : t("summary.owner")}
+              </span>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <SummaryMetric
+                value={selectedBox._count.memberships}
+                label={t("summary.members")}
+              />
+              <SummaryMetric
+                value={selectedBox._count.classes ?? 0}
+                label={t("summary.classes")}
+              />
+              <SummaryMetric
+                value={
+                  selectedBox.timezone
+                    .split("/")
+                    .at(-1)
+                    ?.replaceAll("_", " ") ?? "UTC"
+                }
+                label={t("summary.timezone")}
+                small
+              />
+            </div>
+          </section>
+
           <div
             role="tablist"
             aria-label={t("tabs.label")}
@@ -258,6 +326,7 @@ export default function BoxAdministration({
                 box={selectedBox}
                 busy={busy === "box"}
                 onSubmit={saveBox}
+                timezones={timezones}
               />
               <section className="rounded-2xl border border-border bg-surface p-4">
                 <h2 className="font-bold">{t("joinCode.title")}</h2>
@@ -267,15 +336,23 @@ export default function BoxAdministration({
                 <div className="mt-4 rounded-xl bg-background p-4 text-center font-mono text-2xl font-bold tracking-[0.2em] text-accent">
                   {selectedBox.joinCode}
                 </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  disabled={busy === "join-code"}
-                  onClick={() => void rotateJoinCode()}
-                >
-                  {busy === "join-code" ? t("working") : t("joinCode.rotate")}
-                </Button>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void copyJoinCode()}
+                  >
+                    {t("joinCode.copy")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={busy === "join-code"}
+                    onClick={() => void rotateJoinCode()}
+                  >
+                    {busy === "join-code" ? t("working") : t("joinCode.rotate")}
+                  </Button>
+                </div>
               </section>
             </div>
           ) : (
@@ -286,11 +363,22 @@ export default function BoxAdministration({
                   {t("members.description", { count: members.length })}
                 </p>
               </div>
+              <label htmlFor="member-search" className="sr-only">
+                {t("members.searchLabel")}
+              </label>
+              <input
+                id="member-search"
+                type="search"
+                value={memberSearch}
+                onChange={(event) => setMemberSearch(event.target.value)}
+                placeholder={t("members.searchPlaceholder")}
+                className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+              />
               {loadingMembers ? (
                 <p className="mt-4 text-sm text-muted">{t("loading")}</p>
               ) : null}
               <div className="mt-4 space-y-3">
-                {members.map((member) => {
+                {visibleMembers.map((member) => {
                   const name =
                     member.user.athleteProfile?.displayName ??
                     member.user.coachProfile?.displayName ??
@@ -340,6 +428,11 @@ export default function BoxAdministration({
                     </article>
                   );
                 })}
+                {!loadingMembers && visibleMembers.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted">
+                    {t("members.empty")}
+                  </p>
+                ) : null}
               </div>
             </section>
           )}
@@ -359,12 +452,14 @@ function BoxForm({
   box,
   busy,
   onSubmit,
+  timezones,
 }: {
   t: ReturnType<typeof useTranslations>;
   idPrefix: string;
   box?: ManagedBox;
   busy: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  timezones: string[];
 }) {
   return (
     <form
@@ -410,18 +505,51 @@ function BoxForm({
         >
           {t("fields.timezone")}
         </label>
-        <input
+        <select
           id={`${idPrefix}-timezone`}
           name="timezone"
           required
-          maxLength={80}
           defaultValue={box?.timezone ?? "UTC"}
           className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
-        />
+        >
+          {!timezones.includes(box?.timezone ?? "UTC") ? (
+            <option value={box?.timezone}>{box?.timezone}</option>
+          ) : null}
+          {!timezones.includes("UTC") ? <option value="UTC">UTC</option> : null}
+          {timezones.map((timezone) => (
+            <option key={timezone} value={timezone}>
+              {timezone.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted">{t("fields.timezoneHelp")}</p>
       </div>
       <Button disabled={busy} className="mt-4 w-full">
         {busy ? t("working") : box ? t("details.save") : t("create.submit")}
       </Button>
     </form>
+  );
+}
+
+function SummaryMetric({
+  value,
+  label,
+  small = false,
+}: {
+  value: string | number;
+  label: string;
+  small?: boolean;
+}) {
+  return (
+    <div className="min-w-0 rounded-xl bg-background px-2 py-3 text-center">
+      <p
+        className={`${small ? "truncate text-xs" : "text-lg"} font-bold tabular-nums`}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </p>
+    </div>
   );
 }

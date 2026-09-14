@@ -37,7 +37,11 @@ export default async function BoxAdministrationPage({ params }: Props) {
         title={t("title")}
         description={t("description")}
       />
-      <BoxAdministration initialBoxes={boxes} isApplicationAdmin={isAdmin} />
+      <BoxAdministration
+        initialBoxes={boxes}
+        isApplicationAdmin={isAdmin}
+        timezones={Intl.supportedValuesOf("timeZone")}
+      />
     </div>
   );
 }

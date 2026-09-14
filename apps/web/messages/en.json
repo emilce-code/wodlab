@@ -51,6 +51,7 @@
   },
   "navigation": {
     "boxes": "Classes",
+    "boxAdmin": "Box administration",
     "notifications": "Notifications",
     "today": "Today",
     "workouts": "Workouts",
@@ -69,8 +70,7 @@
     "mobileLabel": "Main navigation",
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
-    "closeAccountMenu": "Close account menu",
-    "boxAdmin": "Box administration"
+    "closeAccountMenu": "Close account menu"
   },
   "boxContext": {
     "label": "Active box"
@@ -114,6 +114,14 @@
     "empty": "There are no Boxes available to manage.",
     "saved": "Box information saved.",
     "created": "Box created.",
+    "summary": {
+      "eyebrow": "Current Box",
+      "admin": "Administrator",
+      "owner": "Owner",
+      "members": "Members",
+      "classes": "Classes",
+      "timezone": "Time zone"
+    },
     "tabs": {
       "label": "Box administration sections",
       "details": "Details",
@@ -122,7 +130,8 @@
     "fields": {
       "name": "Box name",
       "description": "Description",
-      "timezone": "Time zone"
+      "timezone": "Time zone",
+      "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries."
     },
     "details": { "title": "Box information", "save": "Save changes" },
     "create": {
@@ -135,7 +144,10 @@
       "description": "Athletes use this code to join the Box.",
       "rotate": "Generate new code",
       "confirm": "Replace the current join code? The old code will stop working.",
-      "rotated": "A new join code was generated."
+      "rotated": "A new join code was generated.",
+      "copy": "Copy code",
+      "copied": "Join code copied.",
+      "copyError": "Unable to copy the join code."
     },
     "members": {
       "title": "Members",
@@ -144,7 +156,10 @@
       "roleSaved": "Member role updated.",
       "remove": "Remove",
       "removeConfirm": "Remove this member from the Box?",
-      "removed": "Member removed from the Box."
+      "removed": "Member removed from the Box.",
+      "searchLabel": "Search members",
+      "searchPlaceholder": "Search by name, email, or role",
+      "empty": "No members match your search."
     },
     "roles": { "owner": "Owner", "coach": "Coach", "athlete": "Athlete" },
     "errors": {
