@@ -1177,7 +1177,7 @@ describe('WorkoutResultsService', () => {
     });
 
     it('preserves performed movements when movements is omitted', async () => {
-      const existingMovement = {
+      const existingMovement: PerformedMovementFixture = {
         id: 'performed-1',
 
         workoutMovementId: 'workout-movement-1',
@@ -1498,9 +1498,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-310');
-
-      expect(result.personalBest.timeSeconds).toBe(310);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-310',
+          timeSeconds: 310,
+        }),
+      );
     });
 
     it('selects rounds before reps for ROUNDS_REPS PB', async () => {
@@ -1529,11 +1532,13 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-b');
-
-      expect(result.personalBest.rounds).toBe(8);
-
-      expect(result.personalBest.reps).toBe(2);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-b',
+          rounds: 8,
+          reps: 2,
+        }),
+      );
     });
 
     it('selects the highest REPS result as PB', async () => {
@@ -1559,9 +1564,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-50');
-
-      expect(result.personalBest.reps).toBe(50);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-50',
+          reps: 50,
+        }),
+      );
     });
 
     it('normalizes LB to KG when comparing LOAD results', async () => {
@@ -1590,11 +1598,13 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-225lb');
-
-      expect(result.personalBest.load).toBe(225);
-
-      expect(result.personalBest.weightUnit).toBe('LB');
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-225lb',
+          load: 225,
+          weightUnit: 'LB',
+        }),
+      );
     });
 
     it('recalculates PB from the remaining result set', async () => {
@@ -1616,9 +1626,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-105');
-
-      expect(result.personalBest.load).toBe(105);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-105',
+          load: 105,
+        }),
+      );
     });
 
     it('returns null PB when there are no results', async () => {
