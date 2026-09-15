@@ -33,12 +33,12 @@ export default function MovementLibrary({
   const [scope, setScope] = useState<LibraryScopeFilter>("all");
   const [pages, setPages] = useState<
     Record<string, PaginatedResponse<Movement>>
-  >(() => ({ "all-": initialMovements }));
+  >(() => ({ [`${locale}-all-`]: initialMovements }));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const normalizedSearch = search.trim();
-  const queryKey = `${scope}-${normalizedSearch.toLowerCase()}`;
+  const queryKey = `${locale}-${scope}-${normalizedSearch.toLowerCase()}`;
   const displayedPage = pages[queryKey];
   const displayedMovements = displayedPage?.items ?? [];
 
@@ -59,12 +59,12 @@ export default function MovementLibrary({
           if (normalizedSearch) query.set("search", normalizedSearch);
 
           const response = await fetch(`/api/movements?${query.toString()}`, {
+            headers: { "Accept-Language": locale },
             signal: controller.signal,
           });
           if (!response.ok) throw new Error("Unable to load movements");
 
-          const page =
-            (await response.json()) as PaginatedResponse<Movement>;
+          const page = (await response.json()) as PaginatedResponse<Movement>;
           setPages((current) => ({ ...current, [queryKey]: page }));
         } catch (caughtError) {
           if (
@@ -84,7 +84,7 @@ export default function MovementLibrary({
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [normalizedSearch, pages, queryKey, scope, t]);
+  }, [locale, normalizedSearch, pages, queryKey, scope, t]);
 
   async function loadMore() {
     if (!displayedPage?.hasNextPage || isLoading) return;
@@ -99,10 +99,11 @@ export default function MovementLibrary({
     if (normalizedSearch) query.set("search", normalizedSearch);
 
     try {
-      const response = await fetch(`/api/movements?${query.toString()}`);
+      const response = await fetch(`/api/movements?${query.toString()}`, {
+        headers: { "Accept-Language": locale },
+      });
       if (!response.ok) throw new Error("Unable to load movements");
-      const nextPage =
-        (await response.json()) as PaginatedResponse<Movement>;
+      const nextPage = (await response.json()) as PaginatedResponse<Movement>;
 
       setPages((current) => ({
         ...current,

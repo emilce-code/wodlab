@@ -346,12 +346,27 @@ model Movement {
   box                     Box?                          @relation(fields: [boxId], references: [id], onDelete: Cascade)
   createdByUserId         String?
   createdByUser           User?                         @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  translations            MovementTranslation[]
   createdAt               DateTime                      @default(now())
   updatedAt               DateTime                      @updatedAt
 
   @@index([scope, boxId])
   @@index([scope, createdByUserId])
   @@index([createdByUserId])
+}
+
+model MovementTranslation {
+  id          String   @id @default(cuid())
+  movementId  String
+  movement    Movement @relation(fields: [movementId], references: [id], onDelete: Cascade)
+  locale      String
+  name        String?
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([movementId, locale])
+  @@index([locale])
 }
 
 model MeasurementType {

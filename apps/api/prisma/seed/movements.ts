@@ -12,6 +12,78 @@ export type MovementSeed = {
   videoUrl?: string;
 };
 
+type SeedLocale = 'en' | 'es' | 'pt';
+
+type LocalizedMovementDescription = {
+  es: string;
+  pt: string;
+};
+
+const foundationalMovementTranslations: Record<
+  string,
+  LocalizedMovementDescription
+> = {
+  'Air Squat': {
+    es: 'Párate con los pies aproximadamente al ancho de los hombros. Lleva las caderas hacia atrás y abajo, mantén el pecho erguido y las rodillas alineadas con los dedos de los pies, desciende por debajo del paralelo y luego extiende completamente las caderas y las rodillas.',
+    pt: 'Fique em pé com os pés aproximadamente na largura dos ombros. Leve o quadril para trás e para baixo, mantenha o peito erguido e os joelhos alinhados com os dedos dos pés, desça abaixo do paralelo e depois estenda completamente o quadril e os joelhos.',
+  },
+  Deadlift: {
+    es: 'Párate sobre la barra con la columna neutra y el tronco firme, sujeta la barra por fuera de las piernas y empuja el suelo mientras extiendes las rodillas y las caderas. Finaliza de pie con la barra a la altura de las caderas.',
+    pt: 'Posicione-se sobre a barra com a coluna neutra e o tronco firme, segure a barra por fora das pernas e empurre o chão enquanto estende os joelhos e o quadril. Finalize em pé com a barra na altura do quadril.',
+  },
+  'Front Squat': {
+    es: 'Apoya la barra sobre los hombros en la posición de front rack, con los codos altos. Desciende por debajo del paralelo manteniendo el torso erguido y luego empuja el suelo para volver a la posición de pie.',
+    pt: 'Apoie a barra nos ombros na posição de front rack, com os cotovelos altos. Agache abaixo do paralelo mantendo o tronco ereto e depois empurre o chão para voltar à posição em pé.',
+  },
+  'Medicine-Ball Clean': {
+    es: 'Levanta el balón medicinal desde el suelo extendiendo las caderas y las piernas, encoge los hombros y luego pasa por debajo para recibirlo frente al pecho en una sentadilla. Ponte completamente de pie para finalizar.',
+    pt: 'Levante a medicine ball do chão estendendo o quadril e as pernas, eleve os ombros e depois entre sob a bola para recebê-la junto ao peito em um agachamento. Fique completamente em pé para finalizar.',
+  },
+  'Overhead Squat': {
+    es: 'Sostén la barra sobre la cabeza con los brazos bloqueados y los hombros activos. Desciende por debajo del paralelo manteniendo la barra equilibrada sobre la mitad del pie y luego ponte completamente de pie.',
+    pt: 'Segure a barra acima da cabeça com os braços estendidos e os ombros ativos. Agache abaixo do paralelo mantendo a barra equilibrada sobre o meio dos pés e depois fique completamente em pé.',
+  },
+  'Push Jerk': {
+    es: 'Sostén la barra sobre los hombros, realiza una flexión vertical y un impulso potente, y luego vuelve a flexionar para pasar debajo de la barra en ascenso. Recíbela sobre la cabeza con los brazos bloqueados y ponte completamente de pie.',
+    pt: 'Segure a barra nos ombros, faça uma flexão vertical e uma impulsão potente e depois flexione novamente para entrar sob a barra em movimento. Receba-a acima da cabeça com os braços estendidos e fique completamente em pé.',
+  },
+  'Push Press': {
+    es: 'Sostén la barra sobre los hombros, flexiona verticalmente las rodillas y las caderas y luego extiende las piernas y las caderas con potencia para impulsar la barra sobre la cabeza. Finaliza con los codos bloqueados.',
+    pt: 'Segure a barra nos ombros, flexione verticalmente os joelhos e o quadril e depois estenda as pernas e o quadril com potência para impulsionar a barra acima da cabeça. Finalize com os cotovelos estendidos.',
+  },
+  'Shoulder Press': {
+    es: 'Comienza con la barra sobre los hombros y el cuerpo firme. Empuja la barra sobre la cabeza sin usar las piernas, apartando la cabeza de la trayectoria de la barra y finalizando con los codos bloqueados.',
+    pt: 'Comece com a barra nos ombros e o corpo firme. Empurre a barra acima da cabeça sem usar as pernas, afastando a cabeça da trajetória da barra e finalizando com os cotovelos estendidos.',
+  },
+  'Sumo Deadlift High Pull': {
+    es: 'Adopta una postura sumo amplia y un agarre estrecho, levanta la barra extendiendo las piernas y las caderas y continúa el movimiento llevando los codos hacia arriba y afuera hasta que la barra alcance la parte superior del pecho.',
+    pt: 'Adote uma base sumô ampla e uma pegada estreita, levante a barra estendendo as pernas e o quadril e continue o movimento levando os cotovelos para cima e para fora até a barra alcançar a parte superior do peito.',
+  },
+};
+
+function getMovementTranslations(movement: MovementSeed) {
+  const localized = foundationalMovementTranslations[movement.name];
+
+  if (movement.isFoundational && !localized) {
+    throw new Error(
+      `Foundational movement "${movement.name}" is missing Spanish and Portuguese descriptions.`,
+    );
+  }
+
+  const translations: { locale: SeedLocale; description: string }[] = [
+    { locale: 'en', description: movement.description },
+  ];
+
+  if (localized) {
+    translations.push(
+      { locale: 'es', description: localized.es },
+      { locale: 'pt', description: localized.pt },
+    );
+  }
+
+  return translations;
+}
+
 // Canonical GLOBAL movement catalog.
 // CrossFit-listed movements include Wodlab-authored execution descriptions and links
 // to the corresponding official CrossFit movement demo/resource page.
@@ -158,7 +230,7 @@ export async function seedMovements(prisma: PrismaClient): Promise<void> {
   console.log('  • Seeding movements...');
 
   for (const movement of movements) {
-    await prisma.movement.upsert({
+    const seededMovement = await prisma.movement.upsert({
       where: { name: movement.name },
       update: {
         category: { connect: { key: movement.categoryKey } },
@@ -195,6 +267,25 @@ export async function seedMovements(prisma: PrismaClient): Promise<void> {
         videoUrl: movement.videoUrl,
       },
     });
+
+    for (const translation of getMovementTranslations(movement)) {
+      await prisma.movementTranslation.upsert({
+        where: {
+          movementId_locale: {
+            movementId: seededMovement.id,
+            locale: translation.locale,
+          },
+        },
+        update: {
+          description: translation.description,
+        },
+        create: {
+          movementId: seededMovement.id,
+          locale: translation.locale,
+          description: translation.description,
+        },
+      });
+    }
   }
 
   const idsByName = new Map(
@@ -209,7 +300,9 @@ export async function seedMovements(prisma: PrismaClient): Promise<void> {
   for (const movement of movements) {
     const movementId = idsByName.get(movement.name);
     if (!movementId) {
-      throw new Error(`Movement "${movement.name}" was not found after seeding.`);
+      throw new Error(
+        `Movement "${movement.name}" was not found after seeding.`,
+      );
     }
 
     const baseMovementId = movement.baseMovementName
