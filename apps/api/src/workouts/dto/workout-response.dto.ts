@@ -82,6 +82,9 @@ export class WorkoutResponseDto {
   id: string;
   name: string;
   description: string | null;
+  scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+  box: { id: string; name: string } | null;
+  sourceWorkout: { id: string; name: string } | null;
   isBenchmark: boolean;
   official: boolean;
   isActive: boolean;
@@ -90,6 +93,7 @@ export class WorkoutResponseDto {
   canManage: boolean;
   canEdit: boolean;
   canDelete: boolean;
+  canCopyToBox: boolean;
   createdAt: Date;
   updatedAt: Date;
 

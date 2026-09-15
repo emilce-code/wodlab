@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider     = "prisma-client"
   output       = "../generated/prisma"
@@ -50,6 +48,12 @@ enum ClassBookingStatus {
   BOOKED
   ATTENDED
   CANCELLED
+}
+
+enum WorkoutScope {
+  GLOBAL
+  BOX
+  PERSONAL
 }
 
 model User {
@@ -106,6 +110,7 @@ model Box {
   coachGroups        CoachGroup[]
   programTemplates   ProgramTemplate[]
   scheduledWorkouts  ScheduledWorkout[]
+  workouts           Workout[]
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
@@ -424,6 +429,12 @@ model Workout {
   type                 WorkoutType           @relation(fields: [typeId], references: [id])
   createdByUserId      String
   createdByUser        User                  @relation(fields: [createdByUserId], references: [id])
+  scope                WorkoutScope          @default(PERSONAL)
+  boxId                String?
+  box                  Box?                  @relation(fields: [boxId], references: [id], onDelete: Cascade)
+  sourceWorkoutId      String?
+  sourceWorkout        Workout?              @relation("WorkoutCopies", fields: [sourceWorkoutId], references: [id], onDelete: SetNull)
+  copies               Workout[]             @relation("WorkoutCopies")
   isBenchmark          Boolean               @default(false)
   official             Boolean               @default(false)
   isActive             Boolean               @default(true)
@@ -436,7 +447,10 @@ model Workout {
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
 
-  @@index([isActive, createdAt])
+  @@index([scope, isActive, createdAt])
+  @@index([boxId, isActive, createdAt])
+  @@index([createdByUserId, scope, isActive])
+  @@index([sourceWorkoutId])
 }
 
 model WorkoutSection {

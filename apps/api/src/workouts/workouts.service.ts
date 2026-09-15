@@ -29,29 +29,36 @@ const workoutInclude = {
       },
     },
   },
-
+  box: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  sourceWorkout: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
   createdByUser: {
     select: {
       id: true,
       email: true,
     },
   },
-
   variants: {
     orderBy: {
       level: {
         sortOrder: 'asc' as const,
       },
     },
-
     include: {
       level: true,
-
       sections: {
         orderBy: {
           order: 'asc' as const,
         },
-
         include: {
           type: {
             include: {
@@ -63,12 +70,10 @@ const workoutInclude = {
               },
             },
           },
-
           movements: {
             orderBy: {
               order: 'asc' as const,
             },
-
             include: {
               movement: {
                 include: {
@@ -78,7 +83,6 @@ const workoutInclude = {
                         sortOrder: 'asc' as const,
                       },
                     },
-
                     include: {
                       measurementType: {
                         select: {
@@ -90,17 +94,20 @@ const workoutInclude = {
                   },
                 },
               },
-
               prescriptions: {
                 orderBy: {
                   prescriptionCategory: {
                     sortOrder: 'asc' as const,
                   },
                 },
-
                 include: {
                   prescriptionCategory: true,
-                  referenceMovement: { select: { id: true, name: true } },
+                  referenceMovement: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
                 },
               },
             },
@@ -109,12 +116,12 @@ const workoutInclude = {
       },
     },
   },
-
   _count: {
     select: {
       results: true,
       scheduledWorkouts: true,
       programTemplateItems: true,
+      classSessions: true,
     },
   },
 } satisfies Prisma.WorkoutInclude;
@@ -122,6 +129,14 @@ const workoutInclude = {
 type WorkoutWithDetails = Prisma.WorkoutGetPayload<{
   include: typeof workoutInclude;
 }>;
+
+type CatalogContext = {
+  userId: string;
+  appRole: 'USER' | 'COACH' | 'ADMIN';
+  activeBoxId: string | null;
+  activeBoxName: string | null;
+  activeBoxRole: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+};
 
 @Injectable()
 export class WorkoutsService {
@@ -132,12 +147,10 @@ export class WorkoutsService {
       orderBy: {
         sortOrder: 'asc',
       },
-
       select: {
         key: true,
         name: true,
         description: true,
-
         defaultResultType: {
           select: {
             key: true,
@@ -153,7 +166,6 @@ export class WorkoutsService {
       orderBy: {
         sortOrder: 'asc',
       },
-
       select: {
         key: true,
         name: true,
@@ -167,7 +179,6 @@ export class WorkoutsService {
       orderBy: {
         sortOrder: 'asc',
       },
-
       select: {
         key: true,
         name: true,
@@ -195,41 +206,59 @@ export class WorkoutsService {
     query: FindWorkoutsQueryDto,
     archived: boolean,
   ) {
+    const context = await this.getCatalogContext(user);
     const normalizedSearch = query.search?.trim();
+
+    const visibility = this.collectionVisibilityWhere(
+      context,
+      archived,
+      query.scope ?? 'all',
+    );
+
     const where = {
-      ...(archived && user.role !== 'ADMIN'
-        ? { createdByUserId: user.userId }
-        : {}),
-      isActive: !archived,
-      ...(query.benchmark === 'true' ? { isBenchmark: true } : {}),
-      ...(normalizedSearch
-        ? {
-            OR: [
+      AND: [
+        visibility,
+        {
+          isActive: !archived,
+        },
+        ...(query.benchmark === 'true' ? [{ isBenchmark: true }] : []),
+        ...(normalizedSearch
+          ? [
               {
-                name: { contains: normalizedSearch, mode: 'insensitive' },
-              },
-              {
-                description: {
-                  contains: normalizedSearch,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                type: {
-                  name: { contains: normalizedSearch, mode: 'insensitive' },
-                },
-              },
-              {
-                variants: {
-                  some: {
-                    sections: {
+                OR: [
+                  {
+                    name: {
+                      contains: normalizedSearch,
+                      mode: 'insensitive' as const,
+                    },
+                  },
+                  {
+                    description: {
+                      contains: normalizedSearch,
+                      mode: 'insensitive' as const,
+                    },
+                  },
+                  {
+                    type: {
+                      name: {
+                        contains: normalizedSearch,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                  },
+                  {
+                    variants: {
                       some: {
-                        movements: {
+                        sections: {
                           some: {
-                            movement: {
-                              name: {
-                                contains: normalizedSearch,
-                                mode: 'insensitive',
+                            movements: {
+                              some: {
+                                movement: {
+                                  name: {
+                                    contains: normalizedSearch,
+                                    mode: 'insensitive' as const,
+                                  },
+                                },
                               },
                             },
                           },
@@ -237,12 +266,13 @@ export class WorkoutsService {
                       },
                     },
                   },
-                },
+                ],
               },
-            ],
-          }
-        : {}),
+            ]
+          : []),
+      ],
     } satisfies Prisma.WorkoutWhereInput;
+
     const paginationRequested =
       query.page !== undefined || query.pageSize !== undefined;
     const page = query.page ?? 1;
@@ -256,7 +286,10 @@ export class WorkoutsService {
           ? [{ deactivatedAt: 'desc' }, { createdAt: 'desc' }]
           : [{ createdAt: 'desc' }],
         ...(paginationRequested
-          ? { skip: (page - 1) * pageSize, take: pageSize }
+          ? {
+              skip: (page - 1) * pageSize,
+              take: pageSize,
+            }
           : {}),
       }),
       paginationRequested
@@ -264,7 +297,10 @@ export class WorkoutsService {
         : Promise.resolve(0),
     ]);
 
-    const items = workouts.map((workout) => this.mapWorkout(workout, user));
+    const items = workouts.map((workout) =>
+      this.mapWorkout(workout, context),
+    );
+
     return paginationRequested
       ? createPaginatedResponse(items, total, page, pageSize)
       : items;
@@ -274,11 +310,9 @@ export class WorkoutsService {
     id: string,
     user: AuthenticatedUser,
   ): Promise<WorkoutResponseDto> {
+    const context = await this.getCatalogContext(user);
     const workout = await this.prisma.workout.findUnique({
-      where: {
-        id,
-      },
-
+      where: { id },
       include: workoutInclude,
     });
 
@@ -286,11 +320,7 @@ export class WorkoutsService {
       throw new NotFoundException('Workout not found');
     }
 
-    if (
-      !workout.isActive &&
-      user.role !== 'ADMIN' &&
-      workout.createdByUserId !== user.userId
-    ) {
+    if (!this.canViewWorkout(workout, context)) {
       const historicalResult = await this.prisma.workoutResult.findFirst({
         where: {
           workoutId: id,
@@ -308,22 +338,192 @@ export class WorkoutsService {
       }
     }
 
-    return this.mapWorkout(workout, user);
+    return this.mapWorkout(workout, context);
   }
 
-  async delete(user: AuthenticatedUser, id: string) {
-    const workout = await this.findManageableWorkout(id, user);
+  async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
+    const context = await this.getCatalogContext(user);
+    const target = this.resolveCreationScope(context);
+
+    const workout = await this.prisma.$transaction(async (tx) => {
+      await this.validateWorkoutDefinition(tx, dto);
+      const workoutType = await tx.workoutType.findUnique({
+        where: { key: dto.typeKey },
+        select: { id: true },
+      });
+      if (!workoutType) {
+        throw new NotFoundException(`Workout type \"${dto.typeKey}\" not found`);
+      }
+
+      return tx.workout.create({
+        data: {
+          name: dto.name.trim(),
+          description: dto.description?.trim() || null,
+          isBenchmark: dto.isBenchmark ?? false,
+          official: false,
+          scope: target.scope,
+          boxId: target.boxId,
+          createdByUserId: user.userId,
+          typeId: workoutType.id,
+          variants: {
+            create: this.variantCreateData(dto),
+          },
+        },
+        include: workoutInclude,
+      });
+    });
+
+    return this.mapWorkout(workout, context);
+  }
+
+  async copyGlobalToActiveBox(
+    user: AuthenticatedUser,
+    sourceWorkoutId: string,
+  ): Promise<WorkoutResponseDto> {
+    const context = await this.getCatalogContext(user);
+
+    if (!context.activeBoxId || !this.canManageActiveBox(context)) {
+      throw new ForbiddenException(
+        'Active Box owner or coach access is required to copy a workout',
+      );
+    }
+
+    const source = await this.prisma.workout.findFirst({
+      where: {
+        id: sourceWorkoutId,
+        scope: 'GLOBAL',
+        isActive: true,
+      },
+      include: workoutInclude,
+    });
+
+    if (!source) {
+      throw new NotFoundException('Global workout not found');
+    }
+
+    const copy = await this.prisma.workout.create({
+      data: {
+        name: source.name,
+        description: source.description,
+        typeId: source.typeId,
+        createdByUserId: user.userId,
+        scope: 'BOX',
+        boxId: context.activeBoxId,
+        sourceWorkoutId: source.id,
+        isBenchmark: source.isBenchmark,
+        official: false,
+        variants: {
+          create: source.variants.map((variant) => ({
+            levelId: variant.levelId,
+            name: variant.name,
+            notes: variant.notes,
+            sections: {
+              create: variant.sections.map((section) => ({
+                typeId: section.typeId,
+                order: section.order,
+                rounds: section.rounds,
+                durationSeconds: section.durationSeconds,
+                restSeconds: section.restSeconds,
+                notes: section.notes,
+                repScheme: section.repScheme,
+                movements: {
+                  create: section.movements.map((item) => ({
+                    movementId: item.movementId,
+                    order: item.order,
+                    reps: item.reps,
+                    weight: item.weight,
+                    weightUnit: item.weightUnit,
+                    distance: item.distance,
+                    calories: item.calories,
+                    durationSeconds: item.durationSeconds,
+                    notes: item.notes,
+                    prescriptions: {
+                      create: item.prescriptions.map((prescription) => ({
+                        prescriptionCategoryId:
+                          prescription.prescriptionCategoryId,
+                        reps: prescription.reps,
+                        weight: prescription.weight,
+                        weightUnit: prescription.weightUnit,
+                        percentage: prescription.percentage,
+                        referenceRepMax: prescription.referenceRepMax,
+                        referenceMovementId:
+                          prescription.referenceMovement?.id ?? null,
+                        distance: prescription.distance,
+                        calories: prescription.calories,
+                        durationSeconds: prescription.durationSeconds,
+                        notes: prescription.notes,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          })),
+        },
+      },
+      include: workoutInclude,
+    });
+
+    return this.mapWorkout(copy, context);
+  }
+
+  async update(
+    user: AuthenticatedUser,
+    id: string,
+    dto: UpdateWorkoutDto,
+  ): Promise<WorkoutResponseDto> {
+    const context = await this.getCatalogContext(user);
+    const workout = await this.findManageableWorkout(id, context);
 
     if (this.hasDependencies(workout)) {
       throw new ConflictException(
-        'Workouts with results, schedules, or program templates cannot be deleted and must be deactivated',
+        'Workouts with results, schedules, classes, or program templates cannot be structurally edited',
+      );
+    }
+
+    const updatedWorkout = await this.prisma.$transaction(async (tx) => {
+      await this.validateWorkoutDefinition(tx, dto);
+
+      await tx.workoutVariant.deleteMany({
+        where: {
+          workoutId: id,
+        },
+      });
+
+      return tx.workout.update({
+        where: { id },
+        data: {
+          name: dto.name.trim(),
+          description: dto.description?.trim() || null,
+          isBenchmark: dto.isBenchmark ?? false,
+          type: {
+            connect: {
+              key: dto.typeKey,
+            },
+          },
+          variants: {
+            create: this.variantCreateData(dto),
+          },
+        },
+        include: workoutInclude,
+      });
+    });
+
+    return this.mapWorkout(updatedWorkout, context);
+  }
+
+  async delete(user: AuthenticatedUser, id: string) {
+    const context = await this.getCatalogContext(user);
+    const workout = await this.findManageableWorkout(id, context);
+
+    if (this.hasDependencies(workout)) {
+      throw new ConflictException(
+        'Workouts with results, schedules, classes, or program templates cannot be deleted. Archive the workout instead.',
       );
     }
 
     await this.prisma.workout.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return {
@@ -336,22 +536,15 @@ export class WorkoutsService {
     user: AuthenticatedUser,
     id: string,
   ): Promise<WorkoutResponseDto> {
-    const workout = await this.findManageableWorkout(id, user);
-
-    if (!this.hasDependencies(workout)) {
-      throw new ConflictException(
-        'Workouts without results must be deleted instead of deactivated',
-      );
-    }
+    const context = await this.getCatalogContext(user);
+    const workout = await this.findManageableWorkout(id, context);
 
     if (!workout.isActive) {
-      return this.mapWorkout(workout, user);
+      return this.mapWorkout(workout, context);
     }
 
     const updatedWorkout = await this.prisma.workout.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         isActive: false,
         deactivatedAt: new Date(),
@@ -359,23 +552,22 @@ export class WorkoutsService {
       include: workoutInclude,
     });
 
-    return this.mapWorkout(updatedWorkout, user);
+    return this.mapWorkout(updatedWorkout, context);
   }
 
   async reactivate(
     user: AuthenticatedUser,
     id: string,
   ): Promise<WorkoutResponseDto> {
-    const workout = await this.findManageableWorkout(id, user);
+    const context = await this.getCatalogContext(user);
+    const workout = await this.findManageableWorkout(id, context);
 
     if (workout.isActive) {
-      return this.mapWorkout(workout, user);
+      return this.mapWorkout(workout, context);
     }
 
     const updatedWorkout = await this.prisma.workout.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         isActive: true,
         deactivatedAt: null,
@@ -383,279 +575,179 @@ export class WorkoutsService {
       include: workoutInclude,
     });
 
-    return this.mapWorkout(updatedWorkout, user);
+    return this.mapWorkout(updatedWorkout, context);
   }
 
-  async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
-    return this.prisma.$transaction(async (tx) => {
-      const workoutType = await tx.workoutType.findUnique({
-        where: {
-          key: dto.typeKey,
-        },
-      });
-
-      if (!workoutType) {
-        throw new NotFoundException(`Workout type "${dto.typeKey}" not found`);
-      }
-
-      if (dto.variants.length === 0) {
-        throw new BadRequestException(
-          'At least one workout variant is required',
-        );
-      }
-
-      for (const variant of dto.variants) {
-        const level = await tx.workoutLevel.findUnique({
-          where: {
-            key: variant.levelKey,
-          },
-        });
-
-        if (!level) {
-          throw new NotFoundException(
-            `Workout level "${variant.levelKey}" not found`,
-          );
-        }
-
-        for (const section of variant.sections) {
-          const sectionType = await tx.workoutType.findUnique({
-            where: {
-              key: section.typeKey,
-            },
-          });
-
-          if (!sectionType) {
-            throw new NotFoundException(
-              `Workout section type "${section.typeKey}" not found`,
-            );
-          }
-
-          for (const movement of section.movements) {
-            const existingMovement = await tx.movement.findUnique({
-              where: {
-                id: movement.movementId,
-              },
-            });
-
-            if (!existingMovement) {
-              throw new NotFoundException(
-                `Movement "${movement.movementId}" not found`,
-              );
-            }
-
-            for (const prescription of movement.prescriptions ?? []) {
-              const category = await tx.prescriptionCategory.findUnique({
-                where: {
-                  key: prescription.categoryKey,
-                },
-              });
-
-              if (!category) {
-                throw new NotFoundException(
-                  `Prescription category "${prescription.categoryKey}" not found`,
-                );
-              }
-            }
-          }
-        }
-      }
-
-      return tx.workout.create({
-        data: {
-          name: dto.name,
-          description: dto.description,
-          isBenchmark: dto.isBenchmark ?? false,
-
-          createdByUser: {
-            connect: {
-              id: user.userId,
-            },
-          },
-
-          type: {
-            connect: {
-              key: dto.typeKey,
-            },
-          },
-
-          variants: {
-            create: dto.variants.map((variant) => ({
-              name: variant.name,
-              notes: variant.notes,
-
-              level: {
-                connect: {
-                  key: variant.levelKey,
-                },
-              },
-
-              sections: {
-                create: variant.sections.map((section) => ({
-                  order: section.order,
-                  rounds: section.rounds,
-                  durationSeconds: section.durationSeconds,
-                  restSeconds: section.restSeconds,
-                  repScheme: section.repScheme ?? [],
-                  notes: section.notes,
-
-                  type: {
-                    connect: {
-                      key: section.typeKey,
-                    },
-                  },
-
-                  movements: {
-                    create: section.movements.map((movement) => ({
-                      order: movement.order,
-                      reps: movement.reps,
-                      weight: movement.weight,
-                      weightUnit: movement.weightUnit,
-                      distance: movement.distance,
-                      calories: movement.calories,
-                      durationSeconds: movement.durationSeconds,
-                      notes: movement.notes,
-
-                      movement: {
-                        connect: {
-                          id: movement.movementId,
-                        },
-                      },
-
-                      prescriptions: {
-                        create: (movement.prescriptions ?? []).map(
-                          (prescription) => ({
-                            reps: prescription.reps,
-                            weight: prescription.weight,
-                            weightUnit: prescription.weightUnit,
-                            percentage: prescription.percentage,
-                            referenceRepMax: prescription.referenceRepMax,
-                            referenceMovement: prescription.referenceMovementId
-                              ? {
-                                  connect: {
-                                    id: prescription.referenceMovementId,
-                                  },
-                                }
-                              : undefined,
-                            distance: prescription.distance,
-                            calories: prescription.calories,
-                            durationSeconds: prescription.durationSeconds,
-                            notes: prescription.notes,
-
-                            prescriptionCategory: {
-                              connect: {
-                                key: prescription.categoryKey,
-                              },
-                            },
-                          }),
-                        ),
-                      },
-                    })),
-                  },
-                })),
-              },
-            })),
-          },
-        },
-
-        include: workoutInclude,
-      });
-    });
-  }
-
-  async update(
+  private async getCatalogContext(
     user: AuthenticatedUser,
-    id: string,
-    dto: UpdateWorkoutDto,
-  ): Promise<WorkoutResponseDto> {
-    const workout = await this.findManageableWorkout(id, user);
+  ): Promise<CatalogContext> {
+    const dbUser = await this.prisma.user.findUnique({
+      where: {
+        id: user.userId,
+      },
+      select: {
+        role: true,
+        activeBoxId: true,
+        activeBox: {
+          select: {
+            name: true,
+          },
+        },
+        boxMemberships: {
+          select: {
+            boxId: true,
+            role: true,
+          },
+        },
+      },
+    });
 
-    if (this.hasDependencies(workout)) {
-      throw new ConflictException(
-        'Workouts with results, schedules, or program templates cannot be structurally edited',
+    if (!dbUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const activeMembership = dbUser.activeBoxId
+      ? dbUser.boxMemberships.find(
+          (membership) => membership.boxId === dbUser.activeBoxId,
+        )
+      : null;
+
+    return {
+      userId: user.userId,
+      appRole: dbUser.role,
+      activeBoxId: activeMembership ? dbUser.activeBoxId : null,
+      activeBoxName: activeMembership ? dbUser.activeBox?.name ?? null : null,
+      activeBoxRole: activeMembership?.role ?? null,
+    };
+  }
+
+  private resolveCreationScope(context: CatalogContext): {
+    scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+    boxId: string | null;
+  } {
+    if (context.appRole === 'ADMIN') {
+      return {
+        scope: 'GLOBAL',
+        boxId: null,
+      };
+    }
+
+    if (context.activeBoxId && this.canManageActiveBox(context)) {
+      return {
+        scope: 'BOX',
+        boxId: context.activeBoxId,
+      };
+    }
+
+    return {
+      scope: 'PERSONAL',
+      boxId: null,
+    };
+  }
+
+  private collectionVisibilityWhere(
+    context: CatalogContext,
+    archived: boolean,
+    scope: 'all' | 'global' | 'box' | 'personal',
+  ): Prisma.WorkoutWhereInput {
+    const globalVisible: Prisma.WorkoutWhereInput =
+      !archived || context.appRole === 'ADMIN'
+        ? { scope: 'GLOBAL' }
+        : { id: '__never__' };
+
+    const boxVisible: Prisma.WorkoutWhereInput =
+      context.activeBoxId &&
+      (!archived || this.canManageActiveBox(context))
+        ? {
+            scope: 'BOX',
+            boxId: context.activeBoxId,
+          }
+        : { id: '__never__' };
+
+    const personalVisible: Prisma.WorkoutWhereInput = {
+      scope: 'PERSONAL',
+      createdByUserId: context.userId,
+    };
+
+    if (scope === 'global') {
+      return globalVisible;
+    }
+
+    if (scope === 'box') {
+      return boxVisible;
+    }
+
+    if (scope === 'personal') {
+      return personalVisible;
+    }
+
+    return {
+      OR: [globalVisible, boxVisible, personalVisible],
+    };
+  }
+
+  private canViewWorkout(
+    workout: WorkoutWithDetails,
+    context: CatalogContext,
+  ) {
+    if (workout.scope === 'GLOBAL') {
+      return workout.isActive || context.appRole === 'ADMIN';
+    }
+
+    if (workout.scope === 'PERSONAL') {
+      return workout.createdByUserId === context.userId;
+    }
+
+    if (workout.scope === 'BOX') {
+      return (
+        context.activeBoxId === workout.boxId &&
+        context.activeBoxRole !== null &&
+        (workout.isActive || this.canManageActiveBox(context))
       );
     }
 
-    const updatedWorkout = await this.prisma.$transaction(async (tx) => {
-      await this.validateWorkoutDefinition(tx, dto);
-
-      await tx.workoutVariant.deleteMany({ where: { workoutId: id } });
-
-      return tx.workout.update({
-        where: { id },
-        data: {
-          name: dto.name,
-          description: dto.description,
-          isBenchmark: dto.isBenchmark ?? false,
-          type: { connect: { key: dto.typeKey } },
-          variants: {
-            create: dto.variants.map((variant) => ({
-              name: variant.name,
-              notes: variant.notes,
-              level: { connect: { key: variant.levelKey } },
-              sections: {
-                create: variant.sections.map((section) => ({
-                  order: section.order,
-                  rounds: section.rounds,
-                  durationSeconds: section.durationSeconds,
-                  restSeconds: section.restSeconds,
-                  repScheme: section.repScheme ?? [],
-                  notes: section.notes,
-                  type: { connect: { key: section.typeKey } },
-                  movements: {
-                    create: section.movements.map((movement) => ({
-                      order: movement.order,
-                      reps: movement.reps,
-                      weight: movement.weight,
-                      weightUnit: movement.weightUnit,
-                      distance: movement.distance,
-                      calories: movement.calories,
-                      durationSeconds: movement.durationSeconds,
-                      notes: movement.notes,
-                      movement: { connect: { id: movement.movementId } },
-                      prescriptions: {
-                        create: (movement.prescriptions ?? []).map(
-                          (prescription) => ({
-                            reps: prescription.reps,
-                            weight: prescription.weight,
-                            weightUnit: prescription.weightUnit,
-                            percentage: prescription.percentage,
-                            referenceRepMax: prescription.referenceRepMax,
-                            referenceMovement: prescription.referenceMovementId
-                              ? {
-                                  connect: {
-                                    id: prescription.referenceMovementId,
-                                  },
-                                }
-                              : undefined,
-                            distance: prescription.distance,
-                            calories: prescription.calories,
-                            durationSeconds: prescription.durationSeconds,
-                            notes: prescription.notes,
-                            prescriptionCategory: {
-                              connect: { key: prescription.categoryKey },
-                            },
-                          }),
-                        ),
-                      },
-                    })),
-                  },
-                })),
-              },
-            })),
-          },
-        },
-        include: workoutInclude,
-      });
-    });
-
-    return this.mapWorkout(updatedWorkout, user);
+    return false;
   }
 
-  private async findManageableWorkout(id: string, user: AuthenticatedUser) {
+  private canManageActiveBox(context: CatalogContext) {
+    if (!context.activeBoxId) {
+      return false;
+    }
+
+    if (context.appRole === 'ADMIN') {
+      return true;
+    }
+
+    return (
+      context.activeBoxRole === 'OWNER' || context.activeBoxRole === 'COACH'
+    );
+  }
+
+  private canManageWorkout(
+    workout: WorkoutWithDetails,
+    context: CatalogContext,
+  ) {
+    if (workout.scope === 'GLOBAL') {
+      return context.appRole === 'ADMIN';
+    }
+
+    if (workout.scope === 'PERSONAL') {
+      return workout.createdByUserId === context.userId;
+    }
+
+    return (
+      workout.scope === 'BOX' &&
+      workout.boxId === context.activeBoxId &&
+      this.canManageActiveBox(context)
+    );
+  }
+
+  private async findManageableWorkout(
+    id: string,
+    context: CatalogContext,
+  ): Promise<WorkoutWithDetails> {
     const workout = await this.prisma.workout.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: workoutInclude,
     });
 
@@ -663,11 +755,7 @@ export class WorkoutsService {
       throw new NotFoundException('Workout not found');
     }
 
-    const canManage =
-      user.role === 'ADMIN' ||
-      (!workout.official && workout.createdByUserId === user.userId);
-
-    if (!canManage) {
+    if (!this.canManageWorkout(workout, context)) {
       throw new ForbiddenException('You cannot manage this workout');
     }
 
@@ -678,59 +766,128 @@ export class WorkoutsService {
     return (
       workout._count.results > 0 ||
       workout._count.scheduledWorkouts > 0 ||
-      workout._count.programTemplateItems > 0
+      workout._count.programTemplateItems > 0 ||
+      workout._count.classSessions > 0
     );
   }
 
   private async validateWorkoutDefinition(
     tx: Prisma.TransactionClient,
-    dto: CreateWorkoutDto,
+    dto: CreateWorkoutDto | UpdateWorkoutDto,
   ) {
     const workoutType = await tx.workoutType.findUnique({
-      where: { key: dto.typeKey },
+      where: {
+        key: dto.typeKey,
+      },
+      select: {
+        id: true,
+      },
     });
+
     if (!workoutType) {
       throw new NotFoundException(`Workout type "${dto.typeKey}" not found`);
     }
+
     if (dto.variants.length === 0) {
-      throw new BadRequestException('At least one workout variant is required');
+      throw new BadRequestException(
+        'At least one workout variant is required',
+      );
     }
 
+    const levelKeys = new Set<string>();
+
     for (const variant of dto.variants) {
+      if (levelKeys.has(variant.levelKey)) {
+        throw new BadRequestException(
+          `Workout level "${variant.levelKey}" can only be used once`,
+        );
+      }
+      levelKeys.add(variant.levelKey);
+
       const level = await tx.workoutLevel.findUnique({
-        where: { key: variant.levelKey },
+        where: {
+          key: variant.levelKey,
+        },
+        select: {
+          id: true,
+        },
       });
+
       if (!level) {
         throw new NotFoundException(
           `Workout level "${variant.levelKey}" not found`,
         );
       }
+
+      if (variant.sections.length === 0) {
+        throw new BadRequestException(
+          `Variant "${variant.levelKey}" requires at least one section`,
+        );
+      }
+
       for (const section of variant.sections) {
         const sectionType = await tx.workoutType.findUnique({
-          where: { key: section.typeKey },
+          where: {
+            key: section.typeKey,
+          },
+          select: {
+            id: true,
+          },
         });
+
         if (!sectionType) {
           throw new NotFoundException(
             `Workout section type "${section.typeKey}" not found`,
           );
         }
+
         for (const movement of section.movements) {
           const existingMovement = await tx.movement.findUnique({
-            where: { id: movement.movementId },
+            where: {
+              id: movement.movementId,
+            },
+            select: {
+              id: true,
+            },
           });
+
           if (!existingMovement) {
             throw new NotFoundException(
               `Movement "${movement.movementId}" not found`,
             );
           }
+
           for (const prescription of movement.prescriptions ?? []) {
             const category = await tx.prescriptionCategory.findUnique({
-              where: { key: prescription.categoryKey },
+              where: {
+                key: prescription.categoryKey,
+              },
+              select: {
+                id: true,
+              },
             });
+
             if (!category) {
               throw new NotFoundException(
                 `Prescription category "${prescription.categoryKey}" not found`,
               );
+            }
+
+            if (prescription.referenceMovementId) {
+              const referenceMovement = await tx.movement.findUnique({
+                where: {
+                  id: prescription.referenceMovementId,
+                },
+                select: {
+                  id: true,
+                },
+              });
+
+              if (!referenceMovement) {
+                throw new NotFoundException(
+                  `Reference movement "${prescription.referenceMovementId}" not found`,
+                );
+              }
             }
           }
         }
@@ -738,55 +895,119 @@ export class WorkoutsService {
     }
   }
 
+  private variantCreateData(dto: CreateWorkoutDto | UpdateWorkoutDto) {
+    return dto.variants.map((variant) => ({
+      name: variant.name,
+      notes: variant.notes,
+      level: {
+        connect: {
+          key: variant.levelKey,
+        },
+      },
+      sections: {
+        create: variant.sections.map((section) => ({
+          order: section.order,
+          rounds: section.rounds,
+          durationSeconds: section.durationSeconds,
+          restSeconds: section.restSeconds,
+          repScheme: section.repScheme ?? [],
+          notes: section.notes,
+          type: {
+            connect: {
+              key: section.typeKey,
+            },
+          },
+          movements: {
+            create: section.movements.map((movement) => ({
+              order: movement.order,
+              reps: movement.reps,
+              weight: movement.weight,
+              weightUnit: movement.weightUnit,
+              distance: movement.distance,
+              calories: movement.calories,
+              durationSeconds: movement.durationSeconds,
+              notes: movement.notes,
+              movement: {
+                connect: {
+                  id: movement.movementId,
+                },
+              },
+              prescriptions: {
+                create: (movement.prescriptions ?? []).map(
+                  (prescription) => ({
+                    reps: prescription.reps,
+                    weight: prescription.weight,
+                    weightUnit: prescription.weightUnit,
+                    percentage: prescription.percentage,
+                    referenceRepMax: prescription.referenceRepMax,
+                    referenceMovement: prescription.referenceMovementId
+                      ? {
+                          connect: {
+                            id: prescription.referenceMovementId,
+                          },
+                        }
+                      : undefined,
+                    distance: prescription.distance,
+                    calories: prescription.calories,
+                    durationSeconds: prescription.durationSeconds,
+                    notes: prescription.notes,
+                    prescriptionCategory: {
+                      connect: {
+                        key: prescription.categoryKey,
+                      },
+                    },
+                  }),
+                ),
+              },
+            })),
+          },
+        })),
+      },
+    }));
+  }
+
   private mapWorkout(
     workout: WorkoutWithDetails,
-    user: AuthenticatedUser,
+    context: CatalogContext,
   ): WorkoutResponseDto {
-    const canManage =
-      user.role === 'ADMIN' ||
-      (!workout.official && workout.createdByUserId === user.userId);
+    const canManage = this.canManageWorkout(workout, context);
+    const hasDependencies = this.hasDependencies(workout);
+
     return {
       id: workout.id,
       name: workout.name,
       description: workout.description,
+      scope: workout.scope,
+      box: workout.box,
+      sourceWorkout: workout.sourceWorkout,
       isBenchmark: workout.isBenchmark,
       official: workout.official,
       isActive: workout.isActive,
       deactivatedAt: workout.deactivatedAt,
       resultCount: workout._count.results,
       canManage,
-      canEdit: canManage && !this.hasDependencies(workout),
-      canDelete: canManage && !this.hasDependencies(workout),
+      canEdit: canManage && !hasDependencies,
+      canDelete: canManage && !hasDependencies,
+      canCopyToBox:
+        workout.scope === 'GLOBAL' &&
+        workout.isActive &&
+        this.canManageActiveBox(context),
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
-
       type: {
         key: workout.type.key,
         name: workout.type.name,
-
-        defaultResultType: workout.type.defaultResultType
-          ? {
-              key: workout.type.defaultResultType.key,
-              name: workout.type.defaultResultType.name,
-            }
-          : null,
+        defaultResultType: workout.type.defaultResultType,
       },
-
-      createdByUser: {
-        id: workout.createdByUser.id,
-        email: workout.createdByUser.email,
-      },
-
+      createdByUser: workout.createdByUser,
       variants: workout.variants.map((variant) => ({
         id: variant.id,
         name: variant.name,
         notes: variant.notes,
-
         level: {
           key: variant.level.key,
           name: variant.level.name,
         },
-
         sections: variant.sections.map((section) => ({
           id: section.id,
           order: section.order,
@@ -795,64 +1016,47 @@ export class WorkoutsService {
           restSeconds: section.restSeconds,
           repScheme: section.repScheme,
           notes: section.notes,
-
           type: {
             key: section.type.key,
             name: section.type.name,
-
-            defaultResultType: section.type.defaultResultType
-              ? {
-                  key: section.type.defaultResultType.key,
-                  name: section.type.defaultResultType.name,
-                }
-              : null,
+            defaultResultType: section.type.defaultResultType,
           },
-
           movements: section.movements.map((item) => ({
             id: item.id,
             order: item.order,
             reps: item.reps,
-
-            weight: item.weight !== null ? Number(item.weight) : null,
-
+            weight: item.weight === null ? null : Number(item.weight),
             weightUnit: item.weightUnit,
             distance: item.distance,
             calories: item.calories,
             durationSeconds: item.durationSeconds,
             notes: item.notes,
-
             movement: {
               id: item.movement.id,
               name: item.movement.name,
-
               measurementTypes: item.movement.measurementTypes.map(
-                (itemMeasurementType) => ({
-                  key: itemMeasurementType.measurementType.key,
-                  name: itemMeasurementType.measurementType.name,
+                ({ measurementType }) => ({
+                  key: measurementType.key,
+                  name: measurementType.name,
                 }),
               ),
             },
-
             prescriptions: item.prescriptions.map((prescription) => ({
               id: prescription.id,
-
               category: {
                 key: prescription.prescriptionCategory.key,
                 name: prescription.prescriptionCategory.name,
               },
-
               reps: prescription.reps,
-
               weight:
-                prescription.weight !== null
-                  ? Number(prescription.weight)
-                  : null,
-
+                prescription.weight === null
+                  ? null
+                  : Number(prescription.weight),
               weightUnit: prescription.weightUnit,
               percentage:
-                prescription.percentage !== null
-                  ? Number(prescription.percentage)
-                  : null,
+                prescription.percentage === null
+                  ? null
+                  : Number(prescription.percentage),
               referenceRepMax: prescription.referenceRepMax,
               referenceMovement: prescription.referenceMovement,
               distance: prescription.distance,

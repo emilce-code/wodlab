@@ -23,6 +23,7 @@ function requestMessage(data: unknown, fallback: string) {
 export default function ClassHub({ initialBoxes }: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
+
   const [boxes, setBoxes] = useState(initialBoxes);
   const [boxId, setBoxId] = useState(
     initialBoxes.find((box) => box.isActive)?.id ?? initialBoxes[0]?.id ?? "",
@@ -35,9 +36,11 @@ export default function ClassHub({ initialBoxes }: Props) {
   const [showJoin, setShowJoin] = useState(initialBoxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [view, setView] = useState<"all" | "mine">("all");
+
   const selectedBox = boxes.find((box) => box.id === boxId);
   const role = selectedBox?.role ?? null;
   const isStaff = role === "OWNER" || role === "COACH";
+
   const visibleClasses =
     !isStaff && view === "mine"
       ? classes.filter((session) => Boolean(session.currentUserBooking))
@@ -46,19 +49,25 @@ export default function ClassHub({ initialBoxes }: Props) {
   async function loadClasses(selectedId: string) {
     setLoading(true);
     setError(null);
+
     const from = new Date();
     from.setHours(0, 0, 0, 0);
+
     const to = new Date(from);
     to.setDate(to.getDate() + 30);
+
     try {
       const response = await fetch(
         `/api/boxes/${selectedId}/classes?from=${from.toISOString()}&to=${to.toISOString()}`,
       );
+
       const data = (await response.json()) as {
         role?: BoxSummary["role"];
         classes?: ClassSession[];
       };
+
       if (!response.ok) throw new Error();
+
       setClasses(data.classes ?? []);
     } catch {
       setError(t("errors.load"));
@@ -69,17 +78,22 @@ export default function ClassHub({ initialBoxes }: Props) {
 
   useEffect(() => {
     if (!boxId) return;
+
     const controller = new AbortController();
+
     const from = new Date();
     from.setHours(0, 0, 0, 0);
+
     const to = new Date(from);
     to.setDate(to.getDate() + 30);
+
     void fetch(
       `/api/boxes/${boxId}/classes?from=${from.toISOString()}&to=${to.toISOString()}`,
       { signal: controller.signal },
     )
       .then(async (response) => {
         if (!response.ok) throw new Error();
+
         return (await response.json()) as {
           role?: BoxSummary["role"];
           classes?: ClassSession[];
@@ -90,11 +104,14 @@ export default function ClassHub({ initialBoxes }: Props) {
         setLoading(false);
       })
       .catch((caught) => {
-        if (caught instanceof DOMException && caught.name === "AbortError")
+        if (caught instanceof DOMException && caught.name === "AbortError") {
           return;
+        }
+
         setError(t("errors.load"));
         setLoading(false);
       });
+
     return () => controller.abort();
   }, [boxId, t]);
 
@@ -102,68 +119,106 @@ export default function ClassHub({ initialBoxes }: Props) {
     if (!boxId || !isStaff) {
       return;
     }
+
     const controller = new AbortController();
-    void fetch(`/api/boxes/${boxId}/options`, { signal: controller.signal })
+
+    void fetch(`/api/boxes/${boxId}/options`, {
+      signal: controller.signal,
+    })
       .then((response) => (response.ok ? response.json() : []))
       .then((data: WorkoutOption[]) => setOptions(data))
       .catch(() => undefined);
+
     return () => controller.abort();
   }, [boxId, isStaff]);
 
   async function refreshBoxes() {
     const response = await fetch("/api/boxes");
+
     if (!response.ok) return;
+
     const data = (await response.json()) as BoxSummary[];
+
     setBoxes(data);
-    if (!boxId && data[0]) setBoxId(data[0].id);
+
+    if (!boxId && data[0]) {
+      setBoxId(data[0].id);
+    }
   }
 
   async function selectBox(nextBoxId: string) {
     setLoading(true);
+
     const response = await fetch("/api/boxes/active", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ boxId: nextBoxId }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        boxId: nextBoxId,
+      }),
     });
+
     if (!response.ok) {
       setError(t("errors.action"));
       setLoading(false);
       return;
     }
+
     setBoxes((current) =>
-      current.map((box) => ({ ...box, isActive: box.id === nextBoxId })),
+      current.map((box) => ({
+        ...box,
+        isActive: box.id === nextBoxId,
+      })),
     );
+
     setBoxId(nextBoxId);
   }
 
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
     const form = new FormData(event.currentTarget);
+    const joinCode = String(form.get("joinCode") || "").trim();
+
     const response = await fetch("/api/boxes/join", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ joinCode: String(form.get("joinCode")) }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        joinCode,
+      }),
     });
+
     const data = await response.json();
+
     if (!response.ok) {
       setError(requestMessage(data, t("errors.save")));
       return;
     }
+
     await refreshBoxes();
+
     setBoxId(data.id);
     setShowJoin(false);
-    event.currentTarget.reset();
   }
 
   async function submitClass(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
+
     const form = new FormData(event.currentTarget);
+
     const workoutId = String(form.get("workoutId") || "");
     const workoutVariantId = String(form.get("workoutVariantId") || "");
+
     const response = await fetch(`/api/boxes/${boxId}/classes`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: String(form.get("name")),
         description: String(form.get("description")) || undefined,
@@ -174,13 +229,16 @@ export default function ClassHub({ initialBoxes }: Props) {
         workoutVariantId: workoutVariantId || undefined,
       }),
     });
+
     const data = await response.json();
+
     if (!response.ok) {
       setError(requestMessage(data, t("errors.save")));
       return;
     }
-    event.currentTarget.reset();
+
     setShowCreateClass(false);
+
     await loadClasses(boxId);
   }
 
@@ -192,17 +250,28 @@ export default function ClassHub({ initialBoxes }: Props) {
   ) {
     setBusyId(classId);
     setError(null);
+
     const response = await fetch(
       `/api/boxes/${boxId}/classes/${classId}${suffix ? `/${suffix}` : ""}`,
       {
         method,
-        headers: body ? { "Content-Type": "application/json" } : undefined,
+        headers: body
+          ? {
+              "Content-Type": "application/json",
+            }
+          : undefined,
         body: body ? JSON.stringify(body) : undefined,
       },
     );
+
     const data = await response.json();
-    if (!response.ok) setError(requestMessage(data, t("errors.action")));
-    else await loadClasses(boxId);
+
+    if (!response.ok) {
+      setError(requestMessage(data, t("errors.action")));
+    } else {
+      await loadClasses(boxId);
+    }
+
     setBusyId(null);
   }
 
@@ -216,6 +285,7 @@ export default function ClassHub({ initialBoxes }: Props) {
           >
             {t("selectBox")}
           </label>
+
           <div className="mt-2 flex gap-2">
             <select
               id="box-selector"
@@ -229,6 +299,7 @@ export default function ClassHub({ initialBoxes }: Props) {
                 </option>
               ))}
             </select>
+
             <Button
               type="button"
               variant="secondary"
@@ -246,7 +317,11 @@ export default function ClassHub({ initialBoxes }: Props) {
           className="rounded-2xl border border-border bg-surface p-4"
         >
           <h2 className="font-bold">{t("join.title")}</h2>
-          <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
+
+          <p className="mt-1 text-sm text-muted">
+            {t("join.description")}
+          </p>
+
           <input
             name="joinCode"
             aria-label={t("join.code")}
@@ -258,7 +333,10 @@ export default function ClassHub({ initialBoxes }: Props) {
             placeholder={t("join.placeholder")}
             className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-lg uppercase tracking-[0.15em]"
           />
-          <Button className="mt-3 w-full">{t("join.submit")}</Button>
+
+          <Button className="mt-3 w-full">
+            {t("join.submit")}
+          </Button>
         </form>
       ) : null}
 
@@ -275,15 +353,22 @@ export default function ClassHub({ initialBoxes }: Props) {
         <section className="rounded-2xl border border-border bg-surface p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold">{selectedBox.name}</h2>
+              <h2 className="text-xl font-bold">
+                {selectedBox.name}
+              </h2>
+
               <p className="mt-1 text-sm text-muted">
-                {t("members", { count: selectedBox._count.memberships })}
+                {t("members", {
+                  count: selectedBox._count.memberships,
+                })}
               </p>
             </div>
+
             <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
               {t(`roles.${role?.toLowerCase() ?? "athlete"}`)}
             </span>
           </div>
+
           {role === "OWNER" ? (
             <Link
               href="/box-admin"
@@ -301,21 +386,33 @@ export default function ClassHub({ initialBoxes }: Props) {
           className="w-full"
           onClick={() => setShowCreateClass((value) => !value)}
         >
-          {showCreateClass ? t("classForm.cancel") : t("classForm.open")}
+          {showCreateClass
+            ? t("classForm.cancel")
+            : t("classForm.open")}
         </Button>
       ) : null}
 
       {showCreateClass && isStaff ? (
-        <ClassForm t={t} options={options} onSubmit={submitClass} />
+        <ClassForm
+          t={t}
+          options={options}
+          onSubmit={submitClass}
+        />
       ) : null}
 
       <section aria-busy={loading}>
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold">{t("upcoming")}</h2>
+          <h2 className="text-lg font-bold">
+            {t("upcoming")}
+          </h2>
+
           <span className="text-xs font-semibold text-muted">
-            {t("classCount", { count: visibleClasses.length })}
+            {t("classCount", {
+              count: visibleClasses.length,
+            })}
           </span>
         </div>
+
         {!isStaff ? (
           <div
             role="tablist"
@@ -329,26 +426,41 @@ export default function ClassHub({ initialBoxes }: Props) {
                 role="tab"
                 aria-selected={view === item}
                 onClick={() => setView(item)}
-                className={`min-h-11 rounded-lg px-3 text-sm font-semibold ${view === item ? "bg-surface text-accent shadow-sm" : "text-muted"}`}
+                className={`min-h-11 rounded-lg px-3 text-sm font-semibold ${
+                  view === item
+                    ? "bg-surface text-accent shadow-sm"
+                    : "text-muted"
+                }`}
               >
                 {t(`views.${item}`)}
               </button>
             ))}
           </div>
         ) : null}
+
         {loading ? (
           <p className="rounded-xl border border-border bg-surface p-5 text-sm text-muted">
             {t("loading")}
           </p>
         ) : null}
+
         {!loading && !visibleClasses.length ? (
           <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">
-            {view === "mine" ? t("emptyMine") : t("empty")}
+            {view === "mine"
+              ? t("emptyMine")
+              : t("empty")}
           </p>
         ) : null}
-        <ProgressiveList className="space-y-3" initialCount={8} increment={8}>
+
+        <ProgressiveList
+          className="space-y-3"
+          initialCount={8}
+          increment={8}
+        >
           {visibleClasses.map((session) => {
-            const full = session.bookedCount >= session.capacity;
+            const full =
+              session.bookedCount >= session.capacity;
+
             return (
               <article
                 key={session.id}
@@ -365,9 +477,11 @@ export default function ClassHub({ initialBoxes }: Props) {
                         minute: "2-digit",
                       }).format(new Date(session.startsAt))}
                     </p>
+
                     <h3 className="mt-1 truncate text-lg font-bold">
                       {session.name}
                     </h3>
+
                     <p className="mt-1 text-sm text-muted">
                       {t("classMeta", {
                         duration: session.durationMinutes,
@@ -375,6 +489,7 @@ export default function ClassHub({ initialBoxes }: Props) {
                         capacity: session.capacity,
                       })}
                     </p>
+
                     {session.workout ? (
                       <p className="mt-2 text-sm font-medium">
                         {session.workout.name}
@@ -383,22 +498,31 @@ export default function ClassHub({ initialBoxes }: Props) {
                           : ""}
                       </p>
                     ) : null}
+
                     {session.description ? (
                       <p className="mt-2 line-clamp-2 text-sm text-muted">
                         {session.description}
                       </p>
                     ) : null}
                   </div>
+
                   <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${full ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      full
+                        ? "bg-amber-500/10 text-amber-600"
+                        : "bg-emerald-500/10 text-emerald-600"
+                    }`}
                   >
                     {full
                       ? t("full")
                       : t("spots", {
-                          count: session.capacity - session.bookedCount,
+                          count:
+                            session.capacity -
+                            session.bookedCount,
                         })}
                   </span>
                 </div>
+
                 {!isStaff ? (
                   session.currentUserBooking ? (
                     <Button
@@ -406,20 +530,34 @@ export default function ClassHub({ initialBoxes }: Props) {
                       variant="secondary"
                       disabled={
                         busyId === session.id ||
-                        session.currentUserBooking.status === "ATTENDED"
+                        session.currentUserBooking.status ===
+                          "ATTENDED"
                       }
-                      onClick={() => void classAction(session.id, "DELETE")}
+                      onClick={() =>
+                        void classAction(
+                          session.id,
+                          "DELETE",
+                        )
+                      }
                       className="mt-4 w-full"
                     >
-                      {session.currentUserBooking.status === "ATTENDED"
+                      {session.currentUserBooking.status ===
+                      "ATTENDED"
                         ? t("attended")
                         : t("cancelBooking")}
                     </Button>
                   ) : (
                     <Button
                       type="button"
-                      disabled={full || busyId === session.id}
-                      onClick={() => void classAction(session.id, "POST")}
+                      disabled={
+                        full || busyId === session.id
+                      }
+                      onClick={() =>
+                        void classAction(
+                          session.id,
+                          "POST",
+                        )
+                      }
                       className="mt-4 w-full"
                     >
                       {full ? t("full") : t("book")}
@@ -428,8 +566,11 @@ export default function ClassHub({ initialBoxes }: Props) {
                 ) : (
                   <details className="mt-4 border-t border-border pt-3">
                     <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold">
-                      {t("roster", { count: session.bookings.length })}
+                      {t("roster", {
+                        count: session.bookings.length,
+                      })}
                     </summary>
+
                     <div className="space-y-2">
                       {session.bookings.map((booking) => (
                         <div
@@ -437,13 +578,17 @@ export default function ClassHub({ initialBoxes }: Props) {
                           className="flex items-center justify-between gap-2 rounded-lg bg-background p-2"
                         >
                           <span className="min-w-0 truncate text-sm">
-                            {booking.user.athleteProfile?.displayName ??
+                            {booking.user.athleteProfile
+                              ?.displayName ??
                               booking.user.email}
                           </span>
+
                           <Button
                             type="button"
                             variant="secondary"
-                            disabled={busyId === session.id}
+                            disabled={
+                              busyId === session.id
+                            }
                             onClick={() =>
                               void classAction(
                                 session.id,
@@ -452,7 +597,8 @@ export default function ClassHub({ initialBoxes }: Props) {
                                 {
                                   userId: booking.userId,
                                   status:
-                                    booking.status === "ATTENDED"
+                                    booking.status ===
+                                    "ATTENDED"
                                       ? "BOOKED"
                                       : "ATTENDED",
                                 },
@@ -465,15 +611,23 @@ export default function ClassHub({ initialBoxes }: Props) {
                           </Button>
                         </div>
                       ))}
+
                       {!session.bookings.length ? (
-                        <p className="text-sm text-muted">{t("noBookings")}</p>
+                        <p className="text-sm text-muted">
+                          {t("noBookings")}
+                        </p>
                       ) : null}
+
                       <Button
                         type="button"
                         variant="danger"
                         className="mt-2 w-full"
                         onClick={() =>
-                          void classAction(session.id, "DELETE", "")
+                          void classAction(
+                            session.id,
+                            "DELETE",
+                            "",
+                          )
                         }
                       >
                         {t("deleteClass")}
@@ -497,17 +651,25 @@ function ClassForm({
 }: {
   t: ReturnType<typeof useTranslations>;
   options: WorkoutOption[];
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => void;
 }) {
   const [workoutId, setWorkoutId] = useState("");
+
   const variants =
-    options.find((option) => option.id === workoutId)?.variants ?? [];
+    options.find((option) => option.id === workoutId)
+      ?.variants ?? [];
+
   return (
     <form
       onSubmit={onSubmit}
       className="rounded-xl border border-accent/30 bg-surface p-4"
     >
-      <h2 className="font-bold">{t("classForm.title")}</h2>
+      <h2 className="font-bold">
+        {t("classForm.title")}
+      </h2>
+
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <input
           name="name"
@@ -517,8 +679,10 @@ function ClassForm({
           placeholder={t("classForm.name")}
           className="min-h-11 rounded-lg border border-border bg-background px-3 sm:col-span-2"
         />
+
         <label className="text-sm font-semibold">
           {t("classForm.startsAt")}
+
           <input
             name="startsAt"
             type="datetime-local"
@@ -526,8 +690,10 @@ function ClassForm({
             className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
           />
         </label>
+
         <label className="text-sm font-semibold">
           {t("classForm.duration")}
+
           <input
             name="durationMinutes"
             type="number"
@@ -539,8 +705,10 @@ function ClassForm({
             className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
           />
         </label>
+
         <label className="text-sm font-semibold">
           {t("classForm.capacity")}
+
           <input
             name="capacity"
             type="number"
@@ -552,37 +720,56 @@ function ClassForm({
             className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
           />
         </label>
+
         <label className="text-sm font-semibold">
           {t("classForm.workout")}
+
           <select
             name="workoutId"
             value={workoutId}
-            onChange={(event) => setWorkoutId(event.target.value)}
+            onChange={(event) =>
+              setWorkoutId(event.target.value)
+            }
             className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
           >
-            <option value="">{t("classForm.noWorkout")}</option>
+            <option value="">
+              {t("classForm.noWorkout")}
+            </option>
+
             {options.map((option) => (
-              <option key={option.id} value={option.id}>
+              <option
+                key={option.id}
+                value={option.id}
+              >
                 {option.name}
               </option>
             ))}
           </select>
         </label>
+
         <label className="text-sm font-semibold">
           {t("classForm.variation")}
+
           <select
             name="workoutVariantId"
             disabled={!workoutId}
             className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50"
           >
-            <option value="">{t("classForm.noVariation")}</option>
+            <option value="">
+              {t("classForm.noVariation")}
+            </option>
+
             {variants.map((variant) => (
-              <option key={variant.id} value={variant.id}>
+              <option
+                key={variant.id}
+                value={variant.id}
+              >
                 {variant.name ?? variant.level.name}
               </option>
             ))}
           </select>
         </label>
+
         <textarea
           name="description"
           aria-label={t("classForm.description")}
@@ -591,7 +778,10 @@ function ClassForm({
           className="rounded-lg border border-border bg-background px-3 py-2 sm:col-span-2"
         />
       </div>
-      <Button className="mt-4 w-full sm:w-auto">{t("classForm.submit")}</Button>
+
+      <Button className="mt-4 w-full sm:w-auto">
+        {t("classForm.submit")}
+      </Button>
     </form>
   );
 }

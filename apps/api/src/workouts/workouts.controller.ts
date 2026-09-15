@@ -33,7 +33,6 @@ export class WorkoutsController {
     private readonly workoutResultsService: WorkoutResultsService,
   ) {}
 
-  // Static routes FIRST
   @Get('types')
   findWorkoutTypes() {
     return this.workoutsService.findWorkoutTypes();
@@ -72,7 +71,6 @@ export class WorkoutsController {
     return this.workoutsService.findArchived(request.user, query);
   }
 
-  // Collection routes
   @Get()
   findAll(
     @Req() request: AuthenticatedRequest,
@@ -84,6 +82,11 @@ export class WorkoutsController {
   @Post()
   create(@Req() request: AuthenticatedRequest, @Body() dto: CreateWorkoutDto) {
     return this.workoutsService.create(request.user, dto);
+  }
+
+  @Post(':id/copy-to-box')
+  copyToBox(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
+    return this.workoutsService.copyGlobalToActiveBox(request.user, id);
   }
 
   @Patch(':id')
@@ -110,7 +113,6 @@ export class WorkoutsController {
     return this.workoutsService.delete(request.user, id);
   }
 
-  // Workout result routes
   @Post(':id/results')
   createResult(
     @Req() request: AuthenticatedRequest,
@@ -168,7 +170,6 @@ export class WorkoutsController {
     return this.workoutResultsService.findResults(request.user.userId, id);
   }
 
-  // Dynamic route LAST
   @Get(':id')
   findOne(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
     return this.workoutsService.findOne(id, request.user);
