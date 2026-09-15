@@ -9,13 +9,17 @@ export async function GET(request: NextRequest) {
     "category",
     "measurementType",
     "foundational",
+    "scope",
     "page",
     "pageSize",
   ];
 
   for (const parameter of allowedParameters) {
     const value = request.nextUrl.searchParams.get(parameter)?.trim();
-    if (value) query.set(parameter, value);
+
+    if (value) {
+      query.set(parameter, value);
+    }
   }
 
   const suffix = query.toString() ? `?${query.toString()}` : "";
@@ -47,11 +51,15 @@ export async function POST(request: NextRequest) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(await request.json()),
   });
+
   if (!response) {
     return NextResponse.json(
       { message: "Unable to connect to API" },
       { status: 503 },
     );
   }
-  return NextResponse.json(await response.json(), { status: response.status });
+
+  return NextResponse.json(await response.json(), {
+    status: response.status,
+  });
 }

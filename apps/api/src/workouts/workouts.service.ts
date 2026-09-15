@@ -625,17 +625,17 @@ export class WorkoutsService {
     scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
     boxId: string | null;
   } {
-    if (context.appRole === 'ADMIN') {
-      return {
-        scope: 'GLOBAL',
-        boxId: null,
-      };
-    }
-
     if (context.activeBoxId && this.canManageActiveBox(context)) {
       return {
         scope: 'BOX',
         boxId: context.activeBoxId,
+      };
+    }
+
+    if (context.appRole === 'ADMIN') {
+      return {
+        scope: 'GLOBAL',
+        boxId: null,
       };
     }
 
@@ -648,7 +648,7 @@ export class WorkoutsService {
   private collectionVisibilityWhere(
     context: CatalogContext,
     archived: boolean,
-    scope: 'all' | 'global' | 'box' | 'personal',
+    scope: 'all' | 'mine' | 'global' | 'box' | 'personal',
   ): Prisma.WorkoutWhereInput {
     const globalVisible: Prisma.WorkoutWhereInput =
       !archived || context.appRole === 'ADMIN'
@@ -669,6 +669,21 @@ export class WorkoutsService {
       createdByUserId: context.userId,
     };
 
+    const allVisible: Prisma.WorkoutWhereInput = {
+      OR: [globalVisible, boxVisible, personalVisible],
+    };
+
+    if (scope === 'mine') {
+      return {
+        AND: [
+          allVisible,
+          {
+            createdByUserId: context.userId,
+          },
+        ],
+      };
+    }
+
     if (scope === 'global') {
       return globalVisible;
     }
@@ -681,9 +696,7 @@ export class WorkoutsService {
       return personalVisible;
     }
 
-    return {
-      OR: [globalVisible, boxVisible, personalVisible],
-    };
+    return allVisible;
   }
 
   private canViewWorkout(

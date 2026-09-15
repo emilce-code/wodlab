@@ -4,40 +4,22 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/ui/Button";
+import {
+  getLibraryScopeLabels,
+  type LibraryScopeFilter,
+} from "@/lib/library-scope";
 import type { PaginatedResponse } from "@/lib/pagination";
 
 import WorkoutCard, { Workout } from "./WorkoutCard";
 
 type Filter = "ALL" | "BENCHMARK";
 type LibraryView = "ACTIVE" | "ARCHIVED";
-type ScopeFilter = "all" | "global" | "box" | "personal";
 
 type Props = {
   workouts: PaginatedResponse<Workout>;
   archivedWorkouts: PaginatedResponse<Workout>;
   preferredWorkoutLevelKey: string | null;
 };
-
-const scopeLabels = {
-  en: {
-    all: "All",
-    global: "Global",
-    box: "My Box",
-    personal: "Mine",
-  },
-  es: {
-    all: "Todos",
-    global: "Global",
-    box: "Mi Box",
-    personal: "Míos",
-  },
-  pt: {
-    all: "Todos",
-    global: "Global",
-    box: "Meu Box",
-    personal: "Meus",
-  },
-} as const;
 
 export default function WorkoutLibrary({
   workouts,
@@ -47,12 +29,11 @@ export default function WorkoutLibrary({
   const t = useTranslations("workouts.library");
   const paginationT = useTranslations("pagination");
   const locale = useLocale();
-  const scopeCopy =
-    scopeLabels[locale as keyof typeof scopeLabels] ?? scopeLabels.en;
+  const scopeLabels = getLibraryScopeLabels(locale);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
-  const [scope, setScope] = useState<ScopeFilter>("all");
+  const [scope, setScope] = useState<LibraryScopeFilter>("all");
   const [view, setView] = useState<LibraryView>("ACTIVE");
   const [pages, setPages] = useState<
     Record<string, PaginatedResponse<Workout>>
@@ -215,17 +196,15 @@ export default function WorkoutLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "box", "global", "personal"] as ScopeFilter[]).map(
-            (value) => (
-              <FilterButton
-                key={value}
-                active={scope === value}
-                onClick={() => setScope(value)}
-              >
-                {scopeCopy[value]}
-              </FilterButton>
-            ),
-          )}
+          {(["all", "mine"] as LibraryScopeFilter[]).map((value) => (
+            <FilterButton
+              key={value}
+              active={scope === value}
+              onClick={() => setScope(value)}
+            >
+              {scopeLabels[value]}
+            </FilterButton>
+          ))}
         </div>
 
         <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
@@ -324,7 +303,7 @@ export default function WorkoutLibrary({
 function createQuery(
   view: LibraryView,
   filter: Filter,
-  scope: ScopeFilter,
+  scope: LibraryScopeFilter,
   search: string,
   page: number,
   pageSize: number,

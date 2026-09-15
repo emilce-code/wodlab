@@ -11,6 +11,6 @@ export class FindWorkoutsQueryDto extends PaginationQueryDto {
   benchmark?: string;
 
   @IsOptional()
-  @IsIn(['all', 'global', 'box', 'personal'])
-  scope?: 'all' | 'global' | 'box' | 'personal';
+  @IsIn(['all', 'mine', 'global', 'box', 'personal'])
+  scope?: 'all' | 'mine' | 'global' | 'box' | 'personal';
 }
