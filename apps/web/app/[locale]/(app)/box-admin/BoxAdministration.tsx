@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
+import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
 
 type Props = {
@@ -37,6 +38,7 @@ export default function BoxAdministration({
   const [tab, setTab] = useState<"details" | "members">("details");
   const [showCreate, setShowCreate] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
+  const { confirm, dialog } = useConfirmationDialog();
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
   const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
   const visibleMembers = normalizedSearch
@@ -128,7 +130,8 @@ export default function BoxAdministration({
   }
 
   async function rotateJoinCode() {
-    if (!selectedBox || !window.confirm(t("joinCode.confirm"))) return;
+    if (!selectedBox || !(await confirm({ description: t("joinCode.confirm") })))
+      return;
     clearMessages();
     setBusy("join-code");
     const response = await fetch(`/api/boxes/${selectedBox.id}/join-code`, {
@@ -180,7 +183,7 @@ export default function BoxAdministration({
   }
 
   async function removeMember(member: BoxMember) {
-    if (!window.confirm(t("members.removeConfirm"))) return;
+    if (!(await confirm({ description: t("members.removeConfirm") }))) return;
     clearMessages();
     setBusy(member.id);
     const response = await fetch(`/api/boxes/${boxId}/members/${member.id}`, {
@@ -209,6 +212,7 @@ export default function BoxAdministration({
 
   return (
     <div className="mt-6 space-y-4">
+      {dialog}
       <div className="sticky top-2 z-20 rounded-2xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur">
         <label
           htmlFor="managed-box"

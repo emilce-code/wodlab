@@ -49,6 +49,8 @@ export default function MobileNavigation({ user }: Props) {
       return;
     }
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     firstMenuLinkRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -60,7 +62,10 @@ export default function MobileNavigation({ user }: Props) {
 
     window.addEventListener("keydown", handleKeyDown);
 
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [moreMenuOpen]);
 
   function isActive(href: string) {
@@ -91,6 +96,8 @@ export default function MobileNavigation({ user }: Props) {
 
           <section
             id="mobile-more-menu"
+            role="dialog"
+            aria-modal="true"
             aria-labelledby="mobile-more-menu-title"
             className="fixed inset-x-2 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-50 max-h-[calc(100dvh-5rem-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-surface p-4 shadow-2xl sm:inset-x-3 lg:hidden"
           >

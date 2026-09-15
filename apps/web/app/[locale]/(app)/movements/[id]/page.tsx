@@ -125,6 +125,7 @@ export default async function MovementDetailPage({ params }: Props) {
     t,
     categoryT,
     measurementT,
+    scopeT,
     locale,
     categories,
     measurementTypes,
@@ -136,6 +137,7 @@ export default async function MovementDetailPage({ params }: Props) {
     getTranslations("movements.detail"),
     getTranslations("movementCategories"),
     getTranslations("measurementTypes"),
+    getTranslations("movementScopes"),
     getLocale(),
     getOptions("/movements/categories"),
     getOptions("/movements/measurement-types"),
@@ -193,11 +195,9 @@ export default async function MovementDetailPage({ params }: Props) {
           </p>
 
           <Badge>
-            {currentMovement.scope === "BOX"
-              ? currentMovement.box?.name ?? "Box"
-              : currentMovement.scope === "PERSONAL"
-                ? "Personal"
-                : "Global"}
+            {currentMovement.scope === "BOX" && currentMovement.box
+              ? currentMovement.box.name
+              : scopeT(currentMovement.scope.toLowerCase())}
           </Badge>
 
           {currentMovement.isFoundational && (
@@ -211,14 +211,15 @@ export default async function MovementDetailPage({ params }: Props) {
 
         {currentMovement.scope === "PERSONAL" ? (
           <p className="mt-2 text-sm text-muted">
-            Only you can see this movement.
+            {scopeT("personalHelp")}
           </p>
         ) : null}
 
         {currentMovement.scope === "BOX" ? (
           <p className="mt-2 text-sm text-muted">
-            Visible to members of{" "}
-            {currentMovement.box?.name ?? "your Box"}.
+            {scopeT("boxHelp", {
+              box: currentMovement.box?.name ?? scopeT("box"),
+            })}
           </p>
         ) : null}
       </header>

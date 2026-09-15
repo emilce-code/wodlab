@@ -63,6 +63,11 @@ textarea {
   touch-action: manipulation;
 }
 
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+select {
+  min-height: 2.75rem;
+}
+
 input,
 select,
 textarea {

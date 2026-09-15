@@ -23,16 +23,11 @@ export type Movement = {
 
 type Props = { movement: Movement };
 
-const scopeLabel = {
-  GLOBAL: "Global",
-  BOX: "Box",
-  PERSONAL: "Personal",
-} as const;
-
 export default function MovementCard({ movement }: Props) {
   const t = useTranslations("movements");
   const categoryT = useTranslations("movementCategories");
   const measurementT = useTranslations("measurementTypes");
+  const scopeT = useTranslations("movementScopes");
 
   function getCategoryName() {
     const key = movement.category.key.toLowerCase();
@@ -53,7 +48,7 @@ export default function MovementCard({ movement }: Props) {
               {getCategoryName()}
             </p>
             <span className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-muted">
-              {scopeLabel[movement.scope]}
+              {scopeT(movement.scope.toLowerCase())}
               {movement.scope === "BOX" && movement.box
                 ? ` · ${movement.box.name}`
                 : ""}
@@ -72,10 +67,10 @@ export default function MovementCard({ movement }: Props) {
         </h2>
 
         {movement.scope === "PERSONAL" ? (
-          <p className="mt-1 text-xs text-muted">Only you can see this movement.</p>
+          <p className="mt-1 text-xs text-muted">{scopeT("personalHelp")}</p>
         ) : movement.scope === "BOX" ? (
           <p className="mt-1 text-xs text-muted">
-            Visible to members of {movement.box?.name ?? "your Box"}.
+            {scopeT("boxHelp", { box: movement.box?.name ?? scopeT("box") })}
           </p>
         ) : null}
 

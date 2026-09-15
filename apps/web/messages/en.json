@@ -15,7 +15,11 @@
     "register": "Register",
     "save": "Save",
     "cancel": "Cancel",
+    "confirm": "Confirm",
+    "confirmTitle": "Confirm action",
     "search": "Search",
+    "filters": "Filters",
+    "showResults": "Show results",
     "all": "All",
     "rx": "Rx",
     "scaled": "Scaled",
@@ -1499,6 +1503,13 @@
   "pagination": {
     "loadMore": "Load {count} more",
     "showing": "Showing {shown} of {total}"
+  },
+  "movementScopes": {
+    "global": "Global",
+    "box": "Box",
+    "personal": "Personal",
+    "personalHelp": "Only you can see this movement.",
+    "boxHelp": "Visible to members of {box}."
   },
   "measurementTypes": {
     "reps": "Reps",

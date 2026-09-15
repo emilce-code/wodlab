@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import ProgressiveList from "@/components/ui/ProgressiveList";
 import MobileDateField from "@/components/ui/MobileDateField";
 import { formatCalendarDate } from "@/lib/date-formatters";
@@ -205,6 +206,7 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
   const [date, setDate] = useState(item.scheduledDate.slice(0, 10));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { confirm, dialog } = useConfirmationDialog();
 
   if (item.status === "COMPLETED") {
     return (
@@ -249,7 +251,7 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
   }
 
   async function remove() {
-    if (!window.confirm(t("removeConfirm"))) return;
+    if (!(await confirm({ description: t("removeConfirm") }))) return;
     setSubmitting(true);
     setError(null);
 
@@ -271,6 +273,7 @@ function SessionActions({ item, onUpdated, onRemoved }: SessionActionsProps) {
 
   return (
     <div className="mt-4 border-t border-border pt-4">
+      {dialog}
       {error ? <Alert variant="error">{error}</Alert> : null}
       {editing ? (
         <form
@@ -526,6 +529,7 @@ export default function TrainingCalendar() {
     null,
   );
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const { confirm, dialog } = useConfirmationDialog();
   const { from, to } = monthRange(month);
 
   useEffect(() => {
@@ -595,7 +599,7 @@ export default function TrainingCalendar() {
   }
 
   async function removeFromCalendar(item: ScheduledWorkout) {
-    if (!window.confirm(t("removeConfirm"))) {
+    if (!(await confirm({ description: t("removeConfirm") }))) {
       return;
     }
 
@@ -622,6 +626,7 @@ export default function TrainingCalendar() {
 
   return (
     <div className="mt-8">
+      {dialog}
       <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between gap-2 sm:justify-start">
           <Button

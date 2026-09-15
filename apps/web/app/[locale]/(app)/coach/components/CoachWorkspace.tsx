@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import ProgressiveList from "@/components/ui/ProgressiveList";
 import type { CoachWorkspace as Workspace } from "@/lib/coach";
 
@@ -22,6 +23,7 @@ export default function CoachWorkspace({ canCoach }: Props) {
   const [displayName, setDisplayName] = useState("");
   const [athleteEmail, setAthleteEmail] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
+  const { confirm, dialog } = useConfirmationDialog();
 
   const load = useCallback(async () => {
     try {
@@ -114,7 +116,7 @@ export default function CoachWorkspace({ canCoach }: Props) {
   }
 
   async function disconnect(id: string) {
-    if (!window.confirm(t("disconnectConfirm"))) return;
+    if (!(await confirm({ description: t("disconnectConfirm") }))) return;
     setPendingAction(`relationship-${id}`);
     setError(null);
     try {
@@ -148,6 +150,7 @@ export default function CoachWorkspace({ canCoach }: Props) {
 
   return (
     <div className="mt-8 space-y-10">
+      {dialog}
       {workspace.coachProfile ? <CoachModuleNavigation /> : null}
       {error ? <Alert variant="error">{error}</Alert> : null}
 
