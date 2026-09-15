@@ -1078,7 +1078,7 @@ export class MovementsService {
 
   private movementVisibilityWhere(
     context: MovementCatalogContext,
-    scope: 'all' | 'global' | 'box' | 'personal',
+    scope: 'all' | 'mine' | 'global' | 'box' | 'personal',
   ): Prisma.MovementWhereInput {
     const globalVisible: Prisma.MovementWhereInput = {
       scope: 'GLOBAL',
@@ -1096,13 +1096,26 @@ export class MovementsService {
       createdByUserId: context.userId,
     };
 
+    const allVisible: Prisma.MovementWhereInput = {
+      OR: [globalVisible, boxVisible, personalVisible],
+    };
+
+    if (scope === 'mine') {
+      return {
+        AND: [
+          allVisible,
+          {
+            createdByUserId: context.userId,
+          },
+        ],
+      };
+    }
+
     if (scope === 'global') return globalVisible;
     if (scope === 'box') return boxVisible;
     if (scope === 'personal') return personalVisible;
 
-    return {
-      OR: [globalVisible, boxVisible, personalVisible],
-    };
+    return allVisible;
   }
 
   private canViewMovement(

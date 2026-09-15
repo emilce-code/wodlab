@@ -184,6 +184,53 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     );
   });
 
+  it('includes only the active Box when filtering the workout library by Box', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        activeBoxId: 'box-1',
+        activeBoxRole: 'ATHLETE',
+      }),
+    );
+
+    await service.findAll(user, { scope: 'box' });
+
+    expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            {
+              scope: 'BOX',
+              boxId: 'box-1',
+            },
+            {
+              isActive: true,
+            },
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it('filters the workout library to the current user PERSONAL workouts', async () => {
+    await service.findAll(user, { scope: 'personal' });
+
+    expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            {
+              scope: 'PERSONAL',
+              createdByUserId: 'user-1',
+            },
+            {
+              isActive: true,
+            },
+          ]),
+        }),
+      }),
+    );
+  });
+
   it('returns pagination metadata and applies database limits', async () => {
     prismaMock.workout.count.mockResolvedValue(25);
 
@@ -238,6 +285,89 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
         ],
       }),
     );
+  });
+
+  describe('Phase 48B creation scope', () => {
+    type CatalogContext = {
+      userId: string;
+      appRole: 'USER' | 'COACH' | 'ADMIN';
+      activeBoxId: string | null;
+      activeBoxName: string | null;
+      activeBoxRole: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+    };
+
+    const resolveCreationScope = (context: CatalogContext) =>
+      (
+        service as unknown as {
+          resolveCreationScope: (value: CatalogContext) => {
+            scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+            boxId: string | null;
+          };
+        }
+      ).resolveCreationScope(context);
+
+    it('creates athlete workouts as PERSONAL even with an active Box', () => {
+      expect(
+        resolveCreationScope({
+          userId: 'user-1',
+          appRole: 'USER',
+          activeBoxId: 'box-1',
+          activeBoxName: 'Wodlab CrossFit',
+          activeBoxRole: 'ATHLETE',
+        }),
+      ).toEqual({
+        scope: 'PERSONAL',
+        boxId: null,
+      });
+    });
+
+    it.each(['OWNER', 'COACH'] as const)(
+      'creates workouts as BOX for an active Box %s',
+      (activeBoxRole) => {
+        expect(
+          resolveCreationScope({
+            userId: 'user-1',
+            appRole: 'USER',
+            activeBoxId: 'box-1',
+            activeBoxName: 'Wodlab CrossFit',
+            activeBoxRole,
+          }),
+        ).toEqual({
+          scope: 'BOX',
+          boxId: 'box-1',
+        });
+      },
+    );
+
+    it('creates ADMIN workouts as BOX when an active Box is selected', () => {
+      expect(
+        resolveCreationScope({
+          userId: 'admin-1',
+          appRole: 'ADMIN',
+          activeBoxId: 'box-1',
+          activeBoxName: 'Wodlab CrossFit',
+          activeBoxRole: 'ATHLETE',
+        }),
+      ).toEqual({
+        scope: 'BOX',
+        boxId: 'box-1',
+      });
+    });
+
+    it('creates ADMIN workouts as GLOBAL without an active Box', () => {
+      expect(
+        resolveCreationScope({
+          userId: 'admin-1',
+          appRole: 'ADMIN',
+          activeBoxId: null,
+          activeBoxName: null,
+          activeBoxRole: null,
+        }),
+      ).toEqual({
+        scope: 'GLOBAL',
+        boxId: null,
+      });
+    });
   });
 
   it('allows the creator to read an inactive PERSONAL workout', async () => {
@@ -295,6 +425,21 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     );
   });
 
+  it('prevents direct-ID access to another user PERSONAL workout', async () => {
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        createdByUserId: 'creator-2',
+        scope: 'PERSONAL',
+      }),
+    );
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).rejects.toThrow(
+      new NotFoundException('Workout not found'),
+    );
+  });
+
   it('prevents access to a workout belonging to another Box through its identifier', async () => {
     prismaMock.user.findUnique.mockResolvedValue(
       userContext({
@@ -319,6 +464,40 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       service.findOne('workout-1', user),
     ).rejects.toThrow(
       new NotFoundException('Workout not found'),
+    );
+  });
+
+  it('allows an athlete to read an active workout from the active Box', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        activeBoxId: 'box-1',
+        activeBoxRole: 'ATHLETE',
+      }),
+    );
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        scope: 'BOX',
+        boxId: 'box-1',
+        box: {
+          id: 'box-1',
+          name: 'Wodlab CrossFit',
+        },
+        createdByUserId: 'coach-1',
+      }),
+    );
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        id: 'workout-1',
+        scope: 'BOX',
+        box: {
+          id: 'box-1',
+          name: 'Wodlab CrossFit',
+        },
+      }),
     );
   });
 

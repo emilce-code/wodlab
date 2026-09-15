@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/ui/Button";
+import {
+  getLibraryScopeLabels,
+  type LibraryScopeFilter,
+} from "@/lib/library-scope";
 import type { PaginatedResponse } from "@/lib/pagination";
 
 import MovementCard, { Movement } from "./MovementCard";
@@ -15,15 +19,6 @@ type Props = {
   measurementTypes: { key: string; name: string }[];
 };
 
-type ScopeFilter = "all" | "box" | "global" | "personal";
-
-const scopeLabels: Record<ScopeFilter, string> = {
-  all: "All",
-  box: "My Box",
-  global: "Global",
-  personal: "Mine",
-};
-
 export default function MovementLibrary({
   initialMovements,
   categories,
@@ -31,8 +26,11 @@ export default function MovementLibrary({
 }: Props) {
   const t = useTranslations("movements");
   const paginationT = useTranslations("pagination");
+  const locale = useLocale();
+  const scopeLabels = getLibraryScopeLabels(locale);
+
   const [search, setSearch] = useState("");
-  const [scope, setScope] = useState<ScopeFilter>("all");
+  const [scope, setScope] = useState<LibraryScopeFilter>("all");
   const [pages, setPages] = useState<
     Record<string, PaginatedResponse<Movement>>
   >(() => ({ "all-": initialMovements }));
@@ -143,7 +141,7 @@ export default function MovementLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(Object.keys(scopeLabels) as ScopeFilter[]).map((value) => (
+          {(["all", "mine"] as LibraryScopeFilter[]).map((value) => (
             <button
               key={value}
               type="button"
