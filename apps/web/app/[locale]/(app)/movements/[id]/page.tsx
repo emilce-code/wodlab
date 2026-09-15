@@ -70,8 +70,13 @@ type Props = {
   }>;
 };
 
-async function getMovement(id: string): Promise<Movement | null> {
-  const response = await authenticatedApiFetch(`/movements/${id}`);
+async function getMovement(
+  id: string,
+  locale: string,
+): Promise<Movement | null> {
+  const response = await authenticatedApiFetch(`/movements/${id}`, {
+    headers: { "Accept-Language": locale },
+  });
 
   if (!response?.ok) {
     return null;
@@ -116,6 +121,7 @@ async function getOptions(
 
 export default async function MovementDetailPage({ params }: Props) {
   const { id } = await params;
+  const locale = await getLocale();
 
   const [
     movement,
@@ -126,11 +132,10 @@ export default async function MovementDetailPage({ params }: Props) {
     categoryT,
     measurementT,
     scopeT,
-    locale,
     categories,
     measurementTypes,
   ] = await Promise.all([
-    getMovement(id),
+    getMovement(id, locale),
     getMovementResults(id),
     getMovementSummary(id),
     getCurrentUser(),
@@ -138,7 +143,6 @@ export default async function MovementDetailPage({ params }: Props) {
     getTranslations("movementCategories"),
     getTranslations("measurementTypes"),
     getTranslations("movementScopes"),
-    getLocale(),
     getOptions("/movements/categories"),
     getOptions("/movements/measurement-types"),
   ]);
