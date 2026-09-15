@@ -186,12 +186,16 @@ export function MobileTabPanel({
 
   const selected = context.activeTab === tabId;
 
+  // Keep inactive mobile sections out of the DOM. This prevents expensive
+  // charts and client-side data effects from running before the user opens
+  // their tab, while preserving URL-addressable navigation.
+  if (!selected) return null;
+
   return (
     <div
       role="tabpanel"
       id={`${queryParam}-panel-${tabId}`}
       aria-labelledby={`${queryParam}-tab-${tabId}`}
-      hidden={!selected}
       tabIndex={0}
       className={["outline-none", className].join(" ")}
     >

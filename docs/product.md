@@ -357,6 +357,15 @@ contextual coach or athlete roles, and removing non-owner members. Operational
 class scheduling remains separate so organization controls do not overload the
 daily class experience.
 
+### Mobile interaction consistency
+
+Long pages prioritize the current task: secondary content is separated into
+tabs, dense filters open in a bottom sheet, and primary actions remain reachable
+without scrolling back to the top. Confirmation, loading, empty, and error
+states use shared components across athlete, coach, and administration flows.
+Search and navigation state should remain recoverable when users move between a
+catalog and an item detail.
+
 ## Future features
 
 Possible future capabilities include:

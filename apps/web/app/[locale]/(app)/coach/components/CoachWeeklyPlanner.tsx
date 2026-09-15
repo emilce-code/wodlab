@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import type { TrainingCalendarWorkout } from "@/lib/scheduled-workouts";
 
 type PrescriptionCategory = { key: string; name: string };
@@ -64,6 +65,7 @@ function shiftDate(dateKey: string, days: number) {
 
 export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
   const t = useTranslations("coach.weeklyPlan");
+  const { confirm, dialog } = useConfirmationDialog();
   const locale = useLocale();
   const [weekStart, setWeekStart] = useState(() => toDateKey(startOfWeek()));
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
@@ -206,7 +208,9 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
 
   async function removeAssignment(assignment: WeeklyAssignment) {
     if (
-      !window.confirm(t("removeConfirm", { workout: assignment.workout.name }))
+      !(await confirm({
+        description: t("removeConfirm", { workout: assignment.workout.name }),
+      }))
     ) {
       return;
     }
@@ -292,6 +296,7 @@ export default function CoachWeeklyPlanner({ athleteId, onChanged }: Props) {
 
   return (
     <section className="space-y-5">
+      {dialog}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-bold">{t("title")}</h2>

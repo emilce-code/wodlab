@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -48,7 +48,7 @@ export function getButtonClassName({
   return [baseClassName, variants[variant], sizes[size], className].join(" ");
 }
 
-export default function Button({
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
   children,
   variant = "primary",
   size = "md",
@@ -56,9 +56,10 @@ export default function Button({
   disabled,
   className = "",
   ...props
-}: ButtonProps) {
+}, ref) {
   return (
     <button
+      ref={ref}
       className={getButtonClassName({ variant, size, className })}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
@@ -74,4 +75,6 @@ export default function Button({
       {children}
     </button>
   );
-}
+});
+
+export default Button;

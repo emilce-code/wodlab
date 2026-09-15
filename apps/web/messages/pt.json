@@ -15,7 +15,11 @@
     "register": "Criar conta",
     "save": "Salvar",
     "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "confirmTitle": "Confirmar ação",
     "search": "Buscar",
+    "filters": "Filtros",
+    "showResults": "Ver resultados",
     "all": "Todos",
     "rx": "Rx",
     "scaled": "Adaptado",
@@ -1499,6 +1503,13 @@
   "pagination": {
     "loadMore": "Carregar mais {count}",
     "showing": "Mostrando {shown} de {total}"
+  },
+  "movementScopes": {
+    "global": "Global",
+    "box": "Box",
+    "personal": "Pessoal",
+    "personalHelp": "Somente você pode ver este movimento.",
+    "boxHelp": "Visível para os membros de {box}."
   },
   "measurementTypes": {
     "reps": "Repetições",

@@ -506,3 +506,13 @@ hold the contextual `OWNER` membership for that Box. Owners cannot be removed,
 member removal clears a matching active Box context, and join-code rotation
 invalidates the previous code atomically. The `/box-admin` web route separates
 these controls from class operations and uses the existing authenticated proxy.
+
+## Mobile interaction boundary
+
+Shared web primitives own cross-cutting mobile behavior. Buttons and form
+controls maintain a minimum 44-pixel target, tab state remains URL-addressable,
+and inactive tab panels are not mounted until selected. Destructive actions use
+an accessible confirmation sheet instead of browser dialogs. Dense filter sets
+move into a dismissible bottom sheet on narrow screens while remaining inline
+on larger screens. These components lock background scrolling and respect safe
+areas so feature modules do not reproduce device-specific behavior.

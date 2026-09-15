@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import ProgressiveList from "@/components/ui/ProgressiveList";
 import MobileDateField from "@/components/ui/MobileDateField";
 import type {
@@ -47,6 +48,7 @@ function mondayValue() {
 
 export default function CoachProgrammingWorkspace() {
   const t = useTranslations("coachProgramming");
+  const { confirm, dialog } = useConfirmationDialog();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
@@ -128,7 +130,8 @@ export default function CoachProgrammingWorkspace() {
   }
 
   async function deleteGroup(id: string, name: string) {
-    if (!window.confirm(t("deleteGroupConfirm", { name }))) return;
+    if (!(await confirm({ description: t("deleteGroupConfirm", { name }) })))
+      return;
     const response = await request(`groups/${id}`, { method: "DELETE" });
     if (response) setSuccess(t("groupDeleted"));
   }
@@ -202,7 +205,10 @@ export default function CoachProgrammingWorkspace() {
   }
 
   async function deleteTemplate(id: string, name: string) {
-    if (!window.confirm(t("deleteTemplateConfirm", { name }))) return;
+    if (
+      !(await confirm({ description: t("deleteTemplateConfirm", { name }) }))
+    )
+      return;
     const response = await request(`templates/${id}`, { method: "DELETE" });
     if (response) setSuccess(t("templateDeleted"));
   }
@@ -258,6 +264,7 @@ export default function CoachProgrammingWorkspace() {
 
   return (
     <div className="mt-8 space-y-10">
+      {dialog}
       {error ? <Alert variant="error">{error}</Alert> : null}
       {success ? <Alert variant="success">{success}</Alert> : null}
 

@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import ProgressiveList from "@/components/ui/ProgressiveList";
+import MobileFilterPanel from "@/components/ui/MobileFilterPanel";
 import { Link } from "@/i18n/navigation";
 import { formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 import {
@@ -168,6 +169,7 @@ function groupWorkoutMovements(
 
 export default function HistoryList({ results }: Props) {
   const t = useTranslations("history");
+  const commonT = useTranslations("common");
   const measurementT = useTranslations("measurementTypes");
   const typeT = useTranslations("workoutTypes");
   const resultTypeT = useTranslations("resultTypes");
@@ -400,6 +402,13 @@ export default function HistoryList({ results }: Props) {
     workoutType !== "ALL" ||
     resultType !== "ALL" ||
     levelFilter !== "ALL";
+  const activeFilterCount = [
+    search.trim() !== "",
+    entryFilter !== "ALL",
+    workoutType !== "ALL",
+    resultType !== "ALL",
+    levelFilter !== "ALL",
+  ].filter(Boolean).length;
 
   function clearFilters() {
     setSearch("");
@@ -431,7 +440,12 @@ export default function HistoryList({ results }: Props) {
 
   return (
     <>
-      <section className="mt-10 rounded-xl border border-border bg-surface p-4 sm:p-5">
+      <MobileFilterPanel
+        title={commonT("filters")}
+        openLabel={commonT("filters")}
+        closeLabel={commonT("showResults")}
+        activeCount={activeFilterCount}
+      >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <label
@@ -564,7 +578,7 @@ export default function HistoryList({ results }: Props) {
             </button>
           )}
         </div>
-      </section>
+      </MobileFilterPanel>
 
       {filteredResults.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-border px-4 py-10 text-center sm:px-6 sm:py-12">
