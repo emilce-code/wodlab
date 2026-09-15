@@ -56,6 +56,12 @@ enum WorkoutScope {
   PERSONAL
 }
 
+enum MovementScope {
+  GLOBAL
+  BOX
+  PERSONAL
+}
+
 model User {
   id                     String                  @id @default(cuid())
   auth0UserId            String                  @unique
@@ -111,6 +117,7 @@ model Box {
   programTemplates   ProgramTemplate[]
   scheduledWorkouts  ScheduledWorkout[]
   workouts           Workout[]
+  movements          Movement[]
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
@@ -334,11 +341,16 @@ model Movement {
   aliases                 String[]
   description             String?
   videoUrl                String?
+  scope                   MovementScope                 @default(GLOBAL)
+  boxId                   String?
+  box                     Box?                          @relation(fields: [boxId], references: [id], onDelete: Cascade)
   createdByUserId         String?
   createdByUser           User?                         @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   createdAt               DateTime                      @default(now())
   updatedAt               DateTime                      @updatedAt
 
+  @@index([scope, boxId])
+  @@index([scope, createdByUserId])
   @@index([createdByUserId])
 }
 

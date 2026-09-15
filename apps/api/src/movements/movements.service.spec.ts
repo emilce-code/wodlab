@@ -5,7 +5,11 @@ import { PrismaService } from '../prisma/prisma.service';
 
 describe('MovementsService', () => {
   let service: MovementsService;
+
   const prisma = {
+    user: {
+      findUnique: jest.fn(),
+    },
     movement: {
       findMany: jest.fn(),
       count: jest.fn(),
@@ -15,6 +19,8 @@ describe('MovementsService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MovementsService,
@@ -26,6 +32,13 @@ describe('MovementsService', () => {
     }).compile();
 
     service = module.get<MovementsService>(MovementsService);
+
+    prisma.user.findUnique.mockResolvedValue({
+      role: 'USER',
+      activeBoxId: null,
+      boxMemberships: [],
+    });
+
     prisma.movement.findMany.mockResolvedValue([]);
     prisma.movement.count.mockResolvedValue(0);
   });
@@ -39,8 +52,15 @@ describe('MovementsService', () => {
 
     await expect(
       service.findAll(
-        { search: 'squat', page: 2, pageSize: 10 },
-        { userId: 'user-1', email: 'owner@example.com' },
+        {
+          search: 'squat',
+          page: 2,
+          pageSize: 10,
+        },
+        {
+          userId: 'user-1',
+          email: 'owner@example.com',
+        },
       ),
     ).resolves.toEqual({
       items: [],
@@ -50,8 +70,12 @@ describe('MovementsService', () => {
       totalPages: 2,
       hasNextPage: false,
     });
+
     expect(prisma.movement.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 10, take: 10 }),
+      expect.objectContaining({
+        skip: 10,
+        take: 10,
+      }),
     );
   });
 
@@ -80,9 +104,15 @@ describe('MovementsService', () => {
         userId: 'user-1',
         email: 'owner@example.com',
       }),
-    ).resolves.toEqual({ id: 'movement-1', deleted: true });
+    ).resolves.toEqual({
+      id: 'movement-1',
+      deleted: true,
+    });
+
     expect(prisma.movement.delete).toHaveBeenCalledWith({
-      where: { id: 'movement-1' },
+      where: {
+        id: 'movement-1',
+      },
     });
   });
 

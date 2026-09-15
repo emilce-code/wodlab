@@ -15,6 +15,15 @@ type Props = {
   measurementTypes: { key: string; name: string }[];
 };
 
+type ScopeFilter = "all" | "box" | "global" | "personal";
+
+const scopeLabels: Record<ScopeFilter, string> = {
+  all: "All",
+  box: "My Box",
+  global: "Global",
+  personal: "Mine",
+};
+
 export default function MovementLibrary({
   initialMovements,
   categories,
@@ -23,79 +32,87 @@ export default function MovementLibrary({
   const t = useTranslations("movements");
   const paginationT = useTranslations("pagination");
   const [search, setSearch] = useState("");
-  const [defaultPage, setDefaultPage] = useState(initialMovements);
-  const [searchResult, setSearchResult] = useState<{
-    query: string;
-    page: PaginatedResponse<Movement>;
-  } | null>(null);
+  const [scope, setScope] = useState<ScopeFilter>("all");
+  const [pages, setPages] = useState<
+    Record<string, PaginatedResponse<Movement>>
+  >(() => ({ "all-": initialMovements }));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const normalizedSearch = search.trim();
-  const hasSearch = normalizedSearch.length > 0;
-  const searchPage =
-    searchResult?.query === normalizedSearch ? searchResult.page : null;
-  const displayedPage = hasSearch ? searchPage : defaultPage;
+  const queryKey = `${scope}-${normalizedSearch.toLowerCase()}`;
+  const displayedPage = pages[queryKey];
   const displayedMovements = displayedPage?.items ?? [];
 
   useEffect(() => {
-    if (!normalizedSearch) return;
+    if (pages[queryKey]) return;
+
     const controller = new AbortController();
-    const timeout = window.setTimeout(async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const query = new URLSearchParams({
-          search: normalizedSearch,
-          page: "1",
-          pageSize: "12",
-        });
-        const response = await fetch(`/api/movements?${query.toString()}`, {
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("Unable to search movements");
-        setSearchResult({
-          query: normalizedSearch,
-          page: (await response.json()) as PaginatedResponse<Movement>,
-        });
-      } catch (caughtError) {
-        if (
-          caughtError instanceof DOMException &&
-          caughtError.name === "AbortError"
-        )
-          return;
-        setError(t("searchError"));
-      } finally {
-        if (!controller.signal.aborted) setIsLoading(false);
-      }
-    }, 300);
+    const timeout = window.setTimeout(
+      async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const query = new URLSearchParams({
+            scope,
+            page: "1",
+            pageSize: "12",
+          });
+          if (normalizedSearch) query.set("search", normalizedSearch);
+
+          const response = await fetch(`/api/movements?${query.toString()}`, {
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error("Unable to load movements");
+
+          const page =
+            (await response.json()) as PaginatedResponse<Movement>;
+          setPages((current) => ({ ...current, [queryKey]: page }));
+        } catch (caughtError) {
+          if (
+            caughtError instanceof DOMException &&
+            caughtError.name === "AbortError"
+          )
+            return;
+          setError(t("searchError"));
+        } finally {
+          if (!controller.signal.aborted) setIsLoading(false);
+        }
+      },
+      normalizedSearch ? 300 : 0,
+    );
+
     return () => {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [normalizedSearch, t]);
+  }, [normalizedSearch, pages, queryKey, scope, t]);
 
   async function loadMore() {
     if (!displayedPage?.hasNextPage || isLoading) return;
     setIsLoading(true);
     setError(null);
+
     const query = new URLSearchParams({
+      scope,
       page: String(displayedPage.page + 1),
       pageSize: String(displayedPage.pageSize),
     });
-    if (hasSearch) query.set("search", normalizedSearch);
+    if (normalizedSearch) query.set("search", normalizedSearch);
+
     try {
       const response = await fetch(`/api/movements?${query.toString()}`);
       if (!response.ok) throw new Error("Unable to load movements");
-      const nextPage = (await response.json()) as PaginatedResponse<Movement>;
-      const mergedPage = {
-        ...nextPage,
-        items: [...displayedPage.items, ...nextPage.items],
-      };
-      if (hasSearch) {
-        setSearchResult({ query: normalizedSearch, page: mergedPage });
-      } else {
-        setDefaultPage(mergedPage);
-      }
+      const nextPage =
+        (await response.json()) as PaginatedResponse<Movement>;
+
+      setPages((current) => ({
+        ...current,
+        [queryKey]: {
+          ...nextPage,
+          items: [...displayedPage.items, ...nextPage.items],
+        },
+      }));
     } catch {
       setError(t("searchError"));
     } finally {
@@ -109,7 +126,8 @@ export default function MovementLibrary({
         categories={categories}
         measurementTypes={measurementTypes}
       />
-      <div className="mt-8">
+
+      <div className="sticky top-0 z-10 -mx-4 mt-8 border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0">
         <div className="relative">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">
             ⌕
@@ -123,19 +141,39 @@ export default function MovementLibrary({
             className="w-full rounded-xl border border-border bg-surface py-3 pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
           />
         </div>
-        <div className="mt-3 flex min-h-5 items-center">
-          {isLoading && hasSearch && !searchPage ? (
-            <p className="text-sm text-muted">{t("searching")}</p>
-          ) : error ? (
-            <p role="alert" className="text-sm text-red-500">
-              {error}
-            </p>
-          ) : (
-            <p className="text-sm text-muted">
-              {t("movementCount", { count: displayedPage?.total ?? 0 })}
-            </p>
-          )}
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {(Object.keys(scopeLabels) as ScopeFilter[]).map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={scope === value}
+              onClick={() => setScope(value)}
+              className={[
+                "min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
+                scope === value
+                  ? "bg-accent text-accent-foreground"
+                  : "border border-border bg-surface text-muted hover:bg-surface-elevated hover:text-foreground",
+              ].join(" ")}
+            >
+              {scopeLabels[value]}
+            </button>
+          ))}
         </div>
+      </div>
+
+      <div className="mt-4 min-h-5">
+        {error ? (
+          <p role="alert" className="text-sm text-red-500">
+            {error}
+          </p>
+        ) : displayedPage ? (
+          <p className="text-sm text-muted">
+            {t("movementCount", { count: displayedPage.total })}
+          </p>
+        ) : (
+          <p className="text-sm text-muted">{t("searching")}</p>
+        )}
       </div>
 
       {displayedMovements.length === 0 && !isLoading ? (
@@ -150,6 +188,7 @@ export default function MovementLibrary({
               <MovementCard key={movement.id} movement={movement} />
             ))}
           </div>
+
           {displayedPage?.hasNextPage ? (
             <div className="mt-6 flex flex-col items-center gap-2">
               <Button

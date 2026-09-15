@@ -24,6 +24,11 @@ type Movement = {
   aliases: string[];
   isFoundational: boolean;
   official: boolean;
+  scope: "GLOBAL" | "BOX" | "PERSONAL";
+  box: {
+    id: string;
+    name: string;
+  } | null;
   description: string | null;
   videoUrl: string | null;
   canEdit: boolean;
@@ -103,6 +108,7 @@ async function getOptions(
   path: string,
 ): Promise<{ key: string; name: string }[]> {
   const response = await authenticatedApiFetch(path);
+
   return response?.ok
     ? ((await response.json()) as { key: string; name: string }[])
     : [];
@@ -141,12 +147,15 @@ export default async function MovementDetailPage({ params }: Props) {
 
   const currentMovement = movement;
 
-  const preferredWeightUnit = user?.athleteProfile?.preferredWeightUnit ?? "KG";
+  const preferredWeightUnit =
+    user?.athleteProfile?.preferredWeightUnit ?? "KG";
 
   function getCategoryName() {
     const key = currentMovement.category.key.toLowerCase();
 
-    return categoryT.has(key) ? categoryT(key) : currentMovement.category.name;
+    return categoryT.has(key)
+      ? categoryT(key)
+      : currentMovement.category.name;
   }
 
   function getMeasurementName(type: { key: string; name: string }) {
@@ -164,7 +173,8 @@ export default async function MovementDetailPage({ params }: Props) {
   const personalRecords = summary?.personalRecords ?? [];
 
   const hasPersonalRecords = personalRecords.some(
-    (group) => Boolean(group.result) || (group.records?.length ?? 0) > 0,
+    (group) =>
+      Boolean(group.result) || (group.records?.length ?? 0) > 0,
   );
 
   return (
@@ -182,21 +192,53 @@ export default async function MovementDetailPage({ params }: Props) {
             {getCategoryName()}
           </p>
 
-          {currentMovement.isFoundational && <Badge>{t("foundational")}</Badge>}
+          <Badge>
+            {currentMovement.scope === "BOX"
+              ? currentMovement.box?.name ?? "Box"
+              : currentMovement.scope === "PERSONAL"
+                ? "Personal"
+                : "Global"}
+          </Badge>
+
+          {currentMovement.isFoundational && (
+            <Badge>{t("foundational")}</Badge>
+          )}
         </div>
 
         <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
           {currentMovement.name}
         </h1>
+
+        {currentMovement.scope === "PERSONAL" ? (
+          <p className="mt-2 text-sm text-muted">
+            Only you can see this movement.
+          </p>
+        ) : null}
+
+        {currentMovement.scope === "BOX" ? (
+          <p className="mt-2 text-sm text-muted">
+            Visible to members of{" "}
+            {currentMovement.box?.name ?? "your Box"}.
+          </p>
+        ) : null}
       </header>
 
       <MobileTabs
         ariaLabel={t("tabs.ariaLabel")}
         defaultTab="overview"
         tabs={[
-          { id: "overview", label: t("tabs.overview") },
-          { id: "log", label: t("tabs.log") },
-          { id: "progress", label: t("tabs.progress") },
+          {
+            id: "overview",
+            label: t("tabs.overview"),
+          },
+          {
+            id: "log",
+            label: t("tabs.log"),
+          },
+          {
+            id: "progress",
+            label: t("tabs.progress"),
+          },
           {
             id: "history",
             label: t("tabs.history"),
@@ -207,7 +249,8 @@ export default async function MovementDetailPage({ params }: Props) {
         <MobileTabPanel tabId="overview" className="pt-6">
           {currentMovement.aliases.length > 0 && (
             <p className="text-sm text-muted">
-              {t("alsoKnownAs")}: {currentMovement.aliases.join(" · ")}
+              {t("alsoKnownAs")}:{" "}
+              {currentMovement.aliases.join(" · ")}
             </p>
           )}
 
@@ -222,6 +265,7 @@ export default async function MovementDetailPage({ params }: Props) {
               >
                 {t("instructions")}
               </h2>
+
               <p className="mt-3 whitespace-pre-line text-base leading-7">
                 {currentMovement.description}
               </p>
@@ -241,7 +285,9 @@ export default async function MovementDetailPage({ params }: Props) {
 
           <div className="mt-5 flex flex-wrap gap-2">
             {currentMovement.measurementTypes.map((type) => (
-              <Badge key={type.key}>{getMeasurementName(type)}</Badge>
+              <Badge key={type.key}>
+                {getMeasurementName(type)}
+              </Badge>
             ))}
           </div>
 
@@ -292,7 +338,10 @@ export default async function MovementDetailPage({ params }: Props) {
                         }
 
                         return (
-                          <Card key={`WEIGHT-${record.reps}`} className="p-5">
+                          <Card
+                            key={`WEIGHT-${record.reps}`}
+                            className="p-5"
+                          >
                             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                               {record.reps}RM
                             </p>
@@ -302,7 +351,10 @@ export default async function MovementDetailPage({ params }: Props) {
                             </p>
 
                             <p className="mt-2 text-sm text-muted">
-                              {formatDate(result.performedAt, locale)}
+                              {formatDate(
+                                result.performedAt,
+                                locale,
+                              )}
                             </p>
 
                             <div className="mt-4 border-t border-border pt-4">
@@ -322,9 +374,14 @@ export default async function MovementDetailPage({ params }: Props) {
                   }
 
                   return [
-                    <Card key={group.measurementType.key} className="p-5">
+                    <Card
+                      key={group.measurementType.key}
+                      className="p-5"
+                    >
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                        {getMeasurementName(group.measurementType)}
+                        {getMeasurementName(
+                          group.measurementType,
+                        )}
                       </p>
 
                       <p className="mt-3 text-3xl font-black text-accent">
@@ -332,7 +389,10 @@ export default async function MovementDetailPage({ params }: Props) {
                       </p>
 
                       <p className="mt-2 text-sm text-muted">
-                        {formatDate(group.result.performedAt, locale)}
+                        {formatDate(
+                          group.result.performedAt,
+                          locale,
+                        )}
                       </p>
 
                       <div className="mt-4 border-t border-border pt-4">
@@ -354,7 +414,9 @@ export default async function MovementDetailPage({ params }: Props) {
               {t("progress.eyebrow")}
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold">{t("progress.title")}</h2>
+            <h2 className="mt-2 text-2xl font-bold">
+              {t("progress.title")}
+            </h2>
 
             <p className="mt-2 text-sm text-muted">
               {t("progress.description")}
@@ -362,7 +424,9 @@ export default async function MovementDetailPage({ params }: Props) {
 
             <Card className="mt-5 p-5 sm:p-6">
               <MovementProgressChart
-                measurementTypes={currentMovement.measurementTypes}
+                measurementTypes={
+                  currentMovement.measurementTypes
+                }
                 results={results}
               />
             </Card>
@@ -373,7 +437,9 @@ export default async function MovementDetailPage({ params }: Props) {
           <section>
             <LogMovementResultForm
               movementId={currentMovement.id}
-              measurementTypes={currentMovement.measurementTypes}
+              measurementTypes={
+                currentMovement.measurementTypes
+              }
               preferredWeightUnit={preferredWeightUnit}
             />
           </section>
@@ -403,7 +469,9 @@ export default async function MovementDetailPage({ params }: Props) {
 
             {results.length === 0 ? (
               <Card className="mt-5 p-4 sm:p-6">
-                <p className="font-semibold">{t("history.emptyTitle")}</p>
+                <p className="font-semibold">
+                  {t("history.emptyTitle")}
+                </p>
 
                 <p className="mt-2 text-sm text-muted">
                   {t("history.emptyDescription")}
@@ -426,7 +494,9 @@ export default async function MovementDetailPage({ params }: Props) {
                             </p>
 
                             <Badge>
-                              {getMeasurementName(result.measurementType)}
+                              {getMeasurementName(
+                                result.measurementType,
+                              )}
                             </Badge>
                           </div>
 
@@ -446,17 +516,25 @@ export default async function MovementDetailPage({ params }: Props) {
 
                         <div className="shrink-0 sm:text-right">
                           <p className="text-sm text-muted">
-                            {formatDate(result.performedAt, locale)}
+                            {formatDate(
+                              result.performedAt,
+                              locale,
+                            )}
                           </p>
 
-                          {result.source.type === "MANUAL" && (
+                          {result.source.type ===
+                            "MANUAL" && (
                             <MovementResultActions
-                              movementId={currentMovement.id}
+                              movementId={
+                                currentMovement.id
+                              }
                               result={result}
                               measurementTypes={
                                 currentMovement.measurementTypes
                               }
-                              preferredWeightUnit={preferredWeightUnit}
+                              preferredWeightUnit={
+                                preferredWeightUnit
+                              }
                             />
                           )}
                         </div>

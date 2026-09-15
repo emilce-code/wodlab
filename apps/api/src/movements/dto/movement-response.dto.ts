@@ -15,6 +15,8 @@ export class MovementResponseDto {
   measurementTypes: MeasurementTypeResponseDto[];
   isFoundational: boolean;
   official: boolean;
+  scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+  box: { id: string; name: string } | null;
   aliases: string[];
   description: string | null;
   videoUrl: string | null;

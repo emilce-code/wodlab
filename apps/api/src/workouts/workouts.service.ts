@@ -625,17 +625,17 @@ export class WorkoutsService {
     scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
     boxId: string | null;
   } {
-    if (context.appRole === 'ADMIN') {
-      return {
-        scope: 'GLOBAL',
-        boxId: null,
-      };
-    }
-
     if (context.activeBoxId && this.canManageActiveBox(context)) {
       return {
         scope: 'BOX',
         boxId: context.activeBoxId,
+      };
+    }
+
+    if (context.appRole === 'ADMIN') {
+      return {
+        scope: 'GLOBAL',
+        boxId: null,
       };
     }
 

@@ -23,6 +23,12 @@ import { UpdateMovementDto } from './dto/update-movement.dto';
 
 const movementManagementInclude = {
   category: true,
+  box: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
   measurementTypes: {
     include: { measurementType: true },
     orderBy: { measurementType: { sortOrder: 'asc' as const } },
@@ -84,6 +90,13 @@ type MovementResultWithSource = Prisma.MovementResultGetPayload<{
   include: typeof movementResultInclude;
 }>;
 
+type MovementCatalogContext = {
+  userId: string;
+  appRole: 'USER' | 'COACH' | 'ADMIN';
+  activeBoxId: string | null;
+  activeBoxRole: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+};
+
 @Injectable()
 export class MovementsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -92,12 +105,20 @@ export class MovementsService {
     query: FindMovementsQueryDto,
     user: AuthenticatedUser,
   ): Promise<MovementResponseDto[] | PaginatedResponse<MovementResponseDto>> {
-    const { search, category, measurementType, foundational, page, pageSize } =
-      query;
+    const {
+      search,
+      category,
+      measurementType,
+      foundational,
+      page,
+      pageSize,
+      scope,
+    } = query;
 
+    const context = await this.getCatalogContext(user);
     const normalizedSearch = search?.trim().toLowerCase();
 
-    const where = {
+    const filters = {
       ...(normalizedSearch
         ? {
             searchText: {
@@ -133,6 +154,13 @@ export class MovementsService {
             isFoundational: true,
           }
         : {}),
+    } satisfies Prisma.MovementWhereInput;
+
+    const where = {
+      AND: [
+        this.movementVisibilityWhere(context, scope ?? 'all'),
+        filters,
+      ],
     } satisfies Prisma.MovementWhereInput;
 
     const paginationRequested = page !== undefined || pageSize !== undefined;
@@ -171,6 +199,7 @@ export class MovementsService {
     movementId: string,
     user: AuthenticatedUser,
   ): Promise<MovementResponseDto> {
+    const context = await this.getCatalogContext(user);
     const movement = await this.prisma.movement.findUnique({
       where: {
         id: movementId,
@@ -179,7 +208,7 @@ export class MovementsService {
       include: movementManagementInclude,
     });
 
-    if (!movement) {
+    if (!movement || !this.canViewMovement(movement, context)) {
       throw new NotFoundException('Movement not found');
     }
 
@@ -187,6 +216,8 @@ export class MovementsService {
   }
 
   async create(user: AuthenticatedUser, dto: CreateMovementDto) {
+    const context = await this.getCatalogContext(user);
+    const target = this.resolveCreationScope(context);
     const references = await this.resolveMovementReferences(dto);
     const aliases = this.normalizeAliases(dto.aliases);
 
@@ -199,6 +230,8 @@ export class MovementsService {
           aliases,
           isFoundational: dto.isFoundational ?? false,
           official: false,
+          scope: target.scope,
+          boxId: target.boxId,
           description: dto.description || null,
           videoUrl: dto.videoUrl || null,
           createdByUserId: user.userId,
@@ -970,6 +1003,131 @@ export class MovementsService {
     };
   }
 
+  private async getCatalogContext(
+    user: AuthenticatedUser,
+  ): Promise<MovementCatalogContext> {
+    const dbUser = await this.prisma.user.findUnique({
+      where: { id: user.userId },
+      select: {
+        role: true,
+        activeBoxId: true,
+        boxMemberships: {
+          select: {
+            boxId: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!dbUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const activeMembership = dbUser.activeBoxId
+      ? dbUser.boxMemberships.find(
+          (membership) => membership.boxId === dbUser.activeBoxId,
+        )
+      : null;
+
+    return {
+      userId: user.userId,
+      appRole: dbUser.role,
+      activeBoxId: activeMembership ? dbUser.activeBoxId : null,
+      activeBoxRole: activeMembership?.role ?? null,
+    };
+  }
+
+  private canManageActiveBox(context: MovementCatalogContext) {
+    if (!context.activeBoxId) {
+      return false;
+    }
+
+    if (context.appRole === 'ADMIN') {
+      return true;
+    }
+
+    return (
+      context.activeBoxRole === 'OWNER' || context.activeBoxRole === 'COACH'
+    );
+  }
+
+  private resolveCreationScope(context: MovementCatalogContext): {
+    scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+    boxId: string | null;
+  } {
+    if (context.activeBoxId && this.canManageActiveBox(context)) {
+      return {
+        scope: 'BOX',
+        boxId: context.activeBoxId,
+      };
+    }
+
+    if (context.appRole === 'ADMIN') {
+      return {
+        scope: 'GLOBAL',
+        boxId: null,
+      };
+    }
+
+    return {
+      scope: 'PERSONAL',
+      boxId: null,
+    };
+  }
+
+  private movementVisibilityWhere(
+    context: MovementCatalogContext,
+    scope: 'all' | 'global' | 'box' | 'personal',
+  ): Prisma.MovementWhereInput {
+    const globalVisible: Prisma.MovementWhereInput = {
+      scope: 'GLOBAL',
+    };
+
+    const boxVisible: Prisma.MovementWhereInput = context.activeBoxId
+      ? {
+          scope: 'BOX',
+          boxId: context.activeBoxId,
+        }
+      : { id: '__never__' };
+
+    const personalVisible: Prisma.MovementWhereInput = {
+      scope: 'PERSONAL',
+      createdByUserId: context.userId,
+    };
+
+    if (scope === 'global') return globalVisible;
+    if (scope === 'box') return boxVisible;
+    if (scope === 'personal') return personalVisible;
+
+    return {
+      OR: [globalVisible, boxVisible, personalVisible],
+    };
+  }
+
+  private canViewMovement(
+    movement: {
+      scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+      boxId: string | null;
+      createdByUserId: string | null;
+    },
+    context: MovementCatalogContext,
+  ) {
+    if (movement.scope === 'GLOBAL') {
+      return true;
+    }
+
+    if (movement.scope === 'PERSONAL') {
+      return movement.createdByUserId === context.userId;
+    }
+
+    return (
+      movement.scope === 'BOX' &&
+      movement.boxId === context.activeBoxId &&
+      context.activeBoxRole !== null
+    );
+  }
+
   private mapMovement(
     movement: {
       id: string;
@@ -979,6 +1137,9 @@ export class MovementsService {
       official: boolean;
       description: string | null;
       videoUrl: string | null;
+      scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
+      boxId: string | null;
+      box: { id: string; name: string } | null;
       createdByUserId: string | null;
 
       category: {
@@ -1028,6 +1189,10 @@ export class MovementsService {
       isFoundational: movement.isFoundational,
 
       official: movement.official,
+
+      scope: movement.scope,
+
+      box: movement.box,
 
       aliases: movement.aliases,
 
