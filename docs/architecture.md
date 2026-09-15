@@ -506,3 +506,29 @@ hold the contextual `OWNER` membership for that Box. Owners cannot be removed,
 member removal clears a matching active Box context, and join-code rotation
 invalidates the previous code atomically. The `/box-admin` web route separates
 these controls from class operations and uses the existing authenticated proxy.
+
+## Box-scoped catalog boundary
+
+Workouts use an explicit `WorkoutScope` of `GLOBAL`, `BOX`, or `PERSONAL`.
+Movements use the equivalent scoped ownership model. Global records are canonical
+WODLY content, Box records require a matching active Box context, and personal
+records remain visible only to their creator. Box owners and contextual coaches
+may mutate their Box catalog; application administrators retain global catalog
+authority.
+
+Catalog reads and writes are filtered in the API. Database constraints and
+triggers provide a second isolation layer for class sessions, scheduled workouts,
+program-template items, and workout results so a cross-Box reference cannot be
+persisted even if an application path omits a filter. Copied records retain their
+source identifier while receiving independent ownership and lifecycle state.
+
+## Planned Box membership lifecycle boundary
+
+Phase 49 will extend Box membership with invitations and lifecycle state while
+preserving historical data. Invitation acceptance, membership deactivation,
+ownership transfer, and contextual role changes must be transactional,
+Box-scoped, and auditable. `User.activeBoxId` must be cleared or reassigned
+whenever the selected membership stops granting access. Historical classes,
+coach assignments, schedules, and results must not be deleted when a membership
+is deactivated.
+

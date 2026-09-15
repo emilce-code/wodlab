@@ -357,21 +357,64 @@ contextual coach or athlete roles, and removing non-owner members. Operational
 class scheduling remains separate so organization controls do not overload the
 daily class experience.
 
-## Future features
+### Box-scoped workout and movement catalogs
 
-Possible future capabilities include:
+Workout and movement records use explicit global, Box, and personal scopes.
+Official WODLY content remains available to every user, while Box content is
+visible only inside the active Box and personal content remains private to its
+creator. Box owners and contextual coaches can create and manage shared Box
+content without receiving application-wide administration access.
 
-- Deeper training-volume analytics
-- Training volume analysis
-- Athlete groups
-- Mobile applications
-- Push notifications
-- Offline workout logging
-- Apple Health integration
-- Health Connect integration
-- AI-assisted workout analysis
+Database constraints and service-layer authorization prevent classes, schedules,
+program templates, and results from referencing content owned by another Box.
+Global content can be copied into a Box catalog while retaining its source
+reference, allowing staff to customize programming without changing the
+canonical WODLY record.
 
-These features are not part of the initial MVP.
+## Delivery backlog
+
+### Completed
+
+- Phases 25–29: coach foundation, weekly programming, groups, templates,
+  monitoring, feedback, and analytics.
+- Phases 30–33: percentage calculators, movement management, workout
+  management, and release-quality automation.
+- Phases 34–39: notifications, training load, PWA/offline support, scalable
+  pagination, workout strategy, and workout text import.
+- Phases 40–44: Boxes and classes, privacy-first leaderboards, role-based
+  access, mobile coach UX, and standardized mobile date/time inputs.
+- Phase 45: multi-tenant Box isolation.
+- Phase 46: percentage-based workout execution.
+- Phase 47: Box administration.
+- Phase 48: Box-scoped workout and movement catalogs.
+
+### Phase 49 — Box Membership Lifecycle and Invitations
+
+Phase 49 will complete the operational membership journey:
+
+- Let Box owners invite registered users by email and generate controlled invite
+  links.
+- Let invited users accept or decline from a mobile-first inbox.
+- Let athletes leave a Box when they have no blocking obligations.
+- Support active and inactive memberships without deleting historical class,
+  coaching, or result records.
+- Support safe ownership transfer before an owner leaves or is removed.
+- Recover the active Box automatically when membership access changes.
+- Record auditable membership, ownership, and contextual-role changes.
+- Keep every invitation and membership operation isolated to its Box and
+  authorized by the API.
+
+### Later backlog
+
+- Recurring class schedules, waitlists, and attendance reporting.
+- Deeper training-volume and recovery analytics.
+- Browser and native push notification delivery.
+- Native mobile applications.
+- Apple Health integration.
+- Health Connect integration.
+- AI-assisted workout analysis.
+
+These later capabilities remain outside the completed delivery scope.
 
 ## Product principle
 
@@ -379,3 +422,4 @@ WODLY should be useful even without AI.
 
 AI or advanced analytics should improve an already useful product rather than
 being required for the core experience.
+
