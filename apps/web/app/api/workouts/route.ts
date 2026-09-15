@@ -6,12 +6,21 @@ export async function GET(request: NextRequest) {
   const query = new URLSearchParams();
   const view = request.nextUrl.searchParams.get("view");
 
-  for (const parameter of ["search", "benchmark", "page", "pageSize"]) {
+  for (const parameter of [
+    "search",
+    "benchmark",
+    "scope",
+    "page",
+    "pageSize",
+  ]) {
     const value = request.nextUrl.searchParams.get(parameter)?.trim();
-    if (value) query.set(parameter, value);
+    if (value) {
+      query.set(parameter, value);
+    }
   }
 
-  const collection = view === "archived" ? "/workouts/archived" : "/workouts";
+  const collection =
+    view === "archived" ? "/workouts/archived" : "/workouts";
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
   const response = await authenticatedApiFetch(`${collection}${suffix}`);
 

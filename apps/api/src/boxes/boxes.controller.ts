@@ -123,7 +123,6 @@ export class BoxesController {
   }
 
   @Post(':boxId/classes')
-  @Roles('COACH', 'ADMIN')
   createClass(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -133,7 +132,6 @@ export class BoxesController {
   }
 
   @Delete(':boxId/classes/:classId')
-  @Roles('COACH', 'ADMIN')
   deleteClass(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,
@@ -161,7 +159,6 @@ export class BoxesController {
   }
 
   @Patch(':boxId/classes/:classId/attendance')
-  @Roles('COACH', 'ADMIN')
   attendance(
     @Req() request: AuthenticatedRequest,
     @Param('boxId') boxId: string,

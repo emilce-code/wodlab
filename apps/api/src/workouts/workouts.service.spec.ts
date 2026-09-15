@@ -8,13 +8,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkoutsService } from './workouts.service';
 
-describe('WorkoutsService lifecycle', () => {
+describe('WorkoutsService lifecycle and catalog scope', () => {
   let service: WorkoutsService;
+
   const user = {
     userId: 'user-1',
     email: 'user@example.com',
     role: 'USER' as const,
   };
+
   const admin = {
     userId: 'admin-1',
     email: 'admin@example.com',
@@ -22,6 +24,9 @@ describe('WorkoutsService lifecycle', () => {
   };
 
   const prismaMock = {
+    user: {
+      findUnique: jest.fn(),
+    },
     workout: {
       findMany: jest.fn(),
       count: jest.fn(),
@@ -29,19 +34,60 @@ describe('WorkoutsService lifecycle', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
-    workoutResult: { findFirst: jest.fn() },
+    workoutResult: {
+      findFirst: jest.fn(),
+    },
   };
+
+  const userContext = ({
+    role = 'USER',
+    activeBoxId = null,
+    activeBoxRole = null,
+  }: {
+    role?: 'USER' | 'COACH' | 'ADMIN';
+    activeBoxId?: string | null;
+    activeBoxRole?: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+  } = {}) => ({
+    id: role === 'ADMIN' ? 'admin-1' : 'user-1',
+    role,
+    activeBoxId,
+    boxMemberships:
+      activeBoxId && activeBoxRole
+        ? [
+            {
+              boxId: activeBoxId,
+              role: activeBoxRole,
+            },
+          ]
+        : [],
+  });
 
   const workoutFixture = ({
     isActive = true,
     resultCount = 0,
+    scheduledWorkoutCount = 0,
+    programTemplateItemCount = 0,
+    classSessionCount = 0,
     createdByUserId = 'user-1',
     official = false,
+    scope = 'PERSONAL',
+    boxId = null,
+    box = null,
+    sourceWorkoutId = null,
+    sourceWorkout = null,
   }: {
     isActive?: boolean;
     resultCount?: number;
+    scheduledWorkoutCount?: number;
+    programTemplateItemCount?: number;
+    classSessionCount?: number;
     createdByUserId?: string;
     official?: boolean;
+    scope?: 'GLOBAL' | 'BOX' | 'PERSONAL';
+    boxId?: string | null;
+    box?: { id: string; name: string } | null;
+    sourceWorkoutId?: string | null;
+    sourceWorkout?: { id: string; name: string } | null;
   } = {}) => ({
     id: 'workout-1',
     name: 'Fran',
@@ -50,6 +96,9 @@ describe('WorkoutsService lifecycle', () => {
     createdByUserId,
     isBenchmark: true,
     official,
+    scope,
+    boxId,
+    sourceWorkoutId,
     isActive,
     deactivatedAt: isActive ? null : new Date('2026-09-02T12:00:00.000Z'),
     createdAt: new Date('2026-08-01T12:00:00.000Z'),
@@ -57,17 +106,23 @@ describe('WorkoutsService lifecycle', () => {
     type: {
       key: 'FOR_TIME',
       name: 'For Time',
-      defaultResultType: { key: 'TIME', name: 'Time' },
+      defaultResultType: {
+        key: 'TIME',
+        name: 'Time',
+      },
     },
     createdByUser: {
       id: createdByUserId,
       email: 'creator@example.com',
     },
+    box,
+    sourceWorkout,
     variants: [],
     _count: {
       results: resultCount,
-      scheduledWorkouts: 0,
-      programTemplateItems: 0,
+      scheduledWorkouts: scheduledWorkoutCount,
+      programTemplateItems: programTemplateItemCount,
+      classSessions: classSessionCount,
     },
   });
 
@@ -75,24 +130,57 @@ describe('WorkoutsService lifecycle', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WorkoutsService,
-        { provide: PrismaService, useValue: prismaMock },
+        {
+          provide: PrismaService,
+          useValue: prismaMock,
+        },
       ],
     }).compile();
 
     service = module.get(WorkoutsService);
+
+    prismaMock.user.findUnique.mockResolvedValue(userContext());
+
     prismaMock.workout.findMany.mockResolvedValue([]);
     prismaMock.workout.count.mockResolvedValue(0);
     prismaMock.workout.findUnique.mockResolvedValue(null);
+    prismaMock.workout.update.mockResolvedValue(null);
+    prismaMock.workout.delete.mockResolvedValue({
+      id: 'workout-1',
+    });
+
     prismaMock.workoutResult.findFirst.mockResolvedValue(null);
-    prismaMock.workout.delete.mockResolvedValue({ id: 'workout-1' });
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-  it('lists only active workouts', async () => {
+  it('lists only active workouts visible to the current catalog context', async () => {
     await service.findAll(user);
+
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { isActive: true } }),
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            expect.objectContaining({
+              OR: expect.arrayContaining([
+                expect.objectContaining({
+                  scope: 'GLOBAL',
+                }),
+                expect.objectContaining({
+                  scope: 'PERSONAL',
+                  createdByUserId: user.userId,
+                }),
+              ]),
+            }),
+            expect.objectContaining({
+              isActive: true,
+            }),
+          ]),
+        }),
+        orderBy: [{ createdAt: 'desc' }],
+      }),
     );
   });
 
@@ -100,7 +188,11 @@ describe('WorkoutsService lifecycle', () => {
     prismaMock.workout.count.mockResolvedValue(25);
 
     await expect(
-      service.findAll(user, { page: 2, pageSize: 10, search: 'Fran' }),
+      service.findAll(user, {
+        page: 2,
+        pageSize: 10,
+        search: 'Fran',
+      }),
     ).resolves.toEqual({
       items: [],
       page: 2,
@@ -109,137 +201,321 @@ describe('WorkoutsService lifecycle', () => {
       totalPages: 3,
       hasNextPage: true,
     });
+
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 10, take: 10 }),
+      expect.objectContaining({
+        skip: 10,
+        take: 10,
+      }),
     );
+
     expect(prismaMock.workout.count).toHaveBeenCalledTimes(1);
   });
 
-  it('lists only archived workouts created by the current user', async () => {
+  it('lists only archived workouts visible to the current user', async () => {
     await service.findArchived(user);
+
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { createdByUserId: 'user-1', isActive: false },
-        orderBy: [{ deactivatedAt: 'desc' }, { createdAt: 'desc' }],
+        where: expect.objectContaining({
+          AND: expect.arrayContaining([
+            expect.objectContaining({
+              OR: expect.arrayContaining([
+                expect.objectContaining({
+                  scope: 'PERSONAL',
+                  createdByUserId: user.userId,
+                }),
+              ]),
+            }),
+            expect.objectContaining({
+              isActive: false,
+            }),
+          ]),
+        }),
+        orderBy: [
+          { deactivatedAt: 'desc' },
+          { createdAt: 'desc' },
+        ],
       }),
     );
   });
 
-  it('allows the creator to read an inactive workout', async () => {
+  it('allows the creator to read an inactive PERSONAL workout', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ isActive: false }),
+      workoutFixture({
+        isActive: false,
+      }),
     );
-    await expect(service.findOne('workout-1', user)).resolves.toEqual(
-      expect.objectContaining({ isActive: false }),
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        id: 'workout-1',
+        isActive: false,
+        scope: 'PERSONAL',
+      }),
     );
   });
 
   it('allows an athlete with history to read an inactive workout', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ isActive: false, createdByUserId: 'creator-2' }),
+      workoutFixture({
+        isActive: false,
+        createdByUserId: 'creator-2',
+      }),
     );
-    prismaMock.workoutResult.findFirst.mockResolvedValue({ id: 'result-1' });
-    await expect(service.findOne('workout-1', user)).resolves.toEqual(
-      expect.objectContaining({ id: 'workout-1', isActive: false }),
+
+    prismaMock.workoutResult.findFirst.mockResolvedValue({
+      id: 'result-1',
+    });
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        id: 'workout-1',
+        isActive: false,
+      }),
     );
   });
 
   it('hides inactive workouts from unrelated athletes', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ isActive: false, createdByUserId: 'creator-2' }),
+      workoutFixture({
+        isActive: false,
+        createdByUserId: 'creator-2',
+      }),
     );
-    await expect(service.findOne('workout-1', user)).rejects.toThrow(
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).rejects.toThrow(
       new NotFoundException('Workout not found'),
     );
   });
 
-  it('permanently deletes an owned workout without results', async () => {
-    prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
-    await expect(service.delete(user, 'workout-1')).resolves.toEqual({
+  it('prevents access to a workout belonging to another Box through its identifier', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        activeBoxId: 'box-1',
+        activeBoxRole: 'ATHLETE',
+      }),
+    );
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        scope: 'BOX',
+        boxId: 'box-2',
+        box: {
+          id: 'box-2',
+          name: 'Other Box',
+        },
+        createdByUserId: 'coach-2',
+      }),
+    );
+
+    await expect(
+      service.findOne('workout-1', user),
+    ).rejects.toThrow(
+      new NotFoundException('Workout not found'),
+    );
+  });
+
+  it('permanently deletes an owned PERSONAL workout without dependencies', async () => {
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture(),
+    );
+
+    await expect(
+      service.delete(user, 'workout-1'),
+    ).resolves.toEqual({
       id: 'workout-1',
       deleted: true,
     });
+
     expect(prismaMock.workout.delete).toHaveBeenCalledWith({
-      where: { id: 'workout-1' },
+      where: {
+        id: 'workout-1',
+      },
     });
   });
 
-  it('blocks permanent deletion when results exist', async () => {
+  it('blocks permanent deletion when dependencies exist', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ resultCount: 2 }),
+      workoutFixture({
+        resultCount: 2,
+      }),
     );
-    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
-      ConflictException,
-    );
-    expect(prismaMock.workout.delete).not.toHaveBeenCalled();
+
+    await expect(
+      service.delete(user, 'workout-1'),
+    ).rejects.toThrow(ConflictException);
+
+    expect(
+      prismaMock.workout.delete,
+    ).not.toHaveBeenCalled();
   });
 
-  it('blocks lifecycle actions by users other than the creator', async () => {
+  it('blocks lifecycle actions on another user PERSONAL workout', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ createdByUserId: 'creator-2' }),
+      workoutFixture({
+        createdByUserId: 'creator-2',
+      }),
     );
-    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
-      ForbiddenException,
-    );
+
+    await expect(
+      service.delete(user, 'workout-1'),
+    ).rejects.toThrow(ForbiddenException);
   });
 
-  it('deactivates an owned workout with results', async () => {
+  it('allows an owned workout to be archived even without dependencies', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ resultCount: 2 }),
+      workoutFixture(),
     );
+
     prismaMock.workout.update.mockResolvedValue(
-      workoutFixture({ isActive: false, resultCount: 2 }),
+      workoutFixture({
+        isActive: false,
+      }),
     );
-    const result = await service.deactivate(user, 'workout-1');
+
+    const result = await service.deactivate(
+      user,
+      'workout-1',
+    );
+
     expect(result.isActive).toBe(false);
-    const updateCalls = prismaMock.workout.update.mock.calls as unknown[][];
+
+    const updateCalls =
+      prismaMock.workout.update.mock.calls as unknown[][];
+
     const updateInput = updateCalls[0][0] as {
-      where: { id: string };
-      data: { isActive: boolean; deactivatedAt: unknown };
+      where: {
+        id: string;
+      };
+      data: {
+        isActive: boolean;
+        deactivatedAt: unknown;
+      };
     };
-    expect(updateInput.where).toEqual({ id: 'workout-1' });
+
+    expect(updateInput.where).toEqual({
+      id: 'workout-1',
+    });
+
     expect(updateInput.data.isActive).toBe(false);
-    expect(updateInput.data.deactivatedAt).toBeInstanceOf(Date);
+
+    expect(
+      updateInput.data.deactivatedAt,
+    ).toBeInstanceOf(Date);
   });
 
-  it('requires empty workouts to be deleted instead of deactivated', async () => {
-    prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
-    await expect(service.deactivate(user, 'workout-1')).rejects.toThrow(
-      ConflictException,
-    );
-  });
-
-  it('reactivates an owned inactive workout', async () => {
+  it('reactivates an owned inactive PERSONAL workout', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ isActive: false, resultCount: 2 }),
+      workoutFixture({
+        isActive: false,
+        resultCount: 2,
+      }),
     );
+
     prismaMock.workout.update.mockResolvedValue(
-      workoutFixture({ isActive: true, resultCount: 2 }),
+      workoutFixture({
+        isActive: true,
+        resultCount: 2,
+      }),
     );
-    const result = await service.reactivate(user, 'workout-1');
+
+    const result = await service.reactivate(
+      user,
+      'workout-1',
+    );
+
     expect(result.isActive).toBe(true);
-    expect(prismaMock.workout.update).toHaveBeenCalledWith(
+
+    expect(
+      prismaMock.workout.update,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'workout-1' },
-        data: { isActive: true, deactivatedAt: null },
+        where: {
+          id: 'workout-1',
+        },
+        data: {
+          isActive: true,
+          deactivatedAt: null,
+        },
       }),
     );
   });
 
-  it('blocks regular users from managing official workouts', async () => {
+  it('blocks regular users from managing GLOBAL workouts', async () => {
     prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ official: true }),
+      workoutFixture({
+        official: true,
+        scope: 'GLOBAL',
+        createdByUserId: 'seed-user',
+      }),
     );
-    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
-      ForbiddenException,
-    );
+
+    await expect(
+      service.delete(user, 'workout-1'),
+    ).rejects.toThrow(ForbiddenException);
   });
 
-  it('allows administrators to manage official workouts', async () => {
-    prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture({ official: true, createdByUserId: 'seed-user' }),
+  it('allows administrators to manage GLOBAL workouts', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        role: 'ADMIN',
+      }),
     );
-    await expect(service.delete(admin, 'workout-1')).resolves.toEqual({
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        official: true,
+        scope: 'GLOBAL',
+        createdByUserId: 'seed-user',
+      }),
+    );
+
+    await expect(
+      service.delete(admin, 'workout-1'),
+    ).resolves.toEqual({
+      id: 'workout-1',
+      deleted: true,
+    });
+  });
+
+  it('allows an active Box coach to manage a workout owned by that Box', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        role: 'COACH',
+        activeBoxId: 'box-1',
+        activeBoxRole: 'COACH',
+      }),
+    );
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        scope: 'BOX',
+        boxId: 'box-1',
+        box: {
+          id: 'box-1',
+          name: 'Wodlab CrossFit',
+        },
+        createdByUserId: 'another-coach',
+      }),
+    );
+
+    await expect(
+      service.delete(
+        {
+          userId: 'user-1',
+          email: 'user@example.com',
+          role: 'COACH',
+        },
+        'workout-1',
+      ),
+    ).resolves.toEqual({
       id: 'workout-1',
       deleted: true,
     });

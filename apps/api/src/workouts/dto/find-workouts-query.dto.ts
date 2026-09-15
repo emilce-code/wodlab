@@ -1,4 +1,4 @@
-import { IsBooleanString, IsOptional, IsString } from 'class-validator';
+import { IsBooleanString, IsIn, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 export class FindWorkoutsQueryDto extends PaginationQueryDto {
@@ -9,4 +9,8 @@ export class FindWorkoutsQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsBooleanString()
   benchmark?: string;
+
+  @IsOptional()
+  @IsIn(['all', 'global', 'box', 'personal'])
+  scope?: 'all' | 'global' | 'box' | 'personal';
 }
