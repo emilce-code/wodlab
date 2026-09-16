@@ -52,7 +52,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const response = await authenticatedApiFetch("/movements", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": request.headers.get("accept-language") ?? "en",
+    },
     body: JSON.stringify(await request.json()),
   });
 
