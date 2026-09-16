@@ -754,6 +754,26 @@ const movementTranslations: Record<string, MovementTranslations> = {
     es: 'Colócate bajo la barra con las puntas de los pies apoyadas ligeramente sobre un cajón. Usa solo la ayuda necesaria de las piernas mientras tiras hasta superar la barra con el mentón y baja con control.',
     pt: 'Posicione-se sob a barra com as pontas dos pés levemente apoiadas em uma caixa. Use apenas a ajuda necessária das pernas enquanto puxa até o queixo ultrapassar a barra e desça com controle.',
   },
+  'Muscle Clean': {
+    en: 'Lift the bar from the floor, extend the knees and hips powerfully, and continue pulling the bar upward. Rotate the elbows through to receive it on the shoulders without re-bending the knees or dropping into a squat.',
+    es: 'Levanta la barra desde el suelo, extiende rodillas y caderas con potencia y continúa tirando de la barra hacia arriba. Pasa los codos al frente para recibirla sobre los hombros sin volver a flexionar las rodillas ni bajar a una sentadilla.',
+    pt: 'Levante a barra do chão, estenda joelhos e quadril com potência e continue puxando a barra para cima. Passe os cotovelos para a frente para recebê-la nos ombros sem flexionar novamente os joelhos nem descer em um agachamento.',
+  },
+  'Clean Pull': {
+    en: 'Lift the bar from the floor with the clean setup, keep it close to the body, and extend the knees and hips explosively. Finish tall with a strong shrug without turning the elbows through to receive the bar.',
+    es: 'Levanta la barra desde el suelo con la posición inicial del clean, mantenla cerca del cuerpo y extiende rodillas y caderas de forma explosiva. Finaliza erguido con un encogimiento potente sin pasar los codos para recibir la barra.',
+    pt: 'Levante a barra do chão com a posição inicial do clean, mantenha-a próxima ao corpo e estenda joelhos e quadril de forma explosiva. Finalize ereto com uma puxada forte dos ombros sem passar os cotovelos para receber a barra.',
+  },
+  'Squat Clean': {
+    en: 'Lift the bar from the floor, extend the hips and knees powerfully, then pull under and receive it on the shoulders in a full front squat. Stand to complete hip and knee extension before finishing the repetition.',
+    es: 'Levanta la barra desde el suelo, extiende caderas y rodillas con potencia y pasa por debajo para recibirla sobre los hombros en una sentadilla frontal completa. Ponte de pie hasta extender caderas y rodillas para finalizar.',
+    pt: 'Levante a barra do chão, estenda quadril e joelhos com potência e entre sob a barra para recebê-la nos ombros em um agachamento frontal completo. Fique em pé até estender quadril e joelhos para finalizar.',
+  },
+  'Burpee Over the Bar': {
+    en: 'Perform a burpee beside or facing the bar until the chest and thighs contact the floor. Return to the feet, jump over the bar with both feet, land under control, and begin the next repetition on the opposite side.',
+    es: 'Realiza un burpee al lado o frente a la barra hasta que el pecho y los muslos toquen el suelo. Vuelve a ponerte de pie, salta la barra con ambos pies, aterriza con control y comienza la siguiente repetición del otro lado.',
+    pt: 'Faça um burpee ao lado ou de frente para a barra até o peito e as coxas tocarem o chão. Volte aos pés, salte sobre a barra com os dois pés, aterrisse com controle e inicie a próxima repetição do outro lado.',
+  },
 };
 
 export function getMovementTranslations(movement: MovementSeed) {
@@ -921,6 +941,10 @@ export const movements: readonly MovementSeed[] = [
   { name: 'Shoulder Opener', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Shoulder Opening Drill'], description: 'Kneel with the hands supported on an elevated surface and the arms straight. Brace the trunk and gently lower the chest between the arms to open the shoulders without forcing the lower back to arch.', videoUrl: 'https://youtube.com/shorts/_wQxN_JXbXg' },
   { name: 'Superman Hold', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Superman'], description: 'Lie face down with the arms extended overhead. Lift the chest, arms, and legs from the floor, keep the neck neutral, and hold the position with tension through the back and glutes.', videoUrl: 'https://youtu.be/zD2MQNR6QeY' },
   { name: 'Toe-assist Pull-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Toe Assisted Pull-up', 'Toe-assist Pull Up'], baseMovementName: 'Strict Pull-up', description: 'Stand beneath the bar with the toes lightly supported on a box. Use only the assistance needed from the legs while pulling until the chin clears the bar, then lower under control to straight arms.', videoUrl: 'https://youtube.com/shorts/P35ieuSTllU' },
+  { name: 'Muscle Clean', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor, extend the knees and hips powerfully, and continue pulling the bar upward. Rotate the elbows through to receive it on the shoulders without re-bending the knees or dropping into a squat.', videoUrl: 'https://www.youtube.com/watch?v=K7CctePUCYA' },
+  { name: 'Clean Pull', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor with the clean setup, keep it close to the body, and extend the knees and hips explosively. Finish tall with a strong shrug without turning the elbows through to receive the bar.', videoUrl: 'https://www.youtube.com/watch?v=1WuSiyM-knI' },
+  { name: 'Squat Clean', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor, extend the hips and knees powerfully, then pull under and receive it on the shoulders in a full front squat. Stand to complete hip and knee extension before finishing the repetition.', videoUrl: 'https://www.crossfit.com/essentials/squat-clean-progression' },
+  { name: 'Burpee Over the Bar', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['BOB', 'Burpees Over the Bar', 'Bar-over Burpee'], baseMovementName: 'Burpee', description: 'Perform a burpee beside or facing the bar until the chest and thighs contact the floor. Return to the feet, jump over the bar with both feet, land under control, and begin the next repetition on the opposite side.', videoUrl: 'https://www.youtube.com/watch?v=D7rAEEE_H9A' },
 ];
 
 export async function seedMovements(prisma: PrismaClient): Promise<void> {
