@@ -34,6 +34,7 @@ type MockPrismaService = {
   workout: MockPrismaDelegate;
   workoutLevel: MockPrismaDelegate;
   workoutMovement: MockPrismaDelegate;
+  workoutMovementPrescription: MockPrismaDelegate;
   workoutResult: MockPrismaDelegate;
   workoutResultMovement: MockPrismaDelegate;
   scheduledWorkout: MockPrismaDelegate;
@@ -104,6 +105,7 @@ function createPrismaMock(): MockPrismaService {
     workout: createDelegateMock(),
     workoutLevel: createDelegateMock(),
     workoutMovement: createDelegateMock(),
+    workoutMovementPrescription: createDelegateMock(),
     workoutResult: createDelegateMock(),
     workoutResultMovement: createDelegateMock(),
     scheduledWorkout: createDelegateMock(),
@@ -399,6 +401,93 @@ describe('WorkoutResultsService', () => {
           performedAt: new Date(PERFORMED_AT),
           timeSeconds: 315,
         }),
+      );
+    });
+
+    it('connects the percentage prescription when creating a performed movement', async () => {
+      const workoutMovement = {
+        ...createWorkoutMovement({
+          id: 'workout-movement-1',
+          movementId: 'movement-1',
+          measurementTypes: ['WEIGHT'],
+        }),
+        prescriptions: [
+          {
+            id: 'prescription-1',
+            prescriptionCategoryId: 'category-1',
+          },
+        ],
+      };
+
+      setupCreateResult(prisma, {
+        resultTypeKey: 'TIME',
+        variant: createVariant([workoutMovement]),
+      });
+      prisma.athleteProfile.findUnique.mockResolvedValue({
+        id: ATHLETE_ID,
+        userId: USER_ID,
+        preferredWeightUnit: 'KG',
+      });
+      prisma.prescriptionCategory.findUnique.mockResolvedValue({
+        id: 'category-1',
+        key: 'RX',
+      });
+      prisma.workoutMovementPrescription.findUnique.mockResolvedValue({
+        percentage: 60,
+        referenceRepMax: 1,
+        referenceMovementId: 'movement-1',
+      });
+      prisma.movementResult.findMany.mockResolvedValue([
+        {
+          load: 20,
+          weightUnit: 'KG',
+        },
+      ]);
+      prisma.measurementType.findMany.mockResolvedValue([
+        {
+          id: 'measurement-weight',
+          key: 'WEIGHT',
+        },
+      ]);
+
+      await service.createResult(USER_ID, WORKOUT_ID, {
+        workoutVariantId: VARIANT_ID,
+        prescriptionCategoryKey: 'RX',
+        performedAt: PERFORMED_AT,
+        timeSeconds: 300,
+        movements: [
+          {
+            workoutMovementId: 'workout-movement-1',
+            workoutMovementPrescriptionId: 'prescription-1',
+            reps: 4,
+            load: 25,
+            weightUnit: 'KG',
+          },
+        ],
+      });
+
+      const createCall = getFirstMockCallArgument<{
+        data: {
+          performedMovements: {
+            create: Record<string, unknown>[];
+          };
+        };
+      }>(prisma.workoutResult.create);
+
+      expect(createCall.data.performedMovements.create[0]).toEqual(
+        expect.objectContaining({
+          workoutMovementPrescription: {
+            connect: {
+              id: 'prescription-1',
+            },
+          },
+          prescribedPercentage: 60,
+          targetLoad: 12,
+          targetWeightUnit: 'KG',
+        }),
+      );
+      expect(createCall.data.performedMovements.create[0]).not.toHaveProperty(
+        'workoutMovementPrescriptionId',
       );
     });
 
