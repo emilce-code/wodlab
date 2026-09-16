@@ -71,6 +71,8 @@ describe('MovementsService', () => {
     scope = 'PERSONAL',
     boxId = null,
     box = null,
+    description = null,
+    translations = [],
   }: {
     id?: string;
     createdByUserId?: string;
@@ -78,13 +80,20 @@ describe('MovementsService', () => {
     scope?: 'GLOBAL' | 'BOX' | 'PERSONAL';
     boxId?: string | null;
     box?: { id: string; name: string } | null;
+    description?: string | null;
+    translations?: {
+      locale: string;
+      name: string | null;
+      description: string;
+    }[];
   } = {}) => ({
     id,
     name: 'Back Squat',
     aliases: [],
     isFoundational: true,
     official,
-    description: null,
+    description,
+    translations,
     videoUrl: null,
     scope,
     boxId,
@@ -171,6 +180,69 @@ describe('MovementsService', () => {
       expect.objectContaining({
         skip: 10,
         take: 10,
+      }),
+    );
+  });
+
+  it('returns the requested Spanish movement translation', async () => {
+    prisma.movement.findMany.mockResolvedValue([
+      movementFixture({
+        description: 'Legacy description',
+        translations: [
+          {
+            locale: 'en',
+            name: null,
+            description: 'English description',
+          },
+          {
+            locale: 'es',
+            name: 'Sentadilla trasera',
+            description: 'Descripción en español',
+          },
+        ],
+      }),
+    ]);
+
+    const result = await service.findAll({}, user, 'es-PY,es;q=0.9,en;q=0.8');
+
+    expect(result).toEqual([
+      expect.objectContaining({
+        name: 'Sentadilla trasera',
+        description: 'Descripción en español',
+      }),
+    ]);
+  });
+
+  it('uses the movement description when the requested translation is unavailable', async () => {
+    prisma.movement.findUnique.mockResolvedValue(
+      movementFixture({
+        description: 'Legacy description',
+        translations: [
+          {
+            locale: 'en',
+            name: null,
+            description: 'English description',
+          },
+        ],
+      }),
+    );
+
+    await expect(service.findOne('movement-1', user, 'pt-BR')).resolves.toEqual(
+      expect.objectContaining({
+        name: 'Back Squat',
+        description: 'Legacy description',
+      }),
+    );
+  });
+
+  it('uses the legacy description when no translations exist', async () => {
+    prisma.movement.findUnique.mockResolvedValue(
+      movementFixture({ description: 'Custom movement description' }),
+    );
+
+    await expect(service.findOne('movement-1', user, 'pt-BR')).resolves.toEqual(
+      expect.objectContaining({
+        description: 'Custom movement description',
       }),
     );
   });
@@ -268,6 +340,33 @@ describe('MovementsService', () => {
           scope: 'PERSONAL',
           boxId: null,
           createdByUserId: 'user-1',
+        }),
+      }),
+    );
+  });
+
+  it('stores a new movement description in the movement and selected-locale translation', async () => {
+    await service.create(
+      user,
+      {
+        name: 'Custom movement',
+        categoryKey: 'SQUAT',
+        measurementTypeKeys: ['WEIGHT'],
+        description: 'Descripción personalizada',
+      },
+      'es-PY',
+    );
+
+    expect(prisma.movement.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          description: 'Descripción personalizada',
+          translations: {
+            create: {
+              locale: 'es',
+              description: 'Descripción personalizada',
+            },
+          },
         }),
       }),
     );

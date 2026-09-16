@@ -34,6 +34,7 @@ type MockPrismaService = {
   workout: MockPrismaDelegate;
   workoutLevel: MockPrismaDelegate;
   workoutMovement: MockPrismaDelegate;
+  workoutMovementPrescription: MockPrismaDelegate;
   workoutResult: MockPrismaDelegate;
   workoutResultMovement: MockPrismaDelegate;
   scheduledWorkout: MockPrismaDelegate;
@@ -104,6 +105,7 @@ function createPrismaMock(): MockPrismaService {
     workout: createDelegateMock(),
     workoutLevel: createDelegateMock(),
     workoutMovement: createDelegateMock(),
+    workoutMovementPrescription: createDelegateMock(),
     workoutResult: createDelegateMock(),
     workoutResultMovement: createDelegateMock(),
     scheduledWorkout: createDelegateMock(),
@@ -399,6 +401,93 @@ describe('WorkoutResultsService', () => {
           performedAt: new Date(PERFORMED_AT),
           timeSeconds: 315,
         }),
+      );
+    });
+
+    it('connects the percentage prescription when creating a performed movement', async () => {
+      const workoutMovement = {
+        ...createWorkoutMovement({
+          id: 'workout-movement-1',
+          movementId: 'movement-1',
+          measurementTypes: ['WEIGHT'],
+        }),
+        prescriptions: [
+          {
+            id: 'prescription-1',
+            prescriptionCategoryId: 'category-1',
+          },
+        ],
+      };
+
+      setupCreateResult(prisma, {
+        resultTypeKey: 'TIME',
+        variant: createVariant([workoutMovement]),
+      });
+      prisma.athleteProfile.findUnique.mockResolvedValue({
+        id: ATHLETE_ID,
+        userId: USER_ID,
+        preferredWeightUnit: 'KG',
+      });
+      prisma.prescriptionCategory.findUnique.mockResolvedValue({
+        id: 'category-1',
+        key: 'RX',
+      });
+      prisma.workoutMovementPrescription.findUnique.mockResolvedValue({
+        percentage: 60,
+        referenceRepMax: 1,
+        referenceMovementId: 'movement-1',
+      });
+      prisma.movementResult.findMany.mockResolvedValue([
+        {
+          load: 20,
+          weightUnit: 'KG',
+        },
+      ]);
+      prisma.measurementType.findMany.mockResolvedValue([
+        {
+          id: 'measurement-weight',
+          key: 'WEIGHT',
+        },
+      ]);
+
+      await service.createResult(USER_ID, WORKOUT_ID, {
+        workoutVariantId: VARIANT_ID,
+        prescriptionCategoryKey: 'RX',
+        performedAt: PERFORMED_AT,
+        timeSeconds: 300,
+        movements: [
+          {
+            workoutMovementId: 'workout-movement-1',
+            workoutMovementPrescriptionId: 'prescription-1',
+            reps: 4,
+            load: 25,
+            weightUnit: 'KG',
+          },
+        ],
+      });
+
+      const createCall = getFirstMockCallArgument<{
+        data: {
+          performedMovements: {
+            create: Record<string, unknown>[];
+          };
+        };
+      }>(prisma.workoutResult.create);
+
+      expect(createCall.data.performedMovements.create[0]).toEqual(
+        expect.objectContaining({
+          workoutMovementPrescription: {
+            connect: {
+              id: 'prescription-1',
+            },
+          },
+          prescribedPercentage: 60,
+          targetLoad: 12,
+          targetWeightUnit: 'KG',
+        }),
+      );
+      expect(createCall.data.performedMovements.create[0]).not.toHaveProperty(
+        'workoutMovementPrescriptionId',
       );
     });
 
@@ -1177,7 +1266,7 @@ describe('WorkoutResultsService', () => {
     });
 
     it('preserves performed movements when movements is omitted', async () => {
-      const existingMovement = {
+      const existingMovement: PerformedMovementFixture = {
         id: 'performed-1',
 
         workoutMovementId: 'workout-movement-1',
@@ -1498,9 +1587,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-310');
-
-      expect(result.personalBest.timeSeconds).toBe(310);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-310',
+          timeSeconds: 310,
+        }),
+      );
     });
 
     it('selects rounds before reps for ROUNDS_REPS PB', async () => {
@@ -1529,11 +1621,13 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-b');
-
-      expect(result.personalBest.rounds).toBe(8);
-
-      expect(result.personalBest.reps).toBe(2);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-b',
+          rounds: 8,
+          reps: 2,
+        }),
+      );
     });
 
     it('selects the highest REPS result as PB', async () => {
@@ -1559,9 +1653,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-50');
-
-      expect(result.personalBest.reps).toBe(50);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-50',
+          reps: 50,
+        }),
+      );
     });
 
     it('normalizes LB to KG when comparing LOAD results', async () => {
@@ -1590,11 +1687,13 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-225lb');
-
-      expect(result.personalBest.load).toBe(225);
-
-      expect(result.personalBest.weightUnit).toBe('LB');
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-225lb',
+          load: 225,
+          weightUnit: 'LB',
+        }),
+      );
     });
 
     it('recalculates PB from the remaining result set', async () => {
@@ -1616,9 +1715,12 @@ describe('WorkoutResultsService', () => {
 
       const result = await service.findResultSummary(USER_ID, WORKOUT_ID);
 
-      expect(result.personalBest.id).toBe('result-105');
-
-      expect(result.personalBest.load).toBe(105);
+      expect(result.personalBest).toEqual(
+        expect.objectContaining({
+          id: 'result-105',
+          load: 105,
+        }),
+      );
     });
 
     it('returns null PB when there are no results', async () => {

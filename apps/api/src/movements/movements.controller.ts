@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
@@ -34,14 +35,19 @@ export class MovementsController {
   findAll(
     @Query() query: FindMovementsQueryDto,
     @Req() request: AuthenticatedRequest,
+    @Headers('accept-language') acceptLanguage?: string,
   ) {
-    return this.movementsService.findAll(query, request.user);
+    return this.movementsService.findAll(query, request.user, acceptLanguage);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() request: AuthenticatedRequest, @Body() dto: CreateMovementDto) {
-    return this.movementsService.create(request.user, dto);
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: CreateMovementDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.movementsService.create(request.user, dto, acceptLanguage);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -67,8 +73,13 @@ export class MovementsController {
   findOne(
     @Param('id') movementId: string,
     @Req() request: AuthenticatedRequest,
+    @Headers('accept-language') acceptLanguage?: string,
   ) {
-    return this.movementsService.findOne(movementId, request.user);
+    return this.movementsService.findOne(
+      movementId,
+      request.user,
+      acceptLanguage,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

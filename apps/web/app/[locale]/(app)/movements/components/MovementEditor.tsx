@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
@@ -33,6 +33,7 @@ export default function MovementEditor({
   movement,
 }: Props) {
   const t = useTranslations("movements.management");
+  const locale = useLocale();
   const measurementT = useTranslations("measurementTypes");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -83,7 +84,10 @@ export default function MovementEditor({
         movement ? `/api/movements/${movement.id}` : "/api/movements",
         {
           method: movement ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept-Language": locale,
+          },
           body: JSON.stringify({
             name: name.trim(),
             categoryKey,
