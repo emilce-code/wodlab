@@ -26,6 +26,9 @@ pnpm --dir apps/web dev
 
 ## Quality checks
 
+Copy `apps/web/.env.example` to `apps/web/.env.local` and provide the Auth0
+application values before running the production web build.
+
 Run the complete local release gate:
 
 ```bash
