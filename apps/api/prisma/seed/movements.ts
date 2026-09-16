@@ -25,6 +25,14 @@ const foundationalMovementTranslations: Record<
   string,
   LocalizedMovementDescription
 > = {
+  'Alternating Lunge': {
+    es: 'Da un paso hacia adelante con una pierna y baja la rodilla trasera hacia el suelo manteniendo el torso erguido. Impúlsate con el pie delantero para volver a la posición inicial y repite alternando las piernas.',
+    pt: 'Dê um passo à frente com uma perna e desça o joelho de trás em direção ao chão, mantendo o tronco ereto. Empurre o chão com o pé da frente para voltar à posição inicial e repita alternando as pernas.',
+  },
+  'Alternating Pistol Squat': {
+    es: 'Equilíbrate sobre una pierna con la otra extendida al frente, desciende de forma controlada hasta que la cadera quede por debajo de la rodilla y vuelve a ponerte de pie. Cambia de pierna en cada repetición.',
+    pt: 'Equilibre-se sobre uma perna com a outra estendida à frente, desça de forma controlada até o quadril ficar abaixo do joelho e volte a ficar em pé. Alterne a perna a cada repetição.',
+  },
   'Air Squat': {
     es: 'Párate con los pies aproximadamente al ancho de los hombros. Lleva las caderas hacia atrás y abajo, mantén el pecho erguido y las rodillas alineadas con los dedos de los pies, desciende por debajo del paralelo y luego extiende completamente las caderas y las rodillas.',
     pt: 'Fique em pé com os pés aproximadamente na largura dos ombros. Leve o quadril para trás e para baixo, mantenha o peito erguido e os joelhos alinhados com os dedos dos pés, desça abaixo do paralelo e depois estenda completamente o quadril e os joelhos.',
@@ -41,6 +49,10 @@ const foundationalMovementTranslations: Record<
     es: 'Levanta el balón medicinal desde el suelo extendiendo las caderas y las piernas, encoge los hombros y luego pasa por debajo para recibirlo frente al pecho en una sentadilla. Ponte completamente de pie para finalizar.',
     pt: 'Levante a medicine ball do chão estendendo o quadril e as pernas, eleve os ombros e depois entre sob a bola para recebê-la junto ao peito em um agachamento. Fique completamente em pé para finalizar.',
   },
+  'Plyo Plate Hop': {
+    es: 'Párate frente a un disco estable colocado en el suelo, salta con ambos pies sobre el disco y aterriza con control. Extiende las caderas y las rodillas según el estándar indicado antes de bajar o saltar al suelo.',
+    pt: 'Fique em frente a uma anilha estável colocada no chão, salte com os dois pés sobre a anilha e aterrisse com controle. Estenda o quadril e os joelhos conforme o padrão indicado antes de descer ou saltar para o chão.',
+  },
   'Overhead Squat': {
     es: 'Sostén la barra sobre la cabeza con los brazos bloqueados y los hombros activos. Desciende por debajo del paralelo manteniendo la barra equilibrada sobre la mitad del pie y luego ponte completamente de pie.',
     pt: 'Segure a barra acima da cabeça com os braços estendidos e os ombros ativos. Agache abaixo do paralelo mantendo a barra equilibrada sobre o meio dos pés e depois fique completamente em pé.',
@@ -49,9 +61,17 @@ const foundationalMovementTranslations: Record<
     es: 'Sostén la barra sobre los hombros, realiza una flexión vertical y un impulso potente, y luego vuelve a flexionar para pasar debajo de la barra en ascenso. Recíbela sobre la cabeza con los brazos bloqueados y ponte completamente de pie.',
     pt: 'Segure a barra nos ombros, faça uma flexão vertical e uma impulsão potente e depois flexione novamente para entrar sob a barra em movimento. Receba-a acima da cabeça com os braços estendidos e fique completamente em pé.',
   },
+  Run: {
+    es: 'Corre la distancia o el tiempo indicado con una zancada sostenible, el torso erguido y un movimiento relajado de los brazos adecuado para la intensidad prevista del entrenamiento.',
+    pt: 'Corra a distância ou durante o tempo indicado com uma passada sustentável, o tronco ereto e os braços relaxados, de acordo com a intensidade prevista do treino.',
+  },
   'Push Press': {
     es: 'Sostén la barra sobre los hombros, flexiona verticalmente las rodillas y las caderas y luego extiende las piernas y las caderas con potencia para impulsar la barra sobre la cabeza. Finaliza con los codos bloqueados.',
     pt: 'Segure a barra nos ombros, flexione verticalmente os joelhos e o quadril e depois estenda as pernas e o quadril com potência para impulsionar a barra acima da cabeça. Finalize com os cotovelos estendidos.',
+  },
+  'Shuttle Run': {
+    es: 'Corre entre dos puntos marcados, toca o cruza la línea indicada, cambia de dirección de forma eficiente y repite durante la distancia, las repeticiones o el tiempo prescrito.',
+    pt: 'Corra entre dois pontos marcados, toque ou ultrapasse a linha indicada, mude de direção com eficiência e repita pela distância, pelas repetições ou pelo tempo prescrito.',
   },
   'Shoulder Press': {
     es: 'Comienza con la barra sobre los hombros y el cuerpo firme. Empuja la barra sobre la cabeza sin usar las piernas, apartando la cabeza de la trayectoria de la barra y finalizando con los codos bloqueados.',
@@ -219,11 +239,14 @@ export const movements: readonly MovementSeed[] = [
   { name: 'Ski Erg', categoryKey: 'MONOSTRUCTURAL', measurementTypeKeys: ['DISTANCE', 'CALORIES', 'DURATION'], isFoundational: false, aliases: ['Ski', 'SkiErg'], description: 'Start tall with the handles overhead, hinge and pull the handles down using the trunk and arms, then return smoothly to the tall position for the next stroke.' },
   { name: 'Bike Erg', categoryKey: 'MONOSTRUCTURAL', measurementTypeKeys: ['DISTANCE', 'CALORIES', 'DURATION'], isFoundational: false, aliases: ['BikeErg'], description: 'Pedal the bike at the prescribed cadence and resistance while maintaining a stable torso and smooth circular pedal stroke for the required distance, calories, or time.' },
   { name: 'Air Bike', categoryKey: 'MONOSTRUCTURAL', measurementTypeKeys: ['CALORIES', 'DURATION'], isFoundational: false, aliases: ['Assault Bike', 'Echo Bike', 'Bike'], description: 'Drive the pedals and moving handles together using the legs and arms. Maintain a controlled posture and cadence appropriate to the prescribed calories or duration.' },
+  { name: 'Alternating Lunge', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS', 'DISTANCE'], isFoundational: false, aliases: ['Alt Lunge', 'Alternating Lunges', 'Lunge Alt'], baseMovementName: 'Walking Lunge', description: 'Step forward with one leg and lower the rear knee toward the floor while keeping the torso upright. Drive through the front foot to return to the start, then repeat on the opposite leg.' },
+  { name: 'Alternating Pistol Squat', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Alt Pistol', 'Alt Pistols', 'Alternating Pistols', 'Alternating Pistol'], baseMovementName: 'Single-leg Squat (Pistol)', description: 'Balance on one leg with the other extended forward, descend under control until the hip passes below the knee, and stand fully. Switch legs for each repetition.' },
   { name: 'Goblet Squat', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Air Squat', description: 'Hold a kettlebell or dumbbell close to the chest, squat below parallel with the torso upright and knees tracking over the toes, then stand to full extension.' },
   { name: 'Dumbbell Clean and Jerk', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: ['DB Clean and Jerk', 'DB C&J'], baseMovementName: 'Clean and Jerk', description: 'Clean the dumbbell or dumbbells to the shoulders, stand fully, then use the legs and hips to drive the load overhead and finish with locked arms.' },
   { name: 'Farmers Carry', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'DISTANCE', 'DURATION'], isFoundational: false, aliases: ['Farmer Carry', 'Farmers Walk'], description: 'Hold heavy implements at the sides, stand tall with a braced trunk, and walk the prescribed distance or duration while keeping the loads controlled.' },
   { name: 'Front Rack Carry', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'DISTANCE', 'DURATION'], isFoundational: false, aliases: [], description: 'Hold the load securely in the front-rack position, brace the trunk, and walk the prescribed distance or duration while maintaining an upright posture.' },
   { name: 'Overhead Carry', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'DISTANCE', 'DURATION'], isFoundational: false, aliases: [], description: 'Lock the load overhead with active shoulders and a braced trunk, then walk the prescribed distance or duration while keeping the load stacked over the body.' },
+  { name: 'Plyo Plate Hop', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Plyo Plate Hops', 'Plate Hop', 'Plate Hops'], baseMovementName: 'Box Jump', description: 'Stand facing a stable weight plate on the floor, jump with both feet onto the plate, and land under control. Reach the required hip and knee extension before stepping or jumping back down.' },
   { name: 'Sit-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Sit Up'], description: 'Begin seated or lying with the feet anchored or positioned as prescribed. Lower the torso under control, then flex the trunk to return to the top position.' },
   { name: 'V-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['V Up'], baseMovementName: 'Sit-up', description: 'Lie flat with arms and legs extended, then simultaneously lift the torso and straight legs to meet above the hips. Lower both under control to the start position.' },
   { name: 'Bear Crawl', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DISTANCE', 'DURATION'], isFoundational: false, aliases: [], description: 'Move on hands and feet with the knees hovering close to the floor, keeping the trunk braced and hips controlled while traveling the prescribed distance or duration.' },
