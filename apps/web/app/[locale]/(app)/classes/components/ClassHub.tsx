@@ -37,7 +37,7 @@ export default function ClassHub({ initialBoxes }: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
   const dayScroller = useRef<HTMLDivElement>(null);
-  const days = useMemo(scheduleDays, []);
+  const days = useMemo(() => scheduleDays(), []);
 
   const [boxes, setBoxes] = useState(initialBoxes);
   const [boxId, setBoxId] = useState(initialBoxes.find((box) => box.isActive)?.id ?? initialBoxes[0]?.id ?? "");
@@ -95,8 +95,6 @@ export default function ClassHub({ initialBoxes }: Props) {
     from.setHours(0, 0, 0, 0);
     const to = new Date(from);
     to.setDate(to.getDate() + 30);
-    setLoading(true);
-    setError(null);
     void fetch(`/api/boxes/${boxId}/classes?from=${from.toISOString()}&to=${to.toISOString()}`, { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error();
@@ -134,6 +132,7 @@ export default function ClassHub({ initialBoxes }: Props) {
 
   async function selectBox(nextBoxId: string) {
     setLoading(true);
+    setError(null);
     const response = await fetch("/api/boxes/active", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -163,6 +162,7 @@ export default function ClassHub({ initialBoxes }: Props) {
       setError(requestMessage(data, t("errors.save")));
       return;
     }
+    setLoading(true);
     await refreshBoxes();
     setBoxId(data.id);
     setShowJoin(false);
