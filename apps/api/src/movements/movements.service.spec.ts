@@ -336,6 +336,8 @@ describe('MovementsService', () => {
 
     expect(prisma.movement.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           scope: 'PERSONAL',
           boxId: null,
@@ -359,6 +361,8 @@ describe('MovementsService', () => {
 
     expect(prisma.movement.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           description: 'Descripción personalizada',
           translations: {
@@ -401,6 +405,8 @@ describe('MovementsService', () => {
 
       expect(prisma.movement.create).toHaveBeenCalledWith(
         expect.objectContaining({
+          // Jest asymmetric matchers are typed as `any`.
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           data: expect.objectContaining({
             scope: 'BOX',
             boxId: 'box-1',
@@ -440,6 +446,8 @@ describe('MovementsService', () => {
 
     expect(prisma.movement.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           scope: 'BOX',
           boxId: 'box-1',
@@ -472,6 +480,8 @@ describe('MovementsService', () => {
 
     expect(prisma.movement.create).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           scope: 'GLOBAL',
           boxId: null,
@@ -489,9 +499,9 @@ describe('MovementsService', () => {
       }),
     );
 
-    await expect(
-      service.findOne('movement-1', user),
-    ).rejects.toThrow(new NotFoundException('Movement not found'));
+    await expect(service.findOne('movement-1', user)).rejects.toThrow(
+      new NotFoundException('Movement not found'),
+    );
   });
 
   it('prevents direct-ID access to a movement belonging to another Box', async () => {
@@ -514,9 +524,9 @@ describe('MovementsService', () => {
       }),
     );
 
-    await expect(
-      service.findOne('movement-1', user),
-    ).rejects.toThrow(new NotFoundException('Movement not found'));
+    await expect(service.findOne('movement-1', user)).rejects.toThrow(
+      new NotFoundException('Movement not found'),
+    );
   });
 
   it('allows direct-ID access to a movement in the active Box', async () => {
@@ -539,9 +549,7 @@ describe('MovementsService', () => {
       }),
     );
 
-    await expect(
-      service.findOne('movement-1', user),
-    ).resolves.toEqual(
+    await expect(service.findOne('movement-1', user)).resolves.toEqual(
       expect.objectContaining({
         id: 'movement-1',
         scope: 'BOX',
@@ -573,9 +581,7 @@ describe('MovementsService', () => {
         },
       });
 
-    await expect(
-      service.delete('movement-1', user),
-    ).resolves.toEqual({
+    await expect(service.delete('movement-1', user)).resolves.toEqual({
       id: 'movement-1',
       deleted: true,
     });
@@ -598,9 +604,9 @@ describe('MovementsService', () => {
       measurementTypes: [],
     });
 
-    await expect(
-      service.delete('movement-1', user),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.delete('movement-1', user)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 
   it('rejects deleting a movement used by a workout', async () => {
@@ -623,8 +629,8 @@ describe('MovementsService', () => {
         },
       });
 
-    await expect(
-      service.delete('movement-1', user),
-    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.delete('movement-1', user)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 });

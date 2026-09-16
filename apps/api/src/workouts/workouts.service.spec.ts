@@ -161,9 +161,13 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
 
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where: expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           AND: expect.arrayContaining([
             expect.objectContaining({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               OR: expect.arrayContaining([
                 expect.objectContaining({
                   scope: 'GLOBAL',
@@ -196,7 +200,10 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
 
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where: expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           AND: expect.arrayContaining([
             {
               scope: 'BOX',
@@ -216,7 +223,10 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
 
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where: expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           AND: expect.arrayContaining([
             {
               scope: 'PERSONAL',
@@ -264,9 +274,13 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
 
     expect(prismaMock.workout.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        // Jest asymmetric matchers are typed as `any`.
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         where: expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           AND: expect.arrayContaining([
             expect.objectContaining({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               OR: expect.arrayContaining([
                 expect.objectContaining({
                   scope: 'PERSONAL',
@@ -279,10 +293,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
             }),
           ]),
         }),
-        orderBy: [
-          { deactivatedAt: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ deactivatedAt: 'desc' }, { createdAt: 'desc' }],
       }),
     );
   });
@@ -377,9 +388,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).resolves.toEqual(
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({
         id: 'workout-1',
         isActive: false,
@@ -400,9 +409,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       id: 'result-1',
     });
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).resolves.toEqual(
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({
         id: 'workout-1',
         isActive: false,
@@ -418,9 +425,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).rejects.toThrow(
+    await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
     );
   });
@@ -433,9 +438,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).rejects.toThrow(
+    await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
     );
   });
@@ -460,9 +463,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).rejects.toThrow(
+    await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
     );
   });
@@ -487,9 +488,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.findOne('workout-1', user),
-    ).resolves.toEqual(
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({
         id: 'workout-1',
         scope: 'BOX',
@@ -502,13 +501,9 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
   });
 
   it('permanently deletes an owned PERSONAL workout without dependencies', async () => {
-    prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture(),
-    );
+    prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
 
-    await expect(
-      service.delete(user, 'workout-1'),
-    ).resolves.toEqual({
+    await expect(service.delete(user, 'workout-1')).resolves.toEqual({
       id: 'workout-1',
       deleted: true,
     });
@@ -527,13 +522,11 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.delete(user, 'workout-1'),
-    ).rejects.toThrow(ConflictException);
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
+      ConflictException,
+    );
 
-    expect(
-      prismaMock.workout.delete,
-    ).not.toHaveBeenCalled();
+    expect(prismaMock.workout.delete).not.toHaveBeenCalled();
   });
 
   it('blocks lifecycle actions on another user PERSONAL workout', async () => {
@@ -543,15 +536,13 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.delete(user, 'workout-1'),
-    ).rejects.toThrow(ForbiddenException);
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 
   it('allows an owned workout to be archived even without dependencies', async () => {
-    prismaMock.workout.findUnique.mockResolvedValue(
-      workoutFixture(),
-    );
+    prismaMock.workout.findUnique.mockResolvedValue(workoutFixture());
 
     prismaMock.workout.update.mockResolvedValue(
       workoutFixture({
@@ -559,15 +550,11 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    const result = await service.deactivate(
-      user,
-      'workout-1',
-    );
+    const result = await service.deactivate(user, 'workout-1');
 
     expect(result.isActive).toBe(false);
 
-    const updateCalls =
-      prismaMock.workout.update.mock.calls as unknown[][];
+    const updateCalls = prismaMock.workout.update.mock.calls as unknown[][];
 
     const updateInput = updateCalls[0][0] as {
       where: {
@@ -585,9 +572,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
 
     expect(updateInput.data.isActive).toBe(false);
 
-    expect(
-      updateInput.data.deactivatedAt,
-    ).toBeInstanceOf(Date);
+    expect(updateInput.data.deactivatedAt).toBeInstanceOf(Date);
   });
 
   it('reactivates an owned inactive PERSONAL workout', async () => {
@@ -605,16 +590,11 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    const result = await service.reactivate(
-      user,
-      'workout-1',
-    );
+    const result = await service.reactivate(user, 'workout-1');
 
     expect(result.isActive).toBe(true);
 
-    expect(
-      prismaMock.workout.update,
-    ).toHaveBeenCalledWith(
+    expect(prismaMock.workout.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
           id: 'workout-1',
@@ -636,9 +616,9 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.delete(user, 'workout-1'),
-    ).rejects.toThrow(ForbiddenException);
+    await expect(service.delete(user, 'workout-1')).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 
   it('allows administrators to manage GLOBAL workouts', async () => {
@@ -656,9 +636,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
       }),
     );
 
-    await expect(
-      service.delete(admin, 'workout-1'),
-    ).resolves.toEqual({
+    await expect(service.delete(admin, 'workout-1')).resolves.toEqual({
       id: 'workout-1',
       deleted: true,
     });

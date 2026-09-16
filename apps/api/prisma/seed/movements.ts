@@ -436,8 +436,8 @@ const movementTranslations: Record<string, MovementTranslations> = {
   },
   'Ring Push-up': {
     en: 'Hold a plank with the hands on rings, lower the chest between the rings while maintaining a rigid body, then press back to full elbow extension and stabilize the rings.',
-    es: 'Realiza Ring Push-up con una posición corporal estable, controlando todo el rango de movimiento y cumpliendo el estándar técnico y las repeticiones, distancia o tiempo prescritos.',
-    pt: 'Execute Ring Push-up com uma posição corporal estável, controlando toda a amplitude do movimento e cumprindo o padrão técnico e as repetições, distância ou tempo prescritos.',
+    es: 'Mantén una plancha con las manos sobre las anillas, baja el pecho entre ellas sin perder la línea corporal y empuja hasta extender completamente los codos, estabilizando las anillas al finalizar.',
+    pt: 'Mantenha a prancha com as mãos nas argolas, desça o peito entre elas sem perder o alinhamento do corpo e empurre até estender completamente os cotovelos, estabilizando as argolas ao final.',
   },
   'Ring Row': {
     en: 'Hold the rings with the body straight and heels on the floor. Pull the chest toward the rings while keeping the trunk rigid, then lower under control to straight arms.',
@@ -551,8 +551,8 @@ const movementTranslations: Record<string, MovementTranslations> = {
   },
   'Strict Pull-up': {
     en: 'Start from a dead hang with straight arms. Pull the body upward without using momentum until the chin clears the bar, then lower under control to full extension.',
-    es: 'Desde una suspensión con los brazos extendidos, tira del cuerpo hasta alcanzar la altura requerida y vuelve de forma controlada a la extensión completa, utilizando kip solo cuando la variante lo indique.',
-    pt: 'A partir de uma suspensão com os braços estendidos, puxe o corpo até atingir a altura exigida e retorne com controle à extensão completa, usando kip somente quando a variante indicar.',
+    es: 'Comienza en suspensión con los brazos extendidos. Eleva el cuerpo sin impulso hasta que el mentón supere la barra y desciende con control hasta volver a la extensión completa.',
+    pt: 'Comece em suspensão com os braços estendidos. Puxe o corpo sem impulso até o queixo ultrapassar a barra e desça com controle até retornar à extensão completa.',
   },
   'Strict Toes-to-bar': {
     en: 'Hang from the bar without swinging and use trunk and hip flexion to lift the straight or nearly straight legs until both toes contact the bar between the hands.',
@@ -694,6 +694,86 @@ const movementTranslations: Record<string, MovementTranslations> = {
     es: 'Realiza Bear Crawl con una posición corporal estable, controlando todo el rango de movimiento y cumpliendo el estándar técnico y las repeticiones, distancia o tiempo prescritos.',
     pt: 'Execute Bear Crawl com uma posição corporal estável, controlando toda a amplitude do movimento e cumprindo o padrão técnico e as repetições, distância ou tempo prescritos.',
   },
+  'Arch Hold and Rocks': {
+    en: 'Lie face down with the arms extended overhead. Lift the chest, arms, and legs while keeping the body long; hold the arch position or rock smoothly without losing tension.',
+    es: 'Acuéstate boca abajo con los brazos extendidos sobre la cabeza. Eleva el pecho, los brazos y las piernas manteniendo el cuerpo largo; sostén la posición arqueada o balancéate sin perder tensión.',
+    pt: 'Deite de barriga para baixo com os braços estendidos acima da cabeça. Eleve o peito, os braços e as pernas mantendo o corpo alongado; sustente a posição arqueada ou balance sem perder a tensão.',
+  },
+  'Arch-Hollow Tension Drill': {
+    en: 'Move between controlled arch and hollow body positions while keeping the arms and legs extended and maintaining continuous trunk tension through each transition.',
+    es: 'Alterna de forma controlada entre las posiciones de arco y hollow, manteniendo brazos y piernas extendidos y tensión continua en el tronco durante cada transición.',
+    pt: 'Alterne de forma controlada entre as posições de arco e hollow, mantendo braços e pernas estendidos e tensão contínua no tronco durante cada transição.',
+  },
+  'Box Handstand Shrugs': {
+    en: 'Place the feet on a box and support the body on straight arms with the hips stacked toward the shoulders. Keep the elbows locked while pressing tall through the shoulders and then relaxing the shoulder blades under control.',
+    es: 'Apoya los pies sobre un cajón y el cuerpo sobre los brazos extendidos, llevando las caderas hacia los hombros. Mantén los codos bloqueados mientras empujas con los hombros y luego relajas las escápulas con control.',
+    pt: 'Apoie os pés em uma caixa e o corpo sobre os braços estendidos, levando o quadril em direção aos ombros. Mantenha os cotovelos travados enquanto empurra pelos ombros e depois relaxa as escápulas com controle.',
+  },
+  'Box Support Hold': {
+    en: 'Support the body between stable boxes with straight arms, shoulders pressed down, and the trunk braced. Keep the feet clear of the floor and hold a controlled support position.',
+    es: 'Sostén el cuerpo entre cajones estables con los brazos extendidos, los hombros hacia abajo y el tronco firme. Mantén los pies separados del suelo y conserva una posición de apoyo controlada.',
+    pt: 'Sustente o corpo entre caixas estáveis com os braços estendidos, os ombros pressionados para baixo e o tronco firme. Mantenha os pés fora do chão e segure uma posição de apoio controlada.',
+  },
+  'Hollow Hold': {
+    en: 'Lie on the back, press the lower back into the floor, and lift the shoulders and legs. Extend the arms overhead and hold a long hollow position without allowing the lower back to arch.',
+    es: 'Acuéstate boca arriba, presiona la zona lumbar contra el suelo y eleva los hombros y las piernas. Extiende los brazos sobre la cabeza y mantén la posición hollow sin arquear la espalda baja.',
+    pt: 'Deite de costas, pressione a lombar contra o chão e eleve os ombros e as pernas. Estenda os braços acima da cabeça e mantenha a posição hollow sem arquear a região lombar.',
+  },
+  'Hollow Rocks': {
+    en: 'Maintain a hollow body position with the lower back pressed into the floor and rock smoothly from the shoulders toward the hips without changing the body shape.',
+    es: 'Mantén la posición hollow con la zona lumbar presionada contra el suelo y balancéate suavemente desde los hombros hacia las caderas sin cambiar la forma del cuerpo.',
+    pt: 'Mantenha a posição hollow com a lombar pressionada contra o chão e balance suavemente dos ombros em direção ao quadril sem alterar o formato do corpo.',
+  },
+  'Hollow Static Pike-up Sliders': {
+    en: 'Start in a hollow plank with the feet on sliders. Keep the legs straight and shoulders active while drawing the feet toward the hands to lift the hips into a pike, then return under control.',
+    es: 'Comienza en plancha hollow con los pies sobre deslizadores. Mantén las piernas extendidas y los hombros activos mientras acercas los pies a las manos para elevar las caderas en pike, y vuelve con control.',
+    pt: 'Comece em prancha hollow com os pés sobre deslizadores. Mantenha as pernas estendidas e os ombros ativos enquanto aproxima os pés das mãos para elevar o quadril em pike e retorne com controle.',
+  },
+  'Kip Swing': {
+    en: 'Hang from the bar with active shoulders and alternate between hollow and arch positions. Drive the movement from the shoulders and trunk while keeping the legs together and the swing controlled.',
+    es: 'Cuélgate de la barra con los hombros activos y alterna entre las posiciones hollow y arco. Genera el movimiento desde los hombros y el tronco, manteniendo las piernas juntas y el balanceo controlado.',
+    pt: 'Pendure-se na barra com os ombros ativos e alterne entre as posições hollow e arco. Gere o movimento pelos ombros e pelo tronco, mantendo as pernas juntas e o balanço controlado.',
+  },
+  'Ring Support Tuck-ups': {
+    en: 'Hold a stable straight-arm support on the rings. Keep the shoulders pressed down while drawing the knees toward the chest, then extend the legs again without losing ring control.',
+    es: 'Mantén un apoyo estable sobre las anillas con los brazos extendidos. Conserva los hombros hacia abajo mientras acercas las rodillas al pecho y vuelve a extender las piernas sin perder el control de las anillas.',
+    pt: 'Mantenha um apoio estável nas argolas com os braços estendidos. Preserve os ombros pressionados para baixo enquanto leva os joelhos ao peito e estenda as pernas novamente sem perder o controle das argolas.',
+  },
+  'Shoulder Opener': {
+    en: 'Kneel with the hands supported on an elevated surface and the arms straight. Brace the trunk and gently lower the chest between the arms to open the shoulders without forcing the lower back to arch.',
+    es: 'Arrodíllate con las manos apoyadas sobre una superficie elevada y los brazos extendidos. Mantén el tronco firme y baja suavemente el pecho entre los brazos para abrir los hombros sin forzar el arco lumbar.',
+    pt: 'Ajoelhe-se com as mãos apoiadas em uma superfície elevada e os braços estendidos. Mantenha o tronco firme e desça suavemente o peito entre os braços para abrir os ombros sem forçar o arco lombar.',
+  },
+  'Superman Hold': {
+    en: 'Lie face down with the arms extended overhead. Lift the chest, arms, and legs from the floor, keep the neck neutral, and hold the position with tension through the back and glutes.',
+    es: 'Acuéstate boca abajo con los brazos extendidos sobre la cabeza. Eleva el pecho, los brazos y las piernas del suelo, mantén el cuello neutro y sostén la posición con tensión en la espalda y los glúteos.',
+    pt: 'Deite de barriga para baixo com os braços estendidos acima da cabeça. Eleve o peito, os braços e as pernas do chão, mantenha o pescoço neutro e sustente a posição com tensão nas costas e nos glúteos.',
+  },
+  'Toe-assist Pull-up': {
+    en: 'Stand beneath the bar with the toes lightly supported on a box. Use only the assistance needed from the legs while pulling until the chin clears the bar, then lower under control to straight arms.',
+    es: 'Colócate bajo la barra con las puntas de los pies apoyadas ligeramente sobre un cajón. Usa solo la ayuda necesaria de las piernas mientras tiras hasta superar la barra con el mentón y baja con control.',
+    pt: 'Posicione-se sob a barra com as pontas dos pés levemente apoiadas em uma caixa. Use apenas a ajuda necessária das pernas enquanto puxa até o queixo ultrapassar a barra e desça com controle.',
+  },
+  'Muscle Clean': {
+    en: 'Lift the bar from the floor, extend the knees and hips powerfully, and continue pulling the bar upward. Rotate the elbows through to receive it on the shoulders without re-bending the knees or dropping into a squat.',
+    es: 'Levanta la barra desde el suelo, extiende rodillas y caderas con potencia y continúa tirando de la barra hacia arriba. Pasa los codos al frente para recibirla sobre los hombros sin volver a flexionar las rodillas ni bajar a una sentadilla.',
+    pt: 'Levante a barra do chão, estenda joelhos e quadril com potência e continue puxando a barra para cima. Passe os cotovelos para a frente para recebê-la nos ombros sem flexionar novamente os joelhos nem descer em um agachamento.',
+  },
+  'Clean Pull': {
+    en: 'Lift the bar from the floor with the clean setup, keep it close to the body, and extend the knees and hips explosively. Finish tall with a strong shrug without turning the elbows through to receive the bar.',
+    es: 'Levanta la barra desde el suelo con la posición inicial del clean, mantenla cerca del cuerpo y extiende rodillas y caderas de forma explosiva. Finaliza erguido con un encogimiento potente sin pasar los codos para recibir la barra.',
+    pt: 'Levante a barra do chão com a posição inicial do clean, mantenha-a próxima ao corpo e estenda joelhos e quadril de forma explosiva. Finalize ereto com uma puxada forte dos ombros sem passar os cotovelos para receber a barra.',
+  },
+  'Squat Clean': {
+    en: 'Lift the bar from the floor, extend the hips and knees powerfully, then pull under and receive it on the shoulders in a full front squat. Stand to complete hip and knee extension before finishing the repetition.',
+    es: 'Levanta la barra desde el suelo, extiende caderas y rodillas con potencia y pasa por debajo para recibirla sobre los hombros en una sentadilla frontal completa. Ponte de pie hasta extender caderas y rodillas para finalizar.',
+    pt: 'Levante a barra do chão, estenda quadril e joelhos com potência e entre sob a barra para recebê-la nos ombros em um agachamento frontal completo. Fique em pé até estender quadril e joelhos para finalizar.',
+  },
+  'Burpee Over the Bar': {
+    en: 'Perform a burpee beside or facing the bar until the chest and thighs contact the floor. Return to the feet, jump over the bar with both feet, land under control, and begin the next repetition on the opposite side.',
+    es: 'Realiza un burpee al lado o frente a la barra hasta que el pecho y los muslos toquen el suelo. Vuelve a ponerte de pie, salta la barra con ambos pies, aterriza con control y comienza la siguiente repetición del otro lado.',
+    pt: 'Faça um burpee ao lado ou de frente para a barra até o peito e as coxas tocarem o chão. Volte aos pés, salte sobre a barra com os dois pés, aterrisse com controle e inicie a próxima repetição do outro lado.',
+  },
 };
 
 export function getMovementTranslations(movement: MovementSeed) {
@@ -795,7 +875,7 @@ export const movements: readonly MovementSeed[] = [
   { name: 'Push Press', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: true, aliases: [], description: 'Hold the bar at the shoulders, dip vertically through the knees and hips, then extend the legs and hips powerfully to drive the bar overhead. Finish with locked elbows.', videoUrl: 'https://www.crossfit.com/essentials/the-push-press' },
   { name: 'Push-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Push Up'], description: 'Start in a plank with straight arms and a rigid body. Lower until the chest contacts the floor, then press back to full elbow extension without losing the body line.', videoUrl: 'https://www.crossfit.com/essentials/the-push-up' },
   { name: 'Ring Dip', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: [], baseMovementName: 'Dip', description: 'Support the body on the rings with straight arms, lower until the shoulders descend below the elbows, then press back to full extension while keeping the rings controlled.', videoUrl: 'https://www.crossfit.com/essentials/the-ring-dip' },
-  { name: 'Ring Push-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: [], baseMovementName: 'Push-up', description: 'Hold a plank with the hands on rings, lower the chest between the rings while maintaining a rigid body, then press back to full elbow extension and stabilize the rings.', videoUrl: 'https://www.crossfit.com/essentials/the-ring-push-up' },
+  { name: 'Ring Push-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Ring Push-ups'], baseMovementName: 'Push-up', description: 'Hold a plank with the hands on rings, lower the chest between the rings while maintaining a rigid body, then press back to full elbow extension and stabilize the rings.', videoUrl: 'https://youtu.be/vSsjHM_8XCs' },
   { name: 'Ring Row', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: [], description: 'Hold the rings with the body straight and heels on the floor. Pull the chest toward the rings while keeping the trunk rigid, then lower under control to straight arms.', videoUrl: 'https://www.crossfit.com/essentials/the-ring-row' },
   { name: 'Rope Climb (Basket)', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS', 'DISTANCE'], isFoundational: false, aliases: ['Basket Rope Climb'], description: 'Climb the rope using a basket-style foot lock to secure the rope between the feet. Stand on the lock, reach higher with the hands, and repeat to the required height.', videoUrl: 'https://www.crossfit.com/essentials/the-rope-climb-basket' },
   { name: 'Rope Climb (Wrapping)', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS', 'DISTANCE'], isFoundational: false, aliases: ['Rope Climb'], description: 'Climb the rope by pulling the knees up, wrapping the rope around the leg and securing it with the feet, then standing on the lock and reaching higher with the hands.', videoUrl: 'https://www.crossfit.com/essentials/the-rope-climb-wrapping' },
@@ -818,7 +898,7 @@ export const movements: readonly MovementSeed[] = [
   { name: 'Strict Handstand Push-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Strict HSPU'], baseMovementName: 'Handstand', description: 'From a wall-supported handstand, lower the head to the floor under control and press back to locked elbows using only the upper body, without a kip.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-handstand-push-up' },
   { name: 'Strict Knees-to-elbows', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['K2E'], description: 'Hang from the bar with straight arms and no kip. Flex the trunk and hips to bring the knees up until they contact the elbows, then lower under control.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-knees-to-elbows' },
   { name: 'Strict Muscle-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Strict MU'], baseMovementName: 'Kipping Muscle-up', description: 'From a dead hang on the rings, pull the rings toward the chest without kipping, transition the shoulders over the rings, then press to a straight-arm support.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-muscle-up' },
-  { name: 'Strict Pull-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: [], baseMovementName: 'Pull-up', description: 'Start from a dead hang with straight arms. Pull the body upward without using momentum until the chin clears the bar, then lower under control to full extension.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-pull-up' },
+  { name: 'Strict Pull-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Strict Pull Up'], baseMovementName: 'Pull-up', description: 'Start from a dead hang with straight arms. Pull the body upward without using momentum until the chin clears the bar, then lower under control to full extension.', videoUrl: 'https://youtu.be/HRV5YKKaeVw?si=X1VylK4aG7G0T_x0' },
   { name: 'Strict Toes-to-bar', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Strict T2B'], baseMovementName: 'Kipping Toes-to-bar', description: 'Hang from the bar without swinging and use trunk and hip flexion to lift the straight or nearly straight legs until both toes contact the bar between the hands.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-toes-to-bar' },
   { name: 'Strict Toes-to-rings', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['T2R'], baseMovementName: 'Kipping Toes-to-bar', description: 'Hang from the rings with straight arms and no kip. Flex the trunk and hips to raise the feet until the toes contact the rings, then lower under control.', videoUrl: 'https://www.crossfit.com/essentials/the-strict-toes-to-rings' },
   { name: 'Sumo Deadlift', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Deadlift', description: 'Take a wide stance with the toes turned out and grip the bar inside the legs. Brace the trunk and extend the knees and hips to stand tall with the bar at the hips.', videoUrl: 'https://www.crossfit.com/essentials/the-sumo-deadlift' },
@@ -849,6 +929,22 @@ export const movements: readonly MovementSeed[] = [
   { name: 'Sit-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Sit Up'], description: 'Begin seated or lying with the feet anchored or positioned as prescribed. Lower the torso under control, then flex the trunk to return to the top position.' },
   { name: 'V-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['V Up'], baseMovementName: 'Sit-up', description: 'Lie flat with arms and legs extended, then simultaneously lift the torso and straight legs to meet above the hips. Lower both under control to the start position.' },
   { name: 'Bear Crawl', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DISTANCE', 'DURATION'], isFoundational: false, aliases: [], description: 'Move on hands and feet with the knees hovering close to the floor, keeping the trunk braced and hips controlled while traveling the prescribed distance or duration.' },
+  { name: 'Arch Hold and Rocks', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS', 'DURATION'], isFoundational: false, aliases: ['Arch Hold', 'Arch Rocks'], description: 'Lie face down with the arms extended overhead. Lift the chest, arms, and legs while keeping the body long; hold the arch position or rock smoothly without losing tension.', videoUrl: 'https://youtu.be/jelLnjPq4ck?si=uyYyWSCB77fwowOa' },
+  { name: 'Arch-Hollow Tension Drill', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Arch Hollow Tension Drill'], description: 'Move between controlled arch and hollow body positions while keeping the arms and legs extended and maintaining continuous trunk tension through each transition.', videoUrl: 'https://youtu.be/LZfVkXz1QR8' },
+  { name: 'Box Handstand Shrugs', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Box Handstand Shrug'], baseMovementName: 'Handstand', description: 'Place the feet on a box and support the body on straight arms with the hips stacked toward the shoulders. Keep the elbows locked while pressing tall through the shoulders and then relaxing the shoulder blades under control.', videoUrl: 'https://youtu.be/pBrEeSGXpKU' },
+  { name: 'Box Support Hold', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Box Support Holds'], description: 'Support the body between stable boxes with straight arms, shoulders pressed down, and the trunk braced. Keep the feet clear of the floor and hold a controlled support position.', videoUrl: 'https://youtube.com/shorts/Y_z15HHdfAk' },
+  { name: 'Hollow Hold', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Hollow Body Hold'], description: 'Lie on the back, press the lower back into the floor, and lift the shoulders and legs. Extend the arms overhead and hold a long hollow position without allowing the lower back to arch.', videoUrl: 'https://youtu.be/qU0r6449do4' },
+  { name: 'Hollow Rocks', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS', 'DURATION'], isFoundational: false, aliases: ['Hollow Rock'], baseMovementName: 'Hollow Hold', description: 'Maintain a hollow body position with the lower back pressed into the floor and rock smoothly from the shoulders toward the hips without changing the body shape.', videoUrl: 'https://youtu.be/p7j02V1fIzU?si=i3ws9X6dcJkRa7XC' },
+  { name: 'Hollow Static Pike-up Sliders', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Hollow Pike-up Sliders', 'Pike-up Sliders'], description: 'Start in a hollow plank with the feet on sliders. Keep the legs straight and shoulders active while drawing the feet toward the hands to lift the hips into a pike, then return under control.', videoUrl: 'https://youtu.be/OHdf8Vdr1rI' },
+  { name: 'Kip Swing', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Kipping Swing'], baseMovementName: 'Pull-up', description: 'Hang from the bar with active shoulders and alternate between hollow and arch positions. Drive the movement from the shoulders and trunk while keeping the legs together and the swing controlled.', videoUrl: 'https://youtu.be/18pVtOJ2RxI' },
+  { name: 'Ring Support Tuck-ups', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Ring Support Tuck-up'], description: 'Hold a stable straight-arm support on the rings. Keep the shoulders pressed down while drawing the knees toward the chest, then extend the legs again without losing ring control.', videoUrl: 'https://youtube.com/shorts/atSSUjbhqNc' },
+  { name: 'Shoulder Opener', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Shoulder Opening Drill'], description: 'Kneel with the hands supported on an elevated surface and the arms straight. Brace the trunk and gently lower the chest between the arms to open the shoulders without forcing the lower back to arch.', videoUrl: 'https://youtube.com/shorts/_wQxN_JXbXg' },
+  { name: 'Superman Hold', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['DURATION'], isFoundational: false, aliases: ['Superman'], description: 'Lie face down with the arms extended overhead. Lift the chest, arms, and legs from the floor, keep the neck neutral, and hold the position with tension through the back and glutes.', videoUrl: 'https://youtu.be/zD2MQNR6QeY' },
+  { name: 'Toe-assist Pull-up', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['Toe Assisted Pull-up', 'Toe-assist Pull Up'], baseMovementName: 'Strict Pull-up', description: 'Stand beneath the bar with the toes lightly supported on a box. Use only the assistance needed from the legs while pulling until the chin clears the bar, then lower under control to straight arms.', videoUrl: 'https://youtube.com/shorts/P35ieuSTllU' },
+  { name: 'Muscle Clean', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor, extend the knees and hips powerfully, and continue pulling the bar upward. Rotate the elbows through to receive it on the shoulders without re-bending the knees or dropping into a squat.', videoUrl: 'https://www.youtube.com/watch?v=K7CctePUCYA' },
+  { name: 'Clean Pull', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor with the clean setup, keep it close to the body, and extend the knees and hips explosively. Finish tall with a strong shrug without turning the elbows through to receive the bar.', videoUrl: 'https://www.youtube.com/watch?v=1WuSiyM-knI' },
+  { name: 'Squat Clean', categoryKey: 'WEIGHTLIFTING', measurementTypeKeys: ['WEIGHT', 'REPS'], isFoundational: false, aliases: [], baseMovementName: 'Clean', description: 'Lift the bar from the floor, extend the hips and knees powerfully, then pull under and receive it on the shoulders in a full front squat. Stand to complete hip and knee extension before finishing the repetition.', videoUrl: 'https://www.crossfit.com/essentials/squat-clean-progression' },
+  { name: 'Burpee Over the Bar', categoryKey: 'GYMNASTICS', measurementTypeKeys: ['REPS'], isFoundational: false, aliases: ['BOB', 'Burpees Over the Bar', 'Bar-over Burpee'], baseMovementName: 'Burpee', description: 'Perform a burpee beside or facing the bar until the chest and thighs contact the floor. Return to the feet, jump over the bar with both feet, land under control, and begin the next repetition on the opposite side.', videoUrl: 'https://www.youtube.com/watch?v=D7rAEEE_H9A' },
 ];
 
 export async function seedMovements(prisma: PrismaClient): Promise<void> {

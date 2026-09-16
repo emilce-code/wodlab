@@ -128,26 +128,36 @@ The initial MVP includes:
 - Workout history
 - Personal records
 
-## Out of scope for the MVP
+## Delivered product scope
 
-Do not implement yet:
+The repository has grown beyond the initial individual-athlete MVP. Existing
+features now include:
 
-- Coach dashboards
-- Box management
-- Class scheduling
+- Coach dashboards, programming, monitoring, feedback, and analytics
+- Multi-tenant Box management and Box-scoped catalogs
+- Capacity-limited class scheduling, booking, and attendance
+- Privacy-first workout leaderboards
+- Training-load and performance analytics
+- Installable PWA and offline result submission
+- Mobile-first athlete, coach, class, and administration experiences
+
+Preserve and extend these capabilities when implementing new work.
+
+## Deferred scope
+
+Do not implement without a backlog item or explicit request:
+
 - Social feeds
-- Leaderboards
-- AI recommendations
-- AI workout generation
-- Advanced analytics
-- Payments
-- Subscriptions
-- Push notifications
-- Mobile-specific features
-- Health integrations
-- Background workers
+- Payments and subscriptions
+- Browser or native push delivery
+- Native React Native or Expo applications
+- Apple Health or Health Connect integrations
+- AI recommendations or workout generation
+- Redis, BullMQ, or background workers
 
-These may be added later after the core product is stable.
+The current delivery backlog identifies Box membership lifecycle and invitations
+as the next planned phase. Recurring classes, waitlists, attendance reporting,
+native mobile, health integrations, and AI remain later work.
 
 ## Repository structure
 
