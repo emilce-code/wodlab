@@ -99,7 +99,11 @@ type WorkoutMovementForResult = {
 };
 
 type PercentageExecutionSnapshot = {
-  workoutMovementPrescriptionId: string;
+  workoutMovementPrescription: {
+    connect: {
+      id: string;
+    };
+  };
   prescribedPercentage: number;
   referenceRepMax: number;
   referenceLoad: number;
@@ -1539,7 +1543,11 @@ export class WorkoutResultsService {
       const percentage = Number(prescription.percentage);
 
       snapshots.set(movement.workoutMovementId, {
-        workoutMovementPrescriptionId: prescriptionId,
+        workoutMovementPrescription: {
+          connect: {
+            id: prescriptionId,
+          },
+        },
         prescribedPercentage: percentage,
         referenceRepMax: prescription.referenceRepMax,
         referenceLoad: this.roundLoad(referenceLoad),
