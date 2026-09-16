@@ -12,7 +12,9 @@ export type MovementSeed = {
   videoUrl?: string;
 };
 
-type SeedLocale = 'en' | 'es' | 'pt';
+export const movementSeedLocales = ['en', 'es', 'pt'] as const;
+
+type SeedLocale = (typeof movementSeedLocales)[number];
 
 type LocalizedMovementDescription = {
   es: string;
@@ -61,7 +63,7 @@ const foundationalMovementTranslations: Record<
   },
 };
 
-function getMovementTranslations(movement: MovementSeed) {
+export function getMovementTranslations(movement: MovementSeed) {
   const localized = foundationalMovementTranslations[movement.name];
 
   if (movement.isFoundational && !localized) {
@@ -72,14 +74,15 @@ function getMovementTranslations(movement: MovementSeed) {
 
   const translations: { locale: SeedLocale; description: string }[] = [
     { locale: 'en', description: movement.description },
+    {
+      locale: 'es',
+      description: localized?.es ?? movement.description,
+    },
+    {
+      locale: 'pt',
+      description: localized?.pt ?? movement.description,
+    },
   ];
-
-  if (localized) {
-    translations.push(
-      { locale: 'es', description: localized.es },
-      { locale: 'pt', description: localized.pt },
-    );
-  }
 
   return translations;
 }
@@ -322,4 +325,7 @@ export async function seedMovements(prisma: PrismaClient): Promise<void> {
   }
 
   console.log(`    ✓ ${movements.length} movements seeded`);
+  console.log(
+    `    ✓ ${movements.length * movementSeedLocales.length} movement translations seeded`,
+  );
 }
