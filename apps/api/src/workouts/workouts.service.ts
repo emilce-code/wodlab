@@ -297,9 +297,7 @@ export class WorkoutsService {
         : Promise.resolve(0),
     ]);
 
-    const items = workouts.map((workout) =>
-      this.mapWorkout(workout, context),
-    );
+    const items = workouts.map((workout) => this.mapWorkout(workout, context));
 
     return paginationRequested
       ? createPaginatedResponse(items, total, page, pageSize)
@@ -352,7 +350,7 @@ export class WorkoutsService {
         select: { id: true },
       });
       if (!workoutType) {
-        throw new NotFoundException(`Workout type \"${dto.typeKey}\" not found`);
+        throw new NotFoundException(`Workout type "${dto.typeKey}" not found`);
       }
 
       return tx.workout.create({
@@ -616,7 +614,7 @@ export class WorkoutsService {
       userId: user.userId,
       appRole: dbUser.role,
       activeBoxId: activeMembership ? dbUser.activeBoxId : null,
-      activeBoxName: activeMembership ? dbUser.activeBox?.name ?? null : null,
+      activeBoxName: activeMembership ? (dbUser.activeBox?.name ?? null) : null,
       activeBoxRole: activeMembership?.role ?? null,
     };
   }
@@ -656,8 +654,7 @@ export class WorkoutsService {
         : { id: '__never__' };
 
     const boxVisible: Prisma.WorkoutWhereInput =
-      context.activeBoxId &&
-      (!archived || this.canManageActiveBox(context))
+      context.activeBoxId && (!archived || this.canManageActiveBox(context))
         ? {
             scope: 'BOX',
             boxId: context.activeBoxId,
@@ -699,10 +696,7 @@ export class WorkoutsService {
     return allVisible;
   }
 
-  private canViewWorkout(
-    workout: WorkoutWithDetails,
-    context: CatalogContext,
-  ) {
+  private canViewWorkout(workout: WorkoutWithDetails, context: CatalogContext) {
     if (workout.scope === 'GLOBAL') {
       return workout.isActive || context.appRole === 'ADMIN';
     }
@@ -802,9 +796,7 @@ export class WorkoutsService {
     }
 
     if (dto.variants.length === 0) {
-      throw new BadRequestException(
-        'At least one workout variant is required',
-      );
+      throw new BadRequestException('At least one workout variant is required');
     }
 
     const levelKeys = new Set<string>();
@@ -946,31 +938,29 @@ export class WorkoutsService {
                 },
               },
               prescriptions: {
-                create: (movement.prescriptions ?? []).map(
-                  (prescription) => ({
-                    reps: prescription.reps,
-                    weight: prescription.weight,
-                    weightUnit: prescription.weightUnit,
-                    percentage: prescription.percentage,
-                    referenceRepMax: prescription.referenceRepMax,
-                    referenceMovement: prescription.referenceMovementId
-                      ? {
-                          connect: {
-                            id: prescription.referenceMovementId,
-                          },
-                        }
-                      : undefined,
-                    distance: prescription.distance,
-                    calories: prescription.calories,
-                    durationSeconds: prescription.durationSeconds,
-                    notes: prescription.notes,
-                    prescriptionCategory: {
-                      connect: {
-                        key: prescription.categoryKey,
-                      },
+                create: (movement.prescriptions ?? []).map((prescription) => ({
+                  reps: prescription.reps,
+                  weight: prescription.weight,
+                  weightUnit: prescription.weightUnit,
+                  percentage: prescription.percentage,
+                  referenceRepMax: prescription.referenceRepMax,
+                  referenceMovement: prescription.referenceMovementId
+                    ? {
+                        connect: {
+                          id: prescription.referenceMovementId,
+                        },
+                      }
+                    : undefined,
+                  distance: prescription.distance,
+                  calories: prescription.calories,
+                  durationSeconds: prescription.durationSeconds,
+                  notes: prescription.notes,
+                  prescriptionCategory: {
+                    connect: {
+                      key: prescription.categoryKey,
                     },
-                  }),
-                ),
+                  },
+                })),
               },
             })),
           },

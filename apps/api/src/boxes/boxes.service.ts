@@ -478,17 +478,12 @@ export class BoxesService {
         ...session,
         bookedCount: session.bookings.length,
         currentUserBooking:
-          session.bookings.find((booking) => booking.userId === userId) ??
-          null,
+          session.bookings.find((booking) => booking.userId === userId) ?? null,
       })),
     };
   }
 
-  async createClass(
-    userId: string,
-    boxId: string,
-    dto: CreateClassSessionDto,
-  ) {
+  async createClass(userId: string, boxId: string, dto: CreateClassSessionDto) {
     await this.requireStaff(userId, boxId);
 
     const startsAt = new Date(dto.startsAt);
@@ -628,10 +623,7 @@ export class BoxesService {
           },
         });
 
-        if (
-          existing?.status === 'BOOKED' ||
-          existing?.status === 'ATTENDED'
-        ) {
+        if (existing?.status === 'BOOKED' || existing?.status === 'ATTENDED') {
           throw new ConflictException('You are already booked');
         }
 
