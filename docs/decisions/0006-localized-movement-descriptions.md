@@ -24,10 +24,12 @@ unchanged, so API consumers continue to read `name` and `description` without
 needing translation-specific fields.
 
 `Movement.description` remains available for custom movements and backward
-compatibility. Seeded global movements receive an English translation, and the
-nine foundational movements also receive curated Spanish and Portuguese
-descriptions. Additional catalog translations can be added incrementally without
-another schema change.
+compatibility. Every seeded global movement receives `en`, `es`, and `pt`
+translation records. The nine foundational movements have curated Spanish and
+Portuguese descriptions; other seeded movements initially use the canonical
+English description in those locale records until curated translations are added.
+Additional catalog translations can be introduced incrementally without another
+schema change.
 
 ## Consequences
 
