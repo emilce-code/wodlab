@@ -8,10 +8,14 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(_request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
 
-  const response = await authenticatedApiFetch(`/movements/${id}`);
+  const response = await authenticatedApiFetch(`/movements/${id}`, {
+    headers: {
+      "Accept-Language": request.headers.get("accept-language") ?? "en",
+    },
+  });
 
   if (!response) {
     return NextResponse.json(

@@ -24,7 +24,11 @@ export async function GET(request: NextRequest) {
 
   const suffix = query.toString() ? `?${query.toString()}` : "";
 
-  const response = await authenticatedApiFetch(`/movements${suffix}`);
+  const response = await authenticatedApiFetch(`/movements${suffix}`, {
+    headers: {
+      "Accept-Language": request.headers.get("accept-language") ?? "en",
+    },
+  });
 
   if (!response) {
     return NextResponse.json(

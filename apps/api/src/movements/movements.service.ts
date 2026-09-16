@@ -23,6 +23,7 @@ import { UpdateMovementDto } from './dto/update-movement.dto';
 
 const movementManagementInclude = {
   category: true,
+  translations: true,
   box: {
     select: {
       id: true,
@@ -97,6 +98,46 @@ type MovementCatalogContext = {
   activeBoxRole: 'OWNER' | 'COACH' | 'ATHLETE' | null;
 };
 
+type MovementLocale = 'en' | 'es' | 'pt';
+
+const supportedMovementLocales = new Set<MovementLocale>(['en', 'es', 'pt']);
+
+function resolveMovementLocale(acceptLanguage?: string): MovementLocale {
+  if (!acceptLanguage) return 'en';
+
+  const preferences = acceptLanguage
+    .split(',')
+    .map((entry, index) => {
+      const [languageRange, ...parameters] = entry.trim().split(';');
+      const qualityParameter = parameters.find((parameter) =>
+        parameter.trim().startsWith('q='),
+      );
+      const quality = qualityParameter
+        ? Number.parseFloat(qualityParameter.trim().slice(2))
+        : 1;
+
+      return {
+        index,
+        language: languageRange.toLowerCase().split('-')[0],
+        quality: Number.isFinite(quality) ? quality : 0,
+      };
+    })
+    .sort(
+      (left, right) => right.quality - left.quality || left.index - right.index,
+    );
+
+  for (const preference of preferences) {
+    if (
+      preference.quality > 0 &&
+      supportedMovementLocales.has(preference.language as MovementLocale)
+    ) {
+      return preference.language as MovementLocale;
+    }
+  }
+
+  return 'en';
+}
+
 @Injectable()
 export class MovementsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -104,6 +145,7 @@ export class MovementsService {
   async findAll(
     query: FindMovementsQueryDto,
     user: AuthenticatedUser,
+    acceptLanguage?: string,
   ): Promise<MovementResponseDto[] | PaginatedResponse<MovementResponseDto>> {
     const {
       search,
@@ -157,10 +199,7 @@ export class MovementsService {
     } satisfies Prisma.MovementWhereInput;
 
     const where = {
-      AND: [
-        this.movementVisibilityWhere(context, scope ?? 'all'),
-        filters,
-      ],
+      AND: [this.movementVisibilityWhere(context, scope ?? 'all'), filters],
     } satisfies Prisma.MovementWhereInput;
 
     const paginationRequested = page !== undefined || pageSize !== undefined;
@@ -188,7 +227,10 @@ export class MovementsService {
         : Promise.resolve(0),
     ]);
 
-    const items = movements.map((movement) => this.mapMovement(movement, user));
+    const locale = resolveMovementLocale(acceptLanguage);
+    const items = movements.map((movement) =>
+      this.mapMovement(movement, user, locale),
+    );
 
     return paginationRequested
       ? createPaginatedResponse(items, total, resolvedPage, resolvedPageSize)
@@ -198,6 +240,7 @@ export class MovementsService {
   async findOne(
     movementId: string,
     user: AuthenticatedUser,
+    acceptLanguage?: string,
   ): Promise<MovementResponseDto> {
     const context = await this.getCatalogContext(user);
     const movement = await this.prisma.movement.findUnique({
@@ -212,7 +255,11 @@ export class MovementsService {
       throw new NotFoundException('Movement not found');
     }
 
-    return this.mapMovement(movement, user);
+    return this.mapMovement(
+      movement,
+      user,
+      resolveMovementLocale(acceptLanguage),
+    );
   }
 
   async create(user: AuthenticatedUser, dto: CreateMovementDto) {
@@ -1154,6 +1201,11 @@ export class MovementsService {
       boxId: string | null;
       box: { id: string; name: string } | null;
       createdByUserId: string | null;
+      translations: {
+        locale: string;
+        name: string | null;
+        description: string;
+      }[];
 
       category: {
         key: string;
@@ -1174,6 +1226,7 @@ export class MovementsService {
       };
     },
     user: AuthenticatedUser,
+    locale: MovementLocale = 'en',
   ): MovementResponseDto {
     const canManage =
       user.role === 'ADMIN' ||
@@ -1181,11 +1234,18 @@ export class MovementsService {
     const hasDependencies = Object.values(movement._count).some(
       (count) => count > 0,
     );
+    const localizedTranslation = movement.translations.find(
+      (translation) => translation.locale === locale,
+    );
+    const englishTranslation = movement.translations.find(
+      (translation) => translation.locale === 'en',
+    );
 
     return {
       id: movement.id,
 
-      name: movement.name,
+      name:
+        localizedTranslation?.name ?? englishTranslation?.name ?? movement.name,
 
       category: {
         key: movement.category.key,
@@ -1209,7 +1269,10 @@ export class MovementsService {
 
       aliases: movement.aliases,
 
-      description: movement.description,
+      description:
+        localizedTranslation?.description ??
+        englishTranslation?.description ??
+        movement.description,
 
       videoUrl: movement.videoUrl,
 
