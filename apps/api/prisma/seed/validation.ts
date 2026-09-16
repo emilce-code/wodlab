@@ -6,7 +6,11 @@ import {
   workoutLevels,
   workoutTypes,
 } from './reference-data';
-import { movements } from './movements';
+import {
+  getMovementTranslations,
+  movements,
+  movementSeedLocales,
+} from './movements';
 
 function ensureUnique(
   values: readonly string[],
@@ -64,6 +68,20 @@ export function validateSeedData(): void {
   );
 
   for (const movement of movements) {
+    const translationLocales = new Set(
+      getMovementTranslations(movement).map(
+        (translation) => translation.locale,
+      ),
+    );
+
+    for (const locale of movementSeedLocales) {
+      if (!translationLocales.has(locale)) {
+        throw new Error(
+          `Movement "${movement.name}" is missing the "${locale}" seed translation.`,
+        );
+      }
+    }
+
     if (!movementCategoryKeys.has(movement.categoryKey)) {
       throw new Error(
         `Movement "${movement.name}" references unknown category "${movement.categoryKey}".`,

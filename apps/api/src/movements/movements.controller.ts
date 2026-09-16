@@ -42,8 +42,12 @@ export class MovementsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Req() request: AuthenticatedRequest, @Body() dto: CreateMovementDto) {
-    return this.movementsService.create(request.user, dto);
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: CreateMovementDto,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
+    return this.movementsService.create(request.user, dto, acceptLanguage);
   }
 
   @UseGuards(JwtAuthGuard)

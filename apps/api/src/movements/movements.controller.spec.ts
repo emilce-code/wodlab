@@ -10,6 +10,7 @@ describe('MovementsController', () => {
   const movementsServiceMock = {
     findAll: jest.fn(),
     findOne: jest.fn(),
+    create: jest.fn(),
   };
 
   const request = {
@@ -65,6 +66,23 @@ describe('MovementsController', () => {
     expect(movementsServiceMock.findOne).toHaveBeenCalledWith(
       'movement-1',
       request.user,
+      'pt-BR',
+    );
+  });
+
+  it('forwards the selected language when creating a movement', async () => {
+    const dto = {
+      name: 'Custom movement',
+      categoryKey: 'OTHER',
+      measurementTypeKeys: ['REPS'],
+      description: 'Descrição personalizada',
+    };
+
+    await controller.create(request as never, dto, 'pt-BR');
+
+    expect(movementsServiceMock.create).toHaveBeenCalledWith(
+      request.user,
+      dto,
       'pt-BR',
     );
   });

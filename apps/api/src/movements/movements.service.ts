@@ -262,11 +262,17 @@ export class MovementsService {
     );
   }
 
-  async create(user: AuthenticatedUser, dto: CreateMovementDto) {
+  async create(
+    user: AuthenticatedUser,
+    dto: CreateMovementDto,
+    acceptLanguage?: string,
+  ) {
     const context = await this.getCatalogContext(user);
     const target = this.resolveCreationScope(context);
     const references = await this.resolveMovementReferences(dto);
     const aliases = this.normalizeAliases(dto.aliases);
+    const locale = resolveMovementLocale(acceptLanguage);
+    const description = dto.description ?? '';
 
     try {
       const movement = await this.prisma.movement.create({
@@ -279,9 +285,15 @@ export class MovementsService {
           official: false,
           scope: target.scope,
           boxId: target.boxId,
-          description: dto.description || null,
+          description,
           videoUrl: dto.videoUrl || null,
           createdByUserId: user.userId,
+          translations: {
+            create: {
+              locale,
+              description,
+            },
+          },
           measurementTypes: {
             create: references.measurementTypeIds.map((measurementTypeId) => ({
               measurementTypeId,
@@ -291,7 +303,7 @@ export class MovementsService {
         include: movementManagementInclude,
       });
 
-      return this.mapMovement(movement, user);
+      return this.mapMovement(movement, user, locale);
     } catch (error) {
       this.handleMovementWriteError(error);
     }
@@ -1237,15 +1249,10 @@ export class MovementsService {
     const localizedTranslation = movement.translations.find(
       (translation) => translation.locale === locale,
     );
-    const englishTranslation = movement.translations.find(
-      (translation) => translation.locale === 'en',
-    );
-
     return {
       id: movement.id,
 
-      name:
-        localizedTranslation?.name ?? englishTranslation?.name ?? movement.name,
+      name: localizedTranslation?.name ?? movement.name,
 
       category: {
         key: movement.category.key,
@@ -1269,10 +1276,7 @@ export class MovementsService {
 
       aliases: movement.aliases,
 
-      description:
-        localizedTranslation?.description ??
-        englishTranslation?.description ??
-        movement.description,
+      description: localizedTranslation?.description ?? movement.description,
 
       videoUrl: movement.videoUrl,
 
