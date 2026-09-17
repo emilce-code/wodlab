@@ -115,6 +115,24 @@ export class AthleteProfilesService {
             }
           : {}),
 
+        ...(dto.avatarUrl !== undefined
+          ? { avatarUrl: dto.avatarUrl?.trim() || null }
+          : {}),
+
+        ...(dto.bio !== undefined ? { bio: dto.bio?.trim() || null } : {}),
+
+        ...(dto.trainingGoals !== undefined
+          ? { trainingGoals: dto.trainingGoals }
+          : {}),
+
+        ...(dto.weeklyTrainingTarget !== undefined
+          ? { weeklyTrainingTarget: dto.weeklyTrainingTarget }
+          : {}),
+
+        ...(dto.loadRoundingIncrement !== undefined
+          ? { loadRoundingIncrement: dto.loadRoundingIncrement }
+          : {}),
+
         ...(preferredWorkoutLevelId !== undefined
           ? {
               preferredWorkoutLevelId,
