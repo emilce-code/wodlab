@@ -70,6 +70,7 @@ type ValidationIssue = {
   message: string;
   field?: ScoreField;
   section?: "movements" | "details";
+  movementId?: string;
 };
 
 type SubmittedMovement = {
@@ -266,6 +267,9 @@ export default function LogResultForm({
   const [movementDetailsOpen, setMovementDetailsOpen] = useState(
     Boolean(result?.performedMovements.length || percentageTargets.length),
   );
+  const [expandedMovementIds, setExpandedMovementIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [resultDetailsOpen, setResultDetailsOpen] = useState(
     isEditing || Boolean(result?.notes),
   );
@@ -384,6 +388,20 @@ export default function LogResultForm({
         ...changes,
       },
     }));
+  }
+
+  function toggleMovementDetails(workoutMovementId: string) {
+    setExpandedMovementIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(workoutMovementId)) {
+        next.delete(workoutMovementId);
+      } else {
+        next.add(workoutMovementId);
+      }
+
+      return next;
+    });
   }
 
   function updateScoreField(
@@ -641,7 +659,11 @@ export default function LogResultForm({
       const movementError = validateMovementPerformance(item);
 
       if (movementError) {
-        return { message: movementError, section: "movements" };
+        return {
+          message: movementError,
+          section: "movements",
+          movementId: item.id,
+        };
       }
     }
 
@@ -677,6 +699,11 @@ export default function LogResultForm({
 
       if (validationError.section === "movements") {
         setMovementDetailsOpen(true);
+        if (validationError.movementId) {
+          setExpandedMovementIds((current) =>
+            new Set(current).add(validationError.movementId!),
+          );
+        }
       }
 
       if (validationError.section === "details") {
@@ -828,6 +855,7 @@ export default function LogResultForm({
     setPerformedTime(getLocalTimeValue());
     setNotes("");
     setMovementDetailsOpen(false);
+    setExpandedMovementIds(new Set());
     setResultDetailsOpen(false);
     setScoreErrors({});
   }
@@ -1076,27 +1104,55 @@ export default function LogResultForm({
 
                   const showReps = supportsWeight || supportsReps;
                   const percentageTarget = getPercentageTarget(item);
+                  const movementIsExpanded = expandedMovementIds.has(item.id);
+                  const movementHasValues = hasAnyMovementValue(performance);
+                  const movementContentId = `movement-performance-${item.id}`;
 
                   return (
                     <div
                       key={item.id}
-                      className="rounded-lg border border-border bg-background p-4"
+                      className="overflow-hidden rounded-lg border border-border bg-background"
                     >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">{item.movement.name}</p>
+                      <button
+                        type="button"
+                        aria-expanded={movementIsExpanded}
+                        aria-controls={movementContentId}
+                        onClick={() => toggleMovementDetails(item.id)}
+                        className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold">
+                            {item.movement.name}
+                          </span>
+                          <span className="mt-1 flex flex-wrap gap-1.5">
+                            {item.movement.measurementTypes.map((type) => (
+                              <span
+                                key={type.key}
+                                className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
+                              >
+                                {measurementT(type.key.toLowerCase())}
+                              </span>
+                            ))}
+                            {movementHasValues ? (
+                              <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                                {t("detailsAdded")}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className="shrink-0 text-xl text-muted"
+                        >
+                          {movementIsExpanded ? "−" : "+"}
+                        </span>
+                      </button>
 
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.movement.measurementTypes.map((type) => (
-                            <span
-                              key={type.key}
-                              className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
-                            >
-                              {measurementT(type.key.toLowerCase())}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
+                      {movementIsExpanded ? (
+                        <div
+                          id={movementContentId}
+                          className="border-t border-border p-4"
+                        >
                       {percentageTarget && (
                         <div className="mt-3 rounded-xl border border-accent/25 bg-accent/5 p-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
@@ -1283,6 +1339,8 @@ export default function LogResultForm({
                           />
                         )}
                       </div>
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}

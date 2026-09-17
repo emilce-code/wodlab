@@ -1075,7 +1075,8 @@
     "default": "Ingresa el resultado principal de este entrenamiento."
   },
       "movementDetails": "Rendimiento por movimiento",
-      "movementDetailsDescription": "{count, plural, =1 {Agrega detalles opcionales para 1 movimiento} other {Agrega detalles opcionales para # movimientos}}",
+  "movementDetailsDescription": "{count, plural, =1 {Agrega detalles opcionales para 1 movimiento} other {Agrega detalles opcionales para # movimientos}}",
+  "detailsAdded": "Detalles agregados",
       "percentageTarget": "{percentage}% de tu {reps}RM",
       "percentageSource": "Basado en tu mejor marca de {load} {unit}",
       "percentageMissingRm": "Registra un {reps}RM exacto de {movement} para calcular esta carga.",
