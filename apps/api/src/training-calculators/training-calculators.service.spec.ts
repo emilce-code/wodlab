@@ -9,6 +9,7 @@ describe('TrainingCalculatorsService', () => {
 
   const prismaMock = {
     athleteProfile: { findUnique: jest.fn() },
+    workoutMovement: { findMany: jest.fn() },
     workoutMovementPrescription: { findMany: jest.fn() },
     movementResult: { findMany: jest.fn() },
   };
@@ -22,6 +23,7 @@ describe('TrainingCalculatorsService', () => {
     }).compile();
 
     service = module.get(TrainingCalculatorsService);
+    prismaMock.workoutMovement.findMany.mockResolvedValue([]);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -96,6 +98,43 @@ describe('TrainingCalculatorsService', () => {
       where: { OR: Array<{ movementId: string; reps: number }> };
     };
     expect(query.where.OR).toEqual([{ movementId: 'movement-1', reps: 5 }]);
+  });
+
+  it('calculates a generic movement target without a prescription category', async () => {
+    prismaMock.athleteProfile.findUnique.mockResolvedValue({
+      id: 'athlete-1',
+      preferredWeightUnit: 'KG',
+    });
+    prismaMock.workoutMovementPrescription.findMany.mockResolvedValue([]);
+    prismaMock.workoutMovement.findMany.mockResolvedValue([
+      {
+        id: 'workout-movement-1',
+        movementId: 'movement-1',
+        percentage: 70,
+        referenceRepMax: 1,
+        movement: { id: 'movement-1', name: 'Clean' },
+      },
+    ]);
+    prismaMock.movementResult.findMany.mockResolvedValue([
+      {
+        movementId: 'movement-1',
+        reps: 1,
+        load: 100,
+        weightUnit: 'KG',
+        performedAt: new Date('2026-09-01T10:00:00.000Z'),
+      },
+    ]);
+
+    const result = await service.getWorkoutTargets('user-1', 'workout-1');
+
+    expect(result.targets[0]).toMatchObject({
+      prescriptionId: null,
+      workoutMovementId: 'workout-movement-1',
+      prescriptionCategoryKey: '',
+      percentage: 70,
+      referenceRepMax: 1,
+      target: { load: 70, weightUnit: 'KG' },
+    });
   });
 
   it('rejects users without an athlete profile', async () => {

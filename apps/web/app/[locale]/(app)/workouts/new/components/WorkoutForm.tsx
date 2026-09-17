@@ -53,6 +53,8 @@ export type EditableWorkout = {
         reps: number | null;
         weight: number | null;
         weightUnit: "KG" | "LB" | null;
+        percentage: number | null;
+        referenceRepMax: number | null;
         distance: number | null;
         calories: number | null;
         durationSeconds: number | null;
@@ -105,6 +107,8 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
         reps: formValue(item.reps),
         weight: formValue(item.weight),
         weightUnit: item.weightUnit ?? "",
+        percentage: formValue(item.percentage),
+        referenceRepMax: formValue(item.referenceRepMax) || "1",
         distance: formValue(item.distance),
         calories: formValue(item.calories),
         durationSeconds: formValue(item.durationSeconds),
@@ -467,6 +471,8 @@ export default function WorkoutForm({
               reps: formValue(item.reps),
               weight: formValue(item.weight),
               weightUnit: item.weightUnit ?? "",
+              percentage: "",
+              referenceRepMax: "1",
               distance: formValue(item.distance),
               calories: formValue(item.calories),
               durationSeconds: formValue(item.durationSeconds),
@@ -781,6 +787,12 @@ export default function WorkoutForm({
 
               weightUnit: movement.weightUnit || undefined,
 
+              percentage: optionalNumber(movement.percentage),
+
+              referenceRepMax: movement.percentage
+                ? optionalNumber(movement.referenceRepMax)
+                : undefined,
+
               distance: optionalNumber(movement.distance),
 
               calories: optionalNumber(movement.calories),
@@ -929,6 +941,10 @@ export default function WorkoutForm({
 
     if (movement.weight) {
       values.push(`${movement.weight} ${movement.weightUnit}`.trim());
+    }
+
+    if (movement.percentage && movement.referenceRepMax) {
+      values.push(`${movement.percentage}% · ${movement.referenceRepMax}RM`);
     }
 
     if (movement.distance) {

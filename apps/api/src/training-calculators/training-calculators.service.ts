@@ -13,8 +13,8 @@ export class TrainingCalculatorsService {
     });
     if (!athlete) throw new NotFoundException('Athlete profile not found');
 
-    const prescriptions =
-      await this.prisma.workoutMovementPrescription.findMany({
+    const [prescriptions, sharedMovements] = await Promise.all([
+      this.prisma.workoutMovementPrescription.findMany({
         where: {
           workoutMovement: { section: { variant: { workoutId } } },
           percentage: { not: null },
@@ -29,15 +29,49 @@ export class TrainingCalculatorsService {
           prescriptionCategory: { select: { key: true } },
           referenceMovement: { select: { id: true, name: true } },
         },
-      });
+      }),
+      this.prisma.workoutMovement.findMany({
+        where: {
+          section: { variant: { workoutId } },
+          percentage: { not: null },
+          referenceRepMax: { not: null },
+        },
+        select: {
+          id: true,
+          movementId: true,
+          percentage: true,
+          referenceRepMax: true,
+          movement: { select: { id: true, name: true } },
+        },
+      }),
+    ]);
+
+    const sources = [
+      ...sharedMovements.map((movement) => ({
+        prescriptionId: null,
+        workoutMovementId: movement.id,
+        prescriptionCategoryKey: '',
+        percentage: movement.percentage,
+        referenceRepMax: movement.referenceRepMax,
+        referenceMovement: movement.movement,
+      })),
+      ...prescriptions.map((prescription) => ({
+        prescriptionId: prescription.id,
+        workoutMovementId: prescription.workoutMovementId,
+        prescriptionCategoryKey: prescription.prescriptionCategory.key,
+        percentage: prescription.percentage,
+        referenceRepMax: prescription.referenceRepMax,
+        referenceMovement: prescription.referenceMovement,
+      })),
+    ];
 
     const pairs = new Map<string, { movementId: string; reps: number }>();
-    for (const prescription of prescriptions) {
-      if (prescription.referenceMovement && prescription.referenceRepMax) {
-        const key = `${prescription.referenceMovement.id}:${prescription.referenceRepMax}`;
+    for (const source of sources) {
+      if (source.referenceMovement && source.referenceRepMax) {
+        const key = `${source.referenceMovement.id}:${source.referenceRepMax}`;
         pairs.set(key, {
-          movementId: prescription.referenceMovement.id,
-          reps: prescription.referenceRepMax,
+          movementId: source.referenceMovement.id,
+          reps: source.referenceRepMax,
         });
       }
     }
@@ -65,11 +99,11 @@ export class TrainingCalculatorsService {
 
     return {
       preferredWeightUnit: athlete.preferredWeightUnit,
-      targets: prescriptions.map((prescription) => {
+      targets: sources.map((source) => {
         const candidates = results.filter(
           (result) =>
-            result.movementId === prescription.referenceMovement?.id &&
-            result.reps === prescription.referenceRepMax,
+            result.movementId === source.referenceMovement?.id &&
+            result.reps === source.referenceRepMax,
         );
         const best = candidates.reduce<(typeof candidates)[number] | null>(
           (current, result) =>
@@ -78,18 +112,14 @@ export class TrainingCalculatorsService {
               : current,
           null,
         );
-        if (
-          !best ||
-          !prescription.referenceMovement ||
-          prescription.percentage === null
-        ) {
+        if (!best || !source.referenceMovement || source.percentage === null) {
           return {
-            prescriptionId: prescription.id,
-            workoutMovementId: prescription.workoutMovementId,
-            prescriptionCategoryKey: prescription.prescriptionCategory.key,
-            percentage: Number(prescription.percentage),
-            referenceRepMax: prescription.referenceRepMax,
-            movement: prescription.referenceMovement,
+            prescriptionId: source.prescriptionId,
+            workoutMovementId: source.workoutMovementId,
+            prescriptionCategoryKey: source.prescriptionCategoryKey,
+            percentage: Number(source.percentage),
+            referenceRepMax: source.referenceRepMax,
+            movement: source.referenceMovement,
             repMax: null,
             target: null,
           };
@@ -100,19 +130,19 @@ export class TrainingCalculatorsService {
           athlete.preferredWeightUnit,
         );
         return {
-          prescriptionId: prescription.id,
-          workoutMovementId: prescription.workoutMovementId,
-          prescriptionCategoryKey: prescription.prescriptionCategory.key,
-          percentage: Number(prescription.percentage),
-          referenceRepMax: prescription.referenceRepMax,
-          movement: prescription.referenceMovement,
+          prescriptionId: source.prescriptionId,
+          workoutMovementId: source.workoutMovementId,
+          prescriptionCategoryKey: source.prescriptionCategoryKey,
+          percentage: Number(source.percentage),
+          referenceRepMax: source.referenceRepMax,
+          movement: source.referenceMovement,
           repMax: {
             load: this.round(repMax),
             weightUnit: athlete.preferredWeightUnit,
             performedAt: best.performedAt,
           },
           target: {
-            load: this.round(repMax * (Number(prescription.percentage) / 100)),
+            load: this.round(repMax * (Number(source.percentage) / 100)),
             weightUnit: athlete.preferredWeightUnit,
           },
         };

@@ -49,6 +49,8 @@ function createEmptyMovement(): WorkoutMovementFormState {
     reps: "",
     weight: "",
     weightUnit: "",
+    percentage: "",
+    referenceRepMax: "1",
     distance: "",
     calories: "",
     durationSeconds: "",

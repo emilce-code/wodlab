@@ -431,6 +431,8 @@ export class WorkoutsService {
                     reps: item.reps,
                     weight: item.weight,
                     weightUnit: item.weightUnit,
+                    percentage: item.percentage,
+                    referenceRepMax: item.referenceRepMax,
                     distance: item.distance,
                     calories: item.calories,
                     durationSeconds: item.durationSeconds,
@@ -928,6 +930,10 @@ export class WorkoutsService {
               reps: movement.reps,
               weight: movement.weight,
               weightUnit: movement.weightUnit,
+              percentage: movement.percentage,
+              referenceRepMax: movement.percentage
+                ? movement.referenceRepMax
+                : undefined,
               distance: movement.distance,
               calories: movement.calories,
               durationSeconds: movement.durationSeconds,
@@ -1030,6 +1036,9 @@ export class WorkoutsService {
             reps: item.reps,
             weight: item.weight === null ? null : Number(item.weight),
             weightUnit: item.weightUnit,
+            percentage:
+              item.percentage === null ? null : Number(item.percentage),
+            referenceRepMax: item.referenceRepMax,
             distance: item.distance,
             calories: item.calories,
             durationSeconds: item.durationSeconds,
