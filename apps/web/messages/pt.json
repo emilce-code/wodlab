@@ -877,6 +877,8 @@
         "descriptionPlaceholder": "Descreva o treino...",
         "type": "Tipo de treino",
         "selectType": "Selecione o tipo de treino",
+        "optionalTitle": "Detalhes opcionais",
+        "optionalSummary": "Descrição e benchmark",
         "benchmark": "Treino benchmark",
         "benchmarkDescription": "Marque este treino como benchmark para acompanhar suas tentativas ao longo do tempo."
       },
@@ -903,6 +905,7 @@
       },
       "sectionBuilder": {
         "section": "Seção {number}",
+        "sectionLabel": "Seção",
         "configureSection": "Configurar seção",
         "expand": "Expandir",
         "collapse": "Recolher",
@@ -928,7 +931,8 @@
         "movementNumber": "Movimento {number}",
         "notes": "Observações",
         "optional": "(opcional)",
-        "notesPlaceholder": "Adicione instruções ou observações para esta seção..."
+        "notesPlaceholder": "Adicione instruções ou observações para esta seção...",
+        "optionalDetails": "Observações opcionais da seção"
       },
       "movementBuilder": {
         "movement": "Movimento",
@@ -940,6 +944,8 @@
         "searchError": "Não foi possível buscar os movimentos.",
         "noResults": "Nenhum movimento encontrado.",
         "prescription": "Prescrição",
+        "addPrescription": "Adicionar detalhes da prescrição",
+        "optionalPrescriptionDescription": "Repetições, cargas, distâncias, metas e observações são opcionais.",
         "reps": "Repetições",
         "weight": "Peso",
         "percentageOfRm": "% do RM",
@@ -968,6 +974,7 @@
         "description": "Defina o treino para cada nível de experiência.",
         "add": "Adicionar variação",
         "variant": "Variação {number}",
+        "variantLabel": "Variação",
         "configure": "Configurar variação",
         "expand": "Expandir",
         "collapse": "Recolher",
@@ -980,6 +987,7 @@
         "notes": "Notas",
         "notesPlaceholder": "Descreva como esta variação é diferente",
         "optional": "Opcional",
+        "optionalDetails": "Nome e observações opcionais da variação",
         "sections": "Seções do treino",
         "sectionsDescription": "Configure as seções desta variação.",
         "addSection": "Adicionar seção",
@@ -1545,6 +1553,13 @@
   "prescriptionCategories": {
     "men": "Homens",
     "women": "Mulheres"
+  },
+  "workoutLevels": {
+    "descriptions": {
+      "rx": "O treino prescrito realizado exatamente como foi escrito.",
+      "intermediate": "Uma opção moderadamente adaptada que preserva o estímulo pretendido.",
+      "beginner": "Uma opção acessível para atletas que estão desenvolvendo força, habilidade ou capacidade."
+    }
   },
   "movementCategories": {
     "weightlifting": "Levantamento de peso",

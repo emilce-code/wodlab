@@ -268,6 +268,10 @@ export default function WorkoutForm({
     initialWorkout?.isBenchmark ?? false,
   );
 
+  const [showOptionalDetails, setShowOptionalDetails] = useState(
+    Boolean(initialWorkout?.description || initialWorkout?.isBenchmark),
+  );
+
   const [variants, setVariants] = useState<WorkoutVariantFormState[]>(() => {
     if (initialWorkout) {
       return mapWorkoutToForm(initialWorkout);
@@ -702,9 +706,7 @@ export default function WorkoutForm({
         current.map((variant) => ({
           ...variant,
           sections: variant.sections.map((section, index) =>
-            index === 0 && !section.typeKey
-              ? { ...section, typeKey }
-              : section,
+            index === 0 && !section.typeKey ? { ...section, typeKey } : section,
           ),
         })),
       );
@@ -848,13 +850,13 @@ export default function WorkoutForm({
       const response = await fetch(
         initialWorkout ? `/api/workouts/${initialWorkout.id}` : "/api/workouts",
         {
-        method: initialWorkout ? "PATCH" : "POST",
+          method: initialWorkout ? "PATCH" : "POST",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-        body: JSON.stringify(payload),
+          body: JSON.stringify(payload),
         },
       );
 
@@ -975,14 +977,19 @@ export default function WorkoutForm({
                 {t("start.importDescription")}
               </span>
             </span>
-            <span aria-hidden="true" className="text-xl text-muted">+</span>
+            <span aria-hidden="true" className="text-xl text-muted">
+              +
+            </span>
           </summary>
           <div className="border-t border-border p-3 sm:p-4">
             <WorkoutTextImporter onApply={applyImport} />
           </div>
         </details>
       ) : null}
-      {!isEditing && storedDraft && !isDraftPromptDismissed && !hasUnsavedChanges ? (
+      {!isEditing &&
+      storedDraft &&
+      !isDraftPromptDismissed &&
+      !hasUnsavedChanges ? (
         <section
           aria-labelledby="workout-draft-title"
           className="rounded-xl border border-accent/30 bg-accent/10 p-4"
@@ -1114,28 +1121,6 @@ export default function WorkoutForm({
 
             <div>
               <label
-                htmlFor="description"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("details.workoutDescription")}
-
-                <span className="ml-1 font-normal text-muted">
-                  {t("optional")}
-                </span>
-              </label>
-
-              <textarea
-                id="description"
-                rows={3}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder={t("details.descriptionPlaceholder")}
-                className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-              />
-            </div>
-
-            <div>
-              <label
                 htmlFor="type"
                 className="mb-1.5 block text-sm font-medium"
               >
@@ -1169,22 +1154,62 @@ export default function WorkoutForm({
               ) : null}
             </div>
 
-            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-4 py-3">
-              <input
-                type="checkbox"
-                checked={isBenchmark}
-                onChange={(event) => setIsBenchmark(event.target.checked)}
-                className="h-4 w-4 rounded border-border accent-[var(--accent)]"
-              />
-
-              <div>
-                <p className="text-sm font-medium">{t("details.benchmark")}</p>
-
-                <p className="mt-0.5 text-xs text-muted">
-                  {t("details.benchmarkDescription")}
-                </p>
+            <details
+              open={showOptionalDetails}
+              onToggle={(event) =>
+                setShowOptionalDetails(event.currentTarget.open)
+              }
+              className="group rounded-xl border border-dashed border-border bg-background"
+            >
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold marker:content-none">
+                <span>
+                  {t("details.optionalTitle")}
+                  <span className="ml-2 font-normal text-muted">
+                    {t("details.optionalSummary")}
+                  </span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="text-lg text-muted transition group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="grid gap-5 border-t border-border p-4">
+                <div>
+                  <label
+                    htmlFor="description"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    {t("details.workoutDescription")}
+                  </label>
+                  <textarea
+                    id="description"
+                    rows={3}
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder={t("details.descriptionPlaceholder")}
+                    className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                  />
+                </div>
+                <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={isBenchmark}
+                    onChange={(event) => setIsBenchmark(event.target.checked)}
+                    className="mt-0.5 h-5 w-5 rounded border-border accent-[var(--accent)]"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium">
+                      {t("details.benchmark")}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted">
+                      {t("details.benchmarkDescription")}
+                    </span>
+                  </span>
+                </label>
               </div>
-            </label>
+            </details>
           </div>
         </section>
       ) : null}

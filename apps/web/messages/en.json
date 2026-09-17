@@ -877,6 +877,8 @@
         "descriptionPlaceholder": "Describe the workout...",
         "type": "Workout type",
         "selectType": "Select workout type",
+        "optionalTitle": "Optional workout details",
+        "optionalSummary": "Description and benchmark",
         "benchmark": "Benchmark workout",
         "benchmarkDescription": "Mark this workout as a benchmark for tracking repeated attempts."
       },
@@ -903,6 +905,7 @@
       },
       "sectionBuilder": {
         "section": "Section {number}",
+        "sectionLabel": "Section",
         "configureSection": "Configure section",
         "expand": "Expand",
         "collapse": "Collapse",
@@ -928,7 +931,8 @@
         "movementNumber": "Movement {number}",
         "notes": "Notes",
         "optional": "(optional)",
-        "notesPlaceholder": "Add instructions or notes for this section..."
+        "notesPlaceholder": "Add instructions or notes for this section...",
+        "optionalDetails": "Optional section notes"
       },
       "movementBuilder": {
         "movement": "Movement",
@@ -940,6 +944,8 @@
         "searchError": "Unable to search movements.",
         "noResults": "No movements found.",
         "prescription": "Prescription",
+        "addPrescription": "Add prescription details",
+        "optionalPrescriptionDescription": "Reps, load, distance, targets and notes are optional.",
         "reps": "Reps",
         "weight": "Weight",
         "percentageOfRm": "% of rep max",
@@ -968,6 +974,7 @@
         "description": "Define the workout for each experience level.",
         "add": "Add variation",
         "variant": "Variation {number}",
+        "variantLabel": "Variation",
         "configure": "Configure variation",
         "expand": "Expand",
         "collapse": "Collapse",
@@ -980,6 +987,7 @@
         "notes": "Notes",
         "notesPlaceholder": "Describe how this variation differs",
         "optional": "Optional",
+        "optionalDetails": "Optional variation name and notes",
         "sections": "Workout sections",
         "sectionsDescription": "Configure the sections for this variation.",
         "addSection": "Add section",
@@ -1545,6 +1553,13 @@
   "prescriptionCategories": {
     "men": "Men",
     "women": "Women"
+  },
+  "workoutLevels": {
+    "descriptions": {
+      "rx": "The prescribed workout performed as written.",
+      "intermediate": "A moderately scaled option that preserves the intended stimulus.",
+      "beginner": "An accessible option for athletes building strength, skill, or capacity."
+    }
   },
   "movementCategories": {
     "weightlifting": "Weightlifting",
