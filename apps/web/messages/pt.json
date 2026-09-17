@@ -795,12 +795,24 @@
       "editTitle": "Editar treino",
       "editDescription": "Atualize a estrutura, as variações e as prescrições.",
       "optional": "(opcional)",
-      "draft": {
+  "draft": {
         "title": "Continuar seu rascunho?",
         "description": "Salvamos neste dispositivo o treino que você estava criando.",
         "restore": "Restaurar rascunho",
-        "discard": "Descartar"
-      },
+    "discard": "Descartar"
+  },
+  "start": {
+    "importTitle": "Já tem o treino escrito?",
+    "importDescription": "Cole aqui para criar mais rápido um rascunho editável."
+  },
+  "mode": {
+    "simpleTitle": "Configuração simples",
+    "simpleDescription": "Comece com um nível e uma seção. Você pode adicionar programação avançada quando precisar.",
+    "advancedTitle": "Programação avançada",
+    "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
+    "useSimple": "Usar configuração simples",
+    "useAdvanced": "Mostrar opções avançadas"
+  },
       "importer": {
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
@@ -905,7 +917,8 @@
         "rest": "Descanso",
         "seconds": "segundos",
         "repScheme": "Esquema de repetições",
-        "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+    "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+    "repPresets": "Esquemas de repetições comuns",
         "movements": "Movimentos",
         "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
         "addMovement": "Adicionar movimento",
@@ -1050,8 +1063,17 @@
     },
     "logResult": {
       "eyebrow": "Registrar resultado",
-      "description": "Registre seu desempenho neste treino.",
-      "score": "Resultado do treino",
+  "description": "Registre seu desempenho neste treino.",
+  "quickLogTitle": "Registro rápido",
+  "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+  "score": "Resultado do treino",
+  "scoreHelp": {
+    "time": "Informe quanto tempo você levou para terminar.",
+    "roundsReps": "Informe os rounds concluídos e as repetições extras do round incompleto.",
+    "reps": "Informe o total de repetições concluídas.",
+    "load": "Informe sua maior carga concluída e confirme a unidade.",
+    "default": "Informe o resultado principal deste treino."
+  },
       "movementDetails": "Desempenho por movimento",
       "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
       "percentageTarget": "{percentage}% do seu {reps}RM",

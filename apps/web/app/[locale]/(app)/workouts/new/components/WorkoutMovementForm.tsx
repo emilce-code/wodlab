@@ -55,6 +55,7 @@ type Props = {
   movement: WorkoutMovementFormState;
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
+  advancedMode?: boolean;
   autoFocusSearch?: boolean;
   error?: string;
   onChange: (movement: WorkoutMovementFormState) => void;
@@ -82,6 +83,7 @@ export default function WorkoutMovementForm({
   movement,
   prescriptionCategories,
   canRemove,
+  advancedMode = true,
   autoFocusSearch = false,
   error,
   onChange,
@@ -675,7 +677,7 @@ export default function WorkoutMovementForm({
             </div>
           </div>
 
-          {prescriptionCategories.length > 0 && (
+          {advancedMode && prescriptionCategories.length > 0 && (
             <div className="mt-5 border-t border-border pt-5">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
                 {t("categoryPrescriptions")}
@@ -994,7 +996,7 @@ export default function WorkoutMovementForm({
             </div>
           )}
 
-          <div className="mt-5">
+          {advancedMode ? <div className="mt-5">
             <label
               htmlFor={`movement-notes-${movement.id}`}
               className="mb-1.5 block text-sm font-medium"
@@ -1014,7 +1016,7 @@ export default function WorkoutMovementForm({
               placeholder={t("notesPlaceholder")}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
-          </div>
+          </div> : null}
         </>
       )}
     </div>

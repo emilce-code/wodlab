@@ -281,6 +281,16 @@ export default function LogResultForm({
   const localizedResultType = resultTypeT.has(resultTypeKey)
     ? resultTypeT(resultTypeKey)
     : resultType.name;
+  const scoreHelp =
+    resultType.key === "TIME"
+      ? t("scoreHelp.time")
+      : resultType.key === "ROUNDS_REPS"
+        ? t("scoreHelp.roundsReps")
+        : resultType.key === "REPS"
+          ? t("scoreHelp.reps")
+          : resultType.key === "LOAD"
+            ? t("scoreHelp.load")
+            : t("scoreHelp.default");
 
   function getPrescriptionCategoryName(category: PrescriptionCategory) {
     const key = category.key.toLowerCase();
@@ -840,6 +850,20 @@ export default function LogResultForm({
         <p className="mt-1 text-sm text-muted">
           {isEditing ? t("editDescription") : t("description")}
         </p>
+
+        {!isEditing ? (
+          <div className="mt-4 flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+              1
+            </span>
+            <div>
+              <p className="text-sm font-semibold">{t("quickLogTitle")}</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {t("quickLogDescription")}
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -895,6 +919,7 @@ export default function LogResultForm({
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
             {t("score")}
           </p>
+          <p className="mt-1 text-sm text-muted">{scoreHelp}</p>
 
           <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
             {resultType.key === "TIME" && (
@@ -908,6 +933,7 @@ export default function LogResultForm({
                   }
                   error={scoreErrors.minutes}
                   placeholder="5"
+                  autoFocus={!isEditing}
                 />
 
                 <NumberField
@@ -935,6 +961,7 @@ export default function LogResultForm({
                   }
                   error={scoreErrors.rounds}
                   placeholder="7"
+                  autoFocus={!isEditing}
                 />
 
                 <NumberField
@@ -956,6 +983,7 @@ export default function LogResultForm({
                 onChange={(value) => updateScoreField("reps", setReps, value)}
                 error={scoreErrors.reps}
                 placeholder="50"
+                autoFocus={!isEditing}
                 className="sm:col-span-2"
               />
             )}
@@ -969,6 +997,7 @@ export default function LogResultForm({
                   onChange={(value) => updateScoreField("load", setLoad, value)}
                   error={scoreErrors.load}
                   placeholder="100"
+                  autoFocus={!isEditing}
                   step="0.1"
                   suffix={weightUnit}
                 />
@@ -1014,6 +1043,9 @@ export default function LogResultForm({
               <span>
                 <span className="block text-sm font-semibold">
                   {t("movementDetails")}
+                  <span className="ml-1 font-normal text-muted">
+                    {t("optional")}
+                  </span>
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
                   {t("movementDetailsDescription", {
