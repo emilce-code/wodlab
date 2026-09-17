@@ -27,6 +27,7 @@ type Props = {
   usedLevelKeys: string[];
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
+  advancedMode: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (variant: WorkoutVariantFormState) => void;
   onRemove: () => void;
@@ -86,6 +87,7 @@ export default function WorkoutVariantForm({
   workoutLevels,
   usedLevelKeys,
   canRemove,
+  advancedMode,
   fieldErrors,
   prescriptionCategories,
   onChange,
@@ -271,7 +273,7 @@ export default function WorkoutVariantForm({
               ) : null}
             </div>
 
-            <div>
+            {advancedMode ? <div>
               <label
                 htmlFor={`variant-name-${variant.id}`}
                 className="mb-1.5 block text-sm font-medium"
@@ -291,9 +293,9 @@ export default function WorkoutVariantForm({
                 placeholder={t("namePlaceholder")}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               />
-            </div>
+            </div> : null}
 
-            <div>
+            {advancedMode ? <div>
               <label
                 htmlFor={`variant-notes-${variant.id}`}
                 className="mb-1.5 block text-sm font-medium"
@@ -313,7 +315,7 @@ export default function WorkoutVariantForm({
                 placeholder={t("notesPlaceholder")}
                 className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
               />
-            </div>
+            </div> : null}
           </div>
 
           <div className="my-6 border-t border-border" />
@@ -327,7 +329,7 @@ export default function WorkoutVariantForm({
               </p>
             </div>
 
-            <button
+            {advancedMode ? <button
               type="button"
               onClick={addSection}
               aria-label={t("addSection")}
@@ -341,7 +343,7 @@ export default function WorkoutVariantForm({
                 +
               </span>
               <span className="hidden sm:inline">+ {t("addSection")}</span>
-            </button>
+            </button> : null}
           </div>
 
           <div
@@ -358,6 +360,7 @@ export default function WorkoutVariantForm({
                 canRemove={variant.sections.length > 1}
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
+                advancedMode={advancedMode}
                 onChange={(updatedSection) =>
                   updateSection(section.id, updatedSection)
                 }

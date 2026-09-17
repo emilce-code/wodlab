@@ -70,6 +70,7 @@ type ValidationIssue = {
   message: string;
   field?: ScoreField;
   section?: "movements" | "details";
+  movementId?: string;
 };
 
 type SubmittedMovement = {
@@ -266,6 +267,9 @@ export default function LogResultForm({
   const [movementDetailsOpen, setMovementDetailsOpen] = useState(
     Boolean(result?.performedMovements.length || percentageTargets.length),
   );
+  const [expandedMovementIds, setExpandedMovementIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [resultDetailsOpen, setResultDetailsOpen] = useState(
     isEditing || Boolean(result?.notes),
   );
@@ -281,6 +285,16 @@ export default function LogResultForm({
   const localizedResultType = resultTypeT.has(resultTypeKey)
     ? resultTypeT(resultTypeKey)
     : resultType.name;
+  const scoreHelp =
+    resultType.key === "TIME"
+      ? t("scoreHelp.time")
+      : resultType.key === "ROUNDS_REPS"
+        ? t("scoreHelp.roundsReps")
+        : resultType.key === "REPS"
+          ? t("scoreHelp.reps")
+          : resultType.key === "LOAD"
+            ? t("scoreHelp.load")
+            : t("scoreHelp.default");
 
   function getPrescriptionCategoryName(category: PrescriptionCategory) {
     const key = category.key.toLowerCase();
@@ -374,6 +388,20 @@ export default function LogResultForm({
         ...changes,
       },
     }));
+  }
+
+  function toggleMovementDetails(workoutMovementId: string) {
+    setExpandedMovementIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(workoutMovementId)) {
+        next.delete(workoutMovementId);
+      } else {
+        next.add(workoutMovementId);
+      }
+
+      return next;
+    });
   }
 
   function updateScoreField(
@@ -631,7 +659,11 @@ export default function LogResultForm({
       const movementError = validateMovementPerformance(item);
 
       if (movementError) {
-        return { message: movementError, section: "movements" };
+        return {
+          message: movementError,
+          section: "movements",
+          movementId: item.id,
+        };
       }
     }
 
@@ -667,6 +699,11 @@ export default function LogResultForm({
 
       if (validationError.section === "movements") {
         setMovementDetailsOpen(true);
+        if (validationError.movementId) {
+          setExpandedMovementIds((current) =>
+            new Set(current).add(validationError.movementId!),
+          );
+        }
       }
 
       if (validationError.section === "details") {
@@ -818,6 +855,7 @@ export default function LogResultForm({
     setPerformedTime(getLocalTimeValue());
     setNotes("");
     setMovementDetailsOpen(false);
+    setExpandedMovementIds(new Set());
     setResultDetailsOpen(false);
     setScoreErrors({});
   }
@@ -840,6 +878,20 @@ export default function LogResultForm({
         <p className="mt-1 text-sm text-muted">
           {isEditing ? t("editDescription") : t("description")}
         </p>
+
+        {!isEditing ? (
+          <div className="mt-4 flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+              1
+            </span>
+            <div>
+              <p className="text-sm font-semibold">{t("quickLogTitle")}</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {t("quickLogDescription")}
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
@@ -895,6 +947,7 @@ export default function LogResultForm({
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
             {t("score")}
           </p>
+          <p className="mt-1 text-sm text-muted">{scoreHelp}</p>
 
           <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
             {resultType.key === "TIME" && (
@@ -908,6 +961,7 @@ export default function LogResultForm({
                   }
                   error={scoreErrors.minutes}
                   placeholder="5"
+                  autoFocus={!isEditing}
                 />
 
                 <NumberField
@@ -935,6 +989,7 @@ export default function LogResultForm({
                   }
                   error={scoreErrors.rounds}
                   placeholder="7"
+                  autoFocus={!isEditing}
                 />
 
                 <NumberField
@@ -956,6 +1011,7 @@ export default function LogResultForm({
                 onChange={(value) => updateScoreField("reps", setReps, value)}
                 error={scoreErrors.reps}
                 placeholder="50"
+                autoFocus={!isEditing}
                 className="sm:col-span-2"
               />
             )}
@@ -969,6 +1025,7 @@ export default function LogResultForm({
                   onChange={(value) => updateScoreField("load", setLoad, value)}
                   error={scoreErrors.load}
                   placeholder="100"
+                  autoFocus={!isEditing}
                   step="0.1"
                   suffix={weightUnit}
                 />
@@ -1014,6 +1071,9 @@ export default function LogResultForm({
               <span>
                 <span className="block text-sm font-semibold">
                   {t("movementDetails")}
+                  <span className="ml-1 font-normal text-muted">
+                    {t("optional")}
+                  </span>
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
                   {t("movementDetailsDescription", {
@@ -1044,27 +1104,55 @@ export default function LogResultForm({
 
                   const showReps = supportsWeight || supportsReps;
                   const percentageTarget = getPercentageTarget(item);
+                  const movementIsExpanded = expandedMovementIds.has(item.id);
+                  const movementHasValues = hasAnyMovementValue(performance);
+                  const movementContentId = `movement-performance-${item.id}`;
 
                   return (
                     <div
                       key={item.id}
-                      className="rounded-lg border border-border bg-background p-4"
+                      className="overflow-hidden rounded-lg border border-border bg-background"
                     >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">{item.movement.name}</p>
+                      <button
+                        type="button"
+                        aria-expanded={movementIsExpanded}
+                        aria-controls={movementContentId}
+                        onClick={() => toggleMovementDetails(item.id)}
+                        className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold">
+                            {item.movement.name}
+                          </span>
+                          <span className="mt-1 flex flex-wrap gap-1.5">
+                            {item.movement.measurementTypes.map((type) => (
+                              <span
+                                key={type.key}
+                                className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
+                              >
+                                {measurementT(type.key.toLowerCase())}
+                              </span>
+                            ))}
+                            {movementHasValues ? (
+                              <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                                {t("detailsAdded")}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className="shrink-0 text-xl text-muted"
+                        >
+                          {movementIsExpanded ? "−" : "+"}
+                        </span>
+                      </button>
 
-                        <div className="flex flex-wrap gap-1.5">
-                          {item.movement.measurementTypes.map((type) => (
-                            <span
-                              key={type.key}
-                              className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted"
-                            >
-                              {measurementT(type.key.toLowerCase())}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
+                      {movementIsExpanded ? (
+                        <div
+                          id={movementContentId}
+                          className="border-t border-border p-4"
+                        >
                       {percentageTarget && (
                         <div className="mt-3 rounded-xl border border-accent/25 bg-accent/5 p-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">
@@ -1251,6 +1339,8 @@ export default function LogResultForm({
                           />
                         )}
                       </div>
+                        </div>
+                      ) : null}
                     </div>
                   );
                 })}
