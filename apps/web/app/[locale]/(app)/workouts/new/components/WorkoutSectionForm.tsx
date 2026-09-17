@@ -49,6 +49,8 @@ function createEmptyMovement(): WorkoutMovementFormState {
     reps: "",
     weight: "",
     weightUnit: "",
+    percentage: "",
+    referenceRepMax: "1",
     distance: "",
     calories: "",
     durationSeconds: "",
@@ -103,6 +105,10 @@ export default function WorkoutSectionForm({
   onRemove,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(true);
+
+  const [showOptionalDetails, setShowOptionalDetails] = useState(
+    Boolean(section.notes),
+  );
 
   const t = useTranslations("workouts.create.sectionBuilder");
 
@@ -220,13 +226,14 @@ export default function WorkoutSectionForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-border bg-surface p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
+    <section className="min-w-0 w-full rounded-xl border border-sky-500/30 bg-sky-500/[0.035] p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-            {t("section", {
-              number: sectionNumber,
-            })}
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-600 dark:text-sky-400">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500/15 text-[11px]">
+              S{sectionNumber}
+            </span>
+            {t("sectionLabel")}
           </p>
 
           <h3 className="mt-1 break-words text-lg font-bold">
@@ -441,7 +448,10 @@ export default function WorkoutSectionForm({
               />
 
               <p className="mt-2 text-xs text-muted">{t("repSchemeHelp")}</p>
-              <div className="mt-3 flex flex-wrap gap-2" aria-label={t("repPresets")}>
+              <div
+                className="mt-3 flex flex-wrap gap-2"
+                aria-label={t("repPresets")}
+              >
                 {["21-15-9", "15-12-9", "10-8-6-4-2", "5-5-5-5-5"].map(
                   (preset) => (
                     <button
@@ -526,7 +536,7 @@ export default function WorkoutSectionForm({
                 {section.movements.map((movement, index) => (
                   <div key={movement.id}>
                     <div className="mb-2 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
                         {t("movementNumber", {
                           number: index + 1,
                         })}
@@ -562,29 +572,46 @@ export default function WorkoutSectionForm({
             )}
           </div>
 
-          {advancedMode ? <div className="min-w-0 md:col-span-2">
-            <div className="my-2 border-t border-border" />
-
-            <label
-              htmlFor={`section-notes-${section.id}`}
-              className="mb-1.5 mt-6 block text-sm font-medium"
+          {advancedMode ? (
+            <details
+              open={showOptionalDetails}
+              onToggle={(event) =>
+                setShowOptionalDetails(event.currentTarget.open)
+              }
+              className="group min-w-0 rounded-xl border border-dashed border-border bg-background md:col-span-2"
             >
-              {t("notes")}
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold marker:content-none">
+                <span>{t("optionalDetails")}</span>
+                <span
+                  aria-hidden="true"
+                  className="text-lg text-muted transition group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="border-t border-border p-4">
+                <label
+                  htmlFor={`section-notes-${section.id}`}
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("notes")}
 
-              <span className="ml-1 font-normal text-muted">
-                {t("optional")}
-              </span>
-            </label>
+                  <span className="ml-1 font-normal text-muted">
+                    {t("optional")}
+                  </span>
+                </label>
 
-            <textarea
-              id={`section-notes-${section.id}`}
-              rows={3}
-              value={section.notes}
-              onChange={(event) => update("notes", event.target.value)}
-              placeholder={t("notesPlaceholder")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-            />
-          </div> : null}
+                <textarea
+                  id={`section-notes-${section.id}`}
+                  rows={3}
+                  value={section.notes}
+                  onChange={(event) => update("notes", event.target.value)}
+                  placeholder={t("notesPlaceholder")}
+                  className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                />
+              </div>
+            </details>
+          ) : null}
         </div>
       )}
     </section>

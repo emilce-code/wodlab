@@ -286,15 +286,19 @@
     "title": "Calculadora de porcentajes de peso",
     "description": "Calcula cargas por porcentaje, redondéalas según tu equipo y prepara la barra.",
     "referenceWeight": "Peso de referencia",
+    "referenceWeightHelp": "Normalmente, tu repetición máxima (1RM).",
     "inputs": "Datos de la calculadora",
     "mode": "Modo de cálculo",
     "targetMode": "Calcular objetivo",
     "reverseMode": "Calcular porcentaje",
+    "targetModeHelp": "Ingresa tu peso de referencia y elige el porcentaje que quieres levantar.",
+    "reverseModeHelp": "Ingresa el peso realizado para saber qué porcentaje representa.",
     "performedWeight": "Peso realizado",
+    "performedWeightHelp": "La carga que completaste en el levantamiento.",
     "calculatedPercentage": "Porcentaje calculado",
     "unit": "Unidad de peso",
     "customPercentage": "Porcentaje",
-    "rounding": "Redondear al múltiplo",
+    "percentageHelp": "Elige un porcentaje predefinido abajo o ingresa uno.",
     "presets": "Porcentajes predefinidos",
     "percentage": "Porcentaje",
     "calculatedWeight": "Peso calculado",
@@ -795,29 +799,29 @@
       "editTitle": "Editar entrenamiento",
       "editDescription": "Actualiza la estructura, las variaciones y las prescripciones.",
       "optional": "(opcional)",
-  "draft": {
+      "draft": {
         "title": "¿Continuar tu borrador?",
         "description": "Guardamos en este dispositivo el entrenamiento que estabas creando.",
         "restore": "Restaurar borrador",
-    "discard": "Descartar"
-  },
-  "start": {
-    "importTitle": "¿Ya tienes el entrenamiento escrito?",
-    "importDescription": "Pégalo aquí para crear más rápido un borrador editable."
-  },
-  "mode": {
-    "simpleTitle": "Configuración simple",
-    "simpleDescription": "Comienza con un nivel y una sección. Puedes agregar programación avanzada cuando la necesites.",
-    "advancedTitle": "Programación avanzada",
-    "advancedDescription": "Crea varios niveles, secciones, notas y prescripciones específicas por categoría.",
-    "useSimple": "Usar configuración simple",
-    "useAdvanced": "Mostrar opciones avanzadas"
-  },
+        "discard": "Descartar"
+      },
+      "start": {
+        "importTitle": "¿Ya tienes el entrenamiento escrito?",
+        "importDescription": "Pega un entrenamiento con niveles y prescripciones específicas por categoría para crear un borrador editable."
+      },
+      "mode": {
+        "simpleTitle": "Configuración simple",
+        "simpleDescription": "Comienza con un nivel y una sección. Puedes agregar programación avanzada cuando la necesites.",
+        "advancedTitle": "Programación avanzada",
+        "advancedDescription": "Crea varios niveles, secciones, notas y prescripciones específicas por categoría.",
+        "useSimple": "Usar configuración simple",
+        "useAdvanced": "Mostrar opciones avanzadas"
+      },
       "importer": {
         "title": "Importar texto del entrenamiento",
         "description": "Pega un entrenamiento con niveles y prescripciones por categoría para crear un borrador editable.",
         "label": "Texto del entrenamiento",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHombres: Thrusters 95 lb\nMujeres: Thrusters 65 lb\nPull-ups\n\nIntermedio\nHombres: Thrusters 75 lb\nMujeres: Thrusters 55 lb\nJumping pull-ups\n\nPrincipiante\nHombres: Thrusters 45 lb\nMujeres: Thrusters 35 lb\nRing rows",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHombres: Thrusters 43 kg\nMujeres: Thrusters 29 kg\nPull-ups\n\nIntermedio\nHombres: Thrusters 34 kg\nMujeres: Thrusters 25 kg\nJumping pull-ups\n\nPrincipiante\nHombres: Thrusters 20 kg\nMujeres: Thrusters 16 kg\nRing rows",
         "parse": "Vista previa",
         "parsing": "Leyendo entrenamiento...",
         "parseError": "No se pudo leer el entrenamiento. Revisa el texto e inténtalo de nuevo.",
@@ -877,6 +881,8 @@
         "descriptionPlaceholder": "Describe el entrenamiento...",
         "type": "Tipo de entrenamiento",
         "selectType": "Selecciona el tipo de entrenamiento",
+        "optionalTitle": "Detalles opcionales",
+        "optionalSummary": "Descripción y benchmark",
         "benchmark": "Entrenamiento benchmark",
         "benchmarkDescription": "Marca este entrenamiento como benchmark para seguir tus intentos a lo largo del tiempo."
       },
@@ -903,6 +909,7 @@
       },
       "sectionBuilder": {
         "section": "Sección {number}",
+        "sectionLabel": "Sección",
         "configureSection": "Configurar sección",
         "expand": "Expandir",
         "collapse": "Contraer",
@@ -917,8 +924,8 @@
         "rest": "Descanso",
         "seconds": "segundos",
         "repScheme": "Esquema de repeticiones",
-    "repSchemeHelp": "Ingresa las repeticiones separadas por guiones, por ejemplo 21-15-9.",
-    "repPresets": "Esquemas de repeticiones comunes",
+        "repSchemeHelp": "Ingresa las repeticiones separadas por guiones, por ejemplo 21-15-9.",
+        "repPresets": "Esquemas de repeticiones comunes",
         "movements": "Movimientos",
         "movementsDescription": "Agrega los movimientos incluidos en esta sección.",
         "addMovement": "Agregar movimiento",
@@ -928,7 +935,8 @@
         "movementNumber": "Movimiento {number}",
         "notes": "Notas",
         "optional": "(opcional)",
-        "notesPlaceholder": "Agrega instrucciones o notas para esta sección..."
+        "notesPlaceholder": "Agrega instrucciones o notas para esta sección...",
+        "optionalDetails": "Notas opcionales de la sección"
       },
       "movementBuilder": {
         "movement": "Movimiento",
@@ -940,6 +948,8 @@
         "searchError": "No se pudieron buscar los movimientos.",
         "noResults": "No se encontraron movimientos.",
         "prescription": "Prescripción",
+        "addPrescription": "Agregar detalles de prescripción",
+        "optionalPrescriptionDescription": "Las repeticiones, cargas, distancias, objetivos y notas son opcionales.",
         "reps": "Repeticiones",
         "weight": "Peso",
         "percentageOfRm": "% del RM",
@@ -955,6 +965,7 @@
         "optional": "(opcional)",
         "notesPlaceholder": "Escalado, ritmo objetivo, indicación técnica...",
         "sharedPrescriptionDescription": "Estos valores se aplican a todos, salvo que una categoría tenga un valor específico.",
+        "sharedPercentageDescription": "Usa este porcentaje cuando se aplique a todos. Los porcentajes por categoría pueden reemplazarlo.",
         "categoryPrescriptions": "Prescripciones por categoría",
         "categoryPrescriptionsDescription": "Agrega valores específicos solo cuando la prescripción difiera según la categoría.",
         "removeCategoryPrescription": "Eliminar",
@@ -967,6 +978,7 @@
         "description": "Define el entrenamiento para cada nivel de experiencia.",
         "add": "Agregar variación",
         "variant": "Variación {number}",
+        "variantLabel": "Variación",
         "configure": "Configurar variación",
         "expand": "Expandir",
         "collapse": "Contraer",
@@ -979,6 +991,7 @@
         "notes": "Notas",
         "notesPlaceholder": "Describe cómo difiere esta variación",
         "optional": "Opcional",
+        "optionalDetails": "Nombre y notas opcionales de la variación",
         "sections": "Secciones del entrenamiento",
         "sectionsDescription": "Configura las secciones de esta variación.",
         "addSection": "Agregar sección",
@@ -1063,20 +1076,20 @@
     },
     "logResult": {
       "eyebrow": "Registrar resultado",
-  "description": "Registra tu rendimiento en este entrenamiento.",
-  "quickLogTitle": "Registro rápido",
-  "quickLogDescription": "Ingresa tu resultado y guarda. El rendimiento por movimiento, la fecha y las notas son opcionales.",
-  "score": "Resultado del entrenamiento",
-  "scoreHelp": {
-    "time": "Ingresa cuánto tiempo tardaste en terminar.",
-    "roundsReps": "Ingresa las rondas completadas y las repeticiones extra de la ronda incompleta.",
-    "reps": "Ingresa el total de repeticiones completadas.",
-    "load": "Ingresa tu carga exitosa más pesada y confirma la unidad.",
-    "default": "Ingresa el resultado principal de este entrenamiento."
-  },
+      "description": "Registra tu rendimiento en este entrenamiento.",
+      "quickLogTitle": "Registro rápido",
+      "quickLogDescription": "Ingresa tu resultado y guarda. El rendimiento por movimiento, la fecha y las notas son opcionales.",
+      "score": "Resultado del entrenamiento",
+      "scoreHelp": {
+        "time": "Ingresa cuánto tiempo tardaste en terminar.",
+        "roundsReps": "Ingresa las rondas completadas y las repeticiones extra de la ronda incompleta.",
+        "reps": "Ingresa el total de repeticiones completadas.",
+        "load": "Ingresa tu carga exitosa más pesada y confirma la unidad.",
+        "default": "Ingresa el resultado principal de este entrenamiento."
+      },
       "movementDetails": "Rendimiento por movimiento",
-  "movementDetailsDescription": "{count, plural, =1 {Agrega detalles opcionales para 1 movimiento} other {Agrega detalles opcionales para # movimientos}}",
-  "detailsAdded": "Detalles agregados",
+      "movementDetailsDescription": "{count, plural, =1 {Agrega detalles opcionales para 1 movimiento} other {Agrega detalles opcionales para # movimientos}}",
+      "detailsAdded": "Detalles agregados",
       "percentageTarget": "{percentage}% de tu {reps}RM",
       "percentageSource": "Basado en tu mejor marca de {load} {unit}",
       "percentageMissingRm": "Registra un {reps}RM exacto de {movement} para calcular esta carga.",
@@ -1395,7 +1408,10 @@
       "createDescription": "Agrega un movimiento a tu biblioteca personal.",
       "editTitle": "Editar movimiento",
       "editDescription": "Actualiza las instrucciones, el video y las opciones de seguimiento.",
+      "essentialsTitle": "Datos esenciales",
+      "essentialsDescription": "Comienza con los tres datos necesarios para guardar este movimiento.",
       "name": "Nombre del movimiento",
+      "namePlaceholder": "Por ejemplo, sentadilla frontal",
       "category": "Categoría",
       "categoryHelp": {
         "weightlifting": "Movimientos con carga externa, como barra, mancuerna, kettlebell u otros objetos.",
@@ -1404,8 +1420,12 @@
         "other": "Elige la categoría que mejor represente el estímulo principal del movimiento."
       },
       "measurementTypes": "Resultados registrados",
+      "measurementTypesHelp": "Elige cómo se registrará el progreso. Puedes seleccionar más de una opción.",
+      "optionalTitle": "Agregar detalles opcionales",
+      "optionalDescription": "Alias, instrucciones, video y estado de movimiento fundamental",
       "aliases": "Alias",
       "aliasesPlaceholder": "HSPU, flexión de pino",
+      "aliasesHelp": "Separa los nombres alternativos con comas para encontrar el movimiento más fácilmente.",
       "description": "Cómo realizarlo",
       "descriptionPlaceholder": "Describe la preparación, ejecución y los puntos importantes de técnica...",
       "videoUrl": "URL del video instructivo",
@@ -1545,6 +1565,13 @@
     "men": "Hombres",
     "women": "Mujeres"
   },
+  "workoutLevels": {
+    "descriptions": {
+      "rx": "El entrenamiento prescrito realizado tal como está escrito.",
+      "intermediate": "Una opción moderadamente adaptada que mantiene el estímulo previsto.",
+      "beginner": "Una opción accesible para atletas que desarrollan fuerza, habilidad o capacidad."
+    }
+  },
   "movementCategories": {
     "weightlifting": "Halterofilia",
     "gymnastics": "Gimnasia",
@@ -1559,6 +1586,31 @@
     "eyebrow": "Cuenta",
     "title": "Tu perfil",
     "description": "Administra tu perfil de atleta y las preferencias de tu cuenta.",
+    "overview": {
+      "sessions": "Sesiones · 30 días",
+      "streak": "Días seguidos",
+      "prs": "Récords · este mes",
+      "movements": "Movimientos registrados"
+    },
+    "completion": {
+      "title": "Completa tu perfil de entrenamiento",
+      "description": "Tus preferencias agilizan la planificación y el registro."
+    },
+    "connections": {
+      "title": "Conexiones de entrenamiento",
+      "noBox": "Sin Box activo",
+      "coach": "Coach: {name}",
+      "noCoach": "Sin coach conectado",
+      "pendingInvite": "Invitación de coach pendiente",
+      "manage": "Ver clases y Box"
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "log": "Registrar resultado",
+      "progress": "Progreso",
+      "maxes": "Administrar máximos",
+      "history": "Historial"
+    },
     "weightUnit": {
       "title": "Unidad de peso preferida",
       "description": "Se utiliza para las cargas de entrenamiento y el seguimiento del rendimiento."
@@ -1578,6 +1630,11 @@
       "title": "Perfil y entrenamiento",
       "description": "Administra tu información de atleta y tus preferencias predeterminadas de entrenamiento.",
       "displayName": "Nombre para mostrar",
+      "identity": "Identidad",
+      "avatarUrl": "URL de la foto de perfil",
+      "avatarDescription": "Usa un enlace HTTPS seguro. Tus iniciales se usarán como alternativa.",
+      "avatarAlt": "Foto de perfil de {name}",
+      "bio": "Descripción de entrenamiento",
       "email": "Correo electrónico",
       "emailDescription": "Tu correo electrónico es administrado por tu proveedor de inicio de sesión.",
       "trainingPreferences": "Preferencias de entrenamiento",
@@ -1590,14 +1647,37 @@
       "prescriptionCategory": "Prescripción predeterminada",
       "noPrescriptionPreference": "Sin prescripción predeterminada",
       "prescriptionDescription": "Se utiliza cuando un entrenamiento tiene prescripciones específicas por categoría.",
+      "goals": {
+        "title": "Objetivos de entrenamiento",
+        "description": "Elige todos los que sean importantes para ti ahora.",
+        "options": {
+          "GENERAL_FITNESS": "Condición general",
+          "STRENGTH": "Fuerza",
+          "CONDITIONING": "Acondicionamiento",
+          "GYMNASTICS": "Gimnasia",
+          "WEIGHTLIFTING": "Halterofilia",
+          "COMPETITION": "Competición"
+        }
+      },
+      "weeklyTarget": "Objetivo semanal",
+      "loadRounding": "Redondeo de carga",
+      "notSet": "Sin configurar",
+      "daysPerWeek": "{count} días por semana",
+      "privacy": "Privacidad y visibilidad",
       "leaderboard": {
         "title": "Participar en clasificaciones",
-        "description": "Muestra tu nombre visible y tus mejores resultados comparables. Está desactivado de forma predeterminada y puedes desactivarlo cuando quieras."
+        "description": "Muestra tu nombre visible y tus mejores resultados comparables. Está desactivado de forma predeterminada y puedes desactivarlo cuando quieras.",
+        "preview": "Vista previa de clasificación",
+        "athlete": "Atleta",
+        "hidden": "Perfil privado",
+        "visibleDescription": "Tu nombre y mejor resultado comparable pueden aparecer.",
+        "hiddenDescription": "Tus resultados no aparecen en clasificaciones públicas."
       },
       "preferencesUnavailable": "Algunas preferencias de entrenamiento no están disponibles temporalmente. Aún puedes actualizar los campos de perfil disponibles o intentarlo más tarde.",
       "save": "Guardar cambios",
       "saving": "Guardando...",
       "saved": "Perfil guardado correctamente.",
+      "savedState": "Actualizado",
       "validation": {
         "displayNameRequired": "Ingresa un nombre para mostrar.",
         "saveError": "No se pudo guardar tu perfil.",

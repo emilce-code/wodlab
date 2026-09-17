@@ -13,6 +13,7 @@ import {
 } from "@/lib/training-calculators";
 
 const presets = [40, 50, 60, 65, 70, 75, 80, 85, 90, 95, 100];
+const ROUNDING_INCREMENT = 0.5;
 
 function availablePlates(unit: WeightUnit) {
   return unit === "KG"
@@ -31,9 +32,6 @@ export default function WeightPercentageCalculator({
   const [percentage, setPercentage] = useState("75");
   const [mode, setMode] = useState<"target" | "reverse">("target");
   const [performedWeight, setPerformedWeight] = useState("75");
-  const [increment, setIncrement] = useState(
-    preferredUnit === "KG" ? "0.5" : "1",
-  );
   const [barWeight, setBarWeight] = useState(
     preferredUnit === "KG" ? "20" : "45",
   );
@@ -41,7 +39,7 @@ export default function WeightPercentageCalculator({
   const percentageValue = Number(percentage) || 0;
   const target = roundToIncrement(
     calculatePercentage(referenceValue, percentageValue),
-    Number(increment) || 0.5,
+    ROUNDING_INCREMENT,
   );
   const reversePercentage =
     referenceValue > 0
@@ -73,7 +71,6 @@ export default function WeightPercentageCalculator({
       ),
     );
     setBarWeight(next === "KG" ? "20" : "45");
-    setIncrement(next === "KG" ? "0.5" : "1");
     setUnit(next);
   }
 
@@ -100,6 +97,9 @@ export default function WeightPercentageCalculator({
             {t("reverseMode")}
           </Button>
         </div>
+        <p className="-mt-2 mb-5 text-sm leading-6 text-muted">
+          {mode === "target" ? t("targetModeHelp") : t("reverseModeHelp")}
+        </p>
         <fieldset className="grid min-w-0 gap-4 sm:grid-cols-2">
           <legend className="sr-only">{t("inputs")}</legend>
           <label className="text-sm font-semibold">
@@ -112,6 +112,9 @@ export default function WeightPercentageCalculator({
               onChange={(event) => setReference(event.target.value)}
               className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4 text-lg"
             />
+            <span className="mt-1.5 block text-xs font-normal leading-5 text-muted">
+              {t("referenceWeightHelp")}
+            </span>
           </label>
           <div>
             <span className="text-sm font-semibold">{t("unit")}</span>
@@ -146,6 +149,9 @@ export default function WeightPercentageCalculator({
                 onChange={(event) => setPercentage(event.target.value)}
                 className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4 text-lg"
               />
+              <span className="mt-1.5 block text-xs font-normal leading-5 text-muted">
+                {t("percentageHelp")}
+              </span>
             </label>
           ) : (
             <label className="text-sm font-semibold">
@@ -158,21 +164,11 @@ export default function WeightPercentageCalculator({
                 onChange={(event) => setPerformedWeight(event.target.value)}
                 className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4 text-lg"
               />
+              <span className="mt-1.5 block text-xs font-normal leading-5 text-muted">
+                {t("performedWeightHelp")}
+              </span>
             </label>
           )}
-          {mode === "target" ? (
-            <label className="text-sm font-semibold">
-              {t("rounding")}
-              <input
-                type="number"
-                min="0.1"
-                step="0.1"
-                value={increment}
-                onChange={(event) => setIncrement(event.target.value)}
-                className="mt-2 min-h-12 w-full rounded-lg border border-border bg-background px-4"
-              />
-            </label>
-          ) : null}
         </fieldset>
         {mode === "target" ? (
           <div className="mt-5 flex flex-wrap gap-2" aria-label={t("presets")}>
@@ -206,7 +202,7 @@ export default function WeightPercentageCalculator({
                       <td className="py-3">
                         {roundToIncrement(
                           calculatePercentage(referenceValue, value),
-                          Number(increment) || 0.5,
+                          ROUNDING_INCREMENT,
                         )}{" "}
                         {unit}
                       </td>
@@ -227,7 +223,7 @@ export default function WeightPercentageCalculator({
                   <span className="text-muted">
                     {roundToIncrement(
                       calculatePercentage(referenceValue, value),
-                      Number(increment) || 0.5,
+                      ROUNDING_INCREMENT,
                     )}{" "}
                     {unit}
                   </span>

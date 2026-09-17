@@ -286,15 +286,19 @@
     "title": "Weight percentage calculator",
     "description": "Calculate percentage-based loads, round them to your equipment and build the bar.",
     "referenceWeight": "Reference weight",
+    "referenceWeightHelp": "Usually your one-rep max (1RM).",
     "inputs": "Calculator inputs",
     "mode": "Calculation mode",
     "targetMode": "Find target",
     "reverseMode": "Find percentage",
+    "targetModeHelp": "Enter your reference weight and choose the percentage you want to lift.",
+    "reverseModeHelp": "Enter the weight you performed to see what percentage it represents.",
     "performedWeight": "Performed weight",
+    "performedWeightHelp": "The load you completed for the lift.",
     "calculatedPercentage": "Calculated percentage",
     "unit": "Weight unit",
     "customPercentage": "Percentage",
-    "rounding": "Round to nearest",
+    "percentageHelp": "Choose a preset below or enter your own percentage.",
     "presets": "Percentage presets",
     "percentage": "Percentage",
     "calculatedWeight": "Calculated weight",
@@ -795,24 +799,24 @@
       "editTitle": "Edit workout",
       "editDescription": "Update the workout structure, variations, and prescriptions.",
       "optional": "(optional)",
-  "draft": {
+      "draft": {
         "title": "Continue your workout draft?",
         "description": "We saved the workout you were creating on this device.",
         "restore": "Restore draft",
-    "discard": "Discard"
-  },
-  "start": {
-    "importTitle": "Already have the workout written down?",
-    "importDescription": "Paste it here to create an editable draft faster."
-  },
-  "mode": {
-    "simpleTitle": "Simple setup",
-    "simpleDescription": "Start with one level and one section. You can add advanced programming whenever you need it.",
-    "advancedTitle": "Advanced programming",
-    "advancedDescription": "Create multiple levels, sections, custom notes, and category-specific prescriptions.",
-    "useSimple": "Use simple setup",
-    "useAdvanced": "Show advanced options"
-  },
+        "discard": "Discard"
+      },
+      "start": {
+        "importTitle": "Already have the workout written down?",
+        "importDescription": "Paste a workout with levels and category-specific prescriptions to create an editable draft."
+      },
+      "mode": {
+        "simpleTitle": "Simple setup",
+        "simpleDescription": "Start with one level and one section. You can add advanced programming whenever you need it.",
+        "advancedTitle": "Advanced programming",
+        "advancedDescription": "Create multiple levels, sections, custom notes, and category-specific prescriptions.",
+        "useSimple": "Use simple setup",
+        "useAdvanced": "Show advanced options"
+      },
       "importer": {
         "title": "Import workout text",
         "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
@@ -877,6 +881,8 @@
         "descriptionPlaceholder": "Describe the workout...",
         "type": "Workout type",
         "selectType": "Select workout type",
+        "optionalTitle": "Optional workout details",
+        "optionalSummary": "Description and benchmark",
         "benchmark": "Benchmark workout",
         "benchmarkDescription": "Mark this workout as a benchmark for tracking repeated attempts."
       },
@@ -903,6 +909,7 @@
       },
       "sectionBuilder": {
         "section": "Section {number}",
+        "sectionLabel": "Section",
         "configureSection": "Configure section",
         "expand": "Expand",
         "collapse": "Collapse",
@@ -917,8 +924,8 @@
         "rest": "Rest",
         "seconds": "seconds",
         "repScheme": "Rep scheme",
-    "repSchemeHelp": "Enter reps separated by hyphens, for example 21-15-9.",
-    "repPresets": "Common rep schemes",
+        "repSchemeHelp": "Enter reps separated by hyphens, for example 21-15-9.",
+        "repPresets": "Common rep schemes",
         "movements": "Movements",
         "movementsDescription": "Add the movements included in this section.",
         "addMovement": "Add movement",
@@ -928,7 +935,8 @@
         "movementNumber": "Movement {number}",
         "notes": "Notes",
         "optional": "(optional)",
-        "notesPlaceholder": "Add instructions or notes for this section..."
+        "notesPlaceholder": "Add instructions or notes for this section...",
+        "optionalDetails": "Optional section notes"
       },
       "movementBuilder": {
         "movement": "Movement",
@@ -940,6 +948,8 @@
         "searchError": "Unable to search movements.",
         "noResults": "No movements found.",
         "prescription": "Prescription",
+        "addPrescription": "Add prescription details",
+        "optionalPrescriptionDescription": "Reps, load, distance, targets and notes are optional.",
         "reps": "Reps",
         "weight": "Weight",
         "percentageOfRm": "% of rep max",
@@ -955,6 +965,7 @@
         "optional": "(optional)",
         "notesPlaceholder": "Scaling, target pace, technique cue...",
         "sharedPrescriptionDescription": "Values here apply to everyone unless a category-specific value overrides them.",
+        "sharedPercentageDescription": "Use this when the percentage applies to everyone. Category-specific percentages can override it.",
         "categoryPrescriptions": "Category-specific prescriptions",
         "categoryPrescriptionsDescription": "Add overrides only when the prescribed values differ by category.",
         "removeCategoryPrescription": "Remove",
@@ -967,6 +978,7 @@
         "description": "Define the workout for each experience level.",
         "add": "Add variation",
         "variant": "Variation {number}",
+        "variantLabel": "Variation",
         "configure": "Configure variation",
         "expand": "Expand",
         "collapse": "Collapse",
@@ -979,6 +991,7 @@
         "notes": "Notes",
         "notesPlaceholder": "Describe how this variation differs",
         "optional": "Optional",
+        "optionalDetails": "Optional variation name and notes",
         "sections": "Workout sections",
         "sectionsDescription": "Configure the sections for this variation.",
         "addSection": "Add section",
@@ -1063,20 +1076,20 @@
     },
     "logResult": {
       "eyebrow": "Log result",
-  "description": "Record your performance for this workout.",
-  "quickLogTitle": "Quick log",
-  "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
-  "score": "Workout score",
-  "scoreHelp": {
-    "time": "Enter how long it took you to finish.",
-    "roundsReps": "Enter completed rounds and any extra reps in the unfinished round.",
-    "reps": "Enter the total number of completed repetitions.",
-    "load": "Enter your heaviest successful load and confirm the unit.",
-    "default": "Enter the main result for this workout."
-  },
+      "description": "Record your performance for this workout.",
+      "quickLogTitle": "Quick log",
+      "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
+      "score": "Workout score",
+      "scoreHelp": {
+        "time": "Enter how long it took you to finish.",
+        "roundsReps": "Enter completed rounds and any extra reps in the unfinished round.",
+        "reps": "Enter the total number of completed repetitions.",
+        "load": "Enter your heaviest successful load and confirm the unit.",
+        "default": "Enter the main result for this workout."
+      },
       "movementDetails": "Movement performance",
-  "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
-  "detailsAdded": "Details added",
+      "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+      "detailsAdded": "Details added",
       "percentageTarget": "{percentage}% of your {reps}RM",
       "percentageSource": "Based on your best {load} {unit}",
       "percentageMissingRm": "Log an exact {reps}RM for {movement} to calculate this load.",
@@ -1395,7 +1408,10 @@
       "createDescription": "Add a movement to your personal library.",
       "editTitle": "Edit movement",
       "editDescription": "Update instructions, video, and tracking options.",
+      "essentialsTitle": "Movement essentials",
+      "essentialsDescription": "Start with the three details needed to save this movement.",
       "name": "Movement name",
+      "namePlaceholder": "For example, Front squat",
       "category": "Category",
       "categoryHelp": {
         "weightlifting": "External-load movements such as barbell, dumbbell, kettlebell, or object work.",
@@ -1404,8 +1420,12 @@
         "other": "Choose the category that best represents the movement's primary training stimulus."
       },
       "measurementTypes": "Tracked results",
+      "measurementTypesHelp": "Choose how athletes will record progress. You can select more than one.",
+      "optionalTitle": "Add optional details",
+      "optionalDescription": "Aliases, instructions, video, and foundational status",
       "aliases": "Aliases",
       "aliasesPlaceholder": "HSPU, handstand push-up",
+      "aliasesHelp": "Separate alternate names with commas to make the movement easier to find.",
       "description": "How to perform it",
       "descriptionPlaceholder": "Describe the setup, execution, and important technique points...",
       "videoUrl": "Instructional video URL",
@@ -1545,6 +1565,13 @@
     "men": "Men",
     "women": "Women"
   },
+  "workoutLevels": {
+    "descriptions": {
+      "rx": "The prescribed workout performed as written.",
+      "intermediate": "A moderately scaled option that preserves the intended stimulus.",
+      "beginner": "An accessible option for athletes building strength, skill, or capacity."
+    }
+  },
   "movementCategories": {
     "weightlifting": "Weightlifting",
     "gymnastics": "Gymnastics",
@@ -1559,6 +1586,31 @@
     "eyebrow": "Account",
     "title": "Your profile",
     "description": "Manage your athlete profile and account preferences.",
+    "overview": {
+      "sessions": "Sessions · 30 days",
+      "streak": "Day streak",
+      "prs": "PRs · this month",
+      "movements": "Movements tracked"
+    },
+    "completion": {
+      "title": "Complete your training profile",
+      "description": "Your defaults make workout planning and logging faster."
+    },
+    "connections": {
+      "title": "Training connections",
+      "noBox": "No active Box",
+      "coach": "Coach: {name}",
+      "noCoach": "No connected coach",
+      "pendingInvite": "Coach invitation waiting",
+      "manage": "View classes and Box"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "log": "Log result",
+      "progress": "Progress",
+      "maxes": "Manage maxes",
+      "history": "History"
+    },
     "weightUnit": {
       "title": "Preferred weight unit",
       "description": "Used for workout loads and performance tracking."
@@ -1578,6 +1630,11 @@
       "title": "Profile & training",
       "description": "Manage your athlete information and default training preferences.",
       "displayName": "Display name",
+      "identity": "Identity",
+      "avatarUrl": "Profile photo URL",
+      "avatarDescription": "Use a secure HTTPS link. Your initials remain the fallback.",
+      "avatarAlt": "Profile photo for {name}",
+      "bio": "Training bio",
       "email": "Email",
       "emailDescription": "Your email is managed by your sign-in provider.",
       "trainingPreferences": "Training preferences",
@@ -1590,14 +1647,37 @@
       "prescriptionCategory": "Default prescription",
       "noPrescriptionPreference": "No default prescription",
       "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "goals": {
+        "title": "Training goals",
+        "description": "Choose all that currently matter to you.",
+        "options": {
+          "GENERAL_FITNESS": "General fitness",
+          "STRENGTH": "Strength",
+          "CONDITIONING": "Conditioning",
+          "GYMNASTICS": "Gymnastics",
+          "WEIGHTLIFTING": "Weightlifting",
+          "COMPETITION": "Competition"
+        }
+      },
+      "weeklyTarget": "Weekly training target",
+      "loadRounding": "Load rounding",
+      "notSet": "Not set",
+      "daysPerWeek": "{count} days per week",
+      "privacy": "Privacy and visibility",
       "leaderboard": {
         "title": "Join workout leaderboards",
-        "description": "Show your display name and best comparable workout scores on leaderboards. This is off by default and can be disabled at any time."
+        "description": "Show your display name and best comparable workout scores on leaderboards. This is off by default and can be disabled at any time.",
+        "preview": "Leaderboard preview",
+        "athlete": "Athlete",
+        "hidden": "Private profile",
+        "visibleDescription": "Your display name and comparable best score can appear.",
+        "hiddenDescription": "Your results stay out of public workout rankings."
       },
       "preferencesUnavailable": "Some training preferences are temporarily unavailable. You can still update the available profile fields or try again later.",
       "save": "Save changes",
       "saving": "Saving...",
       "saved": "Profile saved successfully.",
+      "savedState": "Up to date",
       "validation": {
         "displayNameRequired": "Enter a display name.",
         "saveError": "Unable to save your profile.",

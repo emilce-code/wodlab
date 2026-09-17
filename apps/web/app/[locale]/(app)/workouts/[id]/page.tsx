@@ -60,6 +60,8 @@ type WorkoutMovement = {
   reps: number | null;
   weight: number | null;
   weightUnit: WeightUnit | null;
+  percentage: number | null;
+  referenceRepMax: number | null;
   distance: number | null;
   calories: number | null;
   durationSeconds: number | null;
@@ -288,6 +290,12 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
   function getMovementPrescription(movement: WorkoutMovement) {
     const values: string[] = [];
 
+    if (movement.percentage !== null && movement.referenceRepMax !== null) {
+      values.push(
+        `${movement.percentage}% ${t("ofRepMax", { reps: movement.referenceRepMax })}`,
+      );
+    }
+
     if (movement.reps !== null) {
       values.push(
         t("repsValue", {
@@ -383,7 +391,14 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     ).values(),
   );
   const percentageTargetMap = new Map(
-    percentageTargets.targets.map((target) => [target.prescriptionId, target]),
+    percentageTargets.targets
+      .filter((target) => target.prescriptionId)
+      .map((target) => [target.prescriptionId, target]),
+  );
+  const genericPercentageTargetMap = new Map(
+    percentageTargets.targets
+      .filter((target) => target.prescriptionCategoryKey === "")
+      .map((target) => [target.workoutMovementId, target]),
   );
 
   const personalBest = summary.personalBest;
@@ -639,6 +654,8 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                             {section.movements.map((item) => {
                               const sharedPrescription =
                                 getMovementPrescription(item);
+                              const genericPercentageTarget =
+                                genericPercentageTargetMap.get(item.id);
 
                               return (
                                 <div
@@ -664,6 +681,40 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                                       </p>
                                     )}
                                   </div>
+
+                                  {genericPercentageTarget ? (
+                                    <div className="mt-3 rounded-lg border border-accent/30 bg-accent/10 p-3 text-sm">
+                                      {genericPercentageTarget.target &&
+                                      genericPercentageTarget.repMax ? (
+                                        <p>
+                                          <span className="font-semibold text-accent">
+                                            {genericPercentageTarget.target.load}{" "}
+                                            {
+                                              genericPercentageTarget.target
+                                                .weightUnit
+                                            }
+                                          </span>{" "}
+                                          {t("percentageTargetFromRm", {
+                                            percentage:
+                                              genericPercentageTarget.percentage,
+                                            reps: genericPercentageTarget.referenceRepMax,
+                                            rm: genericPercentageTarget.repMax.load,
+                                            unit: genericPercentageTarget.repMax
+                                              .weightUnit,
+                                          })}
+                                        </p>
+                                      ) : (
+                                        <p>
+                                          {t("percentageTargetMissingRm", {
+                                            reps: genericPercentageTarget.referenceRepMax,
+                                            movement:
+                                              genericPercentageTarget.movement
+                                                ?.name ?? item.movement.name,
+                                          })}
+                                        </p>
+                                      )}
+                                    </div>
+                                  ) : null}
 
                                   {item.prescriptions.length > 0 && (
                                     <div className="mt-3 space-y-2">

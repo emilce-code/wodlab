@@ -37,6 +37,16 @@ export default function MovementEditor({
   const measurementT = useTranslations("measurementTypes");
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [optionalOpen, setOptionalOpen] = useState(
+    () =>
+      Boolean(movement) &&
+      Boolean(
+        movement?.aliases.length ||
+        movement?.description ||
+        movement?.videoUrl ||
+        movement?.isFoundational,
+      ),
+  );
   const [name, setName] = useState(movement?.name ?? "");
   const [categoryKey, setCategoryKey] = useState(
     movement?.category.key ?? categories[0]?.key ?? "",
@@ -162,7 +172,14 @@ export default function MovementEditor({
           onSubmit={submit}
           className="space-y-5 border-t border-border p-4 sm:p-5"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <p className="font-bold">{t("essentialsTitle")}</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              {t("essentialsDescription")}
+            </p>
+          </div>
+
+          <div className="grid gap-4 rounded-xl border border-border bg-background/60 p-4 sm:grid-cols-2">
             <label className="text-sm font-semibold">
               {t("name")}
               <input
@@ -170,6 +187,8 @@ export default function MovementEditor({
                 onChange={(event) => setName(event.target.value)}
                 maxLength={120}
                 required
+                autoComplete="off"
+                placeholder={t("namePlaceholder")}
                 className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
               />
             </label>
@@ -197,10 +216,13 @@ export default function MovementEditor({
             </label>
           </div>
 
-          <fieldset>
+          <fieldset className="rounded-xl border border-border bg-background/60 p-4">
             <legend className="text-sm font-semibold">
               {t("measurementTypes")}
             </legend>
+            <p className="mt-1 text-xs leading-5 text-muted">
+              {t("measurementTypesHelp")}
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {measurementTypes.map((item) => {
                 const selected = selectedTypes.includes(item.key);
@@ -219,54 +241,85 @@ export default function MovementEditor({
             </div>
           </fieldset>
 
-          <label className="block text-sm font-semibold">
-            {t("aliases")}
-            <input
-              value={aliases}
-              onChange={(event) => setAliases(event.target.value)}
-              placeholder={t("aliasesPlaceholder")}
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
-          <label className="block text-sm font-semibold">
-            {t("description")}
-            <textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              rows={6}
-              maxLength={4000}
-              placeholder={t("descriptionPlaceholder")}
-              className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-3"
-            />
-          </label>
-          <label className="block text-sm font-semibold">
-            {t("videoUrl")}
-            <input
-              type="url"
-              value={videoUrl}
-              onChange={(event) => setVideoUrl(event.target.value)}
-              placeholder="https://..."
-              className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
-            />
-          </label>
-          <div>
-            <label className="flex min-h-11 items-center gap-3 text-sm font-semibold">
-              <input
-                type="checkbox"
-                checked={isFoundational}
-                onChange={(event) => setIsFoundational(event.target.checked)}
-                aria-describedby="foundational-movement-help"
-                className="h-5 w-5 accent-accent"
-              />
-              {t("foundational")}
-            </label>
-            <p
-              id="foundational-movement-help"
-              className="ml-8 text-xs leading-5 text-muted"
+          <section className="overflow-hidden rounded-xl border border-border">
+            <button
+              type="button"
+              onClick={() => setOptionalOpen((current) => !current)}
+              aria-expanded={optionalOpen}
+              className="flex min-h-14 w-full items-center justify-between gap-3 px-4 py-3 text-left"
             >
-              {t("foundationalHelp")}
-            </p>
-          </div>
+              <span>
+                <span className="block font-semibold">
+                  {t("optionalTitle")}
+                </span>
+                <span className="mt-0.5 block text-xs leading-5 text-muted">
+                  {t("optionalDescription")}
+                </span>
+              </span>
+              <span aria-hidden="true" className="text-xl text-muted">
+                {optionalOpen ? "−" : "+"}
+              </span>
+            </button>
+
+            {optionalOpen ? (
+              <div className="space-y-5 border-t border-border p-4">
+                <label className="block text-sm font-semibold">
+                  {t("aliases")}
+                  <input
+                    value={aliases}
+                    onChange={(event) => setAliases(event.target.value)}
+                    placeholder={t("aliasesPlaceholder")}
+                    className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+                  />
+                  <span className="mt-1.5 block text-xs font-normal leading-5 text-muted">
+                    {t("aliasesHelp")}
+                  </span>
+                </label>
+                <label className="block text-sm font-semibold">
+                  {t("description")}
+                  <textarea
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    rows={5}
+                    maxLength={4000}
+                    placeholder={t("descriptionPlaceholder")}
+                    className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-3"
+                  />
+                </label>
+                <label className="block text-sm font-semibold">
+                  {t("videoUrl")}
+                  <input
+                    type="url"
+                    inputMode="url"
+                    value={videoUrl}
+                    onChange={(event) => setVideoUrl(event.target.value)}
+                    placeholder="https://..."
+                    className="mt-2 min-h-11 w-full rounded-lg border border-border bg-background px-3"
+                  />
+                </label>
+                <div>
+                  <label className="flex min-h-11 items-center gap-3 text-sm font-semibold">
+                    <input
+                      type="checkbox"
+                      checked={isFoundational}
+                      onChange={(event) =>
+                        setIsFoundational(event.target.checked)
+                      }
+                      aria-describedby="foundational-movement-help"
+                      className="h-5 w-5 accent-accent"
+                    />
+                    {t("foundational")}
+                  </label>
+                  <p
+                    id="foundational-movement-help"
+                    className="ml-8 text-xs leading-5 text-muted"
+                  >
+                    {t("foundationalHelp")}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+          </section>
           {error ? <Alert variant="error">{error}</Alert> : null}
           <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-10 -mx-4 flex flex-col gap-2 border-t border-border bg-surface/95 px-4 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:justify-end sm:bg-transparent sm:px-0 sm:pb-0">
             <Button

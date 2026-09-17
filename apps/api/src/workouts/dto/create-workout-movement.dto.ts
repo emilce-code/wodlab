@@ -1,12 +1,15 @@
 import {
   IsArray,
   IsEnum,
+  IsDefined,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   Min,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -34,6 +37,21 @@ export class CreateWorkoutMovementDto {
   @IsOptional()
   @IsEnum(WeightUnit)
   weightUnit?: WeightUnit;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(200)
+  percentage?: number;
+
+  @ValidateIf(
+    (movement: CreateWorkoutMovementDto) => movement.percentage !== undefined,
+  )
+  @IsDefined()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  referenceRepMax?: number;
 
   @IsOptional()
   @IsInt()

@@ -95,7 +95,12 @@ export default function WorkoutVariantForm({
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(true);
 
+  const [showOptionalDetails, setShowOptionalDetails] = useState(
+    Boolean(variant.name || variant.notes),
+  );
+
   const t = useTranslations("workouts.create.variants");
+  const levelT = useTranslations("workoutLevels");
 
   const selectedLevel = workoutLevels.find(
     (level) => level.key === variant.levelKey,
@@ -155,22 +160,25 @@ export default function WorkoutVariantForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-border bg-surface p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
+    <section className="min-w-0 w-full rounded-2xl border border-accent/35 bg-accent/[0.035] p-3 shadow-sm sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-            {t("variant", {
-              number: variantNumber,
-            })}
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] text-accent-foreground">
+              V{variantNumber}
+            </span>
+            {t("variantLabel")}
           </p>
 
           <h3 className="mt-1 break-words text-lg font-bold">
             {selectedLevel?.name ?? t("configure")}
           </h3>
 
-          {selectedLevel?.description && (
+          {selectedLevel && (
             <p className="mt-1 text-sm text-muted">
-              {selectedLevel.description}
+              {levelT.has(`descriptions.${selectedLevel.key.toLowerCase()}`)
+                ? levelT(`descriptions.${selectedLevel.key.toLowerCase()}`)
+                : selectedLevel.description}
             </p>
           )}
         </div>
@@ -273,49 +281,70 @@ export default function WorkoutVariantForm({
               ) : null}
             </div>
 
-            {advancedMode ? <div>
-              <label
-                htmlFor={`variant-name-${variant.id}`}
-                className="mb-1.5 block text-sm font-medium"
+            {advancedMode ? (
+              <details
+                open={showOptionalDetails}
+                onToggle={(event) =>
+                  setShowOptionalDetails(event.currentTarget.open)
+                }
+                className="group rounded-xl border border-dashed border-border bg-background"
               >
-                {t("name")}
+                <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold marker:content-none">
+                  <span>{t("optionalDetails")}</span>
+                  <span
+                    aria-hidden="true"
+                    className="text-lg text-muted transition group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <div className="grid gap-5 border-t border-border p-4">
+                  <div>
+                    <label
+                      htmlFor={`variant-name-${variant.id}`}
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      {t("name")}
 
-                <span className="ml-1 font-normal text-muted">
-                  {t("optional")}
-                </span>
-              </label>
+                      <span className="ml-1 font-normal text-muted">
+                        {t("optional")}
+                      </span>
+                    </label>
 
-              <input
-                id={`variant-name-${variant.id}`}
-                type="text"
-                value={variant.name}
-                onChange={(event) => update("name", event.target.value)}
-                placeholder={t("namePlaceholder")}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-              />
-            </div> : null}
+                    <input
+                      id={`variant-name-${variant.id}`}
+                      type="text"
+                      value={variant.name}
+                      onChange={(event) => update("name", event.target.value)}
+                      placeholder={t("namePlaceholder")}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                    />
+                  </div>
 
-            {advancedMode ? <div>
-              <label
-                htmlFor={`variant-notes-${variant.id}`}
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("notes")}
+                  <div>
+                    <label
+                      htmlFor={`variant-notes-${variant.id}`}
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      {t("notes")}
 
-                <span className="ml-1 font-normal text-muted">
-                  {t("optional")}
-                </span>
-              </label>
+                      <span className="ml-1 font-normal text-muted">
+                        {t("optional")}
+                      </span>
+                    </label>
 
-              <textarea
-                id={`variant-notes-${variant.id}`}
-                rows={2}
-                value={variant.notes}
-                onChange={(event) => update("notes", event.target.value)}
-                placeholder={t("notesPlaceholder")}
-                className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-              />
-            </div> : null}
+                    <textarea
+                      id={`variant-notes-${variant.id}`}
+                      rows={2}
+                      value={variant.notes}
+                      onChange={(event) => update("notes", event.target.value)}
+                      placeholder={t("notesPlaceholder")}
+                      className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                    />
+                  </div>
+                </div>
+              </details>
+            ) : null}
           </div>
 
           <div className="my-6 border-t border-border" />
@@ -329,21 +358,23 @@ export default function WorkoutVariantForm({
               </p>
             </div>
 
-            {advancedMode ? <button
-              type="button"
-              onClick={addSection}
-              aria-label={t("addSection")}
-              title={t("addSection")}
-              className="inline-flex h-10 w-10 self-end items-center justify-center rounded-lg border border-border bg-background text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated sm:h-auto sm:w-auto sm:self-auto sm:px-4 sm:py-2.5"
-            >
-              <span
-                aria-hidden="true"
-                className="text-xl leading-none sm:hidden"
+            {advancedMode ? (
+              <button
+                type="button"
+                onClick={addSection}
+                aria-label={t("addSection")}
+                title={t("addSection")}
+                className="inline-flex h-10 w-10 self-end items-center justify-center rounded-lg border border-border bg-background text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated sm:h-auto sm:w-auto sm:self-auto sm:px-4 sm:py-2.5"
               >
-                +
-              </span>
-              <span className="hidden sm:inline">+ {t("addSection")}</span>
-            </button> : null}
+                <span
+                  aria-hidden="true"
+                  className="text-xl leading-none sm:hidden"
+                >
+                  +
+                </span>
+                <span className="hidden sm:inline">+ {t("addSection")}</span>
+              </button>
+            ) : null}
           </div>
 
           <div

@@ -204,6 +204,11 @@ model AthleteProfile {
   displayName                     String
   leaderboardEnabled              Boolean                    @default(false)
   preferredWeightUnit             WeightUnit                 @default(KG)
+  avatarUrl                       String?
+  bio                             String?
+  trainingGoals                   AthleteTrainingGoal[]      @default([])
+  weeklyTrainingTarget            Int?
+  loadRoundingIncrement           Float?
   preferredWorkoutLevelId         String?
   preferredWorkoutLevel           WorkoutLevel?              @relation("AthletePreferredWorkoutLevel", fields: [preferredWorkoutLevelId], references: [id])
   preferredPrescriptionCategoryId String?
@@ -216,6 +221,15 @@ model AthleteProfile {
   user                            User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                       DateTime                   @default(now())
   updatedAt                       DateTime                   @updatedAt
+}
+
+enum AthleteTrainingGoal {
+  GENERAL_FITNESS
+  STRENGTH
+  CONDITIONING
+  GYMNASTICS
+  WEIGHTLIFTING
+  COMPETITION
 }
 
 model CoachProfile {
@@ -509,6 +523,8 @@ model WorkoutMovement {
   reps            Int?
   weight          Decimal?
   weightUnit      WeightUnit?
+  percentage      Decimal?       @db.Decimal(5, 2)
+  referenceRepMax Int?
   distance        Int?
   calories        Int?
   durationSeconds Int?

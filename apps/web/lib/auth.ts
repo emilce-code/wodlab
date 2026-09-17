@@ -24,6 +24,18 @@ export type CurrentUser = {
     displayName: string;
     leaderboardEnabled: boolean;
     preferredWeightUnit: "KG" | "LB";
+    avatarUrl: string | null;
+    bio: string | null;
+    trainingGoals: Array<
+      | "GENERAL_FITNESS"
+      | "STRENGTH"
+      | "CONDITIONING"
+      | "GYMNASTICS"
+      | "WEIGHTLIFTING"
+      | "COMPETITION"
+    >;
+    weeklyTrainingTarget: number | null;
+    loadRoundingIncrement: number | null;
 
     preferredWorkoutLevel: AthletePreference | null;
 
