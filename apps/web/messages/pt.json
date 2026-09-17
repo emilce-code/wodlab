@@ -795,24 +795,24 @@
       "editTitle": "Editar treino",
       "editDescription": "Atualize a estrutura, as variações e as prescrições.",
       "optional": "(opcional)",
-  "draft": {
+      "draft": {
         "title": "Continuar seu rascunho?",
         "description": "Salvamos neste dispositivo o treino que você estava criando.",
         "restore": "Restaurar rascunho",
-    "discard": "Descartar"
-  },
-  "start": {
-    "importTitle": "Já tem o treino escrito?",
-    "importDescription": "Cole aqui para criar mais rápido um rascunho editável."
-  },
-  "mode": {
-    "simpleTitle": "Configuração simples",
-    "simpleDescription": "Comece com um nível e uma seção. Você pode adicionar programação avançada quando precisar.",
-    "advancedTitle": "Programação avançada",
-    "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
-    "useSimple": "Usar configuração simples",
-    "useAdvanced": "Mostrar opções avançadas"
-  },
+        "discard": "Descartar"
+      },
+      "start": {
+        "importTitle": "Já tem o treino escrito?",
+        "importDescription": "Cole aqui para criar mais rápido um rascunho editável."
+      },
+      "mode": {
+        "simpleTitle": "Configuração simples",
+        "simpleDescription": "Comece com um nível e uma seção. Você pode adicionar programação avançada quando precisar.",
+        "advancedTitle": "Programação avançada",
+        "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
+        "useSimple": "Usar configuração simples",
+        "useAdvanced": "Mostrar opções avançadas"
+      },
       "importer": {
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
@@ -917,8 +917,8 @@
         "rest": "Descanso",
         "seconds": "segundos",
         "repScheme": "Esquema de repetições",
-    "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
-    "repPresets": "Esquemas de repetições comuns",
+        "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+        "repPresets": "Esquemas de repetições comuns",
         "movements": "Movimentos",
         "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
         "addMovement": "Adicionar movimento",
@@ -1064,20 +1064,20 @@
     },
     "logResult": {
       "eyebrow": "Registrar resultado",
-  "description": "Registre seu desempenho neste treino.",
-  "quickLogTitle": "Registro rápido",
-  "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
-  "score": "Resultado do treino",
-  "scoreHelp": {
-    "time": "Informe quanto tempo você levou para terminar.",
-    "roundsReps": "Informe os rounds concluídos e as repetições extras do round incompleto.",
-    "reps": "Informe o total de repetições concluídas.",
-    "load": "Informe sua maior carga concluída e confirme a unidade.",
-    "default": "Informe o resultado principal deste treino."
-  },
+      "description": "Registre seu desempenho neste treino.",
+      "quickLogTitle": "Registro rápido",
+      "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+      "score": "Resultado do treino",
+      "scoreHelp": {
+        "time": "Informe quanto tempo você levou para terminar.",
+        "roundsReps": "Informe os rounds concluídos e as repetições extras do round incompleto.",
+        "reps": "Informe o total de repetições concluídas.",
+        "load": "Informe sua maior carga concluída e confirme a unidade.",
+        "default": "Informe o resultado principal deste treino."
+      },
       "movementDetails": "Desempenho por movimento",
-  "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
-  "detailsAdded": "Detalhes adicionados",
+      "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
+      "detailsAdded": "Detalhes adicionados",
       "percentageTarget": "{percentage}% do seu {reps}RM",
       "percentageSource": "Com base na sua melhor marca de {load} {unit}",
       "percentageMissingRm": "Registre um {reps}RM exato de {movement} para calcular esta carga.",
@@ -1560,6 +1560,31 @@
     "eyebrow": "Conta",
     "title": "Seu perfil",
     "description": "Gerencie seu perfil de atleta e as preferências da sua conta.",
+    "overview": {
+      "sessions": "Sessões · 30 dias",
+      "streak": "Dias seguidos",
+      "prs": "Recordes · este mês",
+      "movements": "Movimentos registrados"
+    },
+    "completion": {
+      "title": "Complete seu perfil de treino",
+      "description": "Suas preferências tornam o planejamento e o registro mais rápidos."
+    },
+    "connections": {
+      "title": "Conexões de treino",
+      "noBox": "Sem Box ativo",
+      "coach": "Coach: {name}",
+      "noCoach": "Sem coach conectado",
+      "pendingInvite": "Convite de coach pendente",
+      "manage": "Ver aulas e Box"
+    },
+    "quickActions": {
+      "title": "Ações rápidas",
+      "log": "Registrar resultado",
+      "progress": "Progresso",
+      "maxes": "Gerenciar máximas",
+      "history": "Histórico"
+    },
     "weightUnit": {
       "title": "Unidade de peso preferida",
       "description": "Usada para cargas de treino e acompanhamento de desempenho."
@@ -1579,6 +1604,11 @@
       "title": "Perfil e treino",
       "description": "Gerencie suas informações de atleta e suas preferências padrão de treino.",
       "displayName": "Nome de exibição",
+      "identity": "Identidade",
+      "avatarUrl": "URL da foto de perfil",
+      "avatarDescription": "Use um link HTTPS seguro. Suas iniciais continuam como alternativa.",
+      "avatarAlt": "Foto de perfil de {name}",
+      "bio": "Descrição de treino",
       "email": "E-mail",
       "emailDescription": "Seu e-mail é gerenciado pelo seu provedor de login.",
       "trainingPreferences": "Preferências de treino",
@@ -1591,14 +1621,37 @@
       "prescriptionCategory": "Prescrição padrão",
       "noPrescriptionPreference": "Sem prescrição padrão",
       "prescriptionDescription": "Usada quando um treino possui prescrições específicas por categoria.",
+      "goals": {
+        "title": "Objetivos de treino",
+        "description": "Escolha todos os que importam para você agora.",
+        "options": {
+          "GENERAL_FITNESS": "Condicionamento geral",
+          "STRENGTH": "Força",
+          "CONDITIONING": "Condicionamento",
+          "GYMNASTICS": "Ginástica",
+          "WEIGHTLIFTING": "Levantamento de peso",
+          "COMPETITION": "Competição"
+        }
+      },
+      "weeklyTarget": "Meta semanal de treinos",
+      "loadRounding": "Arredondamento de carga",
+      "notSet": "Não definido",
+      "daysPerWeek": "{count} dias por semana",
+      "privacy": "Privacidade e visibilidade",
       "leaderboard": {
         "title": "Participar dos rankings",
-        "description": "Mostra seu nome de exibição e seus melhores resultados comparáveis. Fica desativado por padrão e pode ser desativado a qualquer momento."
+        "description": "Mostra seu nome de exibição e seus melhores resultados comparáveis. Fica desativado por padrão e pode ser desativado a qualquer momento.",
+        "preview": "Prévia do ranking",
+        "athlete": "Atleta",
+        "hidden": "Perfil privado",
+        "visibleDescription": "Seu nome e melhor resultado comparável podem aparecer.",
+        "hiddenDescription": "Seus resultados ficam fora dos rankings públicos."
       },
       "preferencesUnavailable": "Algumas preferências de treino estão temporariamente indisponíveis. Você ainda pode atualizar os campos de perfil disponíveis ou tentar novamente mais tarde.",
       "save": "Salvar alterações",
       "saving": "Salvando...",
       "saved": "Perfil salvo com sucesso.",
+      "savedState": "Atualizado",
       "validation": {
         "displayNameRequired": "Informe um nome de exibição.",
         "saveError": "Não foi possível salvar seu perfil.",
