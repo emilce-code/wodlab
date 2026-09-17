@@ -803,7 +803,7 @@
       },
       "start": {
         "importTitle": "Já tem o treino escrito?",
-        "importDescription": "Cole aqui para criar mais rápido um rascunho editável."
+        "importDescription": "Cole um treino com níveis e prescrições específicas por categoria para criar um rascunho editável."
       },
       "mode": {
         "simpleTitle": "Configuração simples",
@@ -817,7 +817,7 @@
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 95 lb\nMulheres: Thrusters 65 lb\nPull-ups\n\nIntermediário\nHomens: Thrusters 75 lb\nMulheres: Thrusters 55 lb\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 45 lb\nMulheres: Thrusters 35 lb\nRing rows",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 43 kg\nMulheres: Thrusters 29 kg\nPull-ups\n\nIntermediário\nHomens: Thrusters 34 kg\nMulheres: Thrusters 25 kg\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 20 kg\nMulheres: Thrusters 16 kg\nRing rows",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",

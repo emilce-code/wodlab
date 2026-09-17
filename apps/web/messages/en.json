@@ -803,7 +803,7 @@
       },
       "start": {
         "importTitle": "Already have the workout written down?",
-        "importDescription": "Paste it here to create an editable draft faster."
+        "importDescription": "Paste a workout with levels and category-specific prescriptions to create an editable draft."
       },
       "mode": {
         "simpleTitle": "Simple setup",
