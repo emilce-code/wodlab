@@ -1075,7 +1075,8 @@
     "default": "Enter the main result for this workout."
   },
       "movementDetails": "Movement performance",
-      "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+  "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+  "detailsAdded": "Details added",
       "percentageTarget": "{percentage}% of your {reps}RM",
       "percentageSource": "Based on your best {load} {unit}",
       "percentageMissingRm": "Log an exact {reps}RM for {movement} to calculate this load.",
