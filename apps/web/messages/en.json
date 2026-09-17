@@ -795,12 +795,24 @@
       "editTitle": "Edit workout",
       "editDescription": "Update the workout structure, variations, and prescriptions.",
       "optional": "(optional)",
-      "draft": {
+  "draft": {
         "title": "Continue your workout draft?",
         "description": "We saved the workout you were creating on this device.",
         "restore": "Restore draft",
-        "discard": "Discard"
-      },
+    "discard": "Discard"
+  },
+  "start": {
+    "importTitle": "Already have the workout written down?",
+    "importDescription": "Paste it here to create an editable draft faster."
+  },
+  "mode": {
+    "simpleTitle": "Simple setup",
+    "simpleDescription": "Start with one level and one section. You can add advanced programming whenever you need it.",
+    "advancedTitle": "Advanced programming",
+    "advancedDescription": "Create multiple levels, sections, custom notes, and category-specific prescriptions.",
+    "useSimple": "Use simple setup",
+    "useAdvanced": "Show advanced options"
+  },
       "importer": {
         "title": "Import workout text",
         "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
@@ -905,7 +917,8 @@
         "rest": "Rest",
         "seconds": "seconds",
         "repScheme": "Rep scheme",
-        "repSchemeHelp": "Enter reps separated by hyphens, for example 21-15-9.",
+    "repSchemeHelp": "Enter reps separated by hyphens, for example 21-15-9.",
+    "repPresets": "Common rep schemes",
         "movements": "Movements",
         "movementsDescription": "Add the movements included in this section.",
         "addMovement": "Add movement",
@@ -1050,8 +1063,17 @@
     },
     "logResult": {
       "eyebrow": "Log result",
-      "description": "Record your performance for this workout.",
-      "score": "Workout score",
+  "description": "Record your performance for this workout.",
+  "quickLogTitle": "Quick log",
+  "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
+  "score": "Workout score",
+  "scoreHelp": {
+    "time": "Enter how long it took you to finish.",
+    "roundsReps": "Enter completed rounds and any extra reps in the unfinished round.",
+    "reps": "Enter the total number of completed repetitions.",
+    "load": "Enter your heaviest successful load and confirm the unit.",
+    "default": "Enter the main result for this workout."
+  },
       "movementDetails": "Movement performance",
       "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
       "percentageTarget": "{percentage}% of your {reps}RM",

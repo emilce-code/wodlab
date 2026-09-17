@@ -248,6 +248,8 @@ export default function WorkoutForm({
 
   const [currentStep, setCurrentStep] = useState<FormStep>("details");
 
+  const [advancedMode, setAdvancedMode] = useState(Boolean(initialWorkout));
+
   const isEditing = Boolean(initialWorkout);
 
   const [name, setName] = useState(initialWorkout?.name ?? "");
@@ -689,6 +691,19 @@ export default function WorkoutForm({
       return;
     }
 
+    if (currentStep === "details") {
+      setVariants((current) =>
+        current.map((variant) => ({
+          ...variant,
+          sections: variant.sections.map((section, index) =>
+            index === 0 && !section.typeKey
+              ? { ...section, typeKey }
+              : section,
+          ),
+        })),
+      );
+    }
+
     const currentIndex = formSteps.indexOf(currentStep);
     const nextStep = formSteps[currentIndex + 1];
 
@@ -935,7 +950,22 @@ export default function WorkoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {!isEditing ? <WorkoutTextImporter onApply={applyImport} /> : null}
+      {!isEditing ? (
+        <details className="rounded-xl border border-border bg-surface">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-semibold marker:content-none">
+            <span>
+              <span className="block text-sm">{t("start.importTitle")}</span>
+              <span className="mt-0.5 block text-xs font-normal text-muted">
+                {t("start.importDescription")}
+              </span>
+            </span>
+            <span aria-hidden="true" className="text-xl text-muted">+</span>
+          </summary>
+          <div className="border-t border-border p-3 sm:p-4">
+            <WorkoutTextImporter onApply={applyImport} />
+          </div>
+        </details>
+      ) : null}
       {!isEditing && storedDraft && !isDraftPromptDismissed && !hasUnsavedChanges ? (
         <section
           aria-labelledby="workout-draft-title"
@@ -1145,6 +1175,30 @@ export default function WorkoutForm({
 
       {currentStep === "programming" ? (
         <section className="min-w-0">
+          <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold">
+                  {t(advancedMode ? "mode.advancedTitle" : "mode.simpleTitle")}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  {t(
+                    advancedMode
+                      ? "mode.advancedDescription"
+                      : "mode.simpleDescription",
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAdvancedMode((current) => !current)}
+                className="min-h-11 shrink-0 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
+              >
+                {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
@@ -1158,14 +1212,16 @@ export default function WorkoutForm({
               </p>
             </div>
 
-            <Button
-              type="button"
-              onClick={addVariant}
-              disabled={!canAddVariant}
-              variant="secondary"
-            >
-              + {t("variants.add")}
-            </Button>
+            {advancedMode ? (
+              <Button
+                type="button"
+                onClick={addVariant}
+                disabled={!canAddVariant}
+                variant="secondary"
+              >
+                + {t("variants.add")}
+              </Button>
+            ) : null}
           </div>
 
           <div
@@ -1184,6 +1240,7 @@ export default function WorkoutForm({
                 canRemove={variants.length > 1}
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
+                advancedMode={advancedMode}
                 onChange={(updatedVariant) =>
                   updateVariant(variant.id, updatedVariant)
                 }

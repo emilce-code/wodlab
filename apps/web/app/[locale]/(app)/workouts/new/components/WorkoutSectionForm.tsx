@@ -34,6 +34,7 @@ type Props = {
   workoutTypes: WorkoutType[];
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
+  advancedMode: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
   onRemove: () => void;
@@ -96,6 +97,7 @@ export default function WorkoutSectionForm({
   workoutTypes,
   prescriptionCategories,
   canRemove,
+  advancedMode,
   fieldErrors,
   onChange,
   onRemove,
@@ -439,6 +441,25 @@ export default function WorkoutSectionForm({
               />
 
               <p className="mt-2 text-xs text-muted">{t("repSchemeHelp")}</p>
+              <div className="mt-3 flex flex-wrap gap-2" aria-label={t("repPresets")}>
+                {["21-15-9", "15-12-9", "10-8-6-4-2", "5-5-5-5-5"].map(
+                  (preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => update("repScheme", preset)}
+                      aria-pressed={section.repScheme === preset}
+                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                        section.repScheme === preset
+                          ? "border-accent bg-accent text-accent-foreground"
+                          : "border-border bg-background text-muted hover:border-accent/40 hover:text-foreground"
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  ),
+                )}
+              </div>
               {fieldErrors[`section-rep-scheme-${section.id}`] ? (
                 <p
                   id={`section-rep-scheme-${section.id}-error`}
@@ -515,6 +536,7 @@ export default function WorkoutSectionForm({
                     <WorkoutMovementForm
                       movement={movement}
                       prescriptionCategories={prescriptionCategories}
+                      advancedMode={advancedMode}
                       canRemove
                       autoFocusSearch={
                         index === section.movements.length - 1 &&
@@ -540,7 +562,7 @@ export default function WorkoutSectionForm({
             )}
           </div>
 
-          <div className="min-w-0 md:col-span-2">
+          {advancedMode ? <div className="min-w-0 md:col-span-2">
             <div className="my-2 border-t border-border" />
 
             <label
@@ -562,7 +584,7 @@ export default function WorkoutSectionForm({
               placeholder={t("notesPlaceholder")}
               className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
             />
-          </div>
+          </div> : null}
         </div>
       )}
     </section>

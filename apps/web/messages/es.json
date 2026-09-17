@@ -795,12 +795,24 @@
       "editTitle": "Editar entrenamiento",
       "editDescription": "Actualiza la estructura, las variaciones y las prescripciones.",
       "optional": "(opcional)",
-      "draft": {
+  "draft": {
         "title": "¿Continuar tu borrador?",
         "description": "Guardamos en este dispositivo el entrenamiento que estabas creando.",
         "restore": "Restaurar borrador",
-        "discard": "Descartar"
-      },
+    "discard": "Descartar"
+  },
+  "start": {
+    "importTitle": "¿Ya tienes el entrenamiento escrito?",
+    "importDescription": "Pégalo aquí para crear más rápido un borrador editable."
+  },
+  "mode": {
+    "simpleTitle": "Configuración simple",
+    "simpleDescription": "Comienza con un nivel y una sección. Puedes agregar programación avanzada cuando la necesites.",
+    "advancedTitle": "Programación avanzada",
+    "advancedDescription": "Crea varios niveles, secciones, notas y prescripciones específicas por categoría.",
+    "useSimple": "Usar configuración simple",
+    "useAdvanced": "Mostrar opciones avanzadas"
+  },
       "importer": {
         "title": "Importar texto del entrenamiento",
         "description": "Pega un entrenamiento con niveles y prescripciones por categoría para crear un borrador editable.",
@@ -905,7 +917,8 @@
         "rest": "Descanso",
         "seconds": "segundos",
         "repScheme": "Esquema de repeticiones",
-        "repSchemeHelp": "Ingresa las repeticiones separadas por guiones, por ejemplo 21-15-9.",
+    "repSchemeHelp": "Ingresa las repeticiones separadas por guiones, por ejemplo 21-15-9.",
+    "repPresets": "Esquemas de repeticiones comunes",
         "movements": "Movimientos",
         "movementsDescription": "Agrega los movimientos incluidos en esta sección.",
         "addMovement": "Agregar movimiento",
@@ -1050,8 +1063,17 @@
     },
     "logResult": {
       "eyebrow": "Registrar resultado",
-      "description": "Registra tu rendimiento en este entrenamiento.",
-      "score": "Resultado del entrenamiento",
+  "description": "Registra tu rendimiento en este entrenamiento.",
+  "quickLogTitle": "Registro rápido",
+  "quickLogDescription": "Ingresa tu resultado y guarda. El rendimiento por movimiento, la fecha y las notas son opcionales.",
+  "score": "Resultado del entrenamiento",
+  "scoreHelp": {
+    "time": "Ingresa cuánto tiempo tardaste en terminar.",
+    "roundsReps": "Ingresa las rondas completadas y las repeticiones extra de la ronda incompleta.",
+    "reps": "Ingresa el total de repeticiones completadas.",
+    "load": "Ingresa tu carga exitosa más pesada y confirma la unidad.",
+    "default": "Ingresa el resultado principal de este entrenamiento."
+  },
       "movementDetails": "Rendimiento por movimiento",
       "movementDetailsDescription": "{count, plural, =1 {Agrega detalles opcionales para 1 movimiento} other {Agrega detalles opcionales para # movimientos}}",
       "percentageTarget": "{percentage}% de tu {reps}RM",
