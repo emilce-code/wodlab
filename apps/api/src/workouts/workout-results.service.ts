@@ -85,6 +85,8 @@ type WorkoutResultWithDetails = Prisma.WorkoutResultGetPayload<{
 type WorkoutMovementForResult = {
   id: string;
   movementId: string;
+  percentage: unknown;
+  referenceRepMax: number | null;
   movement: {
     measurementTypes: {
       measurementType: {
@@ -99,7 +101,7 @@ type WorkoutMovementForResult = {
 };
 
 type PercentageExecutionSnapshot = {
-  workoutMovementPrescription: {
+  workoutMovementPrescription?: {
     connect: {
       id: string;
     };
@@ -518,6 +520,8 @@ export class WorkoutResultsService {
               select: {
                 id: true,
                 movementId: true,
+                percentage: true,
+                referenceRepMax: true,
 
                 movement: {
                   select: {
@@ -865,6 +869,8 @@ export class WorkoutResultsService {
               select: {
                 id: true,
                 movementId: true,
+                percentage: true,
+                referenceRepMax: true,
 
                 movement: {
                   select: {
@@ -1477,45 +1483,51 @@ export class WorkoutResultsService {
 
     for (const movement of movements) {
       const prescriptionId = movement.workoutMovementPrescriptionId;
-      if (!prescriptionId) continue;
+      const workoutMovement = workoutMovementMap.get(
+        movement.workoutMovementId,
+      );
+      if (!workoutMovement) continue;
 
-      const allowed = workoutMovementMap
-        .get(movement.workoutMovementId)
-        ?.prescriptions.find(
-          (item) =>
-            item.id === prescriptionId &&
-            item.prescriptionCategoryId === prescriptionCategoryId,
-        );
+      const allowed = prescriptionId
+        ? workoutMovement.prescriptions.find(
+            (item) =>
+              item.id === prescriptionId &&
+              item.prescriptionCategoryId === prescriptionCategoryId,
+          )
+        : null;
 
-      if (!allowed) {
+      if (prescriptionId && !allowed) {
         throw new BadRequestException(
           'Percentage prescription does not match the selected movement and category',
         );
       }
 
-      const prescription =
-        await this.prisma.workoutMovementPrescription.findUnique({
-          where: { id: prescriptionId },
-          select: {
-            percentage: true,
-            referenceRepMax: true,
-            referenceMovementId: true,
-          },
-        });
+      const prescription = prescriptionId
+        ? await this.prisma.workoutMovementPrescription.findUnique({
+            where: { id: prescriptionId },
+            select: {
+              percentage: true,
+              referenceRepMax: true,
+              referenceMovementId: true,
+            },
+          })
+        : null;
 
-      if (
-        !prescription?.percentage ||
-        !prescription.referenceRepMax ||
-        !prescription.referenceMovementId
-      ) {
-        throw new BadRequestException('Percentage prescription is incomplete');
+      const percentage = prescription?.percentage ?? workoutMovement.percentage;
+      const referenceRepMax =
+        prescription?.referenceRepMax ?? workoutMovement.referenceRepMax;
+      const referenceMovementId =
+        prescription?.referenceMovementId ?? workoutMovement.movementId;
+
+      if (!percentage || !referenceRepMax || !referenceMovementId) {
+        continue;
       }
 
       const candidates = await this.prisma.movementResult.findMany({
         where: {
           athleteProfileId,
-          movementId: prescription.referenceMovementId,
-          reps: prescription.referenceRepMax,
+          movementId: referenceMovementId,
+          reps: referenceRepMax,
           measurementType: { key: 'WEIGHT' },
           load: { not: null },
         },
@@ -1540,19 +1552,21 @@ export class WorkoutResultsService {
         best.weightUnit ?? 'KG',
         preferredWeightUnit,
       );
-      const percentage = Number(prescription.percentage);
+      const percentageValue = Number(percentage);
 
       snapshots.set(movement.workoutMovementId, {
-        workoutMovementPrescription: {
-          connect: {
-            id: prescriptionId,
-          },
-        },
-        prescribedPercentage: percentage,
-        referenceRepMax: prescription.referenceRepMax,
+        ...(prescriptionId
+          ? {
+              workoutMovementPrescription: {
+                connect: { id: prescriptionId },
+              },
+            }
+          : {}),
+        prescribedPercentage: percentageValue,
+        referenceRepMax,
         referenceLoad: this.roundLoad(referenceLoad),
         referenceWeightUnit: preferredWeightUnit,
-        targetLoad: this.roundLoad(referenceLoad * (percentage / 100)),
+        targetLoad: this.roundLoad(referenceLoad * (percentageValue / 100)),
         targetWeightUnit: preferredWeightUnit,
       });
     }

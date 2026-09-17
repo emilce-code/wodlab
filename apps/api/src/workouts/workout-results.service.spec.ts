@@ -156,17 +156,24 @@ function createWorkoutMovement(
     id?: string;
     movementId?: string;
     measurementTypes?: string[];
+    percentage?: number | null;
+    referenceRepMax?: number | null;
   } = {},
 ) {
   const {
     id = 'workout-movement-1',
     movementId = 'movement-1',
     measurementTypes = ['REPS'],
+    percentage = null,
+    referenceRepMax = null,
   } = options;
 
   return {
     id,
     movementId,
+    percentage,
+    referenceRepMax,
+    prescriptions: [],
 
     movement: {
       measurementTypes: measurementTypes.map((key) => ({
@@ -488,6 +495,63 @@ describe('WorkoutResultsService', () => {
       );
       expect(createCall.data.performedMovements.create[0]).not.toHaveProperty(
         'workoutMovementPrescriptionId',
+      );
+    });
+
+    it('snapshots a generic movement percentage without a prescription', async () => {
+      const workoutMovement = createWorkoutMovement({
+        id: 'workout-movement-1',
+        movementId: 'movement-1',
+        measurementTypes: ['WEIGHT'],
+        percentage: 70,
+        referenceRepMax: 1,
+      });
+
+      setupCreateResult(prisma, {
+        resultTypeKey: 'TIME',
+        variant: createVariant([workoutMovement]),
+      });
+      prisma.athleteProfile.findUnique.mockResolvedValue({
+        id: ATHLETE_ID,
+        userId: USER_ID,
+        preferredWeightUnit: 'KG',
+      });
+      prisma.movementResult.findMany.mockResolvedValue([
+        { load: 100, weightUnit: 'KG' },
+      ]);
+      prisma.measurementType.findMany.mockResolvedValue([
+        { id: 'measurement-weight', key: 'WEIGHT' },
+      ]);
+
+      await service.createResult(USER_ID, WORKOUT_ID, {
+        workoutVariantId: VARIANT_ID,
+        performedAt: PERFORMED_AT,
+        timeSeconds: 300,
+        movements: [
+          {
+            workoutMovementId: 'workout-movement-1',
+            reps: 4,
+            load: 70,
+            weightUnit: 'KG',
+          },
+        ],
+      });
+
+      const createCall = getFirstMockCallArgument<{
+        data: { performedMovements: { create: Record<string, unknown>[] } };
+      }>(prisma.workoutResult.create);
+
+      expect(createCall.data.performedMovements.create[0]).toEqual(
+        expect.objectContaining({
+          prescribedPercentage: 70,
+          referenceRepMax: 1,
+          referenceLoad: 100,
+          targetLoad: 70,
+          targetWeightUnit: 'KG',
+        }),
+      );
+      expect(createCall.data.performedMovements.create[0]).not.toHaveProperty(
+        'workoutMovementPrescription',
       );
     });
 

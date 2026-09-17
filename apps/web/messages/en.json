@@ -955,6 +955,7 @@
         "optional": "(optional)",
         "notesPlaceholder": "Scaling, target pace, technique cue...",
         "sharedPrescriptionDescription": "Values here apply to everyone unless a category-specific value overrides them.",
+        "sharedPercentageDescription": "Use this when the percentage applies to everyone. Category-specific percentages can override it.",
         "categoryPrescriptions": "Category-specific prescriptions",
         "categoryPrescriptionsDescription": "Add overrides only when the prescribed values differ by category.",
         "removeCategoryPrescription": "Remove",

@@ -955,6 +955,7 @@
         "optional": "(opcional)",
         "notesPlaceholder": "Escalado, ritmo objetivo, indicación técnica...",
         "sharedPrescriptionDescription": "Estos valores se aplican a todos, salvo que una categoría tenga un valor específico.",
+        "sharedPercentageDescription": "Usa este porcentaje cuando se aplique a todos. Los porcentajes por categoría pueden reemplazarlo.",
         "categoryPrescriptions": "Prescripciones por categoría",
         "categoryPrescriptionsDescription": "Agrega valores específicos solo cuando la prescripción difiera según la categoría.",
         "removeCategoryPrescription": "Eliminar",

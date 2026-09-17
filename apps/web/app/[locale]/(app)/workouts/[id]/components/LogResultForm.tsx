@@ -237,8 +237,10 @@ export default function LogResultForm({
             percentageTargets
               .filter(
                 (target) =>
-                  target.prescriptionCategoryKey ===
-                    defaultPrescriptionCategoryKey && target.target,
+                  target.target &&
+                  (target.prescriptionCategoryKey === "" ||
+                    target.prescriptionCategoryKey ===
+                      defaultPrescriptionCategoryKey),
               )
               .map((target) => [
                 target.workoutMovementId,
@@ -341,6 +343,10 @@ export default function LogResultForm({
       (target) =>
         target.workoutMovementId === item.id &&
         target.prescriptionCategoryKey === categoryKey,
+    ) ?? percentageTargets.find(
+      (target) =>
+        target.workoutMovementId === item.id &&
+        target.prescriptionCategoryKey === "",
     );
   }
 
@@ -451,7 +457,7 @@ export default function LogResultForm({
       const savedPrescriptionId = result?.performedMovements.find(
         (movement) => movement.workoutMovementId === item.id,
       )?.workoutMovementPrescriptionId;
-      if (percentageTarget?.target || savedPrescriptionId) {
+      if (percentageTarget?.prescriptionId || savedPrescriptionId) {
         submitted.workoutMovementPrescriptionId =
           percentageTarget?.prescriptionId ?? savedPrescriptionId ?? undefined;
       }

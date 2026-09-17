@@ -509,6 +509,8 @@ model WorkoutMovement {
   reps            Int?
   weight          Decimal?
   weightUnit      WeightUnit?
+  percentage      Decimal?       @db.Decimal(5, 2)
+  referenceRepMax Int?
   distance        Int?
   calories        Int?
   durationSeconds Int?

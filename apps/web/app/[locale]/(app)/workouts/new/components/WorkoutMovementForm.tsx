@@ -43,6 +43,8 @@ export type WorkoutMovementFormState = {
   reps: string;
   weight: string;
   weightUnit: "KG" | "LB" | "";
+  percentage: string;
+  referenceRepMax: string;
   distance: string;
   calories: string;
   durationSeconds: string;
@@ -585,6 +587,59 @@ export default function WorkoutMovementForm({
                       <option value="LB">LB</option>
                     </select>
                   </div>
+
+                  <div>
+                    <label
+                      htmlFor={`movement-percentage-${movement.id}`}
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      {t("percentageOfRm")}
+                      <span className="ml-1 font-normal text-muted">
+                        {t("optional")}
+                      </span>
+                    </label>
+                    <input
+                      id={`movement-percentage-${movement.id}`}
+                      type="number"
+                      min="1"
+                      max="200"
+                      step="0.5"
+                      value={movement.percentage}
+                      onChange={(event) =>
+                        update("percentage", event.target.value)
+                      }
+                      placeholder="75"
+                      className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor={`movement-rm-${movement.id}`}
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      {t("referenceRm")}
+                    </label>
+                    <select
+                      id={`movement-rm-${movement.id}`}
+                      value={movement.referenceRepMax}
+                      disabled={!movement.percentage}
+                      onChange={(event) =>
+                        update("referenceRepMax", event.target.value)
+                      }
+                      className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 disabled:opacity-50"
+                    >
+                      {[1, 2, 3, 5, 8, 10].map((reps) => (
+                        <option key={reps} value={reps}>
+                          {reps}RM
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <p className="text-xs text-muted md:col-span-2">
+                    {t("sharedPercentageDescription")}
+                  </p>
                 </>
               )}
 
