@@ -760,6 +760,116 @@
     "eyebrow": "Ajuda e guias",
     "title": "Aprenda WODLY no seu ritmo",
     "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
+    "visualGuide": {
+      "skip": "Pular",
+      "back": "Voltar",
+      "next": "Próximo",
+      "finish": "Concluir e criar um treino",
+      "progressLabel": "Progresso do guia",
+      "goToStep": "Ir para a etapa {step}",
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimento",
+          "lead": "Vamos começar pela unidade básica",
+          "title": "Movimento",
+          "description": "Um movimento é um exercício individual que você pode adicionar a um treino e acompanhar separadamente ao longo do tempo.",
+          "insight": "Os movimentos são as unidades reutilizáveis de todos os treinos."
+        },
+        "workout": {
+          "shortTitle": "Treino",
+          "lead": "Agora reúna os movimentos",
+          "title": "Treino",
+          "description": "Um treino é a sessão completa. Ele reúne um ou mais movimentos e os organiza em seções.",
+          "insight": "Um treino reúne diferentes movimentos em uma única sessão."
+        },
+        "section": {
+          "shortTitle": "Seção",
+          "lead": "Organize seu treino",
+          "title": "Seção",
+          "description": "As seções dividem o treino em partes como aquecimento, força, WOD e volta à calma.",
+          "insight": "As seções definem a estrutura e a ordem do treino."
+        },
+        "variation": {
+          "shortTitle": "Variação",
+          "lead": "Adicione diferentes níveis",
+          "title": "Variação",
+          "description": "As variações criam versões Rx, Intermediária ou Iniciante das seções, mantendo o objetivo do treino.",
+          "insight": "Variações são versões por nível do mesmo treino, não treinos diferentes."
+        },
+        "prescription": {
+          "shortTitle": "Prescrição",
+          "lead": "Defina as metas específicas",
+          "title": "Prescrição",
+          "description": "Uma prescrição define a meta exata de um movimento. Use-a quando Homens e Mulheres precisarem de pesos, repetições, distâncias ou outros valores diferentes.",
+          "insight": "O movimento permanece igual; a prescrição atribui metas específicas para Homens e Mulheres."
+        }
+      },
+      "examples": {
+        "movement": {
+          "label": "Movimento",
+          "name": "Thruster",
+          "detail": "Um movimento de corpo inteiro que combina um agachamento frontal e um desenvolvimento de ombros.",
+          "tags": {
+            "strength": "Força",
+            "barbell": "Barra",
+            "fullBody": "Corpo inteiro"
+          }
+        },
+        "workout": {
+          "label": "Treino",
+          "name": "Treino de sexta-feira",
+          "detail": "Uma sessão completa criada para desenvolver força e condicionamento.",
+          "movements": {
+            "thruster": "Thruster",
+            "pullUp": "Barra fixa",
+            "run": "Corrida"
+          },
+          "more": "e mais…"
+        },
+        "section": {
+          "workoutName": "Treino de sexta-feira",
+          "sections": {
+            "warmup": "Aquecimento",
+            "strength": "Força",
+            "wod": "WOD",
+            "cooldown": "Volta à calma"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": { "name": "Rx", "description": "Para atletas experientes" },
+            "intermediate": {
+              "name": "Intermediário",
+              "description": "Um desafio equilibrado"
+            },
+            "beginner": {
+              "name": "Iniciante",
+              "description": "Movimentos escalados e acessíveis"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Homens",
+          "women": "Mulheres",
+          "note": "Mesmo movimento e variação. Metas prescritas diferentes para Homens e Mulheres."
+        }
+      },
+      "bigPicture": {
+        "title": "A visão completa",
+        "description": "Veja como cada conceito se conecta à medida que o exemplo cresce.",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Treino de sexta-feira",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
     "moreGuidesTitle": "Continue explorando",
     "moreGuidesDescription": "Abra um tópico quando precisar de uma revisão rápida.",
     "learning": {
