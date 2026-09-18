@@ -9,7 +9,8 @@
     "check:web": "pnpm --dir apps/web lint && pnpm --dir apps/web exec tsc --noEmit && pnpm --dir apps/web build",
     "lint": "pnpm --dir apps/api lint:check && pnpm --dir apps/web lint",
     "test": "pnpm --dir apps/api test --runInBand",
-    "test:e2e": "pnpm --dir apps/api test:e2e --runInBand"
+    "test:e2e": "pnpm --dir apps/api test:e2e --runInBand",
+    "seed:demo": "pnpm --dir apps/api seed:demo"
   },
   "keywords": [],
   "author": "",
