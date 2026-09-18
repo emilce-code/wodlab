@@ -66,6 +66,7 @@
     "history": "Histórico",
     "progress": "Progresso",
     "movements": "Movimentos",
+    "help": "Ajuda e guias",
     "account": "Conta",
     "logout": "Sair",
     "more": "Mais",
@@ -650,6 +651,20 @@
       "evening": "Boa noite, {name}"
     },
     "readyToTrain": "Veja como está seu treino hoje.",
+    "onboarding": {
+      "eyebrow": "Primeiros passos",
+      "title": "Prepare seu espaço de treino",
+      "description": "Alguns passos rápidos tornam suas recomendações e seu progresso mais úteis.",
+      "progress": "{completed}/{total} concluídos",
+      "dismiss": "Ocultar lista de primeiros passos",
+      "items": {
+        "profile": { "title": "Complete seu perfil de atleta", "description": "Adicione seus objetivos e meta semanal de treino." },
+        "preferences": { "title": "Escolha suas preferências", "description": "Selecione seu nível e categoria de prescrição habituais." },
+        "movement": { "title": "Registre um movimento", "description": "Salve um levantamento, habilidade, distância ou tempo." },
+        "workout": { "title": "Registre seu primeiro treino", "description": "Salve o resultado principal de um treino concluído." },
+        "schedule": { "title": "Planeje um treino", "description": "Adicione um treino ao seu calendário." }
+      }
+    },
     "stats": {
       "workouts": "Treinos",
       "movementResults": "Resultados de movimentos",
@@ -724,6 +739,31 @@
       "emptyTitle": "Nenhum treino registrado ainda",
       "emptyDescription": "Complete um treino ou registre um resultado de movimento e sua atividade recente aparecerá aqui.",
       "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
+  },
+  "help": {
+    "eyebrow": "Ajuda e guias",
+    "title": "Aprenda WODLY no seu ritmo",
+    "description": "Explicações curtas e práticas sempre disponíveis quando você precisar.",
+    "searchLabel": "Buscar nos guias",
+    "searchPlaceholder": "Buscar treinos, resultados, progresso...",
+    "guidesTitle": "Explore o app",
+    "empty": "Ainda não há um guia correspondente a essa busca.",
+    "guides": {
+      "gettingStarted": { "title": "Primeiros passos", "summary": "Configure seu perfil e registre sua primeira sessão", "body": "Complete seus objetivos, meta semanal, nível habitual e categoria de prescrição em Conta. Depois escolha um treino ou movimento e salve seu primeiro resultado. Seu painel, histórico e progresso serão atualizados automaticamente." },
+      "workouts": { "title": "Treinos e variações", "summary": "Entenda níveis, seções e metas por movimento", "body": "Um treino pode ter várias variações para diferentes níveis. Cada variação contém seções e cada seção contém movimentos. Escolha a variação adequada para hoje; sua preferência salva é apenas uma opção padrão útil." },
+      "results": { "title": "Registro de resultados", "summary": "Salve um resultado rapidamente e adicione detalhes opcionais", "body": "O resultado do treino é o único dado de desempenho obrigatório. Expanda Desempenho por movimento para registrar valores específicos, ou Detalhes do resultado para alterar data, hora e observações. Esses dados melhoram os gráficos e o acompanhamento de recordes." },
+      "progress": { "title": "Progresso e recordes pessoais", "summary": "Veja tendências sem trabalho extra", "body": "Cada resultado salvo alimenta Histórico e Progresso. Os recordes comparam medições compatíveis, como o mesmo levantamento e RM, então um registro consistente produz tendências mais úteis." },
+      "training": { "title": "Planejamento e aulas", "summary": "Programe treinos e siga seu plano diário", "body": "Adicione um treino ao Plano para uma data futura ou reserve uma aula do seu box ativo. Treinos programados e atribuídos aparecem no plano diário e podem ser abertos diretamente na hora de treinar." },
+      "coaching": { "title": "Coaches e feedback", "summary": "Trabalhe com um coach sem perder o controle do seu registro", "body": "Coaches conectados podem atribuir treinos e deixar feedback. Você continua registrando seus próprios resultados e comentários. As ferramentas de coach aparecem apenas para contas com acesso." }
+    },
+    "concepts": {
+      "title": "Conceitos principais",
+      "description": "Estes quatro elementos explicam a maior parte do WODLY.",
+      "workout": { "term": "Treino", "definition": "A sessão completa que você cria, programa ou registra." },
+      "variation": { "term": "Variação", "definition": "Uma versão por nível, como Rx ou Iniciante." },
+      "section": { "term": "Seção", "definition": "Uma parte distinta, como força ou condicionamento." },
+      "movement": { "term": "Movimento", "definition": "Um exercício que você pode programar e acompanhar separadamente." }
     }
   },
   "workouts": {
@@ -816,6 +856,13 @@
         "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
         "useSimple": "Usar configuração simples",
         "useAdvanced": "Mostrar opções avançadas"
+      },
+      "concepts": {
+        "title": "Como a programação é organizada",
+        "description": "Um guia rápido de variações, seções e movimentos.",
+        "variation": { "title": "Variação", "description": "Uma versão para um nível, como Rx, Intermediário ou Iniciante." },
+        "section": { "title": "Seção", "description": "Uma parte do treino, como força, aquecimento ou metcon." },
+        "movement": { "title": "Movimento", "description": "Um exercício dentro de uma seção, com repetições, carga, distância ou tempo opcionais." }
       },
       "importer": {
         "title": "Importar texto do treino",
@@ -1079,6 +1126,18 @@
       "description": "Registre seu desempenho neste treino.",
       "quickLogTitle": "Registro rápido",
       "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+      "firstUse": {
+        "eyebrow": "Primeiro resultado",
+        "title": "Registrar leva só um momento",
+        "description": "Comece pelo resultado do treino. Adicione apenas os detalhes extras que forem úteis.",
+        "steps": {
+          "score": { "title": "Informe o resultado principal", "description": "Este é o único dado necessário para salvar o resultado." },
+          "movements": { "title": "Adicione detalhes por movimento se quiser", "description": "Expanda cada movimento para registrar repetições, carga, distância ou tempo." },
+          "details": { "title": "Revise e salve", "description": "Data, hora e observações são opcionais e ficam recolhidas." }
+        },
+        "action": "Entendi — registrar resultado",
+        "dismiss": "Fechar guia de registro"
+      },
       "score": "Resultado do treino",
       "scoreHelp": {
         "time": "Informe quanto tempo você levou para terminar.",

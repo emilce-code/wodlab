@@ -12,6 +12,7 @@ export type NavigationIconName =
   | "notifications"
   | "boxes"
   | "admin"
+  | "help"
   | "close";
 
 type Props = {
@@ -101,6 +102,13 @@ const paths: Record<NavigationIconName, React.ReactNode> = {
     <>
       <path d="M12 3 4 7v5c0 4.6 3.2 7.6 8 9 4.8-1.4 8-4.4 8-9V7z" />
       <path d="M9 12l2 2 4-4" />
+    </>
+  ),
+  help: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.8 9a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 2" />
+      <path d="M12 17h.01" />
     </>
   ),
   close: <path d="m6 6 12 12M18 6 6 18" />,

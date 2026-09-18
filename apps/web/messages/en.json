@@ -66,6 +66,7 @@
     "history": "History",
     "progress": "Progress",
     "movements": "Movements",
+    "help": "Help & guides",
     "account": "Account",
     "logout": "Log out",
     "more": "More",
@@ -650,6 +651,20 @@
       "evening": "Good evening, {name}"
     },
     "readyToTrain": "Here’s where your training stands today.",
+    "onboarding": {
+      "eyebrow": "Getting started",
+      "title": "Set up your training space",
+      "description": "A few quick steps make your recommendations and progress more useful.",
+      "progress": "{completed}/{total} complete",
+      "dismiss": "Dismiss getting started checklist",
+      "items": {
+        "profile": { "title": "Complete your athlete profile", "description": "Add your goals and weekly training target." },
+        "preferences": { "title": "Choose your preferences", "description": "Select your usual level and prescription category." },
+        "movement": { "title": "Log a movement result", "description": "Record a lift, skill, distance, or time." },
+        "workout": { "title": "Log your first workout", "description": "Save the main score for a completed workout." },
+        "schedule": { "title": "Plan a workout", "description": "Add a workout to your training calendar." }
+      }
+    },
     "stats": {
       "workouts": "Workouts",
       "movementResults": "Movement results",
@@ -724,6 +739,31 @@
       "emptyTitle": "No training logged yet",
       "emptyDescription": "Complete a workout or log a movement result and your recent activity will appear here.",
       "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
+  },
+  "help": {
+    "eyebrow": "Help & guides",
+    "title": "Learn WODLY at your pace",
+    "description": "Short, practical explanations are always here when you need them.",
+    "searchLabel": "Search help guides",
+    "searchPlaceholder": "Search workouts, results, progress...",
+    "guidesTitle": "Explore the app",
+    "empty": "No guide matches that search yet.",
+    "guides": {
+      "gettingStarted": { "title": "Getting started", "summary": "Set up your profile and log your first session", "body": "Complete your goals, weekly target, usual workout level, and prescription category in Account. Then choose a workout or movement and save your first result. Your dashboard, history, and progress views update automatically." },
+      "workouts": { "title": "Workouts and variations", "summary": "Understand levels, sections, and movement targets", "body": "A workout can have several variations for different athlete levels. Each variation contains sections, and each section contains movements. Pick the variation that matches your training today; your saved preference is only a helpful default." },
+      "results": { "title": "Logging results", "summary": "Save a score quickly and add optional detail", "body": "The workout score is the only required performance detail. Expand Movement performance to record exercise-specific values, or Result details to change the date, time, and notes. These extra fields improve charts and personal-record tracking." },
+      "progress": { "title": "Progress and personal records", "summary": "See trends without doing extra work", "body": "Every saved workout and movement result feeds History and Progress. Personal records compare compatible measurements, such as the same lift and rep max, so consistent logging produces more useful trends." },
+      "training": { "title": "Planning and classes", "summary": "Schedule training and follow your daily plan", "body": "Add a workout to Training for a future date, or book a class offered by your active box. Scheduled and coach-assigned workouts appear in your daily plan and can be opened directly when it is time to train." },
+      "coaching": { "title": "Coaches and feedback", "summary": "Work with a coach without losing control of your log", "body": "Connected coaches can assign workouts and leave feedback. You still record your own result and comments. Coach tools appear only for accounts with coaching access." }
+    },
+    "concepts": {
+      "title": "Core concepts",
+      "description": "These four building blocks explain most of WODLY.",
+      "workout": { "term": "Workout", "definition": "The complete training session you create, schedule, or log." },
+      "variation": { "term": "Variation", "definition": "A level-specific version of a workout, such as Rx or Beginner." },
+      "section": { "term": "Section", "definition": "A distinct part of a variation, such as strength or conditioning." },
+      "movement": { "term": "Movement", "definition": "An exercise you can program and track independently over time." }
     }
   },
   "workouts": {
@@ -816,6 +856,13 @@
         "advancedDescription": "Create multiple levels, sections, custom notes, and category-specific prescriptions.",
         "useSimple": "Use simple setup",
         "useAdvanced": "Show advanced options"
+      },
+      "concepts": {
+        "title": "How workout programming is organized",
+        "description": "A quick guide to variations, sections, and movements.",
+        "variation": { "title": "Variation", "description": "A version for one athlete level, such as Rx, Intermediate, or Beginner." },
+        "section": { "title": "Section", "description": "One part of the workout, such as strength, a warm-up, or the metcon." },
+        "movement": { "title": "Movement", "description": "An exercise inside a section, with optional reps, load, distance, or time." }
       },
       "importer": {
         "title": "Import workout text",
@@ -1079,6 +1126,18 @@
       "description": "Record your performance for this workout.",
       "quickLogTitle": "Quick log",
       "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
+      "firstUse": {
+        "eyebrow": "First result",
+        "title": "Logging takes only a moment",
+        "description": "Start with the workout score. Add only the extra detail that is useful to you.",
+        "steps": {
+          "score": { "title": "Enter the main score", "description": "This is the only detail you need to save the result." },
+          "movements": { "title": "Add movement detail if useful", "description": "Expand individual movements to record reps, load, distance, or time." },
+          "details": { "title": "Review and save", "description": "Date, time, and notes are optional and stay collapsed." }
+        },
+        "action": "Got it — log my result",
+        "dismiss": "Close result logging guide"
+      },
       "score": "Workout score",
       "scoreHelp": {
         "time": "Enter how long it took you to finish.",
