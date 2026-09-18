@@ -32,7 +32,7 @@ export default function ActiveBoxSwitcher() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
-  if (!activeBox) return null;
+  if (!activeBox || boxes.length < 2) return null;
 
   function close(restoreFocus = false) {
     setOpen(false);
