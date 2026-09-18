@@ -78,7 +78,20 @@
     "closeAccountMenu": "Fechar menu da conta"
   },
   "boxContext": {
-    "label": "Box ativo"
+    "label": "Box ativo",
+    "title": "Selecionar box ativo",
+    "description": "Este box define as aulas e o contexto da equipe exibidos no WODLY.",
+    "active": "Ativo",
+    "switching": "Alterando…",
+    "search": "Buscar boxes…",
+    "noResults": "Nenhum box corresponde à sua busca.",
+    "close": "Fechar seletor de box",
+    "error": "Não foi possível alterar o box. Tente novamente.",
+    "roles": {
+      "owner": "Proprietário",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    }
   },
   "adminUsers": {
     "eyebrow": "Administração",

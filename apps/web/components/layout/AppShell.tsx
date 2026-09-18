@@ -5,17 +5,21 @@ import Sidebar from "./Sidebar";
 import PwaManager from "@/components/pwa/PwaManager";
 import type { CurrentUser } from "@/lib/auth";
 import ActiveBoxSwitcher from "./ActiveBoxSwitcher";
+import { ActiveBoxProvider } from "./ActiveBoxContext";
+import type { BoxSummary } from "@/lib/boxes";
 
 type Props = {
   children: ReactNode;
 
   user: CurrentUser;
+  initialBoxes: BoxSummary[];
 };
 
-export default async function AppShell({ children, user }: Props) {
+export default async function AppShell({ children, user, initialBoxes }: Props) {
   const t = await getTranslations("navigation");
 
   return (
+    <ActiveBoxProvider initialBoxes={initialBoxes}>
     <div className="min-h-screen bg-background text-foreground">
       <PwaManager />
       <a
@@ -38,5 +42,6 @@ export default async function AppShell({ children, user }: Props) {
 
       <MobileNavigation user={user} />
     </div>
+    </ActiveBoxProvider>
   );
 }
