@@ -1216,6 +1216,42 @@ export default function WorkoutForm({
 
       {currentStep === "programming" ? (
         <section className="min-w-0">
+          <details className="group mb-4 rounded-xl border border-border bg-surface">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none">
+              <span>
+                <span className="block text-sm font-semibold">
+                  {t("concepts.title")}
+                </span>
+                <span className="mt-0.5 block text-xs font-normal text-muted">
+                  {t("concepts.description")}
+                </span>
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-lg text-muted transition group-open:rotate-45"
+              >
+                +
+              </span>
+            </summary>
+            <div className="grid gap-3 border-t border-border p-4 sm:grid-cols-3">
+              {["variation", "section", "movement"].map((concept, index) => (
+                <div key={concept} className="flex gap-3 sm:block">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-bold text-accent">
+                    {index + 1}
+                  </span>
+                  <div className="sm:mt-2">
+                    <p className="text-sm font-semibold">
+                      {t(`concepts.${concept}.title`)}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {t(`concepts.${concept}.description`)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+
           <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>

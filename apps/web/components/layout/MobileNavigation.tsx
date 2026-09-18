@@ -35,6 +35,7 @@ export default function MobileNavigation({ user }: Props) {
     pathname.startsWith("/coach") ||
     pathname.startsWith("/movements") ||
     pathname.startsWith("/calculators") ||
+    pathname.startsWith("/help") ||
     pathname.startsWith("/notifications") ||
     pathname.startsWith("/classes") ||
     pathname.startsWith("/box-admin") ||
@@ -202,6 +203,16 @@ export default function MobileNavigation({ user }: Props) {
               >
                 <NavigationIcon name="calculator" className="h-5 w-5" />
                 {t("calculators")}
+              </Link>
+
+              <Link
+                href="/help"
+                onClick={() => closeMoreMenu()}
+                aria-current={pathname.startsWith("/help") ? "page" : undefined}
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <NavigationIcon name="help" className="h-5 w-5" />
+                {t("help")}
               </Link>
 
               {canManageUsers ? (
