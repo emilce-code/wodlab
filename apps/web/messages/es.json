@@ -658,11 +658,26 @@
       "progress": "{completed}/{total} completados",
       "dismiss": "Ocultar lista de primeros pasos",
       "items": {
-        "profile": { "title": "Completa tu perfil de atleta", "description": "Añade tus objetivos y meta semanal de entrenamiento." },
-        "preferences": { "title": "Elige tus preferencias", "description": "Selecciona tu nivel y categoría de prescripción habituales." },
-        "movement": { "title": "Registra un movimiento", "description": "Guarda un levantamiento, habilidad, distancia o tiempo." },
-        "workout": { "title": "Registra tu primer entrenamiento", "description": "Guarda el resultado principal de un entrenamiento terminado." },
-        "schedule": { "title": "Planifica un entrenamiento", "description": "Añade un entrenamiento a tu calendario." }
+        "profile": {
+          "title": "Completa tu perfil de atleta",
+          "description": "Añade tus objetivos y meta semanal de entrenamiento."
+        },
+        "preferences": {
+          "title": "Elige tus preferencias",
+          "description": "Selecciona tu nivel y categoría de prescripción habituales."
+        },
+        "movement": {
+          "title": "Registra un movimiento",
+          "description": "Guarda un levantamiento, habilidad, distancia o tiempo."
+        },
+        "workout": {
+          "title": "Registra tu primer entrenamiento",
+          "description": "Guarda el resultado principal de un entrenamiento terminado."
+        },
+        "schedule": {
+          "title": "Planifica un entrenamiento",
+          "description": "Añade un entrenamiento a tu calendario."
+        }
       }
     },
     "stats": {
@@ -744,26 +759,187 @@
   "help": {
     "eyebrow": "Ayuda y guías",
     "title": "Aprende WODLY a tu ritmo",
-    "description": "Explicaciones breves y prácticas siempre disponibles cuando las necesites.",
+    "description": "Descubre cómo encaja WODLY con un ejemplo guiado y práctico.",
+    "moreGuidesTitle": "Sigue explorando",
+    "moreGuidesDescription": "Abre un tema cuando necesites un repaso rápido.",
+    "learning": {
+      "eyebrow": "Guía interactiva",
+      "title": "Aprende los conceptos paso a paso",
+      "description": "Empieza con un movimiento y descubre cómo se convierte en parte de un entrenamiento completo.",
+      "progress": "{current} de {total}",
+      "stepLabel": "Concepto {number}",
+      "tryIt": "Prueba el ejemplo",
+      "previous": "Anterior",
+      "next": "Siguiente: {concept}",
+      "complete": "Conceptos principales completados",
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimiento",
+          "title": "El movimiento es la unidad más pequeña",
+          "description": "Un movimiento es un ejercicio, como sentadilla trasera, remo o dominada. WODLY guarda su categoría y cómo puede medirse para programarlo o seguirlo de forma independiente.",
+          "keyPoint": "Un movimiento puede aparecer en muchos entrenamientos y mantener su propio historial de resultados."
+        },
+        "workout": {
+          "shortTitle": "Entrenamiento",
+          "title": "El entrenamiento da un propósito a los movimientos",
+          "description": "Un entrenamiento combina uno o más movimientos en una sesión con un formato y resultado principal. Puedes terminar por tiempo, completar rondas en un AMRAP o registrar la carga máxima.",
+          "keyPoint": "El resultado resume la sesión; los resultados por movimiento añaden detalle opcional."
+        },
+        "variation": {
+          "shortTitle": "Variación",
+          "title": "Las variaciones mantienen el objetivo en distintos niveles",
+          "description": "El mismo entrenamiento puede tener versiones Rx, Intermedia y Principiante. Cada una ajusta movimientos, repeticiones o cargas al atleta sin perder el estímulo buscado.",
+          "keyPoint": "Una variación no es otro entrenamiento: es un camino accesible hacia el mismo objetivo."
+        },
+        "section": {
+          "shortTitle": "Sección",
+          "title": "Las secciones ordenan el entrenamiento en partes claras",
+          "description": "Una variación puede contener secciones ordenadas como calentamiento, fuerza, habilidad y acondicionamiento. Cada sección tiene su propia configuración y movimientos.",
+          "keyPoint": "Las secciones explican qué hacer, en qué orden y por qué cada parte pertenece a la sesión."
+        },
+        "prescription": {
+          "shortTitle": "Prescripción",
+          "title": "La prescripción indica qué debe realizar el atleta",
+          "description": "Una prescripción añade el objetivo al movimiento: repeticiones, carga, distancia, duración, calorías o porcentaje de un RM. Un objetivo general puede aplicarse a todos y tener valores por categoría cuando sea necesario.",
+          "keyPoint": "El movimiento es el ejercicio; la prescripción es el objetivo asignado dentro de este entrenamiento."
+        }
+      },
+      "movement": {
+        "tryLabel": "Elige un ejemplo de movimiento",
+        "examples": {
+          "backSquat": {
+            "name": "Sentadilla trasera",
+            "description": "Una sentadilla con carga que permite seguir el progreso de fuerza.",
+            "category": "Halterofilia",
+            "measurement": "Peso + repeticiones"
+          },
+          "row": {
+            "name": "Remo",
+            "description": "Un movimiento monoestructural medido por distancia, calorías o duración.",
+            "category": "Monoestructural",
+            "measurement": "Distancia · Calorías · Tiempo"
+          },
+          "pullUp": {
+            "name": "Dominada",
+            "description": "Un movimiento gimnástico que suele medirse por repeticiones completadas.",
+            "category": "Gimnasia",
+            "measurement": "Repeticiones"
+          }
+        }
+      },
+      "workout": {
+        "example": {
+          "type": "Por tiempo",
+          "name": "Levanta, tira y rema",
+          "score": "12:48",
+          "movements": {
+            "backSquat": "15 sentadillas traseras",
+            "row": "500 m de remo",
+            "pullUp": "15 dominadas"
+          },
+          "note": "Estos movimientos comparten ahora un objetivo y generan un único resultado."
+        }
+      },
+      "variation": {
+        "tryLabel": "Compara variaciones",
+        "exampleTitle": "Variación {level}",
+        "levels": {
+          "rx": {
+            "name": "Rx",
+            "movementOne": "15 sentadillas traseras · 60/42,5 kg",
+            "movementTwo": "15 dominadas",
+            "stimulus": "Mayor carga y gimnasia avanzada para atletas preparados para el entrenamiento original."
+          },
+          "beginner": {
+            "name": "Principiante",
+            "movementOne": "15 sentadillas goblet · carga ligera",
+            "movementTwo": "15 remos en anillas",
+            "stimulus": "Movimientos más accesibles que conservan el objetivo de sentadilla y tracción."
+          }
+        }
+      },
+      "section": {
+        "examples": {
+          "strength": {
+            "name": "Fuerza",
+            "content": "Sentadilla trasera · 5 series de 5",
+            "purpose": "Desarrolla fuerza primero, cuando el atleta está fresco."
+          },
+          "conditioning": {
+            "name": "Acondicionamiento",
+            "content": "3 rondas · remo + dominadas",
+            "purpose": "Después combina trabajo cíclico y gimnasia con intensidad."
+          }
+        }
+      },
+      "prescription": {
+        "genericLabel": "Objetivo general del movimiento",
+        "genericValue": "5 repeticiones al 75% del 1RM",
+        "genericHelp": "Este porcentaje se aplica sin importar la categoría de prescripción.",
+        "categoryLabel": "Carga por categoría",
+        "categoryHelp": "La categoría cambia la carga asignada sin crear otra variación.",
+        "tryLabel": "Compara categorías de prescripción",
+        "categories": {
+          "men": { "name": "Hombres", "value": "60 kg" },
+          "women": { "name": "Mujeres", "value": "42,5 kg" }
+        }
+      }
+    },
     "searchLabel": "Buscar en las guías",
     "searchPlaceholder": "Buscar entrenamientos, resultados, progreso...",
     "guidesTitle": "Explora la app",
     "empty": "Todavía no hay una guía que coincida con esa búsqueda.",
     "guides": {
-      "gettingStarted": { "title": "Primeros pasos", "summary": "Configura tu perfil y registra tu primera sesión", "body": "Completa tus objetivos, meta semanal, nivel habitual y categoría de prescripción en Cuenta. Luego elige un entrenamiento o movimiento y guarda tu primer resultado. Tu panel, historial y progreso se actualizarán automáticamente." },
-      "workouts": { "title": "Entrenamientos y variaciones", "summary": "Entiende niveles, secciones y objetivos por movimiento", "body": "Un entrenamiento puede tener varias variaciones para distintos niveles. Cada variación contiene secciones y cada sección contiene movimientos. Elige la variación adecuada para hoy; tu preferencia guardada es solo una opción predeterminada útil." },
-      "results": { "title": "Registro de resultados", "summary": "Guarda un resultado rápido y añade detalle opcional", "body": "El resultado del entrenamiento es el único dato de rendimiento obligatorio. Expande Rendimiento por movimiento para registrar valores específicos, o Detalles del resultado para cambiar fecha, hora y notas. Estos datos mejoran las gráficas y el seguimiento de récords." },
-      "progress": { "title": "Progreso y récords personales", "summary": "Consulta tendencias sin trabajo adicional", "body": "Cada resultado guardado alimenta Historial y Progreso. Los récords comparan mediciones compatibles, como el mismo levantamiento y RM, por lo que un registro constante produce tendencias más útiles." },
-      "training": { "title": "Planificación y clases", "summary": "Programa entrenamientos y sigue tu plan diario", "body": "Añade un entrenamiento al Plan para una fecha futura o reserva una clase de tu box activo. Los entrenamientos programados y asignados aparecen en tu plan diario y puedes abrirlos directamente al entrenar." },
-      "coaching": { "title": "Coaches y feedback", "summary": "Trabaja con un coach sin perder el control de tu registro", "body": "Los coaches conectados pueden asignar entrenamientos y dejar feedback. Tú sigues registrando tus resultados y comentarios. Las herramientas de coach solo aparecen para cuentas con acceso." }
+      "gettingStarted": {
+        "title": "Primeros pasos",
+        "summary": "Configura tu perfil y registra tu primera sesión",
+        "body": "Completa tus objetivos, meta semanal, nivel habitual y categoría de prescripción en Cuenta. Luego elige un entrenamiento o movimiento y guarda tu primer resultado. Tu panel, historial y progreso se actualizarán automáticamente."
+      },
+      "workouts": {
+        "title": "Entrenamientos y variaciones",
+        "summary": "Entiende niveles, secciones y objetivos por movimiento",
+        "body": "Un entrenamiento puede tener varias variaciones para distintos niveles. Cada variación contiene secciones y cada sección contiene movimientos. Elige la variación adecuada para hoy; tu preferencia guardada es solo una opción predeterminada útil."
+      },
+      "results": {
+        "title": "Registro de resultados",
+        "summary": "Guarda un resultado rápido y añade detalle opcional",
+        "body": "El resultado del entrenamiento es el único dato de rendimiento obligatorio. Expande Rendimiento por movimiento para registrar valores específicos, o Detalles del resultado para cambiar fecha, hora y notas. Estos datos mejoran las gráficas y el seguimiento de récords."
+      },
+      "progress": {
+        "title": "Progreso y récords personales",
+        "summary": "Consulta tendencias sin trabajo adicional",
+        "body": "Cada resultado guardado alimenta Historial y Progreso. Los récords comparan mediciones compatibles, como el mismo levantamiento y RM, por lo que un registro constante produce tendencias más útiles."
+      },
+      "training": {
+        "title": "Planificación y clases",
+        "summary": "Programa entrenamientos y sigue tu plan diario",
+        "body": "Añade un entrenamiento al Plan para una fecha futura o reserva una clase de tu box activo. Los entrenamientos programados y asignados aparecen en tu plan diario y puedes abrirlos directamente al entrenar."
+      },
+      "coaching": {
+        "title": "Coaches y feedback",
+        "summary": "Trabaja con un coach sin perder el control de tu registro",
+        "body": "Los coaches conectados pueden asignar entrenamientos y dejar feedback. Tú sigues registrando tus resultados y comentarios. Las herramientas de coach solo aparecen para cuentas con acceso."
+      }
     },
     "concepts": {
       "title": "Conceptos principales",
       "description": "Estos cuatro elementos explican la mayor parte de WODLY.",
-      "workout": { "term": "Entrenamiento", "definition": "La sesión completa que creas, programas o registras." },
-      "variation": { "term": "Variación", "definition": "Una versión por nivel, como Rx o Principiante." },
-      "section": { "term": "Sección", "definition": "Una parte diferenciada, como fuerza o acondicionamiento." },
-      "movement": { "term": "Movimiento", "definition": "Un ejercicio que puedes programar y seguir de forma independiente." }
+      "workout": {
+        "term": "Entrenamiento",
+        "definition": "La sesión completa que creas, programas o registras."
+      },
+      "variation": {
+        "term": "Variación",
+        "definition": "Una versión por nivel, como Rx o Principiante."
+      },
+      "section": {
+        "term": "Sección",
+        "definition": "Una parte diferenciada, como fuerza o acondicionamiento."
+      },
+      "movement": {
+        "term": "Movimiento",
+        "definition": "Un ejercicio que puedes programar y seguir de forma independiente."
+      }
     }
   },
   "workouts": {
@@ -860,9 +1036,18 @@
       "concepts": {
         "title": "Cómo se organiza la programación",
         "description": "Una guía rápida de variaciones, secciones y movimientos.",
-        "variation": { "title": "Variación", "description": "Una versión para un nivel, como Rx, Intermedio o Principiante." },
-        "section": { "title": "Sección", "description": "Una parte del entrenamiento, como fuerza, calentamiento o metcon." },
-        "movement": { "title": "Movimiento", "description": "Un ejercicio dentro de una sección, con repeticiones, carga, distancia o tiempo opcionales." }
+        "variation": {
+          "title": "Variación",
+          "description": "Una versión para un nivel, como Rx, Intermedio o Principiante."
+        },
+        "section": {
+          "title": "Sección",
+          "description": "Una parte del entrenamiento, como fuerza, calentamiento o metcon."
+        },
+        "movement": {
+          "title": "Movimiento",
+          "description": "Un ejercicio dentro de una sección, con repeticiones, carga, distancia o tiempo opcionales."
+        }
       },
       "importer": {
         "title": "Importar texto del entrenamiento",
@@ -1131,9 +1316,18 @@
         "title": "Registrar toma solo un momento",
         "description": "Empieza con el resultado del entrenamiento. Añade solo el detalle extra que te resulte útil.",
         "steps": {
-          "score": { "title": "Introduce el resultado principal", "description": "Es el único dato que necesitas para guardar el resultado." },
-          "movements": { "title": "Añade detalle por movimiento si te sirve", "description": "Expande cada movimiento para registrar repeticiones, carga, distancia o tiempo." },
-          "details": { "title": "Revisa y guarda", "description": "La fecha, la hora y las notas son opcionales y permanecen contraídas." }
+          "score": {
+            "title": "Introduce el resultado principal",
+            "description": "Es el único dato que necesitas para guardar el resultado."
+          },
+          "movements": {
+            "title": "Añade detalle por movimiento si te sirve",
+            "description": "Expande cada movimiento para registrar repeticiones, carga, distancia o tiempo."
+          },
+          "details": {
+            "title": "Revisa y guarda",
+            "description": "La fecha, la hora y las notas son opcionales y permanecen contraídas."
+          }
         },
         "action": "Entendido — registrar resultado",
         "dismiss": "Cerrar guía de registro"
