@@ -493,7 +493,7 @@ export default function HelpGuide() {
   }
 
   return (
-    <div className="mt-6 space-y-5 sm:mt-8">
+    <div className="space-y-5">
       <section
         id="visual-guide-card"
         aria-labelledby="visual-guide-title"
