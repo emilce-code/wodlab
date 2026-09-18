@@ -760,6 +760,116 @@
     "eyebrow": "Help & guides",
     "title": "Learn WODLY at your pace",
     "description": "Learn how WODLY fits together through a guided, hands-on example.",
+    "visualGuide": {
+      "skip": "Skip",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish and create a workout",
+      "progressLabel": "Guide progress",
+      "goToStep": "Go to step {step}",
+      "steps": {
+        "movement": {
+          "shortTitle": "Movement",
+          "lead": "Let’s start with the building block",
+          "title": "Movement",
+          "description": "A movement is a single exercise that you can add to a workout and track independently over time.",
+          "insight": "Movements are the reusable building blocks of every workout."
+        },
+        "workout": {
+          "shortTitle": "Workout",
+          "lead": "Now put movements together",
+          "title": "Workout",
+          "description": "A workout is the complete training session. It brings together one or more movements and organizes them into sections.",
+          "insight": "A workout brings different movements together into one training session."
+        },
+        "section": {
+          "shortTitle": "Section",
+          "lead": "Organize your training",
+          "title": "Section",
+          "description": "Sections divide a workout into meaningful parts such as warm-up, strength, WOD, and cooldown.",
+          "insight": "Sections define the structure and order of the workout."
+        },
+        "variation": {
+          "shortTitle": "Variation",
+          "lead": "Add different athlete levels",
+          "title": "Variation",
+          "description": "Variations create Rx, Intermediate, or Beginner versions of the workout sections while preserving the intended training goal.",
+          "insight": "Variations are different level versions of the same workout—not different workouts."
+        },
+        "prescription": {
+          "shortTitle": "Prescription",
+          "lead": "Define the specific targets",
+          "title": "Prescription",
+          "description": "A prescription defines the exact target for a movement. Use it when Men and Women need different weights, reps, distances, or other values.",
+          "insight": "The movement stays the same; the prescription provides category-specific targets for Men and Women."
+        }
+      },
+      "examples": {
+        "movement": {
+          "label": "Movement",
+          "name": "Thruster",
+          "detail": "A full-body movement that combines a front squat and a shoulder press.",
+          "tags": {
+            "strength": "Strength",
+            "barbell": "Barbell",
+            "fullBody": "Full body"
+          }
+        },
+        "workout": {
+          "label": "Workout",
+          "name": "Friday Training",
+          "detail": "A full training session designed to build strength and conditioning.",
+          "movements": {
+            "thruster": "Thruster",
+            "pullUp": "Pull-up",
+            "run": "Run"
+          },
+          "more": "and more…"
+        },
+        "section": {
+          "workoutName": "Friday Training",
+          "sections": {
+            "warmup": "Warm-up",
+            "strength": "Strength",
+            "wod": "WOD",
+            "cooldown": "Cooldown"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": { "name": "Rx", "description": "For experienced athletes" },
+            "intermediate": {
+              "name": "Intermediate",
+              "description": "A balanced challenge"
+            },
+            "beginner": {
+              "name": "Beginner",
+              "description": "Accessible scaled movements"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Men",
+          "women": "Women",
+          "note": "Same movement and variation. Different prescribed targets for Men and Women."
+        }
+      },
+      "bigPicture": {
+        "title": "The big picture",
+        "description": "See how every concept connects as the example grows.",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Friday Training",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
     "moreGuidesTitle": "Keep exploring",
     "moreGuidesDescription": "Open a topic whenever you need a quick refresher.",
     "learning": {

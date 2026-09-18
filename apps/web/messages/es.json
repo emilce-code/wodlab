@@ -760,6 +760,119 @@
     "eyebrow": "Ayuda y guías",
     "title": "Aprende WODLY a tu ritmo",
     "description": "Descubre cómo encaja WODLY con un ejemplo guiado y práctico.",
+    "visualGuide": {
+      "skip": "Omitir",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "finish": "Finalizar y crear un entrenamiento",
+      "progressLabel": "Progreso de la guía",
+      "goToStep": "Ir al paso {step}",
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimiento",
+          "lead": "Empecemos por la unidad básica",
+          "title": "Movimiento",
+          "description": "Un movimiento es un ejercicio individual que puedes añadir a un entrenamiento y seguir de forma independiente a lo largo del tiempo.",
+          "insight": "Los movimientos son las unidades reutilizables de todos los entrenamientos."
+        },
+        "workout": {
+          "shortTitle": "Entrenamiento",
+          "lead": "Ahora reúne los movimientos",
+          "title": "Entrenamiento",
+          "description": "Un entrenamiento es la sesión completa. Reúne uno o más movimientos y los organiza en secciones.",
+          "insight": "Un entrenamiento reúne diferentes movimientos en una sola sesión."
+        },
+        "section": {
+          "shortTitle": "Sección",
+          "lead": "Organiza tu entrenamiento",
+          "title": "Sección",
+          "description": "Las secciones dividen el entrenamiento en partes como calentamiento, fuerza, WOD y vuelta a la calma.",
+          "insight": "Las secciones definen la estructura y el orden del entrenamiento."
+        },
+        "variation": {
+          "shortTitle": "Variación",
+          "lead": "Añade distintos niveles",
+          "title": "Variación",
+          "description": "Las variaciones crean versiones Rx, Intermedia o Principiante de las secciones, conservando el objetivo del entrenamiento.",
+          "insight": "Las variaciones son versiones por nivel del mismo entrenamiento, no entrenamientos diferentes."
+        },
+        "prescription": {
+          "shortTitle": "Prescripción",
+          "lead": "Define los objetivos específicos",
+          "title": "Prescripción",
+          "description": "Una prescripción define el objetivo exacto de un movimiento. Úsala cuando Hombres y Mujeres necesiten pesos, repeticiones, distancias u otros valores diferentes.",
+          "insight": "El movimiento no cambia; la prescripción asigna objetivos específicos para Hombres y Mujeres."
+        }
+      },
+      "examples": {
+        "movement": {
+          "label": "Movimiento",
+          "name": "Thruster",
+          "detail": "Un movimiento de cuerpo completo que combina una sentadilla frontal y un press de hombros.",
+          "tags": {
+            "strength": "Fuerza",
+            "barbell": "Barra",
+            "fullBody": "Cuerpo completo"
+          }
+        },
+        "workout": {
+          "label": "Entrenamiento",
+          "name": "Entrenamiento del viernes",
+          "detail": "Una sesión completa diseñada para desarrollar fuerza y acondicionamiento.",
+          "movements": {
+            "thruster": "Thruster",
+            "pullUp": "Dominada",
+            "run": "Carrera"
+          },
+          "more": "y más…"
+        },
+        "section": {
+          "workoutName": "Entrenamiento del viernes",
+          "sections": {
+            "warmup": "Calentamiento",
+            "strength": "Fuerza",
+            "wod": "WOD",
+            "cooldown": "Vuelta a la calma"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": {
+              "name": "Rx",
+              "description": "Para atletas experimentados"
+            },
+            "intermediate": {
+              "name": "Intermedio",
+              "description": "Un desafío equilibrado"
+            },
+            "beginner": {
+              "name": "Principiante",
+              "description": "Movimientos escalados y accesibles"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Hombres",
+          "women": "Mujeres",
+          "note": "Mismo movimiento y variación. Objetivos prescritos diferentes para Hombres y Mujeres."
+        }
+      },
+      "bigPicture": {
+        "title": "La idea completa",
+        "description": "Observa cómo se conecta cada concepto a medida que crece el ejemplo.",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Entrenamiento del viernes",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
     "moreGuidesTitle": "Sigue explorando",
     "moreGuidesDescription": "Abre un tema cuando necesites un repaso rápido.",
     "learning": {
