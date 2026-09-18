@@ -59,6 +59,120 @@ function ConceptIcon({ concept }: { concept: LessonKey }) {
   );
 }
 
+function WorkoutConceptGraphic({ activeIndex }: { activeIndex: number }) {
+  const t = useTranslations("help.learning.graphic");
+  const showWorkout = activeIndex >= 1;
+  const showVariation = activeIndex >= 2;
+  const showSection = activeIndex >= 3;
+  const showPrescription = activeIndex >= 4;
+
+  let graphic: React.ReactNode = (
+    <div
+      className={`rounded-xl border border-emerald-500/30 bg-emerald-500/[0.035] p-3 transition-all ${activeIndex === 0 ? "ring-2 ring-emerald-500/30" : ""}`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/15">
+            M1
+          </span>
+          {t("movement")}
+        </span>
+        <span className="text-xs text-muted">{t("measurement")}</span>
+      </div>
+      <p className="mt-2 font-bold">{t("movementName")}</p>
+      {showPrescription ? (
+        <div className="mt-3 rounded-lg border border-dashed border-accent bg-accent/10 px-3 py-2 ring-2 ring-accent/20">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-accent">
+            {t("prescription")}
+          </p>
+          <p className="mt-1 text-sm font-semibold">{t("prescriptionValue")}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  if (showSection) {
+    graphic = (
+      <div
+        className={`rounded-xl border border-sky-500/30 bg-sky-500/[0.035] p-3 transition-all ${activeIndex === 3 ? "ring-2 ring-sky-500/30" : ""}`}
+      >
+        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-sky-700 dark:text-sky-300">
+          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500/15">
+            S1
+          </span>
+          {t("section")}
+        </span>
+        <p className="mb-3 mt-1 text-sm font-semibold">{t("sectionName")}</p>
+        {graphic}
+      </div>
+    );
+  }
+
+  if (showVariation) {
+    graphic = (
+      <div
+        className={`rounded-2xl border border-accent/35 bg-accent/[0.035] p-3 transition-all ${activeIndex === 2 ? "ring-2 ring-accent/25" : ""}`}
+      >
+        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-accent">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-accent-foreground">
+            V1
+          </span>
+          {t("variation")}
+        </span>
+        <p className="mb-3 mt-1 text-sm font-semibold">{t("variationName")}</p>
+        {graphic}
+      </div>
+    );
+  }
+
+  if (showWorkout) {
+    graphic = (
+      <div
+        className={`rounded-2xl border border-border bg-surface p-3 shadow-sm transition-all ${activeIndex === 1 ? "ring-2 ring-foreground/10" : ""}`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-foreground">
+            {t("workout")}
+          </span>
+          <span className="rounded-full bg-surface-elevated px-2.5 py-1 text-[10px] font-bold text-muted">
+            {t("workoutType")}
+          </span>
+        </div>
+        <p className="mb-3 mt-1 font-black">{t("workoutName")}</p>
+        {graphic}
+      </div>
+    );
+  }
+
+  return (
+    <figure>
+      <div className="rounded-2xl bg-background p-3 sm:p-4">{graphic}</div>
+      <figcaption className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-semibold text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full border border-foreground/40 bg-surface" />
+          {t("legendWorkout")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+          {t("legendVariation")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-sky-500" />
+          {t("legendSection")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          {t("legendMovement")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-sm border border-dashed border-accent bg-accent/10" />
+          {t("legendPrescription")}
+        </span>
+      </figcaption>
+    </figure>
+  );
+}
+
 function MovementExample() {
   const t = useTranslations("help.learning");
   const [movement, setMovement] =
@@ -383,6 +497,10 @@ export default function HelpGuide() {
             </div>
             <div className="border-t border-border bg-surface-elevated/50 p-4 sm:p-6 lg:border-l lg:border-t-0">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                {t("learning.graphicTitle")}
+              </p>
+              <WorkoutConceptGraphic activeIndex={activeIndex} />
+              <p className="mb-3 mt-6 border-t border-border pt-5 text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                 {t("learning.tryIt")}
               </p>
               <LessonExample lesson={activeLesson} />
