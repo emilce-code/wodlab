@@ -33,6 +33,17 @@ function scheduleDays() {
   });
 }
 
+function localDateTimeValue(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
+function initialClassDateTime() {
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  date.setHours(18, 0, 0, 0);
+  return localDateTimeValue(date);
+}
+
 export default function ClassHub({ initialBoxes }: Props) {
   const t = useTranslations("boxes");
   const locale = useLocale();
@@ -48,6 +59,7 @@ export default function ClassHub({ initialBoxes }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showJoin, setShowJoin] = useState(initialBoxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
+  const [creatingClass, setCreatingClass] = useState(false);
   const [view, setView] = useState<View>("all");
   const [selectedDay, setSelectedDay] = useState(dayKey(new Date()));
 
@@ -171,31 +183,36 @@ export default function ClassHub({ initialBoxes }: Props) {
   async function submitClass(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setCreatingClass(true);
     const form = new FormData(event.currentTarget);
     const workoutId = String(form.get("workoutId") || "");
     const workoutVariantId = String(form.get("workoutVariantId") || "");
     const startsAt = new Date(String(form.get("startsAt")));
-    const response = await fetch(`/api/boxes/${boxId}/classes`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: String(form.get("name")),
-        description: String(form.get("description")) || undefined,
-        startsAt: startsAt.toISOString(),
-        durationMinutes: Number(form.get("durationMinutes")),
-        capacity: Number(form.get("capacity")),
-        workoutId: workoutId || undefined,
-        workoutVariantId: workoutVariantId || undefined,
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      setError(requestMessage(data, t("errors.save")));
-      return;
+    try {
+      const response = await fetch(`/api/boxes/${boxId}/classes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: String(form.get("name")),
+          description: String(form.get("description")) || undefined,
+          startsAt: startsAt.toISOString(),
+          durationMinutes: Number(form.get("durationMinutes")),
+          capacity: Number(form.get("capacity")),
+          workoutId: workoutId || undefined,
+          workoutVariantId: workoutVariantId || undefined,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setError(requestMessage(data, t("errors.save")));
+        return;
+      }
+      setSelectedDay(dayKey(startsAt));
+      setShowCreateClass(false);
+      await loadClasses(boxId);
+    } finally {
+      setCreatingClass(false);
     }
-    setSelectedDay(dayKey(startsAt));
-    setShowCreateClass(false);
-    await loadClasses(boxId);
   }
 
   async function classAction(classId: string, method: "POST" | "PATCH" | "DELETE", suffix = "book", body?: object) {
@@ -258,8 +275,8 @@ export default function ClassHub({ initialBoxes }: Props) {
         </section>
       ) : null}
 
-      {isStaff ? <Button type="button" className="w-full" onClick={() => setShowCreateClass((value) => !value)}>{showCreateClass ? t("classForm.cancel") : t("classForm.open")}</Button> : null}
-      {showCreateClass && isStaff ? <ClassForm t={t} options={options} onSubmit={submitClass} /> : null}
+      {isStaff && !showCreateClass ? <Button type="button" className="w-full" onClick={() => setShowCreateClass(true)}>{t("classForm.open")}</Button> : null}
+      {showCreateClass && isStaff ? <ClassForm t={t} options={options} isSubmitting={creatingClass} onCancel={() => setShowCreateClass(false)} onSubmit={submitClass} /> : null}
 
       <section aria-busy={loading} className="space-y-4">
         <div className="flex items-end justify-between gap-3">
@@ -348,27 +365,80 @@ function ClassSkeleton() {
   return <div className="space-y-3" aria-hidden="true">{[0, 1, 2].map((item) => <div key={item} className="animate-pulse rounded-2xl border border-border bg-surface p-4"><div className="flex gap-4"><div className="h-14 w-14 rounded-xl bg-surface-elevated" /><div className="flex-1 space-y-2"><div className="h-5 w-2/3 rounded bg-surface-elevated" /><div className="h-4 w-1/2 rounded bg-surface-elevated" /><div className="h-4 w-3/4 rounded bg-surface-elevated" /></div></div></div>)}</div>;
 }
 
-function ClassForm({ t, options, onSubmit }: { t: ReturnType<typeof useTranslations>; options: WorkoutOption[]; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
+function ClassForm({ t, options, isSubmitting, onCancel, onSubmit }: { t: ReturnType<typeof useTranslations>; options: WorkoutOption[]; isSubmitting: boolean; onCancel: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
   const [workoutId, setWorkoutId] = useState("");
+  const [workoutVariantId, setWorkoutVariantId] = useState("");
+  const [startsAt, setStartsAt] = useState(initialClassDateTime);
+  const [duration, setDuration] = useState(60);
+  const [capacity, setCapacity] = useState(12);
   const variants = options.find((option) => option.id === workoutId)?.variants ?? [];
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(18, 0, 0, 0);
-  const defaultStartsAt = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}T${String(tomorrow.getHours()).padStart(2, "0")}:${String(tomorrow.getMinutes()).padStart(2, "0")}`;
+
+  function chooseDay(offset: number) {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    date.setHours(18, 0, 0, 0);
+    if (date.getTime() <= Date.now()) {
+      date.setTime(Date.now() + 60 * 60 * 1000);
+      date.setMinutes(0, 0, 0);
+    }
+    setStartsAt(localDateTimeValue(date));
+  }
+
+  function selectWorkout(nextWorkoutId: string) {
+    setWorkoutId(nextWorkoutId);
+    setWorkoutVariantId("");
+  }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-2xl border border-accent/30 bg-surface p-4 shadow-sm">
-      <h2 className="text-lg font-bold">{t("classForm.title")}</h2>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <label className="text-sm font-semibold sm:col-span-2">{t("classForm.name")}<input name="name" required minLength={2} placeholder={t("classForm.name")} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base" /></label>
-        <label className="text-sm font-semibold sm:col-span-2">{t("classForm.startsAt")}<input name="startsAt" type="datetime-local" required defaultValue={defaultStartsAt} className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
-        <label className="text-sm font-semibold">{t("classForm.duration")}<input name="durationMinutes" type="number" inputMode="numeric" min={15} max={240} defaultValue={60} required className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base" /></label>
-        <label className="text-sm font-semibold">{t("classForm.capacity")}<input name="capacity" type="number" inputMode="numeric" min={1} max={200} defaultValue={12} required className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base" /></label>
-        <label className="text-sm font-semibold">{t("classForm.workout")}<select name="workoutId" value={workoutId} onChange={(event) => setWorkoutId(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"><option value="">{t("classForm.noWorkout")}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-        <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? variant.level.name}</option>)}</select></label>
-        <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.description")} className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-base" /></label>
+    <form onSubmit={onSubmit} className="overflow-hidden rounded-2xl border border-accent/30 bg-surface shadow-sm">
+      <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{t("classForm.eyebrow")}</p>
+          <h2 className="mt-1 text-xl font-black">{t("classForm.title")}</h2>
+          <p className="mt-1 text-sm leading-5 text-muted">{t("classForm.help")}</p>
+        </div>
+        <Button type="button" variant="ghost" size="icon" aria-label={t("classForm.cancel")} onClick={onCancel}>×</Button>
       </div>
-      <Button className="mt-5 min-h-12 w-full sm:w-auto">{t("classForm.submit")}</Button>
+
+      <div className="space-y-5 p-4 sm:p-5">
+        <fieldset>
+          <legend className="text-sm font-black">{t("classForm.essentials")}</legend>
+          <p className="mt-1 text-xs text-muted">{t("classForm.requiredHelp")}</p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="text-sm font-semibold sm:col-span-2">{t("classForm.name")}<input name="name" required minLength={2} autoFocus placeholder={t("classForm.namePlaceholder")} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
+            <div className="sm:col-span-2">
+              <label htmlFor="class-starts-at" className="text-sm font-semibold">{t("classForm.startsAt")}</label>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:flex">
+                <button type="button" onClick={() => chooseDay(0)} className="min-h-11 rounded-xl border border-border px-3 text-sm font-semibold hover:border-accent/50">{t("classForm.today")}</button>
+                <button type="button" onClick={() => chooseDay(1)} className="min-h-11 rounded-xl border border-border px-3 text-sm font-semibold hover:border-accent/50">{t("classForm.tomorrow")}</button>
+              </div>
+              <input id="class-starts-at" name="startsAt" type="datetime-local" required min={localDateTimeValue(new Date())} value={startsAt} onChange={(event) => setStartsAt(event.target.value)} className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
+            </div>
+            <div>
+              <label htmlFor="class-duration" className="text-sm font-semibold">{t("classForm.duration")}</label>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {[45, 60, 90].map((value) => <button key={value} type="button" aria-pressed={duration === value} onClick={() => setDuration(value)} className={`min-h-11 rounded-xl border text-sm font-bold ${duration === value ? "border-accent bg-accent/10 text-accent" : "border-border"}`}>{value}</button>)}
+              </div>
+              <input id="class-duration" name="durationMinutes" type="number" inputMode="numeric" min={15} max={240} value={duration} onChange={(event) => setDuration(Number(event.target.value))} className="mt-2 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center text-base font-bold outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
+              <p className="mt-1.5 text-xs text-muted">{t("classForm.minutes")}</p>
+            </div>
+            <label className="text-sm font-semibold">{t("classForm.capacity")}<span className="mt-2 flex min-h-12 items-center overflow-hidden rounded-xl border border-border bg-background"><button type="button" aria-label={t("classForm.decreaseCapacity")} onClick={() => setCapacity((value) => Math.max(1, value - 1))} className="h-12 w-12 shrink-0 text-xl text-muted hover:bg-surface-elevated">−</button><input name="capacity" type="number" inputMode="numeric" min={1} max={200} value={capacity} onChange={(event) => setCapacity(Number(event.target.value))} className="h-12 min-w-0 flex-1 bg-transparent text-center text-base font-bold outline-none" /><button type="button" aria-label={t("classForm.increaseCapacity")} onClick={() => setCapacity((value) => Math.min(200, value + 1))} className="h-12 w-12 shrink-0 text-xl text-muted hover:bg-surface-elevated">+</button></span></label>
+          </div>
+        </fieldset>
+
+        <details className="group rounded-2xl border border-border bg-background/50">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 font-bold [&::-webkit-details-marker]:hidden"><span><span className="block">{t("classForm.optionalTitle")}</span><span className="mt-0.5 block text-xs font-normal text-muted">{t("classForm.optionalHelp")}</span></span><span aria-hidden="true" className="text-xl text-muted transition group-open:rotate-180">⌄</span></summary>
+          <div className="grid gap-4 border-t border-border p-4 sm:grid-cols-2">
+            <label className="text-sm font-semibold">{t("classForm.workout")}<select name="workoutId" value={workoutId} onChange={(event) => selectWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"><option value="">{t("classForm.noWorkout")}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+            <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? variant.level.name}</option>)}</select></label>
+            <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
+          </div>
+        </details>
+      </div>
+
+      <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-surface/95 p-4 backdrop-blur sm:static sm:flex sm:justify-end sm:p-5 lg:bottom-0">
+        <Button size="lg" isLoading={isSubmitting} className="w-full sm:w-auto">{isSubmitting ? t("classForm.submitting") : t("classForm.submit")}</Button>
+      </div>
     </form>
   );
 }
