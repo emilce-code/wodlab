@@ -357,7 +357,7 @@ function JourneyMap({
         type="button"
         onClick={() => onSelect(index)}
         aria-current={isActive(step) ? "step" : undefined}
-        className={`w-full rounded-xl border p-3 text-left transition hover:brightness-110 ${style.border} ${style.background} ${isActive(step) ? "ring-2 ring-current/20" : ""} ${className}`}
+        className={`min-h-14 w-full min-w-0 rounded-xl border p-2.5 text-left transition hover:brightness-110 sm:p-3 ${style.border} ${style.background} ${isActive(step) ? "ring-2 ring-current/20" : ""} ${className}`}
       >
         <span className="flex items-center gap-2">
           <ConceptIcon
@@ -370,7 +370,7 @@ function JourneyMap({
             >
               {t(`steps.${step}.shortTitle`)}
             </span>
-            <span className="block truncate text-sm font-bold text-foreground">
+            <span className="block break-words text-sm font-bold leading-5 text-foreground">
               {content}
             </span>
           </span>
@@ -393,9 +393,9 @@ function JourneyMap({
             {t("bigPicture.description")}
           </p>
         </div>
-        <div className="mt-5 lg:hidden">
+        <div className="mt-5 xl:hidden">
           {hierarchyCard("workout", t("bigPicture.values.workout"))}
-          <div className="ml-4 border-l border-dashed border-teal-300/40 pl-3 pt-3">
+          <div className="ml-2 border-l border-dashed border-teal-300/40 pl-2 pt-3 sm:ml-4 sm:pl-3">
             {hierarchyCard("variation", t("bigPicture.values.variation"))}
             <div className="mt-2 flex flex-wrap gap-2 pl-2 text-[10px] font-semibold text-muted">
               <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-1">
@@ -405,7 +405,7 @@ function JourneyMap({
                 {t("examples.variation.levels.beginner.name")}
               </span>
             </div>
-            <div className="ml-4 border-l border-dashed border-orange-400/40 pl-3 pt-3">
+            <div className="ml-2 border-l border-dashed border-orange-400/40 pl-2 pt-3 sm:ml-4 sm:pl-3">
               {hierarchyCard("section", t("bigPicture.values.section"))}
               <div className="mt-2 flex flex-wrap gap-2 pl-2 text-[10px] font-semibold text-muted">
                 <span>{t("examples.section.sections.warmup")}</span>
@@ -414,9 +414,9 @@ function JourneyMap({
                 <span>·</span>
                 <span>{t("examples.section.sections.cooldown")}</span>
               </div>
-              <div className="ml-4 border-l border-dashed border-purple-400/40 pl-3 pt-3">
+              <div className="ml-2 border-l border-dashed border-purple-400/40 pl-2 pt-3 sm:ml-4 sm:pl-3">
                 {hierarchyCard("movement", t("bigPicture.values.movement"))}
-                <div className="ml-4 border-l border-dashed border-lime-400/40 pl-3 pt-3">
+                <div className="ml-2 border-l border-dashed border-lime-400/40 pl-2 pt-3 sm:ml-4 sm:pl-3">
                   {hierarchyCard(
                     "prescription",
                     <span className="flex flex-wrap gap-x-3 gap-y-1">
@@ -430,7 +430,7 @@ function JourneyMap({
           </div>
         </div>
 
-        <ol className="mt-5 hidden grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-2 lg:grid">
+        <ol className="mt-5 hidden grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 xl:grid">
           {hierarchy.map((step, index) => (
             <li key={step} className="contents">
               <div className="min-w-0">
