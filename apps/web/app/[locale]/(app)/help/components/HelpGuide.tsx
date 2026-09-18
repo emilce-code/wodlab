@@ -337,13 +337,55 @@ function JourneyMap({
   onSelect: (index: number) => void;
 }) {
   const t = useTranslations("help.visualGuide");
+  const hierarchy = [
+    "workout",
+    "variation",
+    "section",
+    "movement",
+    "prescription",
+  ] as const;
+
+  function isActive(step: Step) {
+    return steps[activeIndex] === step;
+  }
+
+  function hierarchyCard(step: Step, content: React.ReactNode, className = "") {
+    const index = steps.indexOf(step);
+    const style = stepStyles[step];
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect(index)}
+        aria-current={isActive(step) ? "step" : undefined}
+        className={`w-full rounded-xl border p-3 text-left transition hover:brightness-110 ${style.border} ${style.background} ${isActive(step) ? "ring-2 ring-current/20" : ""} ${className}`}
+      >
+        <span className="flex items-center gap-2">
+          <ConceptIcon
+            concept={step}
+            className={`h-5 w-5 shrink-0 ${style.text}`}
+          />
+          <span className="min-w-0">
+            <span
+              className={`block text-[10px] font-black uppercase tracking-[0.14em] ${style.text}`}
+            >
+              {t(`steps.${step}.shortTitle`)}
+            </span>
+            <span className="block truncate text-sm font-bold text-foreground">
+              {content}
+            </span>
+          </span>
+        </span>
+      </button>
+    );
+  }
+
   return (
     <section
       aria-labelledby="journey-map-title"
       className="rounded-2xl border border-border bg-surface/80 p-4 sm:p-5"
     >
-      <div className="sm:flex sm:items-center sm:gap-6">
-        <div className="sm:w-56 sm:shrink-0">
+      <div>
+        <div>
           <h3 id="journey-map-title" className="font-black">
             {t("bigPicture.title")}
           </h3>
@@ -351,40 +393,87 @@ function JourneyMap({
             {t("bigPicture.description")}
           </p>
         </div>
-        <div className="mt-4 overflow-x-auto pb-2 sm:mt-0">
-          <ol className="flex min-w-max items-center gap-2">
-            {steps.map((step, index) => (
-              <li key={step} className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onSelect(index)}
-                  aria-current={activeIndex === index ? "step" : undefined}
-                  className={`flex min-w-32 items-center gap-2 rounded-xl border px-3 py-2 text-left transition ${stepStyles[step].border} ${index <= activeIndex ? stepStyles[step].background : "bg-background opacity-45"} ${activeIndex === index ? "ring-2 ring-current/15" : ""}`}
-                >
-                  <ConceptIcon
-                    concept={step}
-                    className={`h-5 w-5 ${stepStyles[step].text}`}
-                  />
-                  <span>
-                    <span
-                      className={`block text-xs font-bold ${stepStyles[step].text}`}
-                    >
-                      {t(`steps.${step}.shortTitle`)}
-                    </span>
-                    <span className="block text-[10px] text-muted">
-                      {t(`bigPicture.values.${step}`)}
-                    </span>
-                  </span>
-                </button>
-                {index < steps.length - 1 ? (
-                  <span aria-hidden="true" className="text-muted">
-                    →
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ol>
+        <div className="mt-5 lg:hidden">
+          {hierarchyCard("workout", t("bigPicture.values.workout"))}
+          <div className="ml-4 border-l border-dashed border-teal-300/40 pl-3 pt-3">
+            {hierarchyCard("variation", t("bigPicture.values.variation"))}
+            <div className="mt-2 flex flex-wrap gap-2 pl-2 text-[10px] font-semibold text-muted">
+              <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-1">
+                {t("examples.variation.levels.intermediate.name")}
+              </span>
+              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1">
+                {t("examples.variation.levels.beginner.name")}
+              </span>
+            </div>
+            <div className="ml-4 border-l border-dashed border-orange-400/40 pl-3 pt-3">
+              {hierarchyCard("section", t("bigPicture.values.section"))}
+              <div className="mt-2 flex flex-wrap gap-2 pl-2 text-[10px] font-semibold text-muted">
+                <span>{t("examples.section.sections.warmup")}</span>
+                <span>·</span>
+                <span>{t("examples.section.sections.strength")}</span>
+                <span>·</span>
+                <span>{t("examples.section.sections.cooldown")}</span>
+              </div>
+              <div className="ml-4 border-l border-dashed border-purple-400/40 pl-3 pt-3">
+                {hierarchyCard("movement", t("bigPicture.values.movement"))}
+                <div className="ml-4 border-l border-dashed border-lime-400/40 pl-3 pt-3">
+                  {hierarchyCard(
+                    "prescription",
+                    <span className="flex flex-wrap gap-x-3 gap-y-1">
+                      <span className="text-sky-300">♂ 43 kg</span>
+                      <span className="text-pink-300">♀ 29 kg</span>
+                    </span>,
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <ol className="mt-5 hidden grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr_auto_1fr] items-center gap-2 lg:grid">
+          {hierarchy.map((step, index) => (
+            <li key={step} className="contents">
+              <div className="min-w-0">
+                {step === "variation" ? (
+                  <div className="space-y-2">
+                    {hierarchyCard(step, t("bigPicture.values.variation"))}
+                    <div className="rounded-lg border border-sky-500/20 bg-sky-500/5 px-2 py-1.5 text-[10px] font-semibold text-sky-300">
+                      {t("examples.variation.levels.intermediate.name")}
+                    </div>
+                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-2 py-1.5 text-[10px] font-semibold text-emerald-300">
+                      {t("examples.variation.levels.beginner.name")}
+                    </div>
+                  </div>
+                ) : step === "section" ? (
+                  <div className="space-y-2">
+                    {hierarchyCard(step, t("bigPicture.values.section"))}
+                    <p className="px-1 text-[10px] leading-4 text-muted">
+                      {t("examples.section.sections.warmup")} ·{" "}
+                      {t("examples.section.sections.strength")} ·{" "}
+                      {t("examples.section.sections.cooldown")}
+                    </p>
+                  </div>
+                ) : step === "prescription" ? (
+                  hierarchyCard(
+                    step,
+                    <span>
+                      <span className="text-sky-300">♂ 43 kg</span>
+                      <span className="mx-1 text-muted">·</span>
+                      <span className="text-pink-300">♀ 29 kg</span>
+                    </span>,
+                  )
+                ) : (
+                  hierarchyCard(step, t(`bigPicture.values.${step}`))
+                )}
+              </div>
+              {index < hierarchy.length - 1 ? (
+                <span aria-hidden="true" className="text-lg text-muted">
+                  →
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
