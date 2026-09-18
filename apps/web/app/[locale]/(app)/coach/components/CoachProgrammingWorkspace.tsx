@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import Alert from "@/components/ui/Alert";
@@ -46,8 +46,98 @@ function mondayValue() {
   ].join("-");
 }
 
+function WorkoutSearchPicker({
+  workouts,
+  selectedId,
+  onSelect,
+  label,
+  placeholder,
+  searchPlaceholder,
+  noResults,
+  resultSummary,
+}: {
+  workouts: ProgrammingWorkout[];
+  selectedId: string;
+  onSelect: (workoutId: string) => void;
+  label: string;
+  placeholder: string;
+  searchPlaceholder: string;
+  noResults: string;
+  resultSummary: (shown: number, total: number) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const selected = workouts.find((workout) => workout.id === selectedId);
+  const matches = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    return workouts
+      .filter((workout) =>
+        workout.name.toLocaleLowerCase().includes(normalizedQuery),
+      )
+      .toSorted((a, b) => a.name.localeCompare(b.name));
+  }, [query, workouts]);
+  const visibleMatches = matches.slice(0, 20);
+
+  return (
+    <div className="min-w-0">
+      <span className="text-sm font-semibold">{label}</span>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className={`mt-1.5 flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border bg-background px-4 text-left text-base outline-none transition focus-visible:border-accent/60 focus-visible:ring-2 focus-visible:ring-accent/15 ${open ? "border-accent/60" : "border-border"}`}
+      >
+        <span className={selected ? "min-w-0 truncate font-semibold" : "text-muted"}>
+          {selected?.name ?? placeholder}
+        </span>
+        <span aria-hidden="true" className="shrink-0 text-muted">
+          {open ? "⌃" : "⌄"}
+        </span>
+      </button>
+      {open ? (
+        <div className="mt-2 rounded-2xl border border-border bg-surface p-3 shadow-lg">
+          <input
+            type="search"
+            autoFocus
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={searchPlaceholder}
+            className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
+          />
+          <p className="mt-2 px-1 text-xs text-muted" aria-live="polite">
+            {resultSummary(visibleMatches.length, matches.length)}
+          </p>
+          <div className="mt-2 max-h-64 space-y-1 overflow-y-auto overscroll-contain">
+            {visibleMatches.map((workout) => (
+              <button
+                key={workout.id}
+                type="button"
+                onClick={() => {
+                  onSelect(workout.id);
+                  setQuery("");
+                  setOpen(false);
+                }}
+                className={`flex min-h-12 w-full items-center rounded-xl px-3 text-left text-sm transition hover:bg-surface-elevated ${workout.id === selectedId ? "bg-accent/10 font-bold text-accent" : ""}`}
+              >
+                <span className="min-w-0 break-words">{workout.name}</span>
+              </button>
+            ))}
+            {visibleMatches.length === 0 ? (
+              <p className="px-3 py-6 text-center text-sm text-muted">
+                {noResults}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function CoachProgrammingWorkspace() {
   const t = useTranslations("coachProgramming");
+  const levelT = useTranslations("workoutLevels.names");
+  const prescriptionT = useTranslations("prescriptionCategories");
   const { confirm, dialog } = useConfirmationDialog();
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [groupName, setGroupName] = useState("");
@@ -66,6 +156,21 @@ export default function CoachProgrammingWorkspace() {
   const [activeView, setActiveView] = useState<ProgrammingView>("templates");
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [createTemplateOpen, setCreateTemplateOpen] = useState(false);
+  const templateReady =
+    templateName.trim().length > 0 &&
+    items.every((item) => item.workoutId && item.workoutVariantId);
+
+  function levelName(key: string, fallback: string) {
+    const translationKey = key.toLowerCase();
+    return levelT.has(translationKey) ? levelT(translationKey) : fallback;
+  }
+
+  function prescriptionName(key: string, fallback: string) {
+    const translationKey = key.toLowerCase();
+    return prescriptionT.has(translationKey)
+      ? prescriptionT(translationKey)
+      : fallback;
+  }
 
   const load = useCallback(async () => {
     const response = await fetch("/api/coach-programming/workspace");
@@ -473,8 +578,13 @@ export default function CoachProgrammingWorkspace() {
                           {item.workout.name}
                         </span>
                         <span className="text-muted">
-                          · {item.workoutVariant.level.name}
+                          · {levelName(item.workoutVariant.level.key, item.workoutVariant.level.name)}
                         </span>
+                        {item.prescriptionCategory ? (
+                          <Badge variant="accent">
+                            {prescriptionName(item.prescriptionCategory.key, item.prescriptionCategory.name)}
+                          </Badge>
+                        ) : null}
                       </div>
                     ))}
                   </div>
@@ -537,26 +647,35 @@ export default function CoachProgrammingWorkspace() {
             </button>
             {createTemplateOpen ? (
               <form onSubmit={createTemplate} className="mt-5 space-y-5">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    aria-label={t("templateName")}
-                    required
-                    maxLength={100}
-                    value={templateName}
-                    onChange={(event) => setTemplateName(event.target.value)}
-                    placeholder={t("templateName")}
-                    className="min-h-12 rounded-lg border border-border bg-background px-3"
-                  />
-                  <input
-                    aria-label={t("templateDescription")}
-                    maxLength={500}
-                    value={templateDescription}
-                    onChange={(event) =>
-                      setTemplateDescription(event.target.value)
-                    }
-                    placeholder={t("templateDescription")}
-                    className="min-h-12 rounded-lg border border-border bg-background px-3"
-                  />
+                <div>
+                  <p className="text-sm leading-6 text-muted">
+                    {t("templateHelp")}
+                  </p>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <label className="text-sm font-semibold">
+                      {t("templateName")}
+                      <input
+                        required
+                        maxLength={100}
+                        value={templateName}
+                        onChange={(event) => setTemplateName(event.target.value)}
+                        placeholder={t("templateNamePlaceholder")}
+                        className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
+                      />
+                    </label>
+                    <label className="text-sm font-semibold">
+                      {t("templateDescription")}
+                      <input
+                        maxLength={500}
+                        value={templateDescription}
+                        onChange={(event) =>
+                          setTemplateDescription(event.target.value)
+                        }
+                        placeholder={t("templateDescriptionPlaceholder")}
+                        className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
+                      />
+                    </label>
+                  </div>
                 </div>
                 <div className="space-y-4">
                   {items.map((item, index) => {
@@ -567,84 +686,17 @@ export default function CoachProgrammingWorkspace() {
                     return (
                       <div
                         key={index}
-                        className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2 lg:grid-cols-5"
+                        className="rounded-2xl border border-border bg-background/40 p-4"
                       >
-                        <select
-                          value={item.dayOffset}
-                          onChange={(event) =>
-                            updateItem(index, {
-                              dayOffset: Number(event.target.value),
-                            })
-                          }
-                          className="min-h-11 rounded-lg border border-border bg-background px-3"
-                        >
-                          {Array.from({ length: 7 }, (_, day) => (
-                            <option key={day} value={day}>
-                              {t(`days.${day}`)}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          required
-                          value={item.workoutId}
-                          onChange={(event) =>
-                            selectWorkout(index, event.target.value)
-                          }
-                          className="min-h-11 rounded-lg border border-border bg-background px-3"
-                        >
-                          <option value="">{t("selectWorkout")}</option>
-                          {workspace.workouts.map((value) => (
-                            <option key={value.id} value={value.id}>
-                              {value.name}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          required
-                          value={item.workoutVariantId}
-                          onChange={(event) =>
-                            updateItem(index, {
-                              workoutVariantId: event.target.value,
-                            })
-                          }
-                          className="min-h-11 rounded-lg border border-border bg-background px-3"
-                        >
-                          <option value="">{t("selectVariation")}</option>
-                          {workout?.variants.map((variant) => (
-                            <option key={variant.id} value={variant.id}>
-                              {variant.level.name}
-                              {variant.name ? ` · ${variant.name}` : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <select
-                          value={item.prescriptionCategoryKey}
-                          onChange={(event) =>
-                            updateItem(index, {
-                              prescriptionCategoryKey: event.target.value,
-                            })
-                          }
-                          className="min-h-11 rounded-lg border border-border bg-background px-3"
-                        >
-                          <option value="">{t("noPrescription")}</option>
-                          {workspace.prescriptionCategories.map((category) => (
-                            <option key={category.key} value={category.key}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="flex gap-2">
-                          <input
-                            value={item.coachNotes}
-                            maxLength={1000}
-                            onChange={(event) =>
-                              updateItem(index, {
-                                coachNotes: event.target.value,
-                              })
-                            }
-                            placeholder={t("notes")}
-                            className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3"
-                          />
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
+                              {t("trainingDay", { number: index + 1 })}
+                            </p>
+                            <p className="mt-1 text-sm text-muted">
+                              {item.workoutId ? t("trainingDayReady") : t("trainingDayEmpty")}
+                            </p>
+                          </div>
                           <Button
                             type="button"
                             size="icon"
@@ -662,11 +714,104 @@ export default function CoachProgrammingWorkspace() {
                             ×
                           </Button>
                         </div>
+                        <div className="grid gap-4 lg:grid-cols-[0.7fr_1.4fr_1fr]">
+                          <label className="text-sm font-semibold">
+                            {t("day")}
+                            <select
+                              value={item.dayOffset}
+                              onChange={(event) =>
+                                updateItem(index, {
+                                  dayOffset: Number(event.target.value),
+                                })
+                              }
+                              className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+                            >
+                              {Array.from({ length: 7 }, (_, day) => (
+                                <option key={day} value={day}>
+                                  {t(`days.${day}`)}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <WorkoutSearchPicker
+                            workouts={workspace.workouts}
+                            selectedId={item.workoutId}
+                            onSelect={(workoutId) => selectWorkout(index, workoutId)}
+                            label={t("workout")}
+                            placeholder={t("selectWorkout")}
+                            searchPlaceholder={t("searchWorkouts")}
+                            noResults={t("noWorkoutMatches")}
+                            resultSummary={(shown, total) => t("workoutResults", { shown, total })}
+                          />
+                          <label className="text-sm font-semibold">
+                            {t("variation")}
+                            <select
+                              required
+                              value={item.workoutVariantId}
+                              onChange={(event) =>
+                                updateItem(index, {
+                                  workoutVariantId: event.target.value,
+                                })
+                              }
+                              disabled={!workout}
+                              className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <option value="">{t("selectVariation")}</option>
+                              {workout?.variants.map((variant) => (
+                                <option key={variant.id} value={variant.id}>
+                                  {levelName(variant.level.key, variant.level.name)}
+                                  {variant.name ? ` · ${variant.name}` : ""}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                        <details className="group mt-4 rounded-xl border border-border bg-surface/60">
+                          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                            <span>{t("optionalAssignmentDetails")}</span>
+                            <span aria-hidden="true" className="text-muted transition group-open:rotate-180">⌄</span>
+                          </summary>
+                          <div className="grid gap-4 border-t border-border p-4 sm:grid-cols-2">
+                            <label className="text-sm font-semibold">
+                              {t("prescriptionCategory")}
+                              <select
+                                value={item.prescriptionCategoryKey}
+                                onChange={(event) =>
+                                  updateItem(index, {
+                                    prescriptionCategoryKey: event.target.value,
+                                  })
+                                }
+                                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+                              >
+                                <option value="">{t("noPrescription")}</option>
+                                {workspace.prescriptionCategories.map((category) => (
+                                  <option key={category.key} value={category.key}>
+                                    {prescriptionName(category.key, category.name)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="text-sm font-semibold">
+                              {t("notes")}
+                              <input
+                                value={item.coachNotes}
+                                maxLength={1000}
+                                onChange={(event) =>
+                                  updateItem(index, {
+                                    coachNotes: event.target.value,
+                                  })
+                                }
+                                placeholder={t("notesPlaceholder")}
+                                className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+                              />
+                            </label>
+                          </div>
+                        </details>
                       </div>
                     );
                   })}
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 -mx-5 flex flex-col gap-3 border-t border-border bg-surface/95 px-5 py-4 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:border-0 sm:bg-transparent sm:p-0">
                   <Button
                     type="button"
                     variant="secondary"
@@ -676,7 +821,7 @@ export default function CoachProgrammingWorkspace() {
                   >
                     {t("addItem")}
                   </Button>
-                  <Button type="submit" isLoading={submitting}>
+                  <Button type="submit" isLoading={submitting} disabled={!templateReady} className="sm:ml-auto">
                     {t("saveTemplate")}
                   </Button>
                 </div>
