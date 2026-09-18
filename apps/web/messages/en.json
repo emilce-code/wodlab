@@ -759,8 +759,43 @@
   "help": {
     "eyebrow": "Help & guides",
     "title": "Learn WODLY at your pace",
-    "description": "Learn how WODLY fits together through a guided, hands-on example.",
-    "visualGuide": {
+  "description": "Learn how WODLY fits together through a guided, hands-on example.",
+  "guideMenu": {
+    "title": "Choose a guide",
+    "description": "Pick a topic and learn with an interactive example.",
+    "guides": {
+      "concepts": {
+        "title": "How WODLY works",
+        "description": "Understand movements, workouts, sections, variations, and prescriptions."
+      },
+      "logResults": {
+        "title": "Log workout results",
+        "description": "Follow the complete flow from choosing a workout to seeing your progress."
+      }
+    }
+  },
+  "logResultsGuide": {
+    "eyebrow": "Log results guide",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Choose a workout",
+    "progressLabel": "Log results guide progress",
+    "goToStep": "Go to step {step}",
+    "steps": {
+      "workout": { "title": "Select your workout", "description": "Choose the workout you trained from your recommendations, your workouts, or your history.", "tip": "Start by selecting the workout you actually performed." },
+      "variation": { "title": "Choose your variation", "description": "Select the level you followed during the workout, such as Rx, Intermediate, or Beginner.", "tip": "Your saved level is a helpful default, but you can choose a different variation each day." },
+      "target": { "title": "Review your target", "description": "Check the sections, movements, and prescribed targets for your selected variation.", "tip": "The prescription is a reference. Your result should record what you actually completed." },
+      "performance": { "title": "Log what you did", "description": "Enter the workout score and optionally expand movements to record loads, reps, or other details.", "tip": "Movement details are optional. Record the main score first, then add only the detail that helps you." },
+      "progress": { "title": "See your progress", "description": "Your saved result is added to History and contributes to progress charts and personal records.", "tip": "Every result counts. Consistent logging makes your trends more useful over time." }
+    },
+    "example": {
+      "forYou": "For you", "yourWorkouts": "Your workouts", "history": "History", "today": "Today", "workoutName": "Friday Training", "workoutMeta": "4 sections · Multiple variations", "date": "Fri, Sep 18", "upperBody": "Upper Body", "conditioning": "Conditioning", "olympicLifting": "Olympic Lifting", "sectionsCount": "4 sections", "twoMovements": "2 movements", "men": "Men", "women": "Women", "yourResult": "Your result", "saved": "Result saved!", "savedDescription": "Great job! Your result has been saved.", "totalTime": "Total time", "movements": "Movements", "viewHistory": "View in History",
+      "variations": { "rx": { "name": "Rx", "description": "As prescribed" }, "intermediate": { "name": "Intermediate", "description": "A balanced challenge" }, "beginner": { "name": "Beginner", "description": "Scaled movements" } },
+      "sections": { "warmup": "Warm-up", "strength": "Strength", "wod": "WOD", "cooldown": "Cooldown" }
+    }
+  },
+  "visualGuide": {
       "skip": "Skip",
       "back": "Back",
       "next": "Next",

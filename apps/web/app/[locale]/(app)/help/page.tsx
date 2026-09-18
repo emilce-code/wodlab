@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import PageHeader from "@/components/layout/PageHeader";
 
-import HelpGuide from "./components/HelpGuide";
+import GuideHub from "./components/GuideHub";
 
 export default async function HelpPage() {
   const t = await getTranslations("help");
@@ -14,7 +14,7 @@ export default async function HelpPage() {
         title={t("title")}
         description={t("description")}
       />
-      <HelpGuide />
+      <GuideHub />
     </div>
   );
 }

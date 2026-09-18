@@ -759,8 +759,31 @@
   "help": {
     "eyebrow": "Ajuda e guias",
     "title": "Aprenda WODLY no seu ritmo",
-    "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
-    "visualGuide": {
+  "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
+  "guideMenu": {
+    "title": "Escolha um guia",
+    "description": "Selecione um tema e aprenda com um exemplo interativo.",
+    "guides": {
+      "concepts": { "title": "Como o WODLY funciona", "description": "Entenda movimentos, treinos, seções, variações e prescrições." },
+      "logResults": { "title": "Registrar resultados", "description": "Acompanhe o fluxo completo, da escolha do treino até visualizar seu progresso." }
+    }
+  },
+  "logResultsGuide": {
+    "eyebrow": "Guia de registro de resultados", "skip": "Pular", "back": "Voltar", "next": "Próximo", "finish": "Escolher um treino", "progressLabel": "Progresso do guia de resultados", "goToStep": "Ir para a etapa {step}",
+    "steps": {
+      "workout": { "title": "Selecione seu treino", "description": "Escolha o treino que você realizou entre as recomendações, seus treinos ou o histórico.", "tip": "Comece selecionando o treino que você realmente fez." },
+      "variation": { "title": "Escolha sua variação", "description": "Selecione o nível seguido no treino, como Rx, Intermediário ou Iniciante.", "tip": "Seu nível salvo é uma opção padrão útil, mas você pode escolher outra variação a cada dia." },
+      "target": { "title": "Revise sua meta", "description": "Confira as seções, os movimentos e as metas prescritas para a variação escolhida.", "tip": "A prescrição é uma referência. Seu resultado deve registrar o que você realmente completou." },
+      "performance": { "title": "Registre o que você fez", "description": "Informe o resultado geral e, se quiser, expanda os movimentos para registrar cargas, repetições ou outros detalhes.", "tip": "Os detalhes por movimento são opcionais. Registre primeiro o resultado principal e adicione apenas o que for útil." },
+      "progress": { "title": "Veja seu progresso", "description": "O resultado salvo é adicionado ao Histórico e contribui para gráficos de progresso e recordes pessoais.", "tip": "Cada resultado conta. Registros consistentes tornam suas tendências mais úteis com o tempo." }
+    },
+    "example": {
+      "forYou": "Para você", "yourWorkouts": "Seus treinos", "history": "Histórico", "today": "Hoje", "workoutName": "Treino de sexta-feira", "workoutMeta": "4 seções · Várias variações", "date": "Sex, 18 set", "upperBody": "Parte superior", "conditioning": "Condicionamento", "olympicLifting": "Levantamento olímpico", "sectionsCount": "4 seções", "twoMovements": "2 movimentos", "men": "Homens", "women": "Mulheres", "yourResult": "Seu resultado", "saved": "Resultado salvo!", "savedDescription": "Ótimo trabalho! Seu resultado foi salvo.", "totalTime": "Tempo total", "movements": "Movimentos", "viewHistory": "Ver no Histórico",
+      "variations": { "rx": { "name": "Rx", "description": "Conforme prescrito" }, "intermediate": { "name": "Intermediário", "description": "Um desafio equilibrado" }, "beginner": { "name": "Iniciante", "description": "Movimentos adaptados" } },
+      "sections": { "warmup": "Aquecimento", "strength": "Força", "wod": "WOD", "cooldown": "Volta à calma" }
+    }
+  },
+  "visualGuide": {
       "skip": "Pular",
       "back": "Voltar",
       "next": "Próximo",
