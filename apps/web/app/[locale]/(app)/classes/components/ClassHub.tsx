@@ -4,10 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Button from "@/components/ui/Button";
+import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
 import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
 
-type Props = { initialBoxes: BoxSummary[] };
 type View = "all" | "mine";
 
 function requestMessage(data: unknown, fallback: string) {
@@ -44,26 +44,26 @@ function initialClassDateTime() {
   return localDateTimeValue(date);
 }
 
-export default function ClassHub({ initialBoxes }: Props) {
+export default function ClassHub() {
   const t = useTranslations("boxes");
   const locale = useLocale();
+  const { boxes, activeBox, selectBox, replaceBoxes } = useActiveBox();
   const dayScroller = useRef<HTMLDivElement>(null);
   const days = useMemo(() => scheduleDays(), []);
 
-  const [boxes, setBoxes] = useState(initialBoxes);
-  const [boxId, setBoxId] = useState(initialBoxes.find((box) => box.isActive)?.id ?? initialBoxes[0]?.id ?? "");
+  const boxId = activeBox?.id ?? "";
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [options, setOptions] = useState<WorkoutOption[]>([]);
-  const [loading, setLoading] = useState(Boolean(initialBoxes.length));
+  const [loading, setLoading] = useState(Boolean(boxes.length));
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showJoin, setShowJoin] = useState(initialBoxes.length === 0);
+  const [showJoin, setShowJoin] = useState(boxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [creatingClass, setCreatingClass] = useState(false);
   const [view, setView] = useState<View>("all");
   const [selectedDay, setSelectedDay] = useState(dayKey(new Date()));
 
-  const selectedBox = boxes.find((box) => box.id === boxId);
+  const selectedBox = activeBox;
   const role = selectedBox?.role ?? null;
   const isStaff = role === "OWNER" || role === "COACH";
 
@@ -136,28 +136,10 @@ export default function ClassHub({ initialBoxes }: Props) {
 
   async function refreshBoxes() {
     const response = await fetch("/api/boxes");
-    if (!response.ok) return;
+    if (!response.ok) return [];
     const data = (await response.json()) as BoxSummary[];
-    setBoxes(data);
-    if (!boxId && data[0]) setBoxId(data[0].id);
-  }
-
-  async function selectBox(nextBoxId: string) {
-    setLoading(true);
-    setError(null);
-    const response = await fetch("/api/boxes/active", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ boxId: nextBoxId }),
-    });
-    if (!response.ok) {
-      setError(t("errors.action"));
-      setLoading(false);
-      return;
-    }
-    setBoxes((current) => current.map((box) => ({ ...box, isActive: box.id === nextBoxId })));
-    setSelectedDay(dayKey(new Date()));
-    setBoxId(nextBoxId);
+    replaceBoxes(data);
+    return data;
   }
 
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
@@ -176,7 +158,8 @@ export default function ClassHub({ initialBoxes }: Props) {
     }
     setLoading(true);
     await refreshBoxes();
-    setBoxId(data.id);
+    await selectBox(data.id);
+    setSelectedDay(dayKey(new Date()));
     setShowJoin(false);
   }
 
@@ -239,17 +222,7 @@ export default function ClassHub({ initialBoxes }: Props) {
 
   return (
     <div className="mt-6 space-y-4 pb-4">
-      {boxes.length ? (
-        <div className="sticky top-2 z-20 rounded-2xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur">
-          <label htmlFor="box-selector" className="text-xs font-semibold uppercase tracking-wide text-muted">{t("selectBox")}</label>
-          <div className="mt-2 flex gap-2">
-            <select id="box-selector" value={boxId} onChange={(event) => void selectBox(event.target.value)} className="min-h-12 min-w-0 flex-1 rounded-xl border border-border bg-surface px-3 text-base">
-              {boxes.map((box) => <option key={box.id} value={box.id}>{box.name}</option>)}
-            </select>
-            <Button type="button" variant="secondary" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button>
-          </div>
-        </div>
-      ) : null}
+      {boxes.length ? <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button> : null}
 
       {showJoin ? (
         <form onSubmit={submitBox} className="rounded-2xl border border-border bg-surface p-4">

@@ -78,7 +78,20 @@
     "closeAccountMenu": "Close account menu"
   },
   "boxContext": {
-    "label": "Active box"
+    "label": "Active box",
+    "title": "Select active box",
+    "description": "This box provides the classes and team context shown across WODLY.",
+    "active": "Active",
+    "switching": "Switching…",
+    "search": "Search boxes…",
+    "noResults": "No boxes match your search.",
+    "close": "Close box selector",
+    "error": "We couldn't switch boxes. Please try again.",
+    "roles": {
+      "owner": "Owner",
+      "coach": "Coach",
+      "athlete": "Athlete"
+    }
   },
   "adminUsers": {
     "eyebrow": "Administration",
