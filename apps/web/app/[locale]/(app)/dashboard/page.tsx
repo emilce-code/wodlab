@@ -11,8 +11,10 @@ import type { WeightUnit } from "@/lib/result-types";
 
 import TimeAwareGreeting from "./components/TimeAwareGreeting";
 import TodaySchedule from "./components/TodaySchedule";
+import GettingStartedChecklist from "./components/GettingStartedChecklist";
 
 type DashboardProfile = {
+  id: string;
   displayName: string;
   email: string;
   preferredWeightUnit: "KG" | "LB";
@@ -93,6 +95,14 @@ type DashboardResponse = {
     movementsTracked: number;
   };
 
+  onboarding: {
+    profileCompleted: boolean;
+    preferencesConfigured: boolean;
+    hasMovementResult: boolean;
+    hasWorkoutResult: boolean;
+    hasScheduledWorkout: boolean;
+  };
+
   recentActivity: DashboardActivity[];
 };
 
@@ -116,7 +126,8 @@ export default async function DashboardPage({ params }: Props) {
     getDashboard(),
   ]);
 
-  const { profile, currentMonth, overall, recentActivity } = dashboard;
+  const { profile, currentMonth, overall, onboarding, recentActivity } =
+    dashboard;
 
   const hasActivity = recentActivity.length > 0;
 
@@ -178,6 +189,8 @@ export default async function DashboardPage({ params }: Props) {
 
         <p className="mt-2 text-muted">{t("readyToTrain")}</p>
       </header>
+
+      <GettingStartedChecklist userId={profile.id} progress={onboarding} />
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Card className="p-4 sm:p-5">

@@ -70,6 +70,11 @@ const secondaryNavigation = [
     href: "/calculators",
     icon: "calculator",
   },
+  {
+    key: "help",
+    href: "/help",
+    icon: "help",
+  },
 ] as const satisfies readonly {
   key: string;
   href: string;

@@ -108,6 +108,10 @@ export class UsersService {
             id: true,
             displayName: true,
             preferredWeightUnit: true,
+            trainingGoals: true,
+            weeklyTrainingTarget: true,
+            preferredWorkoutLevelId: true,
+            preferredPrescriptionCategoryId: true,
           },
         },
       },
@@ -136,6 +140,8 @@ export class UsersService {
       recentWorkoutResults,
       recentMovementResults,
       allMovementResults,
+      totalWorkoutResultCount,
+      scheduledWorkoutCount,
     ] = await Promise.all([
       this.prisma.workoutResult.count({
         where: {
@@ -308,6 +314,18 @@ export class UsersService {
           },
         ],
       }),
+
+      this.prisma.workoutResult.count({
+        where: {
+          athleteProfileId: athleteProfile.id,
+        },
+      }),
+
+      this.prisma.scheduledWorkout.count({
+        where: {
+          athleteProfileId: athleteProfile.id,
+        },
+      }),
     ]);
 
     const monthlyPersonalRecords = this.countPersonalRecordsInPeriod(
@@ -396,6 +414,8 @@ export class UsersService {
 
     return {
       profile: {
+        id: athleteProfile.id,
+
         displayName: athleteProfile.displayName,
 
         email: user.email,
@@ -413,6 +433,22 @@ export class UsersService {
 
       overall: {
         movementsTracked: uniqueMovementRows.length,
+      },
+
+      onboarding: {
+        profileCompleted:
+          athleteProfile.trainingGoals.length > 0 &&
+          athleteProfile.weeklyTrainingTarget !== null,
+
+        preferencesConfigured:
+          athleteProfile.preferredWorkoutLevelId !== null &&
+          athleteProfile.preferredPrescriptionCategoryId !== null,
+
+        hasMovementResult: allMovementResults.length > 0,
+
+        hasWorkoutResult: totalWorkoutResultCount > 0,
+
+        hasScheduledWorkout: scheduledWorkoutCount > 0,
       },
 
       recentActivity,

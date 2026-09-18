@@ -19,6 +19,8 @@ import type {
 } from "@/lib/result-types";
 import { selectWorkoutVariant } from "@/lib/workout-variants";
 
+import ResultLoggingGuide from "./ResultLoggingGuide";
+
 export type {
   PrescriptionCategory,
   ResultType,
@@ -867,11 +869,13 @@ export default function LogResultForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6"
-      noValidate
-    >
+    <>
+      {!isEditing ? <ResultLoggingGuide /> : null}
+      <form
+        onSubmit={handleSubmit}
+        className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6"
+        noValidate
+      >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
           {isEditing ? t("editEyebrow") : t("eyebrow")}
@@ -1473,6 +1477,7 @@ export default function LogResultForm({
           </Button>
         </div>
       </div>
-    </form>
+      </form>
+    </>
   );
 }
