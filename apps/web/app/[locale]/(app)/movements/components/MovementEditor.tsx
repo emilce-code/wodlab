@@ -34,6 +34,7 @@ export default function MovementEditor({
 }: Props) {
   const t = useTranslations("movements.management");
   const locale = useLocale();
+  const categoryT = useTranslations("movementCategories");
   const measurementT = useTranslations("measurementTypes");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -72,6 +73,11 @@ export default function MovementEditor({
   ].includes(normalizedCategoryKey)
     ? normalizedCategoryKey
     : "other";
+
+  function getCategoryName(category: Option) {
+    const key = category.key.toLowerCase();
+    return categoryT.has(key) ? categoryT(key) : category.name;
+  }
 
   function toggleType(key: string) {
     setSelectedTypes((current) =>
@@ -203,7 +209,7 @@ export default function MovementEditor({
               >
                 {categories.map((item) => (
                   <option key={item.key} value={item.key}>
-                    {item.name}
+                    {getCategoryName(item)}
                   </option>
                 ))}
               </select>
@@ -321,7 +327,7 @@ export default function MovementEditor({
             ) : null}
           </section>
           {error ? <Alert variant="error">{error}</Alert> : null}
-          <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-10 -mx-4 flex flex-col gap-2 border-t border-border bg-surface/95 px-4 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:justify-end sm:bg-transparent sm:px-0 sm:pb-0">
+          <div className="-mx-2 flex flex-col gap-2 rounded-2xl border border-border bg-surface px-3 py-3 sm:mx-0 sm:flex-row sm:justify-end sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
             <Button
               type="button"
               variant="secondary"
