@@ -933,6 +933,9 @@
       "bigPicture": {
         "title": "A visão completa",
         "description": "Um treino contém variações; cada variação contém seções, as seções contêm movimentos e as prescrições definem metas por categoria.",
+        "interactionHint": "Toque ou clique em qualquer conceito colorido para rever sua definição.",
+        "openDefinition": "Ver definição",
+        "viewDefinition": "Ver a definição de {concept}",
         "values": {
           "movement": "Thruster",
           "workout": "Treino de sexta-feira",
