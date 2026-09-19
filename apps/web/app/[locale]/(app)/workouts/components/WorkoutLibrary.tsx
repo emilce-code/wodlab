@@ -175,7 +175,7 @@ export default function WorkoutLibrary({
         </ViewTab>
       </div>
 
-      <div className="sticky top-0 z-10 -mx-4 mt-4 border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+      <div className="sticky top-0 z-30 -mx-4 mt-4 border-b border-border/60 bg-background/95 px-4 py-3 shadow-sm backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none">
         <div className="relative">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">
             ⌕
