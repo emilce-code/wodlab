@@ -390,6 +390,7 @@
   "coachNavigation": {
     "label": "Secciones del espacio de entrenador",
     "overview": "Resumen",
+    "groups": "Grupos de atletas",
     "programming": "Programación",
     "monitoring": "Seguimiento",
     "analytics": "Análisis"
@@ -427,7 +428,10 @@
     "athletesEmpty": "Todavía no tienes atletas conectados.",
     "openAthlete": "Abrir atleta",
     "pendingTitle": "Invitaciones pendientes",
-    "programmingTitle": "Grupos y plantillas de programación",
+    "groupsTitle": "Grupos de atletas",
+    "groupsDescription": "Organiza a los atletas conectados en grupos de programación reutilizables.",
+    "openGroups": "Administrar grupos",
+    "programmingTitle": "Plantillas de programación",
     "programmingDescription": "Crea planes semanales reutilizables y asígnalos a grupos de atletas.",
     "openProgramming": "Abrir espacio de programación",
     "monitoringTitle": "Monitoreo de atletas",
@@ -504,8 +508,11 @@
   },
   "coachProgramming": {
     "eyebrow": "Programación del coach",
-    "title": "Grupos y plantillas de programación",
-    "description": "Organiza atletas y asigna programaciones semanales reutilizables.",
+    "title": "Plantillas de programación",
+    "description": "Crea programaciones semanales reutilizables y asígnalas a tus grupos de atletas.",
+    "groupsEyebrow": "Organización del coach",
+    "groupsPageTitle": "Grupos de atletas",
+    "groupsPageDescription": "Organiza a los atletas conectados en grupos para programar de forma rápida y consistente.",
     "loading": "Cargando espacio de programación...",
     "loadError": "No pudimos cargar la programación del coach.",
     "saveError": "No pudimos guardar este cambio.",

@@ -246,7 +246,17 @@ export default function CoachWorkspace({ canCoach }: Props) {
         </Card>
       ) : workspace.coachProfile && canCoach ? (
         <>
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <Card className="flex h-full flex-col p-6">
+              <h2 className="text-xl font-bold">{t("groupsTitle")}</h2>
+              <p className="mt-2 text-sm text-muted">
+                {t("groupsDescription")}
+              </p>
+              <ButtonLink href="/coach/groups" className="mt-auto pt-5">
+                {t("openGroups")}
+              </ButtonLink>
+            </Card>
+
             <Card className="flex h-full flex-col p-6">
               <h2 className="text-xl font-bold">{t("programmingTitle")}</h2>
               <p className="mt-2 text-sm text-muted">

@@ -390,6 +390,7 @@
   "coachNavigation": {
     "label": "Coach workspace sections",
     "overview": "Overview",
+    "groups": "Athlete groups",
     "programming": "Programming",
     "monitoring": "Monitoring",
     "analytics": "Analytics"
@@ -427,7 +428,10 @@
     "athletesEmpty": "No athletes are connected yet.",
     "openAthlete": "Open athlete",
     "pendingTitle": "Pending invitations",
-    "programmingTitle": "Groups and program templates",
+    "groupsTitle": "Athlete groups",
+    "groupsDescription": "Organize connected athletes into reusable programming groups.",
+    "openGroups": "Manage athlete groups",
+    "programmingTitle": "Program templates",
     "programmingDescription": "Build reusable weekly plans and assign them to athlete groups.",
     "openProgramming": "Open programming workspace",
     "monitoringTitle": "Athlete monitoring",
@@ -504,8 +508,11 @@
   },
   "coachProgramming": {
     "eyebrow": "Coach programming",
-    "title": "Groups and program templates",
-    "description": "Organize athletes and assign reusable weekly programming.",
+    "title": "Program templates",
+    "description": "Create reusable weekly programming and assign it to your athlete groups.",
+    "groupsEyebrow": "Coach organization",
+    "groupsPageTitle": "Athlete groups",
+    "groupsPageDescription": "Organize connected athletes into groups for faster, consistent programming.",
     "loading": "Loading programming workspace...",
     "loadError": "We couldn't load coach programming.",
     "saveError": "We couldn't save this change.",
