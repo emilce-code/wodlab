@@ -141,7 +141,13 @@ export default function WorkoutCard({
   }
 
   return (
-    <Card className="group flex h-full flex-col p-4 transition duration-200 hover:border-accent/40 sm:p-6 sm:hover:-translate-y-0.5">
+    <Card className="group pointer-events-none relative flex h-full flex-col p-4 transition duration-200 hover:border-accent/40 focus-within:border-accent/60 sm:p-6 sm:hover:-translate-y-0.5">
+      <Link
+        href={`/workouts/${workout.id}`}
+        aria-label={`${t("viewWorkout")}: ${workout.name}`}
+        className="pointer-events-auto absolute inset-0 z-0 cursor-pointer rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+      />
+
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -164,11 +170,11 @@ export default function WorkoutCard({
         {workout.isBenchmark ? <Badge>{t("benchmark")}</Badge> : null}
       </div>
 
-      <Link href={`/workouts/${workout.id}`} className="mt-4 block">
+      <div className="relative z-10 mt-4">
         <h2 className="text-2xl font-black tracking-tight transition-colors group-hover:text-accent">
           {workout.name}
         </h2>
-      </Link>
+      </div>
 
       {firstSection && firstSection.repScheme.length > 0 ? (
         <p className="mt-4 text-xl font-bold tracking-wide">
@@ -205,15 +211,12 @@ export default function WorkoutCard({
       ) : null}
 
       <div className="mt-auto space-y-3 pt-6 sm:pt-8">
-        <Link
-          href={`/workouts/${workout.id}`}
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors group-hover:text-accent"
-        >
+        <span className="inline-flex min-h-11 items-center text-sm font-semibold text-muted transition-colors group-hover:text-accent">
           {t("viewWorkout")} →
-        </Link>
+        </span>
 
         {workout.canCopyToBox || canManage ? (
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="pointer-events-auto relative z-10 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             {workout.canCopyToBox ? (
               <WorkoutCopyToBoxAction workoutId={workout.id} />
             ) : null}
