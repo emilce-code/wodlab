@@ -5,17 +5,19 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
-const steps = [
+const conceptSteps = [
   "movement",
   "workout",
   "section",
   "variation",
   "prescription",
 ] as const;
-type Step = (typeof steps)[number];
+type ConceptStep = (typeof conceptSteps)[number];
+
+const steps = [...conceptSteps, "bigPicture"] as const;
 
 const stepStyles: Record<
-  Step,
+  ConceptStep,
   {
     text: string;
     border: string;
@@ -65,10 +67,10 @@ function ConceptIcon({
   concept,
   className = "h-6 w-6",
 }: {
-  concept: Step;
+  concept: ConceptStep;
   className?: string;
 }) {
-  const paths: Record<Step, React.ReactNode> = {
+  const paths: Record<ConceptStep, React.ReactNode> = {
     movement: (
       <>
         <path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12" />
@@ -314,7 +316,7 @@ function PrescriptionExample() {
   );
 }
 
-function StepExample({ step }: { step: Step }) {
+function StepExample({ step }: { step: ConceptStep }) {
   switch (step) {
     case "movement":
       return <MovementExample />;
@@ -330,10 +332,8 @@ function StepExample({ step }: { step: Step }) {
 }
 
 function JourneyMap({
-  activeIndex,
   onSelect,
 }: {
-  activeIndex: number;
   onSelect: (index: number) => void;
 }) {
   const t = useTranslations("help.visualGuide");
@@ -345,21 +345,23 @@ function JourneyMap({
     "prescription",
   ] as const;
 
-  function isActive(step: Step) {
-    return steps[activeIndex] === step;
-  }
-
-  function hierarchyCard(step: Step, content: React.ReactNode, className = "") {
-    const index = steps.indexOf(step);
+  function hierarchyCard(
+    step: ConceptStep,
+    content: React.ReactNode,
+    className = "",
+  ) {
+    const index = conceptSteps.indexOf(step);
     const style = stepStyles[step];
     return (
       <button
         type="button"
         onClick={() => onSelect(index)}
-        aria-current={isActive(step) ? "step" : undefined}
-        className={`min-h-14 w-full min-w-0 rounded-xl border p-2.5 text-left transition hover:brightness-110 sm:p-3 ${style.border} ${style.background} ${isActive(step) ? "ring-2 ring-current/20" : ""} ${className}`}
+        aria-label={t("bigPicture.viewDefinition", {
+          concept: t(`steps.${step}.shortTitle`),
+        })}
+        className={`group min-h-14 w-full min-w-0 cursor-pointer rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-[0.98] sm:p-3 ${style.border} ${style.background} ${className}`}
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-start gap-2">
           <ConceptIcon
             concept={step}
             className={`h-5 w-5 shrink-0 ${style.text}`}
@@ -374,6 +376,15 @@ function JourneyMap({
               {content}
             </span>
           </span>
+          <span
+            aria-hidden="true"
+            className={`ml-auto shrink-0 text-base transition group-hover:translate-x-0.5 ${style.text}`}
+          >
+            ›
+          </span>
+        </span>
+        <span className={`mt-2 block text-[10px] font-bold ${style.text}`}>
+          {t("bigPicture.openDefinition")} →
         </span>
       </button>
     );
@@ -391,6 +402,10 @@ function JourneyMap({
           </h3>
           <p className="mt-1 text-xs leading-5 text-muted">
             {t("bigPicture.description")}
+          </p>
+          <p className="mt-3 flex items-center gap-2 rounded-xl border border-lime-400/25 bg-lime-400/10 px-3 py-2 text-xs font-bold text-lime-300">
+            <span aria-hidden="true" className="text-base">☝</span>
+            {t("bigPicture.interactionHint")}
           </p>
         </div>
         <div className="mt-5 xl:hidden">
@@ -483,7 +498,16 @@ export default function HelpGuide() {
   const t = useTranslations("help.visualGuide");
   const [activeIndex, setActiveIndex] = useState(0);
   const activeStep = steps[activeIndex];
-  const style = stepStyles[activeStep];
+  const style =
+    activeStep === "bigPicture"
+      ? {
+          text: "text-lime-300",
+          border: "border-lime-300/40",
+          background: "bg-lime-300/10",
+          solid: "bg-lime-300",
+          glow: "shadow-lime-300/15",
+        }
+      : stepStyles[activeStep];
 
   function selectStep(index: number) {
     setActiveIndex(index);
@@ -527,42 +551,48 @@ export default function HelpGuide() {
                 className="flex min-h-6 flex-1 items-center"
               >
                 <span
-                  className={`h-1.5 w-full rounded-full transition ${index === activeIndex ? stepStyles[step].solid : index < activeIndex ? "bg-muted/60" : "bg-border"}`}
+                  className={`h-1.5 w-full rounded-full transition ${index === activeIndex ? (step === "bigPicture" ? "bg-lime-300" : stepStyles[step].solid) : index < activeIndex ? "bg-muted/60" : "bg-border"}`}
                 />
               </button>
             ))}
           </div>
-          <div className="mt-7 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-            <div>
-              <p className="text-base text-muted">
-                {t(`steps.${activeStep}.lead`)}
-              </p>
-              <h2
-                id="visual-guide-title"
-                className={`mt-1 text-4xl font-black tracking-tight sm:text-5xl ${style.text}`}
-              >
-                {t(`steps.${activeStep}.title`)}
-              </h2>
-              <p className="mt-4 max-w-xl text-base leading-7 text-foreground/85">
-                {t(`steps.${activeStep}.description`)}
-              </p>
-              <div
-                className={`mt-6 rounded-2xl border p-4 ${style.border} ${style.background}`}
-              >
-                <div className="flex gap-3">
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${style.solid} text-slate-950`}
-                  >
-                    ◇
-                  </span>
-                  <p className="text-sm leading-6">
-                    {t(`steps.${activeStep}.insight`)}
-                  </p>
+          {activeStep === "bigPicture" ? (
+            <div className="mt-7">
+              <JourneyMap onSelect={selectStep} />
+            </div>
+          ) : (
+            <div className="mt-7 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+              <div>
+                <p className="text-base text-muted">
+                  {t(`steps.${activeStep}.lead`)}
+                </p>
+                <h2
+                  id="visual-guide-title"
+                  className={`mt-1 text-4xl font-black tracking-tight sm:text-5xl ${style.text}`}
+                >
+                  {t(`steps.${activeStep}.title`)}
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-foreground/85">
+                  {t(`steps.${activeStep}.description`)}
+                </p>
+                <div
+                  className={`mt-6 rounded-2xl border p-4 ${style.border} ${style.background}`}
+                >
+                  <div className="flex gap-3">
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${style.solid} text-slate-950`}
+                    >
+                      ◇
+                    </span>
+                    <p className="text-sm leading-6">
+                      {t(`steps.${activeStep}.insight`)}
+                    </p>
+                  </div>
                 </div>
               </div>
+              <StepExample step={activeStep} />
             </div>
-            <StepExample step={activeStep} />
-          </div>
+          )}
         </div>
         <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-4 sm:px-6">
           <button
@@ -591,7 +621,6 @@ export default function HelpGuide() {
           )}
         </div>
       </section>
-      <JourneyMap activeIndex={activeIndex} onSelect={selectStep} />
     </div>
   );
 }

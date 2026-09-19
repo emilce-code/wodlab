@@ -945,6 +945,9 @@
       "bigPicture": {
         "title": "The big picture",
         "description": "A workout contains variations; each variation contains sections, sections contain movements, and prescriptions define category-specific targets.",
+        "interactionHint": "Tap or click any colored concept to revisit its definition.",
+        "openDefinition": "View definition",
+        "viewDefinition": "View the definition of {concept}",
         "values": {
           "movement": "Thruster",
           "workout": "Friday Training",
