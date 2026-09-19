@@ -6,6 +6,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 const items = [
   { key: "overview", href: "/coach" },
+  { key: "groups", href: "/coach/groups" },
   { key: "programming", href: "/coach/programming" },
   { key: "monitoring", href: "/coach/monitoring" },
   { key: "analytics", href: "/coach/analytics" },

@@ -15,8 +15,6 @@ import type {
   ProgrammingWorkout,
 } from "@/lib/coach-programming";
 
-import CoachContentTabs from "./CoachContentTabs";
-
 type ProgrammingView = "groups" | "templates";
 
 type DraftItem = {
@@ -134,7 +132,11 @@ function WorkoutSearchPicker({
   );
 }
 
-export default function CoachProgrammingWorkspace() {
+export default function CoachProgrammingWorkspace({
+  view = "templates",
+}: {
+  view?: ProgrammingView;
+}) {
   const t = useTranslations("coachProgramming");
   const levelT = useTranslations("workoutLevels.names");
   const prescriptionT = useTranslations("prescriptionCategories");
@@ -153,7 +155,6 @@ export default function CoachProgrammingWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [activeView, setActiveView] = useState<ProgrammingView>("templates");
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [createTemplateOpen, setCreateTemplateOpen] = useState(false);
   const templateReady =
@@ -373,25 +374,7 @@ export default function CoachProgrammingWorkspace() {
       {error ? <Alert variant="error">{error}</Alert> : null}
       {success ? <Alert variant="success">{success}</Alert> : null}
 
-      <CoachContentTabs
-        value={activeView}
-        onChange={setActiveView}
-        label={t("workspaceSections")}
-        tabs={[
-          {
-            key: "templates",
-            label: t("templatesTitle"),
-            count: workspace.templates.length,
-          },
-          {
-            key: "groups",
-            label: t("groupsTitle"),
-            count: workspace.groups.length,
-          },
-        ]}
-      />
-
-      {activeView === "groups" ? (
+      {view === "groups" ? (
         <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)]">
           <div>
             <div className="flex items-center justify-between gap-3">
@@ -532,7 +515,7 @@ export default function CoachProgrammingWorkspace() {
         </section>
       ) : null}
 
-      {activeView === "templates" ? (
+      {view === "templates" ? (
         <>
           <section>
             <div className="flex items-center justify-between gap-3">
