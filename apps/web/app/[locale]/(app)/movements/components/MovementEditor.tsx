@@ -327,7 +327,7 @@ export default function MovementEditor({
             ) : null}
           </section>
           {error ? <Alert variant="error">{error}</Alert> : null}
-          <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-10 -mx-2 flex flex-col gap-2 rounded-2xl border border-border bg-surface px-3 py-3 shadow-2xl shadow-black/25 sm:static sm:mx-0 sm:flex-row sm:justify-end sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none">
+          <div className="-mx-2 flex flex-col gap-2 rounded-2xl border border-border bg-surface px-3 py-3 sm:mx-0 sm:flex-row sm:justify-end sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
             <Button
               type="button"
               variant="secondary"
