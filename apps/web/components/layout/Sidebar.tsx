@@ -7,100 +7,36 @@ import LogoutButton from "@/components/auth/LogoutButton";
 import Wordmark from "@/components/brand/Wordmark";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 import { Link, usePathname } from "@/i18n/navigation";
-import NavigationIcon, { type NavigationIconName } from "./NavigationIcon";
 import type { CurrentUser } from "@/lib/auth";
 
-type NavigationItem = {
-  key: string;
-  href: string;
-  icon: NavigationIconName;
-};
+import NavigationIcon from "./NavigationIcon";
+import {
+  canViewNavigationItem,
+  isNavigationItemActive,
+  navigationGroups,
+  todayNavigationItem,
+  type NavigationItem,
+} from "./navigation-config";
 
-const navigation = [
-  {
-    key: "today",
-    href: "/dashboard",
-    icon: "today",
-  },
-  {
-    key: "workouts",
-    href: "/workouts",
-    icon: "workouts",
-  },
-  {
-    key: "training",
-    href: "/training",
-    icon: "training",
-  },
-  {
-    key: "history",
-    href: "/history",
-    icon: "history",
-  },
-  {
-    key: "progress",
-    href: "/progress",
-    icon: "progress",
-  },
-] as const satisfies readonly NavigationItem[];
-
-const secondaryNavigation = [
-  {
-    key: "boxes",
-    href: "/classes",
-    icon: "boxes",
-  },
-  {
-    key: "notifications",
-    href: "/notifications",
-    icon: "notifications",
-  },
-  {
-    key: "coach",
-    href: "/coach",
-    icon: "coach",
-  },
-  {
-    key: "movements",
-    href: "/movements",
-    icon: "movements",
-  },
-  {
-    key: "calculators",
-    href: "/calculators",
-    icon: "calculator",
-  },
-  {
-    key: "help",
-    href: "/help",
-    icon: "help",
-  },
-] as const satisfies readonly {
-  key: string;
-  href: string;
-  icon: NavigationIconName;
-}[];
-
-type Props = {
-  user: CurrentUser;
-};
+type Props = { user: CurrentUser };
 
 export default function Sidebar({ user }: Props) {
   const t = useTranslations("navigation");
-
   const pathname = usePathname();
-
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountAreaRef = useRef<HTMLDivElement>(null);
   const accountButtonRef = useRef<HTMLButtonElement>(null);
   const accountLinkRef = useRef<HTMLAnchorElement>(null);
 
   const displayName = user.athleteProfile?.displayName ?? user.email;
-  const visibleSecondaryNavigation = secondaryNavigation.filter((item) => {
-    if (item.href === "/coach") return user.permissions.includes("coach:use");
-    return true;
-  });
-
+  const visibleGroups = navigationGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        canViewNavigationItem(item, user.permissions),
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
   const initials = displayName
     .split(" ")
     .filter(Boolean)
@@ -110,9 +46,7 @@ export default function Sidebar({ user }: Props) {
     .toUpperCase();
 
   useEffect(() => {
-    if (!accountMenuOpen) {
-      return;
-    }
+    if (!accountMenuOpen) return;
 
     accountLinkRef.current?.focus();
 
@@ -134,104 +68,88 @@ export default function Sidebar({ user }: Props) {
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("pointerdown", handlePointerDown);
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("pointerdown", handlePointerDown);
     };
   }, [accountMenuOpen]);
 
-  function isActive(href: string) {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
-    }
-
-    return pathname.startsWith(href);
-  }
-
-  function renderNavigationItem(item: NavigationItem) {
-    const active = isActive(item.href);
-
+  function navigationItem(item: NavigationItem) {
+    const active = isNavigationItemActive(pathname, item.href);
     return (
       <Link
         key={item.href}
         href={item.href}
         aria-current={active ? "page" : undefined}
-        className={[
-          "flex items-center gap-3 rounded-lg px-3 py-2.5",
-          "text-sm font-medium transition-colors",
-
+        className={`group flex min-h-10 items-center gap-3 rounded-xl border px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
           active
-            ? "bg-accent/10 text-accent"
-            : "text-muted hover:bg-surface-elevated hover:text-foreground",
-        ].join(" ")}
+            ? "border-accent/30 bg-accent/10 text-accent shadow-sm"
+            : "border-transparent text-muted hover:bg-surface-elevated hover:text-foreground"
+        }`}
       >
+        <span className={`h-5 w-1 rounded-full transition ${active ? "bg-accent" : "bg-transparent"}`} />
         <NavigationIcon name={item.icon} className="h-5 w-5 shrink-0" />
-
-        {t(item.key)}
+        <span className="min-w-0 truncate">{t(item.key)}</span>
       </Link>
     );
   }
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface lg:flex lg:flex-col">
-      <div className="px-6 py-7">
-        <Link href="/dashboard">
+      <div className="px-6 pb-4 pt-6">
+        <Link href="/dashboard" aria-label={t("today")}>
           <Wordmark />
+        </Link>
+        <Link
+          href="/workouts"
+          className="mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-lime-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-lime-400/10 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-300"
+        >
+          <NavigationIcon name="add" className="h-5 w-5" />
+          {t("logResult")}
         </Link>
       </div>
 
-      <nav className="flex-1 px-4">
-        <div className="space-y-1">{navigation.map(renderNavigationItem)}</div>
-
-        <div className="my-5 border-t border-border" />
-
-        <div className="space-y-1">
-          {visibleSecondaryNavigation.map(renderNavigationItem)}
-          {user.permissions.includes("users:manage")
-            ? renderNavigationItem({
-                key: "admin",
-                href: "/admin/users",
-                icon: "admin",
-              })
-            : null}
-          {user.permissions.includes("box:manage")
-            ? renderNavigationItem({
-                key: "boxAdmin",
-                href: "/box-admin",
-                icon: "boxes",
-              })
-            : null}
+      <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label={t("desktopLabel")}>
+        <div>{navigationItem(todayNavigationItem)}</div>
+        <div className="mt-4 space-y-4">
+          {visibleGroups.map((group) => (
+            <section key={group.key} aria-labelledby={`desktop-nav-${group.key}`}>
+              <h2
+                id={`desktop-nav-${group.key}`}
+                className="mb-1 px-4 text-[10px] font-black uppercase tracking-[0.18em] text-muted/80"
+              >
+                {t(`groups.${group.key}`)}
+              </h2>
+              <div className="space-y-0.5">{group.items.map(navigationItem)}</div>
+            </section>
+          ))}
         </div>
       </nav>
 
-      <div className="px-4 pb-3">
-        <LanguageSwitcher />
-      </div>
-
-      <div ref={accountAreaRef} className="relative border-t border-border p-4">
-        {accountMenuOpen && (
+      <div ref={accountAreaRef} className="relative border-t border-border p-3">
+        {accountMenuOpen ? (
           <div
             id="desktop-account-menu"
             aria-labelledby="desktop-account-menu-button"
-            className="absolute bottom-full left-4 right-4 mb-2 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-xl"
+            className="absolute bottom-full left-3 right-3 mb-2 overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-2xl"
           >
             <Link
               ref={accountLinkRef}
               href="/account"
               onClick={() => setAccountMenuOpen(false)}
-              className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-foreground"
+              className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-muted transition hover:bg-surface-elevated hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
+              <NavigationIcon name="account" className="h-5 w-5" />
               {t("account")}
             </Link>
-
-            <div className="my-1 border-t border-border" />
-
-            <LogoutButton className="flex w-full items-center rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted transition hover:bg-surface-elevated hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50">
+            <div className="my-2 border-t border-border" />
+            <LanguageSwitcher />
+            <div className="my-2 border-t border-border" />
+            <LogoutButton className="flex min-h-11 w-full items-center rounded-xl px-3 py-2 text-left text-sm font-semibold text-muted transition hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-50">
               {t("logout")}
             </LogoutButton>
           </div>
-        )}
+        ) : null}
 
         <button
           ref={accountButtonRef}
@@ -240,31 +158,17 @@ export default function Sidebar({ user }: Props) {
           onClick={() => setAccountMenuOpen((current) => !current)}
           aria-expanded={accountMenuOpen}
           aria-controls="desktop-account-menu"
-          aria-label={
-            accountMenuOpen ? t("closeAccountMenu") : t("accountMenu")
-          }
-          className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label={accountMenuOpen ? t("closeAccountMenu") : t("accountMenu")}
+          className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent text-xs font-bold text-accent">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent bg-accent/10 text-xs font-black text-accent">
             {initials}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{displayName}</p>
-
-            <p className="truncate text-xs text-muted">{user.email}</p>
-          </div>
-
-          <span
-            aria-hidden="true"
-            className={[
-              "text-xs text-muted transition-transform",
-
-              accountMenuOpen ? "rotate-180" : "",
-            ].join(" ")}
-          >
-            ↑
           </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold">{displayName}</span>
+            <span className="block truncate text-xs text-muted">{user.email}</span>
+          </span>
+          <span aria-hidden="true" className={`text-xs text-muted transition-transform ${accountMenuOpen ? "rotate-180" : ""}`}>↑</span>
         </button>
       </div>
     </aside>

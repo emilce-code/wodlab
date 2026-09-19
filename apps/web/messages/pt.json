@@ -70,9 +70,35 @@
     "account": "Conta",
     "logout": "Sair",
     "more": "Mais",
+    "log": "Registrar",
+    "logResult": "Registrar resultado",
+    "logMenuTitle": "O que você quer fazer?",
+    "logMenuDescription": "Escolha uma ação rápida para manter seu treino atualizado.",
     "menuTitle": "Mais opções",
     "closeMenu": "Fechar menu",
     "mobileLabel": "Navegação principal",
+    "desktopLabel": "Navegação do aplicativo",
+    "groups": {
+      "train": "Treinar",
+      "track": "Acompanhar",
+      "manage": "Gerenciar",
+      "wodly": "WODLY",
+      "account": "Conta"
+    },
+    "logActions": {
+      "workoutResult": {
+        "title": "Registrar resultado do treino",
+        "description": "Escolha um treino e registre seu desempenho geral."
+      },
+      "movementResult": {
+        "title": "Registrar resultado de movimento",
+        "description": "Registre uma carga, habilidade, distância ou outro resultado."
+      },
+      "createWorkout": {
+        "title": "Criar treino",
+        "description": "Crie um novo treino com movimentos e seções."
+      }
+    },
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
     "closeAccountMenu": "Fechar menu da conta"
@@ -390,6 +416,7 @@
   "coachNavigation": {
     "label": "Seções do espaço do treinador",
     "overview": "Visão geral",
+    "groups": "Grupos de atletas",
     "programming": "Programação",
     "monitoring": "Monitoramento",
     "analytics": "Análises"
@@ -427,7 +454,10 @@
     "athletesEmpty": "Ainda não há atletas conectados.",
     "openAthlete": "Abrir atleta",
     "pendingTitle": "Convites pendentes",
-    "programmingTitle": "Grupos e modelos de programação",
+    "groupsTitle": "Grupos de atletas",
+    "groupsDescription": "Organize atletas conectados em grupos de programação reutilizáveis.",
+    "openGroups": "Gerenciar grupos",
+    "programmingTitle": "Modelos de programação",
     "programmingDescription": "Crie planos semanais reutilizáveis e atribua-os a grupos de atletas.",
     "openProgramming": "Abrir espaço de programação",
     "monitoringTitle": "Monitoramento de atletas",
@@ -504,8 +534,11 @@
   },
   "coachProgramming": {
     "eyebrow": "Programação do coach",
-    "title": "Grupos e modelos de programação",
-    "description": "Organize atletas e atribua programações semanais reutilizáveis.",
+    "title": "Modelos de programação",
+    "description": "Crie programações semanais reutilizáveis e atribua-as aos seus grupos de atletas.",
+    "groupsEyebrow": "Organização do coach",
+    "groupsPageTitle": "Grupos de atletas",
+    "groupsPageDescription": "Organize atletas conectados em grupos para programar com rapidez e consistência.",
     "loading": "Carregando espaço de programação...",
     "loadError": "Não foi possível carregar a programação do coach.",
     "saveError": "Não foi possível salvar esta alteração.",
@@ -926,6 +959,9 @@
       "bigPicture": {
         "title": "A visão completa",
         "description": "Um treino contém variações; cada variação contém seções, as seções contêm movimentos e as prescrições definem metas por categoria.",
+        "interactionHint": "Toque ou clique em qualquer conceito colorido para rever sua definição.",
+        "openDefinition": "Ver definição",
+        "viewDefinition": "Ver a definição de {concept}",
         "values": {
           "movement": "Thruster",
           "workout": "Treino de sexta-feira",
