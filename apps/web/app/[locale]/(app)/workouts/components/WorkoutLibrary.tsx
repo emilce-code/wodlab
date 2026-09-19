@@ -12,7 +12,7 @@ import type { PaginatedResponse } from "@/lib/pagination";
 
 import WorkoutCard, { Workout } from "./WorkoutCard";
 
-type Filter = "ALL" | "BENCHMARK";
+type LibraryFilter = LibraryScopeFilter | "benchmark";
 type LibraryView = "ACTIVE" | "ARCHIVED";
 
 type Props = {
@@ -32,20 +32,19 @@ export default function WorkoutLibrary({
   const scopeLabels = getLibraryScopeLabels(locale);
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<Filter>("ALL");
-  const [scope, setScope] = useState<LibraryScopeFilter>("all");
+  const [filter, setFilter] = useState<LibraryFilter>("all");
   const [view, setView] = useState<LibraryView>("ACTIVE");
   const [pages, setPages] = useState<
     Record<string, PaginatedResponse<Workout>>
   >(() => ({
-    "ACTIVE-ALL-all-": workouts,
-    "ARCHIVED-ALL-all-": archivedWorkouts,
+    "ACTIVE-all-": workouts,
+    "ARCHIVED-all-": archivedWorkouts,
   }));
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const normalizedSearch = search.trim();
-  const queryKey = `${view}-${filter}-${scope}-${normalizedSearch.toLowerCase()}`;
+  const queryKey = `${view}-${filter}-${normalizedSearch.toLowerCase()}`;
   const displayedPage = pages[queryKey];
   const displayedWorkouts = displayedPage?.items ?? [];
 
@@ -65,7 +64,6 @@ export default function WorkoutLibrary({
           const query = createQuery(
             view,
             filter,
-            scope,
             normalizedSearch,
             1,
             12,
@@ -112,7 +110,6 @@ export default function WorkoutLibrary({
     normalizedSearch,
     pages,
     queryKey,
-    scope,
     t,
     view,
   ]);
@@ -129,7 +126,6 @@ export default function WorkoutLibrary({
       const query = createQuery(
         view,
         filter,
-        scope,
         normalizedSearch,
         displayedPage.page + 1,
         displayedPage.pageSize,
@@ -179,7 +175,7 @@ export default function WorkoutLibrary({
         </ViewTab>
       </div>
 
-      <div className="sticky top-0 z-10 -mx-4 mt-4 border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+      <div className="sticky top-0 z-30 -mx-4 mt-4 border-b border-border/60 bg-background/95 px-4 py-3 shadow-sm backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:shadow-none">
         <div className="relative">
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">
             ⌕
@@ -196,31 +192,15 @@ export default function WorkoutLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "mine"] as LibraryScopeFilter[]).map((value) => (
+          {(["all", "mine", "benchmark"] as LibraryFilter[]).map((value) => (
             <FilterButton
               key={value}
-              active={scope === value}
-              onClick={() => setScope(value)}
+              active={filter === value}
+              onClick={() => setFilter(value)}
             >
-              {scopeLabels[value]}
+              {value === "benchmark" ? t("benchmark") : scopeLabels[value]}
             </FilterButton>
           ))}
-        </div>
-
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-          <FilterButton
-            active={filter === "ALL"}
-            onClick={() => setFilter("ALL")}
-          >
-            {t("all")}
-          </FilterButton>
-
-          <FilterButton
-            active={filter === "BENCHMARK"}
-            onClick={() => setFilter("BENCHMARK")}
-          >
-            {t("benchmark")}
-          </FilterButton>
         </div>
       </div>
 
@@ -302,8 +282,7 @@ export default function WorkoutLibrary({
 
 function createQuery(
   view: LibraryView,
-  filter: Filter,
-  scope: LibraryScopeFilter,
+  filter: LibraryFilter,
   search: string,
   page: number,
   pageSize: number,
@@ -311,14 +290,14 @@ function createQuery(
   const query = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
-    scope,
+    scope: filter === "mine" ? "mine" : "all",
   });
 
   if (view === "ARCHIVED") {
     query.set("view", "archived");
   }
 
-  if (filter === "BENCHMARK") {
+  if (filter === "benchmark") {
     query.set("benchmark", "true");
   }
 
