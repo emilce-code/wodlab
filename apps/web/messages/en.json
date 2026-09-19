@@ -70,9 +70,35 @@
     "account": "Account",
     "logout": "Log out",
     "more": "More",
+    "log": "Log",
+    "logResult": "Log a result",
+    "logMenuTitle": "What do you want to do?",
+    "logMenuDescription": "Choose a quick action to keep your training up to date.",
     "menuTitle": "More options",
     "closeMenu": "Close menu",
     "mobileLabel": "Main navigation",
+    "desktopLabel": "Application navigation",
+    "groups": {
+      "train": "Train",
+      "track": "Track",
+      "manage": "Manage",
+      "wodly": "WODLY",
+      "account": "Account"
+    },
+    "logActions": {
+      "workoutResult": {
+        "title": "Log workout result",
+        "description": "Choose a workout and record your overall performance."
+      },
+      "movementResult": {
+        "title": "Log movement result",
+        "description": "Record a lift, skill, distance, or other movement result."
+      },
+      "createWorkout": {
+        "title": "Create workout",
+        "description": "Build a new workout from movements and sections."
+      }
+    },
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
     "closeAccountMenu": "Close account menu"

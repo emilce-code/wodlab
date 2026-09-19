@@ -70,9 +70,35 @@
     "account": "Cuenta",
     "logout": "Cerrar sesión",
     "more": "Más",
+    "log": "Registrar",
+    "logResult": "Registrar resultado",
+    "logMenuTitle": "¿Qué quieres hacer?",
+    "logMenuDescription": "Elige una acción rápida para mantener tu entrenamiento actualizado.",
     "menuTitle": "Más opciones",
     "closeMenu": "Cerrar menú",
     "mobileLabel": "Navegación principal",
+    "desktopLabel": "Navegación de la aplicación",
+    "groups": {
+      "train": "Entrenar",
+      "track": "Seguimiento",
+      "manage": "Administrar",
+      "wodly": "WODLY",
+      "account": "Cuenta"
+    },
+    "logActions": {
+      "workoutResult": {
+        "title": "Registrar entrenamiento",
+        "description": "Elige un entrenamiento y registra tu resultado general."
+      },
+      "movementResult": {
+        "title": "Registrar movimiento",
+        "description": "Registra un levantamiento, habilidad, distancia u otro resultado."
+      },
+      "createWorkout": {
+        "title": "Crear entrenamiento",
+        "description": "Crea un entrenamiento nuevo con movimientos y secciones."
+      }
+    },
     "skipToContent": "Saltar al contenido principal",
     "accountMenu": "Abrir menú de cuenta",
     "closeAccountMenu": "Cerrar menú de cuenta"
