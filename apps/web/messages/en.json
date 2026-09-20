@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 24839)
-Total output lines: 2324
-
 {
   "common": {
     "workouts": "Workouts",
@@ -960,7 +957,422 @@ Total output lines: 2324
           "sections": {
             "warmup": "Warm-up",
             "strength": "Strength",
-  …4839 tokens truncated…     "optionalTitle": "Optional workout details",
+            "wod": "WOD",
+            "cooldown": "Cooldown"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": { "name": "Rx", "description": "For experienced athletes" },
+            "intermediate": {
+              "name": "Intermediate",
+              "description": "A balanced challenge"
+            },
+            "beginner": {
+              "name": "Beginner",
+              "description": "Accessible scaled movements"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Men",
+          "women": "Women",
+          "note": "Same movement and variation. Different prescribed targets for Men and Women."
+        }
+      },
+      "bigPicture": {
+        "title": "The big picture",
+        "description": "A workout contains variations; each variation contains sections, sections contain movements, and prescriptions define category-specific targets.",
+        "interactionHint": "Tap or click any colored concept to revisit its definition.",
+        "openDefinition": "View definition",
+        "viewDefinition": "View the definition of {concept}",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Friday Training",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
+    "moreGuidesTitle": "Keep exploring",
+    "moreGuidesDescription": "Open a topic whenever you need a quick refresher.",
+    "learning": {
+      "eyebrow": "Interactive guide",
+      "title": "Build your understanding step by step",
+      "description": "Start with a single movement, then see how it becomes part of a complete workout.",
+      "progress": "{current} of {total}",
+      "stepLabel": "Concept {number}",
+      "graphicTitle": "See the workout take shape",
+      "tryIt": "Try the example",
+      "previous": "Previous",
+      "next": "Next: {concept}",
+      "complete": "Core concepts complete",
+      "graphic": {
+        "workout": "Workout",
+        "workoutName": "Lift, pull & row",
+        "workoutType": "For time",
+        "variation": "Variation",
+        "variationName": "Rx",
+        "section": "Section",
+        "sectionName": "Strength",
+        "movement": "Movement",
+        "movementName": "Back squat",
+        "measurement": "Weight + reps",
+        "prescription": "Prescription",
+        "prescriptionValue": "5 reps @ 75% of 1RM · Men 60 kg · Women 42.5 kg",
+        "legendWorkout": "Workout",
+        "legendVariation": "Variation",
+        "legendSection": "Section",
+        "legendMovement": "Movement",
+        "legendPrescription": "Prescription"
+      },
+      "steps": {
+        "movement": {
+          "shortTitle": "Movement",
+          "title": "A movement is the smallest building block",
+          "description": "A movement is one exercise, such as a back squat, row, or pull-up. WODLY stores its category and the ways it can be measured so you can program it in workouts or track it on its own.",
+          "keyPoint": "One movement can appear in many different workouts, while keeping its own result history."
+        },
+        "workout": {
+          "shortTitle": "Workout",
+          "title": "A workout gives movements a purpose",
+          "description": "A workout combines one or more movements into a training session with a format and a main score. For example, you may finish for time, complete rounds in an AMRAP, or record your heaviest load.",
+          "keyPoint": "The workout score summarizes the session; movement results add optional detail."
+        },
+        "variation": {
+          "shortTitle": "Variation",
+          "title": "Variations preserve the goal at different levels",
+          "description": "The same workout can have Rx, Intermediate, and Beginner versions. Each changes movements, reps, or loads to match the athlete while preserving the intended training stimulus.",
+          "keyPoint": "A variation is not a different workout—it is another accessible path to the same goal."
+        },
+        "section": {
+          "shortTitle": "Section",
+          "title": "Sections organize the workout into clear parts",
+          "description": "A variation can contain ordered sections such as warm-up, strength, skill, and conditioning. Every section has its own configuration and movements.",
+          "keyPoint": "Sections explain what to do, in what order, and why each part belongs in the session."
+        },
+        "prescription": {
+          "shortTitle": "Prescription",
+          "title": "A prescription tells the athlete what to perform",
+          "description": "A prescription adds the target to a movement: reps, load, distance, duration, calories, or a percentage of an RM. A generic target can apply to everyone, with category-specific values when needed.",
+          "keyPoint": "The movement is the exercise; the prescription is the target assigned to it in this workout."
+        }
+      },
+      "movement": {
+        "tryLabel": "Choose a movement example",
+        "examples": {
+          "backSquat": {
+            "name": "Back squat",
+            "description": "A loaded squat tracked over time for strength progress.",
+            "category": "Weightlifting",
+            "measurement": "Weight + reps"
+          },
+          "row": {
+            "name": "Row",
+            "description": "A monostructural movement used for distance, calories, or duration.",
+            "category": "Monostructural",
+            "measurement": "Distance · Calories · Time"
+          },
+          "pullUp": {
+            "name": "Pull-up",
+            "description": "A gymnastics movement commonly tracked by completed repetitions.",
+            "category": "Gymnastics",
+            "measurement": "Repetitions"
+          }
+        }
+      },
+      "workout": {
+        "example": {
+          "type": "For time",
+          "name": "Lift, pull & row",
+          "score": "12:48",
+          "movements": {
+            "backSquat": "15 back squats",
+            "row": "500 m row",
+            "pullUp": "15 pull-ups"
+          },
+          "note": "These movements now share one objective and produce one workout score."
+        }
+      },
+      "variation": {
+        "tryLabel": "Compare workout variations",
+        "exampleTitle": "{level} variation",
+        "levels": {
+          "rx": {
+            "name": "Rx",
+            "movementOne": "15 back squats · 60/42.5 kg",
+            "movementTwo": "15 pull-ups",
+            "stimulus": "Higher load and advanced gymnastics for athletes ready for the workout as written."
+          },
+          "beginner": {
+            "name": "Beginner",
+            "movementOne": "15 goblet squats · light",
+            "movementTwo": "15 ring rows",
+            "stimulus": "More accessible movements while keeping the same squat-and-pull training goal."
+          }
+        }
+      },
+      "section": {
+        "examples": {
+          "strength": {
+            "name": "Strength",
+            "content": "Back squat · 5 sets of 5",
+            "purpose": "Build strength first while the athlete is fresh."
+          },
+          "conditioning": {
+            "name": "Conditioning",
+            "content": "3 rounds · row + pull-ups",
+            "purpose": "Then combine cyclical work and gymnastics at intensity."
+          }
+        }
+      },
+      "prescription": {
+        "genericLabel": "Generic movement target",
+        "genericValue": "5 reps @ 75% of 1RM",
+        "genericHelp": "This percentage target applies regardless of prescription category.",
+        "categoryLabel": "Category-specific load",
+        "categoryHelp": "The category changes the assigned load without creating another variation.",
+        "tryLabel": "Compare prescription categories",
+        "categories": {
+          "men": { "name": "Men", "value": "60 kg" },
+          "women": { "name": "Women", "value": "42.5 kg" }
+        }
+      }
+    },
+    "searchLabel": "Search help guides",
+    "searchPlaceholder": "Search workouts, results, progress...",
+    "guidesTitle": "Explore the app",
+    "empty": "No guide matches that search yet.",
+    "guides": {
+      "gettingStarted": {
+        "title": "Getting started",
+        "summary": "Set up your profile and log your first session",
+        "body": "Complete your goals, weekly target, usual workout level, and prescription category in Account. Then choose a workout or movement and save your first result. Your dashboard, history, and progress views update automatically."
+      },
+      "workouts": {
+        "title": "Workouts and variations",
+        "summary": "Understand levels, sections, and movement targets",
+        "body": "A workout can have several variations for different athlete levels. Each variation contains sections, and each section contains movements. Pick the variation that matches your training today; your saved preference is only a helpful default."
+      },
+      "results": {
+        "title": "Logging results",
+        "summary": "Save a score quickly and add optional detail",
+        "body": "The workout score is the only required performance detail. Expand Movement performance to record exercise-specific values, or Result details to change the date, time, and notes. These extra fields improve charts and personal-record tracking."
+      },
+      "progress": {
+        "title": "Progress and personal records",
+        "summary": "See trends without doing extra work",
+        "body": "Every saved workout and movement result feeds History and Progress. Personal records compare compatible measurements, such as the same lift and rep max, so consistent logging produces more useful trends."
+      },
+      "training": {
+        "title": "Planning and classes",
+        "summary": "Schedule training and follow your daily plan",
+        "body": "Add a workout to Training for a future date, or book a class offered by your active box. Scheduled and coach-assigned workouts appear in your daily plan and can be opened directly when it is time to train."
+      },
+      "coaching": {
+        "title": "Coaches and feedback",
+        "summary": "Work with a coach without losing control of your log",
+        "body": "Connected coaches can assign workouts and leave feedback. You still record your own result and comments. Coach tools appear only for accounts with coaching access."
+      }
+    },
+    "concepts": {
+      "title": "Core concepts",
+      "description": "These four building blocks explain most of WODLY.",
+      "workout": {
+        "term": "Workout",
+        "definition": "The complete training session you create, schedule, or log."
+      },
+      "variation": {
+        "term": "Variation",
+        "definition": "A level-specific version of a workout, such as Rx or Beginner."
+      },
+      "section": {
+        "term": "Section",
+        "definition": "A distinct part of a variation, such as strength or conditioning."
+      },
+      "movement": {
+        "term": "Movement",
+        "definition": "An exercise you can program and track independently over time."
+      }
+    }
+  },
+  "workouts": {
+    "library": {
+      "eyebrow": "Library",
+      "title": "Workouts",
+      "description": "Find your next challenge or build your own workout.",
+      "createWorkout": "Create Workout",
+      "viewLabel": "Workout library view",
+      "active": "Active",
+      "archived": "Archived",
+      "searchLabel": "Search workouts or movements",
+      "searchPlaceholder": "Search workouts or movements...",
+      "all": "All",
+      "benchmark": "Benchmark",
+      "workoutCount": "{count, plural, =0 {0 workouts} =1 {1 workout} other {# workouts}}",
+      "loading": "Loading workouts...",
+      "loadError": "Unable to load workouts. Please try again.",
+      "emptyTitle": "No workouts found",
+      "emptyDescription": "Try changing your search or filters.",
+      "archivedEmptyTitle": "No archived workouts",
+      "archivedEmptyDescription": "Workouts you deactivate will appear here.",
+      "moreMovements": "+{count} more",
+      "viewWorkout": "View workout"
+    },
+    "lifecycle": {
+      "delete": "Delete",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "cancel": "Cancel",
+      "deleteConfirmTitle": "Delete this workout?",
+      "deleteConfirmDescription": "This workout has no results and will be permanently deleted. This action cannot be undone.",
+      "deactivateConfirmTitle": "Deactivate this workout?",
+      "deactivateConfirmDescription": "It will be hidden from the active library and become read-only. Existing history will be preserved.",
+      "reactivateConfirmTitle": "Reactivate this workout?",
+      "reactivateConfirmDescription": "It will return to the active library and athletes will be able to log results again.",
+      "deleteSubmitting": "Deleting...",
+      "deactivateSubmitting": "Deactivating...",
+      "reactivateSubmitting": "Reactivating...",
+      "actionError": "Unable to update the workout.",
+      "connectionError": "Unable to update the workout. Please try again."
+    },
+    "schedule": {
+      "title": "Schedule workout",
+      "collapsedDescription": "Add the {variation} variation to your training plan.",
+      "eyebrow": "Plan your training",
+      "selectedVariation": "Selected variation: {variation}",
+      "date": "Training date",
+      "today": "Use today",
+      "prescription": "Prescription",
+      "noPrescription": "No specific prescription",
+      "notes": "Planning notes",
+      "notesPlaceholder": "Pacing goal, focus, reminder...",
+      "optional": "(optional)",
+      "save": "Add to training plan",
+      "scheduled": "Added to training plan",
+      "saving": "Scheduling...",
+      "cancel": "Cancel",
+      "dateRequired": "Select a training date.",
+      "saveError": "Unable to schedule this workout.",
+      "connectionError": "Unable to schedule this workout. Please try again.",
+      "duplicateError": "This workout variation is already scheduled for that date.",
+      "successTitle": "Workout scheduled",
+      "successDescription": "The workout was added to your training plan.",
+      "backToDashboard": "Back to dashboard"
+    },
+    "create": {
+      "backToLibrary": "Workout Library",
+      "backToWorkout": "Back to workout",
+      "title": "Create Workout",
+      "description": "Build a workout by adding sections and movements.",
+      "editEyebrow": "Workout management",
+      "editTitle": "Edit workout",
+      "editDescription": "Update the workout structure, variations, and prescriptions.",
+      "optional": "(optional)",
+      "draft": {
+        "title": "Continue your workout draft?",
+        "description": "We saved the workout you were creating on this device.",
+        "restore": "Restore draft",
+        "discard": "Discard"
+      },
+      "start": {
+        "importTitle": "Already have the workout written down?",
+        "importDescription": "Paste a workout with levels and category-specific prescriptions to create an editable draft."
+      },
+      "mode": {
+        "simpleTitle": "Simple setup",
+        "simpleDescription": "Start with one level and one section. You can add advanced programming whenever you need it.",
+        "advancedTitle": "Advanced programming",
+        "advancedDescription": "Create multiple levels, sections, custom notes, and category-specific prescriptions.",
+        "useSimple": "Use simple setup",
+        "useAdvanced": "Show advanced options"
+      },
+      "concepts": {
+        "title": "How workout programming is organized",
+        "description": "A quick guide to variations, sections, and movements.",
+        "variation": {
+          "title": "Variation",
+          "description": "A version for one athlete level, such as Rx, Intermediate, or Beginner."
+        },
+        "section": {
+          "title": "Section",
+          "description": "One part of the workout, such as strength, a warm-up, or the metcon."
+        },
+        "movement": {
+          "title": "Movement",
+          "description": "An exercise inside a section, with optional reps, load, distance, or time."
+        }
+      },
+      "importer": {
+        "title": "Import workout text",
+        "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
+        "label": "Workout text",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nMen: Thrusters 95 lb\nWomen: Thrusters 65 lb\nPull-ups\n\nIntermediate\nMen: Thrusters 75 lb\nWomen: Thrusters 55 lb\nJumping pull-ups\n\nBeginner\nMen: Thrusters 45 lb\nWomen: Thrusters 35 lb\nRing rows",
+        "parse": "Preview import",
+        "parsing": "Reading workout...",
+        "parseError": "Unable to read this workout. Check the text and try again.",
+        "matched": "{count, plural, =1 {1 movement matched} other {# movements matched}}",
+        "needsReview": "{count, plural, =1 {1 movement needs review} other {# movements need review}}",
+        "detectedType": "Detected format: {type}",
+        "apply": "Use this draft",
+        "applyHint": "You can correct every field in the editor before the final review and save.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Line {line}: choose the intended movement",
+          "UNKNOWN_MOVEMENT": "Line {line}: movement was not recognized",
+          "MULTIPLE_LOADS": "Line {line}: multiple loads need manual review"
+        },
+        "formatHint": "Use a level heading (RX, Intermediate, or Beginner). Prefix category-specific movements with Men or Women.",
+        "variantsDetected": "{count, plural, =1 {1 variation detected} other {# variations detected}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}"
+      },
+      "steps": {
+        "ariaLabel": "Workout creation progress",
+        "details": {
+          "title": "Details",
+          "description": "Name and type"
+        },
+        "programming": {
+          "title": "Programming",
+          "description": "Variants and movements"
+        },
+        "review": {
+          "title": "Review",
+          "description": "Check and create"
+        },
+        "back": "Back",
+        "continue": "Continue"
+      },
+      "review": {
+        "eyebrow": "Final check",
+        "title": "Review your workout",
+        "description": "Confirm the structure before creating the workout.",
+        "workout": "Workout",
+        "variants": "Variants",
+        "sections": "Sections",
+        "movements": "Movements",
+        "sectionCount": "{count, plural, =1 {1 section} other {# sections}}",
+        "section": "Section {number}",
+        "edit": "Edit programming",
+        "editDetails": "Edit details",
+        "noPrescription": "No shared prescription",
+        "categoryOverrides": "Category overrides"
+      },
+      "details": {
+        "eyebrow": "Workout",
+        "title": "Workout details",
+        "description": "Define the overall workout before adding its sections.",
+        "name": "Workout name",
+        "namePlaceholder": "Example: Fran",
+        "workoutDescription": "Description",
+        "descriptionPlaceholder": "Describe the workout...",
+        "type": "Workout type",
+        "selectType": "Select workout type",
+        "optionalTitle": "Optional workout details",
         "optionalSummary": "Description and benchmark",
         "benchmark": "Benchmark workout",
         "benchmarkDescription": "Mark this workout as a benchmark for tracking repeated attempts."

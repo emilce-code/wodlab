@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 26449)
-Total output lines: 2312
-
 {
   "common": {
     "workouts": "Treinos",
@@ -894,7 +891,545 @@ Total output lines: 2312
         },
         "workout": {
           "shortTitle": "Treino",
-          …6449 tokens truncated… "reps": "Repetições",
+          "lead": "Agora reúna os movimentos",
+          "title": "Treino",
+          "description": "Um treino é a sessão completa. Ele reúne um ou mais movimentos e os organiza em seções.",
+          "insight": "Um treino reúne diferentes movimentos em uma única sessão."
+        },
+        "section": {
+          "shortTitle": "Seção",
+          "lead": "Organize seu treino",
+          "title": "Seção",
+          "description": "As seções dividem o treino em partes como aquecimento, força, WOD e volta à calma.",
+          "insight": "As seções definem a estrutura e a ordem do treino."
+        },
+        "variation": {
+          "shortTitle": "Variação",
+          "lead": "Adicione diferentes níveis",
+          "title": "Variação",
+          "description": "As variações criam versões Rx, Intermediária ou Iniciante das seções, mantendo o objetivo do treino.",
+          "insight": "Variações são versões por nível do mesmo treino, não treinos diferentes."
+        },
+        "prescription": {
+          "shortTitle": "Prescrição",
+          "lead": "Defina as metas específicas",
+          "title": "Prescrição",
+          "description": "Uma prescrição define a meta exata de um movimento. Use-a quando Homens e Mulheres precisarem de pesos, repetições, distâncias ou outros valores diferentes.",
+          "insight": "O movimento permanece igual; a prescrição atribui metas específicas para Homens e Mulheres."
+        }
+      },
+      "examples": {
+        "movement": {
+          "label": "Movimento",
+          "name": "Thruster",
+          "detail": "Um movimento de corpo inteiro que combina um agachamento frontal e um desenvolvimento de ombros.",
+          "tags": {
+            "strength": "Força",
+            "barbell": "Barra",
+            "fullBody": "Corpo inteiro"
+          }
+        },
+        "workout": {
+          "label": "Treino",
+          "name": "Treino de sexta-feira",
+          "detail": "Uma sessão completa criada para desenvolver força e condicionamento.",
+          "movements": {
+            "thruster": "Thruster",
+            "pullUp": "Barra fixa",
+            "run": "Corrida"
+          },
+          "more": "e mais…"
+        },
+        "section": {
+          "workoutName": "Treino de sexta-feira",
+          "sections": {
+            "warmup": "Aquecimento",
+            "strength": "Força",
+            "wod": "WOD",
+            "cooldown": "Volta à calma"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": { "name": "Rx", "description": "Para atletas experientes" },
+            "intermediate": {
+              "name": "Intermediário",
+              "description": "Um desafio equilibrado"
+            },
+            "beginner": {
+              "name": "Iniciante",
+              "description": "Movimentos escalados e acessíveis"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Homens",
+          "women": "Mulheres",
+          "note": "Mesmo movimento e variação. Metas prescritas diferentes para Homens e Mulheres."
+        }
+      },
+      "bigPicture": {
+        "title": "A visão completa",
+        "description": "Um treino contém variações; cada variação contém seções, as seções contêm movimentos e as prescrições definem metas por categoria.",
+        "interactionHint": "Toque ou clique em qualquer conceito colorido para rever sua definição.",
+        "openDefinition": "Ver definição",
+        "viewDefinition": "Ver a definição de {concept}",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Treino de sexta-feira",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
+    "moreGuidesTitle": "Continue explorando",
+    "moreGuidesDescription": "Abra um tópico quando precisar de uma revisão rápida.",
+    "learning": {
+      "eyebrow": "Guia interativo",
+      "title": "Aprenda os conceitos passo a passo",
+      "description": "Comece com um movimento e veja como ele se torna parte de um treino completo.",
+      "progress": "{current} de {total}",
+      "stepLabel": "Conceito {number}",
+      "graphicTitle": "Veja o treino tomar forma",
+      "tryIt": "Experimente o exemplo",
+      "previous": "Anterior",
+      "next": "Próximo: {concept}",
+      "complete": "Conceitos principais concluídos",
+      "graphic": {
+        "workout": "Treino",
+        "workoutName": "Agache, puxe e reme",
+        "workoutType": "Por tempo",
+        "variation": "Variação",
+        "variationName": "Rx",
+        "section": "Seção",
+        "sectionName": "Força",
+        "movement": "Movimento",
+        "movementName": "Agachamento livre",
+        "measurement": "Peso + repetições",
+        "prescription": "Prescrição",
+        "prescriptionValue": "5 reps a 75% do 1RM · Homens 60 kg · Mulheres 42,5 kg",
+        "legendWorkout": "Treino",
+        "legendVariation": "Variação",
+        "legendSection": "Seção",
+        "legendMovement": "Movimento",
+        "legendPrescription": "Prescrição"
+      },
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimento",
+          "title": "O movimento é a menor unidade",
+          "description": "Um movimento é um exercício, como agachamento livre, remo ou barra fixa. O WODLY guarda sua categoria e como ele pode ser medido para programá-lo ou acompanhá-lo separadamente.",
+          "keyPoint": "Um movimento pode aparecer em vários treinos e manter seu próprio histórico de resultados."
+        },
+        "workout": {
+          "shortTitle": "Treino",
+          "title": "O treino dá um propósito aos movimentos",
+          "description": "Um treino combina um ou mais movimentos em uma sessão com formato e resultado principal. Você pode concluir por tempo, fazer rounds em um AMRAP ou registrar a carga máxima.",
+          "keyPoint": "O resultado resume a sessão; os resultados por movimento adicionam detalhes opcionais."
+        },
+        "variation": {
+          "shortTitle": "Variação",
+          "title": "As variações preservam o objetivo em diferentes níveis",
+          "description": "O mesmo treino pode ter versões Rx, Intermediária e Iniciante. Cada uma ajusta movimentos, repetições ou cargas ao atleta sem perder o estímulo pretendido.",
+          "keyPoint": "Uma variação não é outro treino: é um caminho acessível para o mesmo objetivo."
+        },
+        "section": {
+          "shortTitle": "Seção",
+          "title": "As seções organizam o treino em partes claras",
+          "description": "Uma variação pode conter seções ordenadas como aquecimento, força, habilidade e condicionamento. Cada seção tem sua própria configuração e movimentos.",
+          "keyPoint": "As seções explicam o que fazer, em qual ordem e por que cada parte pertence à sessão."
+        },
+        "prescription": {
+          "shortTitle": "Prescrição",
+          "title": "A prescrição indica o que o atleta deve realizar",
+          "description": "Uma prescrição adiciona a meta ao movimento: repetições, carga, distância, duração, calorias ou percentual de um RM. Uma meta geral pode valer para todos, com valores por categoria quando necessário.",
+          "keyPoint": "O movimento é o exercício; a prescrição é a meta atribuída a ele neste treino."
+        }
+      },
+      "movement": {
+        "tryLabel": "Escolha um exemplo de movimento",
+        "examples": {
+          "backSquat": {
+            "name": "Agachamento livre",
+            "description": "Um agachamento com carga usado para acompanhar o progresso de força.",
+            "category": "Levantamento de peso",
+            "measurement": "Peso + repetições"
+          },
+          "row": {
+            "name": "Remo",
+            "description": "Um movimento monoestrutural medido por distância, calorias ou duração.",
+            "category": "Monoestrutural",
+            "measurement": "Distância · Calorias · Tempo"
+          },
+          "pullUp": {
+            "name": "Barra fixa",
+            "description": "Um movimento ginástico geralmente medido por repetições concluídas.",
+            "category": "Ginástica",
+            "measurement": "Repetições"
+          }
+        }
+      },
+      "workout": {
+        "example": {
+          "type": "Por tempo",
+          "name": "Agache, puxe e reme",
+          "score": "12:48",
+          "movements": {
+            "backSquat": "15 agachamentos livres",
+            "row": "500 m de remo",
+            "pullUp": "15 barras fixas"
+          },
+          "note": "Esses movimentos agora compartilham um objetivo e geram um único resultado."
+        }
+      },
+      "variation": {
+        "tryLabel": "Compare as variações",
+        "exampleTitle": "Variação {level}",
+        "levels": {
+          "rx": {
+            "name": "Rx",
+            "movementOne": "15 agachamentos livres · 60/42,5 kg",
+            "movementTwo": "15 barras fixas",
+            "stimulus": "Maior carga e ginástica avançada para atletas preparados para o treino original."
+          },
+          "beginner": {
+            "name": "Iniciante",
+            "movementOne": "15 goblet squats · carga leve",
+            "movementTwo": "15 remadas nas argolas",
+            "stimulus": "Movimentos mais acessíveis que mantêm o objetivo de agachar e puxar."
+          }
+        }
+      },
+      "section": {
+        "examples": {
+          "strength": {
+            "name": "Força",
+            "content": "Agachamento livre · 5 séries de 5",
+            "purpose": "Desenvolve força primeiro, enquanto o atleta está descansado."
+          },
+          "conditioning": {
+            "name": "Condicionamento",
+            "content": "3 rounds · remo + barra fixa",
+            "purpose": "Depois combina trabalho cíclico e ginástica com intensidade."
+          }
+        }
+      },
+      "prescription": {
+        "genericLabel": "Meta geral do movimento",
+        "genericValue": "5 repetições a 75% do 1RM",
+        "genericHelp": "Esse percentual vale independentemente da categoria de prescrição.",
+        "categoryLabel": "Carga por categoria",
+        "categoryHelp": "A categoria altera a carga atribuída sem criar outra variação.",
+        "tryLabel": "Compare categorias de prescrição",
+        "categories": {
+          "men": { "name": "Homens", "value": "60 kg" },
+          "women": { "name": "Mulheres", "value": "42,5 kg" }
+        }
+      }
+    },
+    "searchLabel": "Buscar nos guias",
+    "searchPlaceholder": "Buscar treinos, resultados, progresso...",
+    "guidesTitle": "Explore o app",
+    "empty": "Ainda não há um guia correspondente a essa busca.",
+    "guides": {
+      "gettingStarted": {
+        "title": "Primeiros passos",
+        "summary": "Configure seu perfil e registre sua primeira sessão",
+        "body": "Complete seus objetivos, meta semanal, nível habitual e categoria de prescrição em Conta. Depois escolha um treino ou movimento e salve seu primeiro resultado. Seu painel, histórico e progresso serão atualizados automaticamente."
+      },
+      "workouts": {
+        "title": "Treinos e variações",
+        "summary": "Entenda níveis, seções e metas por movimento",
+        "body": "Um treino pode ter várias variações para diferentes níveis. Cada variação contém seções e cada seção contém movimentos. Escolha a variação adequada para hoje; sua preferência salva é apenas uma opção padrão útil."
+      },
+      "results": {
+        "title": "Registro de resultados",
+        "summary": "Salve um resultado rapidamente e adicione detalhes opcionais",
+        "body": "O resultado do treino é o único dado de desempenho obrigatório. Expanda Desempenho por movimento para registrar valores específicos, ou Detalhes do resultado para alterar data, hora e observações. Esses dados melhoram os gráficos e o acompanhamento de recordes."
+      },
+      "progress": {
+        "title": "Progresso e recordes pessoais",
+        "summary": "Veja tendências sem trabalho extra",
+        "body": "Cada resultado salvo alimenta Histórico e Progresso. Os recordes comparam medições compatíveis, como o mesmo levantamento e RM, então um registro consistente produz tendências mais úteis."
+      },
+      "training": {
+        "title": "Planejamento e aulas",
+        "summary": "Programe treinos e siga seu plano diário",
+        "body": "Adicione um treino ao Plano para uma data futura ou reserve uma aula do seu box ativo. Treinos programados e atribuídos aparecem no plano diário e podem ser abertos diretamente na hora de treinar."
+      },
+      "coaching": {
+        "title": "Coaches e feedback",
+        "summary": "Trabalhe com um coach sem perder o controle do seu registro",
+        "body": "Coaches conectados podem atribuir treinos e deixar feedback. Você continua registrando seus próprios resultados e comentários. As ferramentas de coach aparecem apenas para contas com acesso."
+      }
+    },
+    "concepts": {
+      "title": "Conceitos principais",
+      "description": "Estes quatro elementos explicam a maior parte do WODLY.",
+      "workout": {
+        "term": "Treino",
+        "definition": "A sessão completa que você cria, programa ou registra."
+      },
+      "variation": {
+        "term": "Variação",
+        "definition": "Uma versão por nível, como Rx ou Iniciante."
+      },
+      "section": {
+        "term": "Seção",
+        "definition": "Uma parte distinta, como força ou condicionamento."
+      },
+      "movement": {
+        "term": "Movimento",
+        "definition": "Um exercício que você pode programar e acompanhar separadamente."
+      }
+    }
+  },
+  "workouts": {
+    "library": {
+      "eyebrow": "Biblioteca",
+      "title": "Treinos",
+      "description": "Encontre seu próximo desafio ou crie seu próprio treino.",
+      "createWorkout": "Criar treino",
+      "viewLabel": "Visualização da biblioteca de treinos",
+      "active": "Ativos",
+      "archived": "Arquivados",
+      "searchLabel": "Buscar treinos ou movimentos",
+      "searchPlaceholder": "Buscar treinos ou movimentos...",
+      "all": "Todos",
+      "benchmark": "Benchmark",
+      "workoutCount": "{count, plural, =0 {0 treinos} =1 {1 treino} other {# treinos}}",
+      "loading": "Carregando treinos...",
+      "loadError": "Não foi possível carregar os treinos. Tente novamente.",
+      "emptyTitle": "Nenhum treino encontrado",
+      "emptyDescription": "Tente alterar a busca ou os filtros.",
+      "archivedEmptyTitle": "Nenhum treino arquivado",
+      "archivedEmptyDescription": "Os treinos que você desativar aparecerão aqui.",
+      "moreMovements": "+{count} a mais",
+      "viewWorkout": "Ver treino"
+    },
+    "lifecycle": {
+      "delete": "Excluir",
+      "deactivate": "Desativar",
+      "reactivate": "Reativar",
+      "cancel": "Cancelar",
+      "deleteConfirmTitle": "Excluir este treino?",
+      "deleteConfirmDescription": "Este treino não possui resultados e será excluído permanentemente. Esta ação não pode ser desfeita.",
+      "deactivateConfirmTitle": "Desativar este treino?",
+      "deactivateConfirmDescription": "Ele será ocultado da biblioteca ativa e ficará somente para leitura. O histórico existente será preservado.",
+      "reactivateConfirmTitle": "Reativar este treino?",
+      "reactivateConfirmDescription": "Ele retornará à biblioteca ativa e os atletas poderão registrar resultados novamente.",
+      "deleteSubmitting": "Excluindo...",
+      "deactivateSubmitting": "Desativando...",
+      "reactivateSubmitting": "Reativando...",
+      "actionError": "Não foi possível atualizar o treino.",
+      "connectionError": "Não foi possível atualizar o treino. Tente novamente."
+    },
+    "schedule": {
+      "title": "Programar treino",
+      "collapsedDescription": "Adicione a variação {variation} ao seu plano de treino.",
+      "eyebrow": "Planeje seu treino",
+      "selectedVariation": "Variação selecionada: {variation}",
+      "date": "Data do treino",
+      "today": "Usar hoje",
+      "prescription": "Prescrição",
+      "noPrescription": "Sem prescrição específica",
+      "notes": "Notas de planejamento",
+      "notesPlaceholder": "Meta de ritmo, foco, lembrete...",
+      "optional": "(opcional)",
+      "save": "Adicionar ao plano",
+      "scheduled": "Adicionado ao plano",
+      "saving": "Programando...",
+      "cancel": "Cancelar",
+      "dateRequired": "Selecione uma data de treino.",
+      "saveError": "Não foi possível programar este treino.",
+      "connectionError": "Não foi possível programar este treino. Tente novamente.",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "successTitle": "Treino programado",
+      "successDescription": "O treino foi adicionado ao seu plano.",
+      "backToDashboard": "Voltar ao início"
+    },
+    "create": {
+      "backToLibrary": "Biblioteca de treinos",
+      "backToWorkout": "Voltar ao treino",
+      "title": "Criar treino",
+      "description": "Monte um treino adicionando seções e movimentos.",
+      "editEyebrow": "Gerenciamento de treino",
+      "editTitle": "Editar treino",
+      "editDescription": "Atualize a estrutura, as variações e as prescrições.",
+      "optional": "(opcional)",
+      "draft": {
+        "title": "Continuar seu rascunho?",
+        "description": "Salvamos neste dispositivo o treino que você estava criando.",
+        "restore": "Restaurar rascunho",
+        "discard": "Descartar"
+      },
+      "start": {
+        "importTitle": "Já tem o treino escrito?",
+        "importDescription": "Cole um treino com níveis e prescrições específicas por categoria para criar um rascunho editável."
+      },
+      "mode": {
+        "simpleTitle": "Configuração simples",
+        "simpleDescription": "Comece com um nível e uma seção. Você pode adicionar programação avançada quando precisar.",
+        "advancedTitle": "Programação avançada",
+        "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
+        "useSimple": "Usar configuração simples",
+        "useAdvanced": "Mostrar opções avançadas"
+      },
+      "concepts": {
+        "title": "Como a programação é organizada",
+        "description": "Um guia rápido de variações, seções e movimentos.",
+        "variation": {
+          "title": "Variação",
+          "description": "Uma versão para um nível, como Rx, Intermediário ou Iniciante."
+        },
+        "section": {
+          "title": "Seção",
+          "description": "Uma parte do treino, como força, aquecimento ou metcon."
+        },
+        "movement": {
+          "title": "Movimento",
+          "description": "Um exercício dentro de uma seção, com repetições, carga, distância ou tempo opcionais."
+        }
+      },
+      "importer": {
+        "title": "Importar texto do treino",
+        "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
+        "label": "Texto do treino",
+        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 43 kg\nMulheres: Thrusters 29 kg\nPull-ups\n\nIntermediário\nHomens: Thrusters 34 kg\nMulheres: Thrusters 25 kg\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 20 kg\nMulheres: Thrusters 16 kg\nRing rows",
+        "parse": "Visualizar importação",
+        "parsing": "Lendo treino...",
+        "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
+        "matched": "{count, plural, =1 {1 movimento encontrado} other {# movimentos encontrados}}",
+        "needsReview": "{count, plural, =1 {1 movimento para revisar} other {# movimentos para revisar}}",
+        "detectedType": "Formato detectado: {type}",
+        "apply": "Usar este rascunho",
+        "applyHint": "Você pode corrigir todos os campos no editor antes de revisar e salvar.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Linha {line}: escolha o movimento correto",
+          "UNKNOWN_MOVEMENT": "Linha {line}: movimento não reconhecido",
+          "MULTIPLE_LOADS": "Linha {line}: revise manualmente as cargas múltiplas"
+        },
+        "formatHint": "Use um cabeçalho de nível (RX, Intermediário ou Iniciante). Escreva Homens ou Mulheres antes dos movimentos específicos.",
+        "variantsDetected": "{count, plural, =1 {1 variação detectada} other {# variações detectadas}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}"
+      },
+      "steps": {
+        "ariaLabel": "Progresso de criação do treino",
+        "details": {
+          "title": "Detalhes",
+          "description": "Nome e tipo"
+        },
+        "programming": {
+          "title": "Programação",
+          "description": "Variações e movimentos"
+        },
+        "review": {
+          "title": "Revisão",
+          "description": "Revisar e criar"
+        },
+        "back": "Voltar",
+        "continue": "Continuar"
+      },
+      "review": {
+        "eyebrow": "Revisão final",
+        "title": "Revise seu treino",
+        "description": "Confirme a estrutura antes de criar o treino.",
+        "workout": "Treino",
+        "variants": "Variações",
+        "sections": "Seções",
+        "movements": "Movimentos",
+        "sectionCount": "{count, plural, =1 {1 seção} other {# seções}}",
+        "section": "Seção {number}",
+        "edit": "Editar programação",
+        "editDetails": "Editar detalhes",
+        "noPrescription": "Sem prescrição geral",
+        "categoryOverrides": "Valores por categoria"
+      },
+      "details": {
+        "eyebrow": "Treino",
+        "title": "Detalhes do treino",
+        "description": "Defina o treino geral antes de adicionar suas seções.",
+        "name": "Nome do treino",
+        "namePlaceholder": "Exemplo: Fran",
+        "workoutDescription": "Descrição",
+        "descriptionPlaceholder": "Descreva o treino...",
+        "type": "Tipo de treino",
+        "selectType": "Selecione o tipo de treino",
+        "optionalTitle": "Detalhes opcionais",
+        "optionalSummary": "Descrição e benchmark",
+        "benchmark": "Treino benchmark",
+        "benchmarkDescription": "Marque este treino como benchmark para acompanhar suas tentativas ao longo do tempo."
+      },
+      "sections": {
+        "eyebrow": "Estrutura",
+        "title": "Seções do treino",
+        "description": "Adicione os blocos que compõem este treino.",
+        "add": "Adicionar seção"
+      },
+      "reviewBeforeSaving": "Revise as seções e os movimentos antes de salvar.",
+      "create": "Criar treino",
+      "creating": "Criando treino...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando alterações...",
+      "validation": {
+        "nameRequired": "O nome do treino é obrigatório.",
+        "typeRequired": "O tipo de treino é obrigatório.",
+        "sectionRequired": "Adicione pelo menos uma seção.",
+        "sectionTypeRequired": "Seção {section}: selecione um tipo de seção.",
+        "movementRequired": "Seção {section}: adicione pelo menos um movimento.",
+        "movementSelectionRequired": "Seção {section}, movimento {movement}: selecione um movimento.",
+        "invalidRepScheme": "Seção {section}: o esquema de repetições deve conter números positivos separados por hífens, por exemplo 21-15-9.",
+        "createError": "Não foi possível criar o treino."
+      },
+      "sectionBuilder": {
+        "section": "Seção {number}",
+        "sectionLabel": "Seção",
+        "configureSection": "Configurar seção",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "summary": "{movements} movimentos",
+        "remove": "Remover",
+        "sectionType": "Tipo de seção",
+        "selectSectionType": "Selecione o tipo de seção",
+        "sets": "Séries",
+        "rounds": "Rounds",
+        "duration": "Duração",
+        "minutes": "minutos",
+        "rest": "Descanso",
+        "seconds": "segundos",
+        "repScheme": "Esquema de repetições",
+        "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+        "repPresets": "Esquemas de repetições comuns",
+        "movements": "Movimentos",
+        "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
+        "addMovement": "Adicionar movimento",
+        "addAnotherMovement": "Adicionar outro movimento",
+        "noMovements": "Ainda não há movimentos",
+        "noMovementsDescription": "Adicione o primeiro movimento desta seção.",
+        "movementNumber": "Movimento {number}",
+        "notes": "Observações",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Adicione instruções ou observações para esta seção...",
+        "optionalDetails": "Observações opcionais da seção"
+      },
+      "movementBuilder": {
+        "movement": "Movimento",
+        "change": "Alterar",
+        "remove": "Remover",
+        "searchLabel": "Buscar movimentos",
+        "searchPlaceholder": "Buscar movimentos...",
+        "searching": "Buscando...",
+        "searchError": "Não foi possível buscar os movimentos.",
+        "noResults": "Nenhum movimento encontrado.",
+        "prescription": "Prescrição",
+        "addPrescription": "Adicionar detalhes da prescrição",
+        "optionalPrescriptionDescription": "Repetições, cargas, distâncias, metas e observações são opcionais.",
+        "reps": "Repetições",
         "weight": "Peso",
         "percentageOfRm": "% do RM",
         "referenceRm": "RM de referência",
