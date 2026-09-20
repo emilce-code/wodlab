@@ -43,6 +43,22 @@
     "retry": "Tentar novamente"
   },
   "states": {
+    "startup": {
+      "restoring": {
+        "title": "Abrindo o WODLY",
+        "description": "Restaurando sua sessão segura…"
+      },
+      "connecting": {
+        "title": "Conectando ao WODLY",
+        "description": "Seus dados estão demorando um pouco mais do que o normal para carregar."
+      },
+      "slow": {
+        "title": "Ainda estamos conectando",
+        "description": "Talvez o serviço esteja iniciando. Você pode aguardar ou tentar novamente."
+      },
+      "retry": "Tentar novamente",
+      "tagline": "Treine · Registre · Evolua"
+    },
     "loading": {
       "label": "Carregando seus dados de treino"
     },
