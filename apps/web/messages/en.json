@@ -43,6 +43,22 @@
     "retry": "Try again"
   },
   "states": {
+    "startup": {
+      "restoring": {
+        "title": "Opening WODLY",
+        "description": "Restoring your secure session…"
+      },
+      "connecting": {
+        "title": "Connecting to WODLY",
+        "description": "Your data is taking a little longer than usual to load."
+      },
+      "slow": {
+        "title": "Still connecting",
+        "description": "The service may be waking up. You can wait or try again."
+      },
+      "retry": "Try again",
+      "tagline": "Train · Track · Evolve"
+    },
     "loading": {
       "label": "Loading your training data"
     },
