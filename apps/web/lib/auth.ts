@@ -1,7 +1,7 @@
 import { authenticatedApiFetch } from "./api";
 
 import { auth0 } from "./auth0";
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 
 export type UserRole = "USER" | "COACH" | "ADMIN";
 
@@ -46,6 +46,18 @@ export type CurrentUser = {
   updatedAt: string;
 };
 
+export type CurrentUserResolution =
+  | { status: "authenticated"; user: CurrentUser }
+  | { status: "unauthenticated" }
+  | { status: "unavailable" };
+
+export class CurrentUserUnavailableError extends Error {
+  constructor() {
+    super("Unable to complete WODLY authentication");
+    this.name = "CurrentUserUnavailableError";
+  }
+}
+
 async function fetchCurrentUser(): Promise<Response | null> {
   return authenticatedApiFetch("/me");
 }
@@ -61,13 +73,9 @@ export async function requireRole(locale: string, roles: readonly UserRole[]) {
   return user;
 }
 
-async function provisionCurrentUser() {
-  const session = await auth0.getSession();
-
-  if (!session) {
-    return null;
-  }
-
+async function provisionCurrentUser(
+  session: NonNullable<Awaited<ReturnType<typeof auth0.getSession>>>,
+) {
   const email = session.user.email;
 
   if (typeof email !== "string" || !email) {
@@ -94,25 +102,52 @@ async function provisionCurrentUser() {
 }
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
+  const resolution = await resolveCurrentUser();
+
+  if (resolution.status === "authenticated") return resolution.user;
+  if (resolution.status === "unauthenticated") return null;
+
+  throw new CurrentUserUnavailableError();
+}
+
+export async function resolveCurrentUser(): Promise<CurrentUserResolution> {
   try {
+    const session = await auth0.getSession();
+
+    if (!session) return { status: "unauthenticated" };
+
     let response = await fetchCurrentUser();
 
     if (response?.status === 401) {
-      const provisionResponse = await provisionCurrentUser();
+      const provisionResponse = await provisionCurrentUser(session);
 
       if (!provisionResponse?.ok) {
-        return null;
+        console.error(
+          `[auth] WODLY user provisioning failed (${provisionResponse?.status ?? "no response"})`,
+        );
+        return { status: "unavailable" };
       }
 
       response = await fetchCurrentUser();
     }
 
     if (!response?.ok) {
-      return null;
+      console.error(
+        `[auth] Current user lookup failed (${response?.status ?? "no response"})`,
+      );
+      return { status: "unavailable" };
     }
 
-    return (await response.json()) as CurrentUser;
-  } catch {
-    return null;
+    return {
+      status: "authenticated",
+      user: (await response.json()) as CurrentUser,
+    };
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error(
+      "[auth] Authentication completion failed",
+      error instanceof Error ? error.message : "Unknown error",
+    );
+    return { status: "unavailable" };
   }
 }

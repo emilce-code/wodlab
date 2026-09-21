@@ -690,6 +690,17 @@
     "openAthlete": "Open athlete"
   },
   "auth": {
+    "complete": {
+      "eyebrow": "Almost ready",
+      "title": "We couldn't finish signing you in",
+      "description": "Your Auth0 session is active, but WODLY couldn't load your account. This is usually temporary and does not mean you need to create another account.",
+      "retry": "Try again",
+      "backToLogin": "Back to login",
+      "help": "If the problem continues, return to the",
+      "home": "home page",
+      "loadingTitle": "Preparing your WODLY account",
+      "loadingDescription": "We're securely connecting your account and training data."
+    },
     "shell": {
       "eyebrow": "Train · Log · Track",
       "titleLine1": "Every workout",
