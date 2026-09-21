@@ -1,17 +1,26 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import AuthShell from '@/components/auth/AuthShell';
+import {
+  authenticationCompletionPath,
+  safePostLoginPath,
+} from '@/lib/auth-navigation';
 
 type LoginPageProps = {
   params: Promise<{
     locale: string;
   }>;
+  searchParams: Promise<{
+    returnTo?: string;
+  }>;
 };
 
 export default async function LoginPage({
   params,
+  searchParams,
 }: LoginPageProps) {
   const { locale } = await params;
+  const { returnTo: requestedReturnTo } = await searchParams;
 
   const t =
     await getTranslations({
@@ -28,8 +37,8 @@ export default async function LoginPage({
     );
   }
 
-  const returnTo =
-    `/${locale}/dashboard`;
+  const destination = safePostLoginPath(locale, requestedReturnTo);
+  const returnTo = authenticationCompletionPath(locale, destination);
 
   const authLoginUrl =
     '/auth/login' +

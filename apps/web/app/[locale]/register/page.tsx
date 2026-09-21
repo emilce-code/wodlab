@@ -2,17 +2,26 @@ import { getTranslations } from 'next-intl/server';
 
 import AuthShell from '@/components/auth/AuthShell';
 import { Link } from '@/i18n/navigation';
+import {
+  authenticationCompletionPath,
+  safePostLoginPath,
+} from '@/lib/auth-navigation';
 
 type RegisterPageProps = {
   params: Promise<{
     locale: string;
   }>;
+  searchParams: Promise<{
+    returnTo?: string;
+  }>;
 };
 
 export default async function RegisterPage({
   params,
+  searchParams,
 }: RegisterPageProps) {
   const { locale } = await params;
+  const { returnTo: requestedReturnTo } = await searchParams;
 
   const t =
     await getTranslations({
@@ -29,12 +38,13 @@ export default async function RegisterPage({
     );
   }
 
-  const returnTo =
-    `/${locale}/dashboard`;
+  const destination = safePostLoginPath(locale, requestedReturnTo);
+  const returnTo = authenticationCompletionPath(locale, destination);
 
   const authRegisterUrl =
     '/auth/login' +
     `?connection=google-oauth2` +
+    `&screen_hint=signup` +
     `&audience=${encodeURIComponent(
       audience,
     )}` +

@@ -690,6 +690,17 @@
     "openAthlete": "Abrir atleta"
   },
   "auth": {
+    "complete": {
+      "eyebrow": "Quase pronto",
+      "title": "Não foi possível concluir seu acesso",
+      "description": "Sua sessão do Auth0 está ativa, mas o WODLY não conseguiu carregar sua conta. Normalmente, esse é um problema temporário e você não precisa criar outra conta.",
+      "retry": "Tentar novamente",
+      "backToLogin": "Voltar ao login",
+      "help": "Se o problema continuar, volte para a",
+      "home": "página inicial",
+      "loadingTitle": "Preparando sua conta do WODLY",
+      "loadingDescription": "Estamos conectando sua conta e seus dados de treino com segurança."
+    },
     "shell": {
       "eyebrow": "Treine · Registre · Evolua",
       "titleLine1": "Cada treino",
