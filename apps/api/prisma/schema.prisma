@@ -50,6 +50,15 @@ enum ClassBookingStatus {
   CANCELLED
 }
 
+enum WorkoutSectionRole {
+  WARM_UP
+  STRENGTH
+  WOD
+  ACCESSORY
+  COOLDOWN
+  CUSTOM
+}
+
 enum WorkoutScope {
   GLOBAL
   BOX
@@ -501,6 +510,7 @@ model WorkoutSection {
   typeId          String
   type            WorkoutType       @relation(fields: [typeId], references: [id])
   order           Int
+  role            WorkoutSectionRole @default(WOD)
   rounds          Int?
   durationSeconds Int?
   restSeconds     Int?
