@@ -28,6 +28,8 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
+  initiallyExpanded?: boolean;
+  expandSectionsByDefault?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (variant: WorkoutVariantFormState) => void;
   onRemove: () => void;
@@ -88,12 +90,14 @@ export default function WorkoutVariantForm({
   usedLevelKeys,
   canRemove,
   advancedMode,
+  initiallyExpanded = true,
+  expandSectionsByDefault = false,
   fieldErrors,
   prescriptionCategories,
   onChange,
   onRemove,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(variant.name || variant.notes),
@@ -392,6 +396,14 @@ export default function WorkoutVariantForm({
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
                 advancedMode={advancedMode}
+                initiallyExpanded={
+                  expandSectionsByDefault ||
+                  index === 0 ||
+                  section.movements.length === 0 ||
+                  Boolean(fieldErrors[`section-type-${section.id}`]) ||
+                  Boolean(fieldErrors[`section-movements-${section.id}`]) ||
+                  Boolean(fieldErrors[`section-rep-scheme-${section.id}`])
+                }
                 onChange={(updatedSection) =>
                   updateSection(section.id, updatedSection)
                 }
