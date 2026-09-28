@@ -1833,7 +1833,16 @@
     "strength": "Strength",
     "interval": "Interval",
     "max_reps": "Max Reps",
-    "custom": "Custom"
+    "custom": "Custom",
+    "descriptions": {
+      "for_time": "Complete the prescribed work as fast as possible.",
+      "amrap": "Complete as many rounds or repetitions as possible within the time limit.",
+      "emom": "Perform the prescribed work at the start of every minute.",
+      "strength": "Strength-focused work organized into sets and repetitions.",
+      "interval": "Alternate timed work and rest periods.",
+      "max_reps": "Complete the maximum number of repetitions possible.",
+      "custom": "Use a flexible structure for workouts that do not fit the standard formats."
+    }
   },
   "resultTypes": {
     "time": "Time",

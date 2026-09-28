@@ -1833,7 +1833,16 @@
     "strength": "Fuerza",
     "interval": "Intervalos",
     "max_reps": "Máximas repeticiones",
-    "custom": "Personalizado"
+    "custom": "Personalizado",
+    "descriptions": {
+      "for_time": "Completa el trabajo indicado lo más rápido posible.",
+      "amrap": "Completa tantas rondas o repeticiones como sea posible dentro del tiempo establecido.",
+      "emom": "Realiza el trabajo indicado al comienzo de cada minuto.",
+      "strength": "Trabajo de fuerza organizado en series y repeticiones.",
+      "interval": "Alterna períodos de trabajo y descanso cronometrados.",
+      "max_reps": "Completa la mayor cantidad de repeticiones posible.",
+      "custom": "Usa una estructura flexible para entrenamientos que no encajan en los formatos estándar."
+    }
   },
   "resultTypes": {
     "time": "Tiempo",
