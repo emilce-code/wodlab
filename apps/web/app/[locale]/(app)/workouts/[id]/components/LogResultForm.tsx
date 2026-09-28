@@ -268,8 +268,9 @@ export default function LogResultForm({
   );
 
   const [notes, setNotes] = useState(result?.notes ?? "");
+  const [showLoggingGuide, setShowLoggingGuide] = useState(false);
   const [movementDetailsOpen, setMovementDetailsOpen] = useState(
-    Boolean(result?.performedMovements.length || percentageTargets.length),
+    Boolean(result?.performedMovements.length),
   );
   const [expandedMovementIds, setExpandedMovementIds] = useState<Set<string>>(
     () => new Set(),
@@ -868,9 +869,55 @@ export default function LogResultForm({
     setScoreErrors({});
   }
 
+  const movementDetailsCount = trackableMovements.filter((item) =>
+    hasAnyMovementValue(getMovementPerformance(item.id)),
+  ).length;
+  const movementTargetCount = trackableMovements.filter((item) =>
+    Boolean(getPercentageTarget(item)),
+  ).length;
+  const movementDetailsSummary =
+    movementDetailsCount > 0
+      ? t("movementDetailsProgress", {
+          logged: movementDetailsCount,
+          total: trackableMovements.length,
+        })
+      : movementTargetCount > 0
+        ? t("movementDetailsTargets", { count: movementTargetCount })
+        : t("movementDetailsDescription", {
+            count: trackableMovements.length,
+          });
+
   return (
     <>
-      {!isEditing ? <ResultLoggingGuide /> : null}
+      {!isEditing ? (
+        <section className="mb-4 rounded-xl border border-border bg-surface p-3 sm:p-4">
+          <button
+            type="button"
+            aria-expanded={showLoggingGuide}
+            aria-controls="result-logging-guide"
+            onClick={() => setShowLoggingGuide((open) => !open)}
+            className="flex min-h-12 w-full items-center justify-between gap-4 text-left"
+          >
+            <span>
+              <span className="block text-sm font-semibold">
+                {t("guideToggleTitle")}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                {t("guideToggleDescription")}
+              </span>
+            </span>
+            <span aria-hidden="true" className="text-muted">
+              {showLoggingGuide ? "−" : "+"}
+            </span>
+          </button>
+
+          {showLoggingGuide ? (
+            <div id="result-logging-guide" className="mt-4">
+              <ResultLoggingGuide />
+            </div>
+          ) : null}
+        </section>
+      ) : null}
       <form
         onSubmit={handleSubmit}
         className="min-w-0 rounded-xl border border-border bg-surface p-4 sm:p-6"
@@ -890,69 +937,13 @@ export default function LogResultForm({
         </p>
 
         {!isEditing ? (
-          <div className="mt-4 flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
-              1
-            </span>
-            <div>
-              <p className="text-sm font-semibold">{t("quickLogTitle")}</p>
-              <p className="mt-0.5 text-xs text-muted">
-                {t("quickLogDescription")}
-              </p>
-            </div>
-          </div>
+          <p className="mt-3 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2 text-sm text-muted">
+            {t("quickLogDescription")}
+          </p>
         ) : null}
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-2">
-        {prescriptionCategories.length > 0 && (
-          <fieldset className="md:col-span-2">
-            <legend className="text-sm font-medium">
-              {t("prescriptionCategory")}
-              <span className="ml-1 font-normal text-muted">
-                {t("optional")}
-              </span>
-            </legend>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                aria-pressed={!prescriptionCategoryKey}
-                onClick={() => selectPrescriptionCategory("")}
-                className={[
-                  "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
-                  !prescriptionCategoryKey
-                    ? "border-accent bg-accent text-accent-foreground"
-                    : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
-                ].join(" ")}
-              >
-                {t("noPrescriptionCategory")}
-              </button>
-
-              {prescriptionCategories.map((category) => {
-                const selected = prescriptionCategoryKey === category.key;
-
-                return (
-                  <button
-                    key={category.key}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => selectPrescriptionCategory(category.key)}
-                    className={[
-                      "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
-                      selected
-                        ? "border-accent bg-accent text-accent-foreground"
-                        : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
-                    ].join(" ")}
-                  >
-                    {getPrescriptionCategoryName(category)}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-        )}
-
         <section className="md:col-span-2 rounded-xl border border-accent/20 bg-accent/5 p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
             {t("score")}
@@ -1086,9 +1077,7 @@ export default function LogResultForm({
                   </span>
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
-                  {t("movementDetailsDescription", {
-                    count: trackableMovements.length,
-                  })}
+                  {movementDetailsSummary}
                 </span>
               </span>
               <span aria-hidden="true" className="text-muted">
@@ -1389,6 +1378,56 @@ export default function LogResultForm({
               tabIndex={-1}
               className="border-t border-border p-4"
             >
+              {prescriptionCategories.length > 0 && (
+                <fieldset className="mb-5">
+                  <legend className="text-sm font-medium">
+                    {t("prescriptionCategory")}
+                    <span className="ml-1 font-normal text-muted">
+                      {t("optional")}
+                    </span>
+                  </legend>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      aria-pressed={!prescriptionCategoryKey}
+                      onClick={() => selectPrescriptionCategory("")}
+                      className={[
+                        "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                        !prescriptionCategoryKey
+                          ? "border-accent bg-accent text-accent-foreground"
+                          : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {t("noPrescriptionCategory")}
+                    </button>
+
+                    {prescriptionCategories.map((category) => {
+                      const selected = prescriptionCategoryKey === category.key;
+
+                      return (
+                        <button
+                          key={category.key}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() =>
+                            selectPrescriptionCategory(category.key)
+                          }
+                          className={[
+                            "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                            selected
+                              ? "border-accent bg-accent text-accent-foreground"
+                              : "border-border bg-background text-muted hover:bg-surface-elevated hover:text-foreground",
+                          ].join(" ")}
+                        >
+                          {getPrescriptionCategoryName(category)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+
               <ResultDateTimeFields
                 date={performedDate}
                 time={performedTime}

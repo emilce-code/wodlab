@@ -1606,6 +1606,8 @@
       "description": "Registre seu desempenho neste treino.",
       "quickLogTitle": "Registro rápido",
       "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+      "guideToggleTitle": "Precisa de ajuda para registrar?",
+      "guideToggleDescription": "Abra uma guia rápida somente se quiser orientação.",
       "firstUse": {
         "eyebrow": "Primeiro resultado",
         "title": "Registrar leva só um momento",
@@ -1637,6 +1639,8 @@
       },
       "movementDetails": "Desempenho por movimento",
       "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
+      "movementDetailsProgress": "{logged} de {total} movimentos registrados.",
+      "movementDetailsTargets": "{count, plural, =1 {1 meta disponível} other {# metas disponíveis}}. Adicione detalhes só se forem úteis.",
       "detailsAdded": "Detalhes adicionados",
       "percentageTarget": "{percentage}% do seu {reps}RM",
       "percentageSource": "Com base na sua melhor marca de {load} {unit}",
