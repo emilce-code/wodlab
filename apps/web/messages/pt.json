@@ -35,12 +35,48 @@
     "offline": "Você está offline. Ainda é possível colocar resultados na fila a partir de um treino aberto.",
     "install": "Instalar",
     "installDescription": "Instale o WODLY para acesso mais rápido.",
+    "howToInstall": "Como",
     "synced": "Seu resultado offline foi salvo.",
     "syncFailed": "Um resultado offline precisa de atenção. Abra o formulário e tente novamente.",
     "dismiss": "Dispensar mensagem",
     "offlineTitle": "Você está offline",
     "offlineDescription": "As páginas abertas anteriormente continuam disponíveis. Reconecte-se para carregar novos dados; os resultados enviados serão sincronizados automaticamente.",
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "guide": {
+      "eyebrow": "Guia de instalação",
+      "title": "Adicione o WODLY ao seu telefone",
+      "close": "Fechar guia de instalação",
+      "deviceTabs": "Opções de instalação por dispositivo",
+      "note": "As opções dependem do navegador. Se um caminho não aparecer, tente a opção mais próxima para seu telefone.",
+      "ios": {
+        "title": "iPhone ou iPad",
+        "description": "Use o Safari para adicionar o WODLY à Tela de Início como um atalho com aparência de app.",
+        "step1": "Abra o WODLY no Safari.",
+        "step2": "Toque no botão Compartilhar na barra inferior.",
+        "step3": "Escolha Adicionar à Tela de Início e toque em Adicionar."
+      },
+      "androidChrome": {
+        "title": "Android Chrome",
+        "description": "O Chrome pode instalar o WODLY diretamente quando o navegador mostra a opção de instalação.",
+        "step1": "Abra o WODLY no Chrome.",
+        "step2": "Toque em Instalar quando o WODLY mostrar o aviso, ou abra o menu de três pontos.",
+        "step3": "Escolha Instalar app ou Adicionar à tela inicial."
+      },
+      "xiaomi": {
+        "title": "Navegador Xiaomi",
+        "description": "Navegadores Xiaomi e MIUI geralmente deixam ações de instalação dentro do menu do navegador.",
+        "step1": "Abra o WODLY no navegador Xiaomi ou MIUI.",
+        "step2": "Abra o menu do navegador pela barra inferior ou superior.",
+        "step3": "Escolha Adicionar atalho, Adicionar à tela inicial ou Instalar app."
+      },
+      "androidOther": {
+        "title": "Outro Android",
+        "description": "A maioria dos navegadores Android permite criar um atalho na tela inicial mesmo sem mostrar instalação nativa.",
+        "step1": "Abra o WODLY no seu navegador móvel.",
+        "step2": "Abra o menu do navegador.",
+        "step3": "Escolha Adicionar à tela inicial, Instalar ou Criar atalho."
+      }
+    }
   },
   "states": {
     "startup": {
