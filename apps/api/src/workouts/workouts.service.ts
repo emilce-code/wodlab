@@ -1022,6 +1022,7 @@ export class WorkoutsService {
         sections: variant.sections.map((section) => ({
           id: section.id,
           order: section.order,
+          role: section.role,
           rounds: section.rounds,
           durationSeconds: section.durationSeconds,
           restSeconds: section.restSeconds,
