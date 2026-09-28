@@ -131,6 +131,7 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
 }
 
 type FormStep = "details" | "programming" | "review";
+type CreationMode = "simple" | "levels" | "import";
 
 export type WorkoutFormFieldErrors = Record<string, string>;
 
@@ -253,6 +254,9 @@ export default function WorkoutForm({
   const [currentStep, setCurrentStep] = useState<FormStep>("details");
 
   const [advancedMode, setAdvancedMode] = useState(Boolean(initialWorkout));
+  const [creationMode, setCreationMode] = useState<CreationMode>(
+    initialWorkout ? "levels" : "simple",
+  );
 
   const isEditing = Boolean(initialWorkout);
 
@@ -402,6 +406,9 @@ export default function WorkoutForm({
   }
 
   function addVariant() {
+    setAdvancedMode(true);
+    setCreationMode("levels");
+
     const usedLevelKeys = variants
       .map((variant) => variant.levelKey)
       .filter(Boolean);
@@ -501,6 +508,20 @@ export default function WorkoutForm({
     setError(null);
     setFieldErrors({});
     setCurrentStep("details");
+    setCreationMode(result.draft.variants.length > 1 ? "levels" : "simple");
+    setAdvancedMode(result.draft.variants.length > 1);
+  }
+
+  function selectCreationMode(mode: CreationMode) {
+    setCreationMode(mode);
+
+    if (mode === "levels") {
+      setAdvancedMode(true);
+    }
+
+    if (mode === "simple") {
+      setAdvancedMode(false);
+    }
   }
 
   function clearFieldError(fieldId: string) {
@@ -932,6 +953,30 @@ export default function WorkoutForm({
     return values;
   }
 
+  function getWorkoutTypeLabel(typeKeyValue: string) {
+    const workoutType = workoutTypes.find((type) => type.key === typeKeyValue);
+
+    return workoutType ? getWorkoutTypeName(workoutType) : typeKeyValue;
+  }
+
+  function getPrimaryScoreLabel() {
+    const normalizedTypeKey = typeKey.toUpperCase();
+
+    if (normalizedTypeKey === "FOR_TIME") {
+      return t("scoreTypes.time");
+    }
+
+    if (normalizedTypeKey === "STRENGTH") {
+      return t("scoreTypes.load");
+    }
+
+    if (normalizedTypeKey === "MAX_REPS") {
+      return t("scoreTypes.reps");
+    }
+
+    return t("scoreTypes.roundsReps");
+  }
+
   function formatMovementPrescription(
     movement: WorkoutSectionFormState["movements"][number],
   ) {
@@ -968,24 +1013,6 @@ export default function WorkoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {!isEditing ? (
-        <details className="rounded-xl border border-border bg-surface">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-semibold marker:content-none">
-            <span>
-              <span className="block text-sm">{t("start.importTitle")}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted">
-                {t("start.importDescription")}
-              </span>
-            </span>
-            <span aria-hidden="true" className="text-xl text-muted">
-              +
-            </span>
-          </summary>
-          <div className="border-t border-border p-3 sm:p-4">
-            <WorkoutTextImporter onApply={applyImport} />
-          </div>
-        </details>
-      ) : null}
       {!isEditing &&
       storedDraft &&
       !isDraftPromptDismissed &&
@@ -1076,7 +1103,7 @@ export default function WorkoutForm({
       </nav>
 
       {currentStep === "details" ? (
-        <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+        <section className="space-y-5 rounded-xl border border-border bg-surface p-4 sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
               {t("details.eyebrow")}
@@ -1088,6 +1115,56 @@ export default function WorkoutForm({
               {t("details.description")}
             </p>
           </div>
+
+          {!isEditing ? (
+            <div>
+              <p className="text-sm font-semibold">{t("start.title")}</p>
+              <div className="mt-3 grid gap-3">
+                {(["simple", "levels", "import"] as const).map((mode) => {
+                  const isSelected = creationMode === mode;
+
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => selectCreationMode(mode)}
+                      aria-pressed={isSelected}
+                      className={`flex min-h-16 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                        isSelected
+                          ? "border-accent bg-accent/10"
+                          : "border-border bg-background hover:border-accent/40"
+                      }`}
+                    >
+                      <span>
+                        <span className="block text-sm font-semibold">
+                          {t(`start.modes.${mode}.title`)}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-muted">
+                          {t(`start.modes.${mode}.description`)}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+                          isSelected
+                            ? "border-accent bg-accent text-accent-foreground"
+                            : "border-border"
+                        }`}
+                      >
+                        {isSelected ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {creationMode === "import" && !isEditing ? (
+            <div className="rounded-xl border border-border bg-background p-3 sm:p-4">
+              <WorkoutTextImporter onApply={applyImport} />
+            </div>
+          ) : null}
 
           <div className="mt-6 grid gap-5">
             <div>
@@ -1150,6 +1227,11 @@ export default function WorkoutForm({
               {fieldErrors.type ? (
                 <p id="type-error" className="mt-1.5 text-sm text-red-500">
                   {fieldErrors.type}
+                </p>
+              ) : null}
+              {typeKey ? (
+                <p className="mt-2 text-xs text-muted">
+                  {t("details.scoreHint", { score: getPrimaryScoreLabel() })}
                 </p>
               ) : null}
             </div>
@@ -1272,7 +1354,13 @@ export default function WorkoutForm({
             <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="button"
-                onClick={() => setAdvancedMode((current) => !current)}
+                onClick={() => {
+                  setAdvancedMode((current) => {
+                    const next = !current;
+                    setCreationMode(next ? "levels" : "simple");
+                    return next;
+                  });
+                }}
                 className="min-h-11 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
               >
                 {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
@@ -1310,7 +1398,10 @@ export default function WorkoutForm({
                 advancedMode={advancedMode}
                 initiallyExpanded={
                   isEditing ||
-                  index === 0 ||
+                  (index === 0 &&
+                    variant.sections.every(
+                      (section) => section.movements.length === 0,
+                    )) ||
                   Boolean(fieldErrors[`variant-level-${variant.id}`]) ||
                   Boolean(fieldErrors[`variant-sections-${variant.id}`])
                 }
@@ -1349,58 +1440,36 @@ export default function WorkoutForm({
             </button>
           </div>
 
-          <dl className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.workout")}
-              </dt>
-              <dd className="mt-2 font-semibold">{name}</dd>
-              <dd className="mt-1 text-sm text-muted">
-                {workoutTypes.find((type) => type.key === typeKey)
-                  ? getWorkoutTypeName(
-                      workoutTypes.find((type) => type.key === typeKey)!,
-                    )
-                  : typeKey}
-              </dd>
-              {description ? (
-                <dd className="mt-2 line-clamp-2 text-xs text-muted">
-                  {description}
-                </dd>
-              ) : null}
-              {isBenchmark ? (
-                <dd className="mt-2 inline-flex rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
-                  {t("details.benchmark")}
-                </dd>
-              ) : null}
+          <div className="mt-6 rounded-2xl border border-border bg-background p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
+                {typeKey ? getWorkoutTypeLabel(typeKey) : t("review.workout")}
+              </span>
+              <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold">
+                {getPrimaryScoreLabel()}
+              </span>
+              <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold">
+                {t("review.countSummary", {
+                  variants: variants.length,
+                  sections: totalSections,
+                  movements: totalMovements,
+                })}
+              </span>
             </div>
 
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.sections")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{totalSections}</dd>
-            </div>
-
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.variants")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{variants.length}</dd>
-            </div>
-
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.movements")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{totalMovements}</dd>
-            </div>
-          </dl>
+            <h3 className="mt-4 text-3xl font-black tracking-tight">
+              {name || t("review.untitled")}
+            </h3>
+            {description ? (
+              <p className="mt-2 text-sm text-muted">{description}</p>
+            ) : null}
+          </div>
 
           <div className="mt-6 space-y-4">
             {variants.map((variant, variantIndex) => (
               <article
                 key={variant.id}
-                className="rounded-xl border border-border bg-background p-4"
+                className="rounded-2xl border border-border bg-background p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -1437,11 +1506,10 @@ export default function WorkoutForm({
                       key={section.id}
                       className="rounded-lg border border-border p-3"
                     >
-                      <p className="text-sm font-medium">
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
                         {t("review.section", {
                           number: sectionIndex + 1,
-                        })}{" "}
-                        ·{" "}
+                        })}{" · "}
                         {workoutTypes.find(
                           (type) => type.key === section.typeKey,
                         )?.name ?? section.typeKey}
@@ -1462,13 +1530,18 @@ export default function WorkoutForm({
                               key={movement.id}
                               className="rounded-lg bg-surface px-3 py-2.5"
                             >
-                              <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
                                 <p className="text-sm font-semibold">
+                                  {prescription.length > 0 ? (
+                                    <span className="mr-2 text-accent">
+                                      {prescription.join(" · ")}
+                                    </span>
+                                  ) : null}
                                   {movement.movementName}
                                 </p>
                                 <p className="text-xs text-muted">
                                   {prescription.length > 0
-                                    ? prescription.join(" · ")
+                                    ? null
                                     : t("review.noPrescription")}
                                 </p>
                               </div>

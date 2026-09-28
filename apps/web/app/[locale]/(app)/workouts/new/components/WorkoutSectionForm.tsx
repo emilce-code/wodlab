@@ -131,6 +131,20 @@ export default function WorkoutSectionForm({
       Boolean(fieldErrors[`movement-search-${movement.id}`]),
     );
   const displayedIsExpanded = isExpanded || hasValidationErrors;
+  const sectionSummary = [
+    selectedSectionType ? getWorkoutTypeName(selectedSectionType) : null,
+    section.durationSeconds
+      ? `${Number(section.durationSeconds) / 60} ${t("minutes")}`
+      : null,
+    section.rounds
+      ? `${section.rounds} ${
+          sectionType === "STRENGTH" ? t("sets") : t("rounds")
+        }`
+      : null,
+    section.movements.length
+      ? t("summary", { movements: section.movements.length })
+      : null,
+  ].filter(Boolean);
 
   const showRounds =
     sectionType === "STRENGTH" ||
@@ -228,12 +242,12 @@ export default function WorkoutSectionForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-sky-500/30 bg-sky-500/[0.035] p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
+    <section className="min-w-0 w-full rounded-xl border border-border bg-background p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-600 dark:text-sky-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500/15 text-[11px]">
-              S{sectionNumber}
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent/15 text-[11px]">
+              {sectionNumber}
             </span>
             {t("sectionLabel")}
           </p>
@@ -281,11 +295,32 @@ export default function WorkoutSectionForm({
       </div>
 
       {!displayedIsExpanded && (
-        <p className="mt-4 text-sm text-muted">
-          {t("summary", {
-            movements: section.movements.length,
-          })}
-        </p>
+        <div className="mt-4">
+          <p className="text-sm text-muted">
+            {sectionSummary.length
+              ? sectionSummary.join(" · ")
+              : t("summary", { movements: section.movements.length })}
+          </p>
+          {section.movements.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-surface">
+              {section.movements.slice(0, 4).map((movement) => (
+                <li
+                  key={movement.id}
+                  className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm"
+                >
+                  <span className="min-w-0 truncate font-medium">
+                    {movement.movementName || t("unselectedMovement")}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted">
+                    {movement.reps
+                      ? `${movement.reps} ${t("reps")}`
+                      : t("tapToEdit")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       )}
 
       {displayedIsExpanded && (
