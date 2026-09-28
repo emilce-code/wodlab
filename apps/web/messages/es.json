@@ -1599,7 +1599,8 @@
           "accessory": "Accesorios",
           "cooldown": "Vuelta a la calma",
           "custom": "Personalizado"
-        }
+        },
+        "workoutFormat": "Formato del entrenamiento"
       },
       "movementBuilder": {
         "movement": "Movimiento",
