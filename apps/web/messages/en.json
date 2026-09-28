@@ -1621,6 +1621,8 @@
       "description": "Record your performance for this workout.",
       "quickLogTitle": "Quick log",
       "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
+      "guideToggleTitle": "Need help logging?",
+      "guideToggleDescription": "Open a quick walkthrough only if you want guidance.",
       "firstUse": {
         "eyebrow": "First result",
         "title": "Logging takes only a moment",
@@ -1652,6 +1654,8 @@
       },
       "movementDetails": "Movement performance",
       "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+      "movementDetailsProgress": "{logged} of {total} movements logged.",
+      "movementDetailsTargets": "{count, plural, =1 {1 target available} other {# targets available}}. Add details only if useful.",
       "detailsAdded": "Details added",
       "percentageTarget": "{percentage}% of your {reps}RM",
       "percentageSource": "Based on your best {load} {unit}",
