@@ -163,6 +163,59 @@ export default function WorkoutVariantForm({
     });
   }
 
+  if (!advancedMode) {
+    const section = variant.sections[0] ?? createEmptySection();
+
+    return (
+      <section className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+            {t("configure")}
+          </p>
+          <h2 className="mt-1 text-xl font-bold">{t("singleBuilderTitle")}</h2>
+          <p className="mt-1 text-sm text-muted">{t("singleBuilderDescription")}</p>
+        </div>
+
+        <div className="mt-6">
+          <label className="mb-2 block text-sm font-medium">{t("level")} *</label>
+          <div id={`variant-level-${variant.id}`} role="radiogroup" aria-label={t("level")} className="flex flex-wrap gap-2">
+            {workoutLevels.map((level) => {
+              const isSelected = level.key === variant.levelKey;
+              return (
+                <button key={level.key} type="button" role="radio" aria-checked={isSelected}
+                  onClick={() => update("levelKey", level.key)}
+                  className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${isSelected ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/25" : "border-border bg-background text-foreground hover:border-accent/40"}`}>
+                  {levelT.has(`names.${level.key.toLowerCase()}`) ? levelT(`names.${level.key.toLowerCase()}`) : level.name}
+                </button>
+              );
+            })}
+          </div>
+          {fieldErrors[`variant-level-${variant.id}`] ? (
+            <p id={`variant-level-${variant.id}-error`} className="mt-1.5 text-sm text-red-500">{fieldErrors[`variant-level-${variant.id}`]}</p>
+          ) : (
+            <p className="mt-2 text-xs text-muted">{t("singleLevelHint")}</p>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <WorkoutSectionForm
+            section={section}
+            sectionNumber={1}
+            workoutTypes={workoutTypes}
+            prescriptionCategories={prescriptionCategories}
+            canRemove={false}
+            advancedMode={false}
+            simpleMode
+            initiallyExpanded
+            fieldErrors={fieldErrors}
+            onChange={(updatedSection) => updateSection(section.id, updatedSection)}
+            onRemove={() => undefined}
+          />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="min-w-0 w-full rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">

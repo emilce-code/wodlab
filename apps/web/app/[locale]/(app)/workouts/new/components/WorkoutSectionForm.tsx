@@ -35,6 +35,7 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
+  simpleMode?: boolean;
   initiallyExpanded?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
@@ -101,12 +102,14 @@ export default function WorkoutSectionForm({
   prescriptionCategories,
   canRemove,
   advancedMode,
+  simpleMode = false,
   initiallyExpanded = true,
   fieldErrors,
   onChange,
   onRemove,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
+  const [editingMovementId, setEditingMovementId] = useState<string | null>(null);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(section.notes),
@@ -147,6 +150,7 @@ export default function WorkoutSectionForm({
   ].filter(Boolean);
 
   const showRounds =
+    sectionType === "FOR_TIME" ||
     sectionType === "STRENGTH" ||
     sectionType === "INTERVAL" ||
     sectionType === "CUSTOM";
@@ -184,6 +188,7 @@ export default function WorkoutSectionForm({
     };
 
     if (
+      typeKey !== "FOR_TIME" &&
       typeKey !== "STRENGTH" &&
       typeKey !== "INTERVAL" &&
       typeKey !== "CUSTOM"
@@ -216,10 +221,18 @@ export default function WorkoutSectionForm({
   }
 
   function addMovement() {
-    onChange({
-      ...section,
-      movements: [...section.movements, createEmptyMovement()],
-    });
+    const movement = createEmptyMovement();
+    onChange({ ...section, movements: [...section.movements, movement] });
+    if (simpleMode) setEditingMovementId(movement.id);
+  }
+
+  function moveMovement(id: string, direction: -1 | 1) {
+    const index = section.movements.findIndex((item) => item.id === id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= section.movements.length) return;
+    const movements = [...section.movements];
+    [movements[index], movements[nextIndex]] = [movements[nextIndex], movements[index]];
+    onChange({ ...section, movements });
   }
 
   function removeMovement(id: string) {
@@ -242,8 +255,8 @@ export default function WorkoutSectionForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-border bg-background p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
-      <div className="flex items-start justify-between gap-2 sm:gap-4">
+    <section className={`min-w-0 w-full ${simpleMode ? "" : "rounded-xl border border-border bg-background p-3 sm:p-6"} [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full`}>
+      {!simpleMode ? <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent/15 text-[11px]">
@@ -292,9 +305,9 @@ export default function WorkoutSectionForm({
             </button>
           )}
         </div>
-      </div>
+      </div> : null}
 
-      {!displayedIsExpanded && (
+      {!simpleMode && !displayedIsExpanded && (
         <div className="mt-4">
           <p className="text-sm text-muted">
             {sectionSummary.length
@@ -323,14 +336,14 @@ export default function WorkoutSectionForm({
         </div>
       )}
 
-      {displayedIsExpanded && (
-        <div id={contentId} className="mt-6 grid min-w-0 gap-5 md:grid-cols-2">
+      {(simpleMode || displayedIsExpanded) && (
+        <div id={contentId} className={`${simpleMode ? "mt-0" : "mt-6"} grid min-w-0 gap-5 md:grid-cols-2`}>
           <div className="min-w-0 md:col-span-2">
             <label
               htmlFor={`section-type-${section.id}`}
               className="mb-1.5 block text-sm font-medium"
             >
-              {t("sectionType")}
+              {simpleMode ? t("workoutType") : t("sectionType")} *
             </label>
 
             <select
@@ -522,7 +535,7 @@ export default function WorkoutSectionForm({
             <div className="my-2 border-t border-border" />
 
             <div className="mt-6">
-              <h4 className="font-semibold">{t("movements")}</h4>
+              <h4 className="font-semibold">{t("movements")} *</h4>
 
               <p className="mt-1 text-sm text-muted">
                 {t("movementsDescription")}
@@ -570,31 +583,23 @@ export default function WorkoutSectionForm({
               </div>
             ) : (
               <div className="mt-5 min-w-0 space-y-4">
-                {section.movements.map((movement, index) => (
-                  <div key={movement.id}>
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
-                        {t("movementNumber", {
-                          number: index + 1,
-                        })}
-                      </span>
+                {simpleMode ? section.movements.map((movement, index) => (
+                  <div key={movement.id} className="flex items-center gap-2 rounded-xl border border-border bg-surface px-2 py-2.5">
+                    <div className="flex shrink-0 flex-col" aria-label={t("reorderMovement")}>
+                      <button type="button" disabled={index === 0} onClick={() => moveMovement(movement.id, -1)} className="h-5 px-1 text-xs text-muted disabled:opacity-20">▲</button>
+                      <button type="button" disabled={index === section.movements.length - 1} onClick={() => moveMovement(movement.id, 1)} className="h-5 px-1 text-xs text-muted disabled:opacity-20">▼</button>
                     </div>
-
-                    <WorkoutMovementForm
-                      movement={movement}
-                      prescriptionCategories={prescriptionCategories}
-                      advancedMode={advancedMode}
-                      canRemove
-                      autoFocusSearch={
-                        index === section.movements.length - 1 &&
-                        !movement.movementId
-                      }
-                      error={fieldErrors[`movement-search-${movement.id}`]}
-                      onChange={(updatedMovement) =>
-                        updateMovement(movement.id, updatedMovement)
-                      }
-                      onRemove={() => removeMovement(movement.id)}
-                    />
+                    <button type="button" onClick={() => setEditingMovementId(movement.id)} className="min-w-0 flex-1 text-left">
+                      <span className="block truncate text-sm font-semibold">{movement.movementName || t("unselectedMovement")}</span>
+                      <span className="block truncate text-xs text-muted">{[movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean).join(" · ") || t("tapToEdit")}</span>
+                    </button>
+                    <button type="button" onClick={() => setEditingMovementId(movement.id)} aria-label={t("editMovement")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
+                    <button type="button" onClick={() => removeMovement(movement.id)} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"><TrashIcon /></button>
+                  </div>
+                )) : section.movements.map((movement, index) => (
+                  <div key={movement.id}>
+                    <div className="mb-2 flex items-center gap-2"><span className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">{t("movementNumber", { number: index + 1 })}</span></div>
+                    <WorkoutMovementForm movement={movement} prescriptionCategories={prescriptionCategories} advancedMode={advancedMode} canRemove autoFocusSearch={index === section.movements.length - 1 && !movement.movementId} error={fieldErrors[`movement-search-${movement.id}`]} onChange={(updatedMovement) => updateMovement(movement.id, updatedMovement)} onRemove={() => removeMovement(movement.id)} />
                   </div>
                 ))}
 
@@ -651,6 +656,20 @@ export default function WorkoutSectionForm({
           ) : null}
         </div>
       )}
+      {simpleMode && editingMovementId ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
+          <div className="max-h-[88dvh] w-full overflow-y-auto rounded-t-3xl border border-border bg-surface p-4 shadow-2xl sm:max-w-xl sm:rounded-2xl sm:p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold">{t("editMovement")}</h3>
+              <button type="button" onClick={() => setEditingMovementId(null)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
+            </div>
+            {section.movements.filter((movement) => movement.id === editingMovementId).map((movement) => (
+              <WorkoutMovementForm key={movement.id} movement={movement} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movement.movementId} error={fieldErrors[`movement-search-${movement.id}`]} onChange={(updatedMovement) => updateMovement(movement.id, updatedMovement)} onRemove={() => undefined} />
+            ))}
+            <button type="button" onClick={() => setEditingMovementId(null)} className="sticky bottom-0 mt-5 w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg">{t("saveMovement")}</button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

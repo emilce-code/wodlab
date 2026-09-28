@@ -270,22 +270,13 @@ export default function WorkoutForm({
 
   const [typeKey, setTypeKey] = useState(initialWorkout?.type.key ?? "");
 
-  const [isBenchmark, setIsBenchmark] = useState(
-    initialWorkout?.isBenchmark ?? false,
-  );
-
-  const [showOptionalDetails, setShowOptionalDetails] = useState(
-    Boolean(initialWorkout?.description || initialWorkout?.isBenchmark),
-  );
+  const isBenchmark = initialWorkout?.isBenchmark ?? false;
 
   const [variants, setVariants] = useState<WorkoutVariantFormState[]>(() => {
     if (initialWorkout) {
       return mapWorkoutToForm(initialWorkout);
     }
-    const defaultLevel =
-      workoutLevels.find((level) => level.key === "RX") ?? workoutLevels[0];
-
-    return [createEmptyVariant(defaultLevel?.key ?? "")];
+    return [createEmptyVariant("")];
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -384,7 +375,6 @@ export default function WorkoutForm({
       setName(draft.name);
       setDescription(draft.description);
       setTypeKey(draft.typeKey);
-      setIsBenchmark(draft.isBenchmark);
       setVariants(draft.variants);
       setCurrentStep("start");
       setError(null);
@@ -436,6 +426,9 @@ export default function WorkoutForm({
   }
 
   function updateVariant(id: string, updatedVariant: WorkoutVariantFormState) {
+    if (!advancedMode && updatedVariant.sections[0]?.typeKey) {
+      setTypeKey(updatedVariant.sections[0].typeKey);
+    }
     setFieldErrors({});
     setError(null);
     setVariants((current) =>
@@ -460,7 +453,6 @@ export default function WorkoutForm({
     setName(result.draft.name);
     setDescription(result.draft.description ?? "");
     setTypeKey(result.draft.typeKey);
-    setIsBenchmark(false);
     setVariants(
       importedVariants.map((variant) => ({
         id: crypto.randomUUID(),
@@ -540,10 +532,6 @@ export default function WorkoutForm({
 
     if (!name.trim()) {
       errors.name = t("validation.nameRequired");
-    }
-
-    if (!typeKey) {
-      errors.type = t("validation.typeRequired");
     }
 
     return {
@@ -722,27 +710,11 @@ export default function WorkoutForm({
       return;
     }
 
-    if (currentStep === "details" && creationMode === "import" && !typeKey) {
-      setError(t("validation.importRequired"));
-      return;
-    }
-
     const validationResult =
       currentStep === "details" ? validateDetails() : validateProgramming();
 
     if (showValidation(validationResult)) {
       return;
-    }
-
-    if (currentStep === "details") {
-      setVariants((current) =>
-        current.map((variant) => ({
-          ...variant,
-          sections: variant.sections.map((section, index) =>
-            index === 0 && !section.typeKey ? { ...section, typeKey } : section,
-          ),
-        })),
-      );
     }
 
     const currentIndex = displayedFormSteps.indexOf(currentStep);
@@ -787,7 +759,7 @@ export default function WorkoutForm({
         description: description.trim() || undefined,
 
         typeKey,
-        isBenchmark,
+        isBenchmark: isEditing ? isBenchmark : false,
 
         variants: variants.map((variant) => ({
           levelKey: variant.levelKey,
@@ -1198,7 +1170,7 @@ export default function WorkoutForm({
             </div>
           ) : (
 
-          <div className="grid gap-5">
+<div className="grid gap-5">
             <div>
               <label
                 htmlFor="name"
@@ -1229,101 +1201,11 @@ export default function WorkoutForm({
             </div>
 
             <div>
-              <label
-                htmlFor="type"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("details.type")}
+              <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
+                {t("details.workoutDescription")} <span className="font-normal text-muted">({t("variants.optional")})</span>
               </label>
-
-              <select
-                id="type"
-                required
-                value={typeKey}
-                onChange={(event) => {
-                  setTypeKey(event.target.value);
-                  clearFieldError("type");
-                }}
-                aria-invalid={Boolean(fieldErrors.type)}
-                aria-describedby={fieldErrors.type ? "type-error" : undefined}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/10"
-              >
-                <option value="">{t("details.selectType")}</option>
-
-                {workoutTypes.map((type) => (
-                  <option key={type.key} value={type.key}>
-                    {getWorkoutTypeName(type)}
-                  </option>
-                ))}
-              </select>
-              {fieldErrors.type ? (
-                <p id="type-error" className="mt-1.5 text-sm text-red-500">
-                  {fieldErrors.type}
-                </p>
-              ) : null}
-              {typeKey ? (
-                <p className="mt-2 text-xs text-muted">
-                  {t("details.scoreHint", { score: getPrimaryScoreLabel() })}
-                </p>
-              ) : null}
+              <textarea id="description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} placeholder={t("details.descriptionPlaceholder")} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10" />
             </div>
-
-            <details
-              open={showOptionalDetails}
-              onToggle={(event) =>
-                setShowOptionalDetails(event.currentTarget.open)
-              }
-              className="group rounded-xl border border-dashed border-border bg-background"
-            >
-              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold marker:content-none">
-                <span>
-                  {t("details.optionalTitle")}
-                  <span className="ml-2 font-normal text-muted">
-                    {t("details.optionalSummary")}
-                  </span>
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="text-lg text-muted transition group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <div className="grid gap-5 border-t border-border p-4">
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="mb-1.5 block text-sm font-medium"
-                  >
-                    {t("details.workoutDescription")}
-                  </label>
-                  <textarea
-                    id="description"
-                    rows={3}
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder={t("details.descriptionPlaceholder")}
-                    className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                  />
-                </div>
-                <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={isBenchmark}
-                    onChange={(event) => setIsBenchmark(event.target.checked)}
-                    className="mt-0.5 h-5 w-5 rounded border-border accent-[var(--accent)]"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium">
-                      {t("details.benchmark")}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {t("details.benchmarkDescription")}
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </details>
           </div>
           )}
         </section>
