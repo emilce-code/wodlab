@@ -110,6 +110,8 @@ export default function WorkoutSectionForm({
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
   const [editingMovementId, setEditingMovementId] = useState<string | null>(null);
+  const [movementDraft, setMovementDraft] = useState<WorkoutMovementFormState | null>(null);
+  const [isAddingMovement, setIsAddingMovement] = useState(false);
   const [draggingMovementId, setDraggingMovementId] = useState<string | null>(null);
   const dragPointerId = useRef<number | null>(null);
 
@@ -224,8 +226,35 @@ export default function WorkoutSectionForm({
 
   function addMovement() {
     const movement = createEmptyMovement();
+    if (simpleMode) {
+      setMovementDraft(movement);
+      setIsAddingMovement(true);
+      setEditingMovementId(movement.id);
+      return;
+    }
     onChange({ ...section, movements: [...section.movements, movement] });
-    if (simpleMode) setEditingMovementId(movement.id);
+  }
+
+  function editMovement(movement: WorkoutMovementFormState) {
+    setMovementDraft({ ...movement, prescriptions: movement.prescriptions.map((item) => ({ ...item })) });
+    setIsAddingMovement(false);
+    setEditingMovementId(movement.id);
+  }
+
+  function cancelMovementEditor() {
+    setMovementDraft(null);
+    setEditingMovementId(null);
+    setIsAddingMovement(false);
+  }
+
+  function confirmMovementEditor() {
+    if (!movementDraft?.movementId) return;
+    if (isAddingMovement) {
+      onChange({ ...section, movements: [...section.movements, movementDraft] });
+    } else {
+      updateMovement(movementDraft.id, movementDraft);
+    }
+    cancelMovementEditor();
   }
 
   function reorderMovement(draggedId: string, targetId: string) {
@@ -619,11 +648,11 @@ export default function WorkoutSectionForm({
                     >
                       ⋮⋮
                     </button>
-                    <button type="button" onClick={() => setEditingMovementId(movement.id)} className="min-w-0 flex-1 text-left">
+                    <button type="button" onClick={() => editMovement(movement)} className="min-w-0 flex-1 text-left">
                       <span className="block truncate text-sm font-semibold">{movement.movementName || t("unselectedMovement")}</span>
                       <span className="block truncate text-xs text-muted">{[movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean).join(" · ") || t("tapToEdit")}</span>
                     </button>
-                    <button type="button" onClick={() => setEditingMovementId(movement.id)} aria-label={t("editMovement")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
+                    <button type="button" onClick={() => editMovement(movement)} aria-label={t("editMovement")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                     <button type="button" onClick={() => removeMovement(movement.id)} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"><TrashIcon /></button>
                   </div>
                 )) : section.movements.map((movement, index) => (
@@ -690,16 +719,16 @@ export default function WorkoutSectionForm({
         <div className="fixed inset-0 z-50 flex items-end bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
           <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
             <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
-              <h3 className="text-lg font-bold">{t("editMovement")}</h3>
-              <button type="button" onClick={() => setEditingMovementId(null)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
+              <h3 className="text-lg font-bold">{isAddingMovement ? t("addMovement") : t("editMovement")}</h3>
+              <button type="button" onClick={cancelMovementEditor} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
-            {section.movements.filter((movement) => movement.id === editingMovementId).map((movement) => (
-              <WorkoutMovementForm key={movement.id} movement={movement} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movement.movementId} error={fieldErrors[`movement-search-${movement.id}`]} onChange={(updatedMovement) => updateMovement(movement.id, updatedMovement)} onRemove={() => undefined} />
-            ))}
+            {movementDraft ? (
+              <WorkoutMovementForm key={movementDraft.id} movement={movementDraft} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movementDraft.movementId} error={fieldErrors[`movement-search-${movementDraft.id}`]} onChange={setMovementDraft} onRemove={() => undefined} />
+            ) : null}
             </div>
             <div className="shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">
-              <button type="button" onClick={() => setEditingMovementId(null)} className="w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg">{t("saveMovement")}</button>
+              <button type="button" disabled={!movementDraft?.movementId} onClick={confirmMovementEditor} className="w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg disabled:cursor-not-allowed disabled:opacity-40">{isAddingMovement ? t("addMovement") : t("saveChanges")}</button>
             </div>
           </div>
         </div>
