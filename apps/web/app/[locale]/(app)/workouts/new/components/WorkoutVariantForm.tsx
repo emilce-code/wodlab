@@ -21,7 +21,6 @@ export type WorkoutVariantFormState = {
 
 type Props = {
   variant: WorkoutVariantFormState;
-  variantNumber: number;
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
   usedLevelKeys: string[];
@@ -85,7 +84,6 @@ function TrashIcon() {
 
 export default function WorkoutVariantForm({
   variant,
-  variantNumber,
   workoutTypes,
   workoutLevels,
   usedLevelKeys,
