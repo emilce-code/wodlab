@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 type Props = {
   className?: string;
 };
@@ -9,15 +11,28 @@ export default function LogoMark({
     <div
       aria-label="WODLY"
       className={[
-        'relative flex h-9 w-9 items-center justify-center',
+        'relative flex h-9 w-9 items-center justify-center overflow-hidden',
         className,
       ].join(' ')}
     >
-      <div className="absolute left-1 top-2 h-5 w-2 -skew-x-12 bg-foreground" />
-      <div className="absolute left-3.5 top-2 h-5 w-2 skew-x-12 bg-foreground" />
-      <div className="absolute right-1.5 top-2 h-5 w-2 -skew-x-12 bg-foreground" />
-
-      <div className="absolute bottom-1 right-0 h-2 w-2 rounded-sm bg-accent" />
+      <Image
+        src="/brand-mark-primary.png"
+        alt=""
+        aria-hidden="true"
+        width={1024}
+        height={1024}
+        className="h-full w-full object-contain dark:hidden"
+        priority
+      />
+      <Image
+        src="/brand-mark-inverted.png"
+        alt=""
+        aria-hidden="true"
+        width={1024}
+        height={1024}
+        className="hidden h-full w-full object-contain dark:block"
+        priority
+      />
     </div>
   );
 }
