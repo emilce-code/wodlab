@@ -35,12 +35,48 @@
     "offline": "Estás sin conexión. Puedes guardar resultados en cola desde un entrenamiento abierto.",
     "install": "Instalar",
     "installDescription": "Instala WODLY para acceder más rápido.",
+    "howToInstall": "Cómo",
     "synced": "Tu resultado sin conexión fue guardado.",
     "syncFailed": "Un resultado sin conexión necesita atención. Abre el formulario e inténtalo nuevamente.",
     "dismiss": "Descartar mensaje",
     "offlineTitle": "Estás sin conexión",
     "offlineDescription": "Las páginas abiertas anteriormente siguen disponibles. Reconéctate para cargar datos nuevos; los resultados enviados se sincronizarán automáticamente.",
-    "retry": "Intentar nuevamente"
+    "retry": "Intentar nuevamente",
+    "guide": {
+      "eyebrow": "Guía de instalación",
+      "title": "Agrega WODLY a tu teléfono",
+      "close": "Cerrar guía de instalación",
+      "deviceTabs": "Opciones de instalación por dispositivo",
+      "note": "Las opciones dependen del navegador. Si una ruta no aparece, prueba la opción más cercana para tu teléfono.",
+      "ios": {
+        "title": "iPhone o iPad",
+        "description": "Usa Safari para agregar WODLY a la pantalla de inicio como acceso tipo app.",
+        "step1": "Abre WODLY en Safari.",
+        "step2": "Toca el botón Compartir en la barra inferior.",
+        "step3": "Elige Agregar a inicio y luego toca Agregar."
+      },
+      "androidChrome": {
+        "title": "Android Chrome",
+        "description": "Chrome puede instalar WODLY directamente cuando muestra la opción de instalación.",
+        "step1": "Abre WODLY en Chrome.",
+        "step2": "Toca Instalar cuando WODLY muestre el aviso, o abre el menú de tres puntos.",
+        "step3": "Elige Instalar app o Agregar a pantalla principal."
+      },
+      "xiaomi": {
+        "title": "Navegador Xiaomi",
+        "description": "Los navegadores Xiaomi y MIUI suelen ubicar la instalación dentro del menú del navegador.",
+        "step1": "Abre WODLY en el navegador Xiaomi o MIUI.",
+        "step2": "Abre el menú del navegador desde la barra inferior o superior.",
+        "step3": "Elige Agregar acceso, Agregar a pantalla principal o Instalar app."
+      },
+      "androidOther": {
+        "title": "Otro Android",
+        "description": "La mayoría de navegadores Android permiten crear un acceso en la pantalla principal aunque no muestren instalación nativa.",
+        "step1": "Abre WODLY en tu navegador móvil.",
+        "step2": "Abre el menú del navegador.",
+        "step3": "Elige Agregar a pantalla principal, Instalar o Crear acceso."
+      }
+    }
   },
   "states": {
     "startup": {
