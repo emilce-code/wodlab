@@ -419,6 +419,7 @@ export class WorkoutsService {
               create: variant.sections.map((section) => ({
                 typeId: section.typeId,
                 order: section.order,
+                role: section.role,
                 rounds: section.rounds,
                 durationSeconds: section.durationSeconds,
                 restSeconds: section.restSeconds,
@@ -914,6 +915,7 @@ export class WorkoutsService {
       sections: {
         create: variant.sections.map((section) => ({
           order: section.order,
+          role: section.role,
           rounds: section.rounds,
           durationSeconds: section.durationSeconds,
           restSeconds: section.restSeconds,
