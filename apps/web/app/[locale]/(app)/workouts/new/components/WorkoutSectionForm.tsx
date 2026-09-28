@@ -716,8 +716,8 @@ export default function WorkoutSectionForm({
         </div>
       )}
       {simpleMode && editingMovementId ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
-          <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
+        <div className="fixed inset-0 z-50 flex items-end overflow-hidden bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
+          <div className="flex h-[min(92dvh,46rem)] w-full min-h-0 flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:h-auto sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
             <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
               <h3 className="text-lg font-bold">{isAddingMovement ? t("addMovement") : t("editMovement")}</h3>
               <button type="button" onClick={cancelMovementEditor} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
@@ -727,7 +727,7 @@ export default function WorkoutSectionForm({
               <WorkoutMovementForm key={movementDraft.id} movement={movementDraft} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movementDraft.movementId} error={fieldErrors[`movement-search-${movementDraft.id}`]} onChange={setMovementDraft} onRemove={() => undefined} />
             ) : null}
             </div>
-            <div className="shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">
+            <div className="relative z-20 shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.16)] sm:p-6">
               <button type="button" disabled={!movementDraft?.movementId} onClick={confirmMovementEditor} className="w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg disabled:cursor-not-allowed disabled:opacity-40">{isAddingMovement ? t("addMovement") : t("saveChanges")}</button>
             </div>
           </div>
