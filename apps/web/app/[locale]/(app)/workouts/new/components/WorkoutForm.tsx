@@ -1331,75 +1331,8 @@ export default function WorkoutForm({
 
       {currentStep === "programming" ? (
         <section className="min-w-0">
-          <details className="group mb-4 rounded-xl border border-border bg-surface">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none">
-              <span>
-                <span className="block text-sm font-semibold">
-                  {t("concepts.title")}
-                </span>
-                <span className="mt-0.5 block text-xs font-normal text-muted">
-                  {t("concepts.description")}
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className="text-lg text-muted transition group-open:rotate-45"
-              >
-                +
-              </span>
-            </summary>
-            <div className="grid gap-3 border-t border-border p-4 sm:grid-cols-3">
-              {["variation", "section", "movement"].map((concept, index) => (
-                <div key={concept} className="flex gap-3 sm:block">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-bold text-accent">
-                    {index + 1}
-                  </span>
-                  <div className="sm:mt-2">
-                    <p className="text-sm font-semibold">
-                      {t(`concepts.${concept}.title`)}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {t(`concepts.${concept}.description`)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                {t("variants.eyebrow")}
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold">{t("variants.title")}</h2>
-
-              <p className="mt-1 text-sm text-muted">
-                {t(
-                  advancedMode
-                    ? "mode.advancedDescription"
-                    : "mode.simpleDescription",
-                )}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => {
-                  setAdvancedMode((current) => {
-                    const next = !current;
-                    setCreationMode(next ? "levels" : "simple");
-                    return next;
-                  });
-                }}
-                className="min-h-11 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
-              >
-                {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
-              </button>
-
-              {advancedMode ? (
+          {advancedMode ? (
+            <div className="mb-4 flex justify-end">
               <Button
                 type="button"
                 onClick={addVariant}
@@ -1408,14 +1341,13 @@ export default function WorkoutForm({
               >
                 + {t("variants.add")}
               </Button>
-              ) : null}
             </div>
-          </div>
+          ) : null}
 
           <div
             id="workout-variants"
             tabIndex={-1}
-            className="mt-5 min-w-0 space-y-5"
+            className="min-w-0 space-y-5"
           >
             {variants.map((variant, index) => (
               <WorkoutVariantForm
