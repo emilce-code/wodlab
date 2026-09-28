@@ -1586,7 +1586,10 @@
         "optional": "(optional)",
         "notesPlaceholder": "Add instructions or notes for this section...",
         "optionalDetails": "Optional section notes",
-        "workoutType": "Workout type"
+        "workoutType": "Workout type",
+        "editMovement": "Edit movement",
+        "saveMovement": "Save movement",
+        "reorderMovement": "Reorder movement"
       },
       "movementBuilder": {
         "movement": "Movement",
