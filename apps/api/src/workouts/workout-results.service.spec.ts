@@ -151,6 +151,18 @@ function createWorkout(resultTypeKey = 'TIME') {
   };
 }
 
+function createCustomWorkoutWithoutDefaultResultType() {
+  return {
+    ...createWorkout('ROUNDS_REPS'),
+    type: {
+      id: 'workout-type-custom',
+      key: 'CUSTOM',
+      name: 'Custom',
+      defaultResultType: null,
+    },
+  };
+}
+
 function createWorkoutMovement(
   options: {
     id?: string;
@@ -173,7 +185,7 @@ function createWorkoutMovement(
     movementId,
     percentage,
     referenceRepMax,
-    prescriptions: [],
+    prescriptions: [] as { id: string; prescriptionCategoryId: string }[],
 
     movement: {
       measurementTypes: measurementTypes.map((key) => ({
@@ -276,6 +288,9 @@ function setupCreateResult(
     resultTypeKey?: string;
     variant?: ReturnType<typeof createVariant>;
     returnedResult?: ReturnType<typeof createMappedResult>;
+    workout?:
+      | ReturnType<typeof createWorkout>
+      | ReturnType<typeof createCustomWorkoutWithoutDefaultResultType>;
   } = {},
 ) {
   const {
@@ -284,6 +299,7 @@ function setupCreateResult(
     returnedResult = createMappedResult({
       resultTypeKey,
     }),
+    workout = createWorkout(resultTypeKey),
   } = options;
 
   prisma.athleteProfile.findUnique.mockResolvedValue({
@@ -291,7 +307,7 @@ function setupCreateResult(
     userId: USER_ID,
   });
 
-  prisma.workout.findUnique.mockResolvedValue(createWorkout(resultTypeKey));
+  prisma.workout.findUnique.mockResolvedValue(workout);
 
   prisma.workoutVariant.findFirst.mockResolvedValue(variant);
 
@@ -673,6 +689,47 @@ describe('WorkoutResultsService', () => {
 
       expect(result.rounds).toBe(8);
       expect(result.reps).toBe(12);
+    });
+
+    it('uses rounds and reps when a custom workout has no default result type', async () => {
+      setupCreateResult(prisma, {
+        resultTypeKey: 'ROUNDS_REPS',
+        workout: createCustomWorkoutWithoutDefaultResultType(),
+
+        returnedResult: createMappedResult({
+          resultTypeKey: 'ROUNDS_REPS',
+          rounds: 4,
+          reps: 20,
+        }),
+      });
+      prisma.resultType.findUnique.mockResolvedValue({
+        id: 'result-type-rounds_reps',
+        key: 'ROUNDS_REPS',
+        name: 'Rounds + Reps',
+      });
+
+      const result = await service.createResult(USER_ID, WORKOUT_ID, {
+        workoutVariantId: VARIANT_ID,
+        performedAt: PERFORMED_AT,
+        rounds: 4,
+        reps: 20,
+      });
+
+      expect(result.rounds).toBe(4);
+      expect(result.reps).toBe(20);
+      expect(prisma.resultType.findUnique).toHaveBeenCalledWith({
+        where: {
+          key: 'ROUNDS_REPS',
+        },
+      });
+
+      const createCall = getFirstMockCallArgument<{
+        data: { resultType: { connect: { id: string } } };
+      }>(prisma.workoutResult.create);
+
+      expect(createCall.data.resultType.connect.id).toBe(
+        'result-type-rounds_reps',
+      );
     });
 
     it('creates a REPS workout result', async () => {

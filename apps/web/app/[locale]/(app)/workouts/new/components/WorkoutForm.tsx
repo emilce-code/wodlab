@@ -1524,7 +1524,7 @@ export default function WorkoutForm({
         </section>
       ) : null}
 
-      <div className="sticky bottom-20 z-20 rounded-xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur lg:bottom-4">
+      <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div aria-live="polite" aria-atomic="true">
             {error ? (

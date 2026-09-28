@@ -287,6 +287,18 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
     return resultTypeT.has(key) ? resultTypeT(key) : type.name;
   }
 
+  const effectiveResultType =
+    workout.type.defaultResultType ??
+    (workout.type.key === "CUSTOM"
+      ? {
+          key: "ROUNDS_REPS",
+          name: getResultTypeName({
+            key: "ROUNDS_REPS",
+            name: "Rounds + Reps",
+          }),
+        }
+      : null);
+
   function getMovementPrescription(movement: WorkoutMovement) {
     const values: string[] = [];
 
@@ -510,7 +522,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
         defaultTab="overview"
         tabs={[
           { id: "overview", label: t("tabs.overview") },
-          ...(workout.isActive && workout.type.defaultResultType
+          ...(workout.isActive && effectiveResultType
             ? [{ id: "log", label: t("tabs.log") }]
             : []),
           {
@@ -520,7 +532,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
           },
           ...(workout.isActive ||
           workoutStrategy ||
-          workout.type.defaultResultType
+          effectiveResultType
             ? [{ id: "more", label: t("tabs.more") }]
             : []),
         ]}
@@ -551,7 +563,7 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
             <WorkoutStrategyCard strategy={workoutStrategy} />
           ) : null}
 
-          {workout.type.defaultResultType ? (
+          {effectiveResultType ? (
             <WorkoutLeaderboardCard
               key={selectedVariant.id}
               workoutId={workout.id}
@@ -829,13 +841,13 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
           </div>
         </MobileTabPanel>
 
-        {workout.isActive && workout.type.defaultResultType && (
+        {workout.isActive && effectiveResultType && (
           <MobileTabPanel tabId="log" className="pt-6">
             <section id="log-result" className="scroll-mt-6">
               <LogResultForm
                 workoutId={workout.id}
                 scheduledWorkoutId={scheduledWorkoutId}
-                resultType={workout.type.defaultResultType}
+                resultType={effectiveResultType}
                 variants={formVariants.filter(
                   (variant) => variant.id === selectedVariant.id,
                 )}
@@ -1121,13 +1133,12 @@ export default async function WorkoutPage({ params, searchParams }: Props) {
                             {formatDate(result.performedAt, locale)}
                           </p>
 
-                          {workout.isActive &&
-                            workout.type.defaultResultType && (
+                          {workout.isActive && effectiveResultType && (
                               <div className="mt-3">
                                 <WorkoutResultActions
                                   workoutId={workout.id}
                                   result={toEditableResult(result)}
-                                  resultType={workout.type.defaultResultType}
+                                  resultType={effectiveResultType}
                                   variants={formVariants}
                                   prescriptionCategories={
                                     prescriptionCategories
