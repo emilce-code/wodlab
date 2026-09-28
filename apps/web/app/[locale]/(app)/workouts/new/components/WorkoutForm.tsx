@@ -1383,7 +1383,7 @@ export default function WorkoutForm({
                 </div>
 
                 <div className="mt-4 space-y-3">
-                  {variant.sections.map((section, sectionIndex) => (
+                  {variant.sections.map((section) => (
                     <div
                       key={section.id}
                       className="rounded-lg border border-border p-3"
