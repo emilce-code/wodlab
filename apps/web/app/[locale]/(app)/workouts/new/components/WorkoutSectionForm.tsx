@@ -408,7 +408,7 @@ export default function WorkoutSectionForm({
               htmlFor={`section-type-${section.id}`}
               className="mb-1.5 block text-sm font-medium"
             >
-              {simpleMode ? t("workoutType") : t("sectionType")} *
+              {simpleMode ? t("workoutType") : t("workoutFormat")} *
             </label>
 
             <select
