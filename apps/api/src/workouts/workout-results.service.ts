@@ -454,7 +454,7 @@ export class WorkoutResultsService {
       this.mapWorkoutResult(result),
     );
 
-    const resultType = workout.type.defaultResultType;
+    const resultType = await this.getWorkoutResultType(workout.type);
 
     return {
       personalBest: resultType
@@ -591,7 +591,7 @@ export class WorkoutResultsService {
       );
     }
 
-    const resultType = workout.type.defaultResultType;
+    const resultType = await this.getWorkoutResultType(workout.type);
 
     if (!resultType) {
       throw new BadRequestException(
@@ -921,7 +921,8 @@ export class WorkoutResultsService {
     }
 
     const resultType =
-      workout.type.defaultResultType ?? existingResult.resultType;
+      (await this.getWorkoutResultType(workout.type)) ??
+      existingResult.resultType;
 
     if (!resultType) {
       throw new BadRequestException(
@@ -1470,6 +1471,30 @@ export class WorkoutResultsService {
           `Unsupported result type "${resultTypeKey}"`,
         );
     }
+  }
+
+  private async getWorkoutResultType(workoutType: {
+    key: string;
+    name: string;
+    defaultResultType: {
+      id: string;
+      key: string;
+      name: string;
+    } | null;
+  }) {
+    if (workoutType.defaultResultType) {
+      return workoutType.defaultResultType;
+    }
+
+    if (workoutType.key !== 'CUSTOM') {
+      return null;
+    }
+
+    return this.prisma.resultType.findUnique({
+      where: {
+        key: 'ROUNDS_REPS',
+      },
+    });
   }
 
   private async resolvePercentageSnapshots(
