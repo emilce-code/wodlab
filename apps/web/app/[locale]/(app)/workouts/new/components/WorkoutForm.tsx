@@ -88,6 +88,7 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
     sections: variant.sections.map((section) => ({
       id: section.id,
       typeKey: section.type.key,
+      role: section.role ?? "WOD",
       rounds: formValue(section.rounds),
       durationSeconds: formValue(section.durationSeconds),
       restSeconds: formValue(section.restSeconds),
@@ -193,6 +194,7 @@ function createEmptySection(): WorkoutSectionFormState {
   return {
     id: crypto.randomUUID(),
     typeKey: "",
+    role: "WOD",
     rounds: "",
     durationSeconds: "",
     restSeconds: "",
@@ -770,6 +772,8 @@ export default function WorkoutForm({
 
           sections: variant.sections.map((section, sectionIndex) => ({
             typeKey: section.typeKey,
+
+            role: section.role,
 
             order: sectionIndex + 1,
 
