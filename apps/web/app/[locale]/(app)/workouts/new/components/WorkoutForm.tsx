@@ -38,6 +38,7 @@ export type EditableWorkout = {
     sections: Array<{
       id: string;
       type: { key: string };
+      role?: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
       rounds: number | null;
       durationSeconds: number | null;
       restSeconds: number | null;
