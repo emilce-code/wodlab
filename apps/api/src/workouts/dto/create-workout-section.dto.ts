@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsInt,
+  IsIn,
   IsOptional,
   IsString,
   Min,
@@ -15,7 +16,7 @@ export class CreateWorkoutSectionDto {
   typeKey: string;
 
   @IsOptional()
-  @IsString()
+  @IsIn(['WARM_UP', 'STRENGTH', 'WOD', 'ACCESSORY', 'COOLDOWN', 'CUSTOM'])
   role?: 'WARM_UP' | 'STRENGTH' | 'WOD' | 'ACCESSORY' | 'COOLDOWN' | 'CUSTOM';
 
   @IsInt()
