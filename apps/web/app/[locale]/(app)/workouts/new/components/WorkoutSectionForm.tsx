@@ -14,6 +14,7 @@ import WorkoutMovementForm, {
 export type WorkoutSectionFormState = {
   id: string;
   typeKey: string;
+  role: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
   rounds: string;
   durationSeconds: string;
   restSeconds: string;
