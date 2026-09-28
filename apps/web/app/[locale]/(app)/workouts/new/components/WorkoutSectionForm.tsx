@@ -658,15 +658,19 @@ export default function WorkoutSectionForm({
       )}
       {simpleMode && editingMovementId ? (
         <div className="fixed inset-0 z-50 flex items-end bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
-          <div className="max-h-[88dvh] w-full overflow-y-auto rounded-t-3xl border border-border bg-surface p-4 shadow-2xl sm:max-w-xl sm:rounded-2xl sm:p-6">
-            <div className="mb-4 flex items-center justify-between">
+          <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
               <h3 className="text-lg font-bold">{t("editMovement")}</h3>
               <button type="button" onClick={() => setEditingMovementId(null)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
             </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
             {section.movements.filter((movement) => movement.id === editingMovementId).map((movement) => (
               <WorkoutMovementForm key={movement.id} movement={movement} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movement.movementId} error={fieldErrors[`movement-search-${movement.id}`]} onChange={(updatedMovement) => updateMovement(movement.id, updatedMovement)} onRemove={() => undefined} />
             ))}
-            <button type="button" onClick={() => setEditingMovementId(null)} className="sticky bottom-0 mt-5 w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg">{t("saveMovement")}</button>
+            </div>
+            <div className="shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6">
+              <button type="button" onClick={() => setEditingMovementId(null)} className="w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg">{t("saveMovement")}</button>
+            </div>
           </div>
         </div>
       ) : null}
