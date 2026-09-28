@@ -139,9 +139,15 @@ export default function WorkoutVariantForm({
   }
 
   function addSection(role: WorkoutSectionFormState["role"] = "WOD") {
+    const defaultTypeKey =
+      role === "STRENGTH" && workoutTypes.some((type) => type.key === "STRENGTH")
+        ? "STRENGTH"
+        : role !== "WOD" && workoutTypes.some((type) => type.key === "CUSTOM")
+          ? "CUSTOM"
+          : "";
     onChange({
       ...variant,
-      sections: [...variant.sections, { ...createEmptySection(), role }],
+      sections: [...variant.sections, { ...createEmptySection(), role, typeKey: defaultTypeKey }],
     });
     setShowSectionRolePicker(false);
   }
