@@ -1317,7 +1317,9 @@
         "discard": "Descartar"
       },
       "start": {
+        "eyebrow": "Início",
         "title": "Escolha a forma mais fácil de começar",
+        "description": "Escolha o caminho que combina com a forma como você já tem o treino.",
         "modes": {
           "simple": {
             "title": "Treino simples",
@@ -1389,6 +1391,10 @@
       },
       "steps": {
         "ariaLabel": "Progresso de criação do treino",
+        "start": {
+          "title": "Início",
+          "description": "Escolha como começar"
+        },
         "details": {
           "title": "Detalhes",
           "description": "Nome e tipo"
@@ -1455,6 +1461,7 @@
         "sectionTypeRequired": "Seção {section}: selecione um tipo de seção.",
         "movementRequired": "Seção {section}: adicione pelo menos um movimento.",
         "movementSelectionRequired": "Seção {section}, movimento {movement}: selecione um movimento.",
+        "importRequired": "Cole e use um rascunho do treino antes de continuar.",
         "invalidRepScheme": "Seção {section}: o esquema de repetições deve conter números positivos separados por hífens, por exemplo 21-15-9.",
         "createError": "Não foi possível criar o treino."
       },
