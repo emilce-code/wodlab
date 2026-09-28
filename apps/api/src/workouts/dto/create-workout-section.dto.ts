@@ -14,6 +14,10 @@ export class CreateWorkoutSectionDto {
   @IsString()
   typeKey: string;
 
+  @IsOptional()
+  @IsString()
+  role?: 'WARM_UP' | 'STRENGTH' | 'WOD' | 'ACCESSORY' | 'COOLDOWN' | 'CUSTOM';
+
   @IsInt()
   @Min(1)
   order: number;
