@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useTranslations } from "next-intl";
 
@@ -110,6 +110,8 @@ export default function WorkoutSectionForm({
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
   const [editingMovementId, setEditingMovementId] = useState<string | null>(null);
+  const [draggingMovementId, setDraggingMovementId] = useState<string | null>(null);
+  const dragPointerId = useRef<number | null>(null);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(section.notes),
@@ -226,13 +228,36 @@ export default function WorkoutSectionForm({
     if (simpleMode) setEditingMovementId(movement.id);
   }
 
-  function moveMovement(id: string, direction: -1 | 1) {
-    const index = section.movements.findIndex((item) => item.id === id);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= section.movements.length) return;
+  function reorderMovement(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+    const fromIndex = section.movements.findIndex((item) => item.id === draggedId);
+    const toIndex = section.movements.findIndex((item) => item.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
     const movements = [...section.movements];
-    [movements[index], movements[nextIndex]] = [movements[nextIndex], movements[index]];
+    const [dragged] = movements.splice(fromIndex, 1);
+    movements.splice(toIndex, 0, dragged);
     onChange({ ...section, movements });
+  }
+
+  function startMovementDrag(event: React.PointerEvent<HTMLButtonElement>, id: string) {
+    event.preventDefault();
+    dragPointerId.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingMovementId(id);
+  }
+
+  function continueMovementDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (!draggingMovementId || dragPointerId.current !== event.pointerId) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>("[data-movement-row]");
+    const targetId = target?.dataset.movementRow;
+    if (targetId) reorderMovement(draggingMovementId, targetId);
+  }
+
+  function endMovementDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (dragPointerId.current === event.pointerId) {
+      dragPointerId.current = null;
+      setDraggingMovementId(null);
+    }
   }
 
   function removeMovement(id: string) {
@@ -584,11 +609,16 @@ export default function WorkoutSectionForm({
             ) : (
               <div className="mt-5 min-w-0 space-y-4">
                 {simpleMode ? section.movements.map((movement, index) => (
-                  <div key={movement.id} className="flex items-center gap-2 rounded-xl border border-border bg-surface px-2 py-2.5">
-                    <div className="flex shrink-0 flex-col" aria-label={t("reorderMovement")}>
-                      <button type="button" disabled={index === 0} onClick={() => moveMovement(movement.id, -1)} className="h-5 px-1 text-xs text-muted disabled:opacity-20">▲</button>
-                      <button type="button" disabled={index === section.movements.length - 1} onClick={() => moveMovement(movement.id, 1)} className="h-5 px-1 text-xs text-muted disabled:opacity-20">▼</button>
-                    </div>
+                  <div key={movement.id} data-movement-row={movement.id} className={`flex items-center gap-2 rounded-xl border bg-surface px-2 py-2.5 transition ${draggingMovementId === movement.id ? "border-accent/60 opacity-70 shadow-lg" : "border-border"}`}>
+                    <button type="button" aria-label={t("reorderMovement")} title={t("reorderMovement")}
+                      onPointerDown={(event) => startMovementDrag(event, movement.id)}
+                      onPointerMove={continueMovementDrag}
+                      onPointerUp={endMovementDrag}
+                      onPointerCancel={endMovementDrag}
+                      className="inline-flex h-11 w-9 shrink-0 touch-none cursor-grab select-none items-center justify-center rounded-lg text-xl tracking-[-0.18em] text-muted active:cursor-grabbing active:text-accent"
+                    >
+                      ⋮⋮
+                    </button>
                     <button type="button" onClick={() => setEditingMovementId(movement.id)} className="min-w-0 flex-1 text-left">
                       <span className="block truncate text-sm font-semibold">{movement.movementName || t("unselectedMovement")}</span>
                       <span className="block truncate text-xs text-muted">{[movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean).join(" · ") || t("tapToEdit")}</span>
