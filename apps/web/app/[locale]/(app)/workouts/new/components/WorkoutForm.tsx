@@ -242,6 +242,7 @@ export default function WorkoutForm({
   const t = useTranslations("workouts.create");
 
   const typeT = useTranslations("workoutTypes");
+  const levelT = useTranslations("workoutLevels");
 
   const router = useRouter();
 
