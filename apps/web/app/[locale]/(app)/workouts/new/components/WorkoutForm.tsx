@@ -429,24 +429,6 @@ export default function WorkoutForm({
     } : variant));
   }
 
-  function addVariant() {
-    setAdvancedMode(true);
-    setCreationMode("levels");
-
-    const usedLevelKeys = variants
-      .map((variant) => variant.levelKey)
-      .filter(Boolean);
-
-    const nextLevel = workoutLevels.find(
-      (level) => !usedLevelKeys.includes(level.key),
-    );
-
-    setVariants((current) => [
-      ...current,
-      createEmptyVariant(nextLevel?.key ?? ""),
-    ]);
-  }
-
   function removeVariant(id: string) {
     setVariants((current) => {
       if (current.length === 1) {
@@ -930,8 +912,6 @@ export default function WorkoutForm({
     .map((variant) => variant.levelKey)
     .filter(Boolean);
 
-  const canAddVariant =
-    workoutLevels.length === 0 || usedLevelKeys.length < workoutLevels.length;
   const displayedFormSteps = isEditing
     ? formSteps.filter((step) => step !== "start")
     : formSteps;
@@ -1289,7 +1269,6 @@ export default function WorkoutForm({
               (!advancedMode || !activeLevelKey || variant.levelKey === activeLevelKey) ? <WorkoutVariantForm
                 key={variant.id}
                 variant={variant}
-                variantNumber={index + 1}
                 workoutTypes={workoutTypes}
                 workoutLevels={workoutLevels}
                 usedLevelKeys={usedLevelKeys}
