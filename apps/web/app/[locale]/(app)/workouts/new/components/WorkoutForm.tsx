@@ -1068,13 +1068,15 @@ export default function WorkoutForm({
       ) : null}
 
       <nav aria-label={t("steps.ariaLabel")}>
-        <ol className="grid grid-cols-4 gap-2">
+        <ol className="flex items-center">
           {displayedFormSteps.map((step, index) => {
+            const currentStepIndex = displayedFormSteps.indexOf(currentStep);
             const isCurrent = step === currentStep;
-            const isComplete = displayedFormSteps.indexOf(currentStep) > index;
+            const isComplete = currentStepIndex > index;
+            const isConnectorComplete = currentStepIndex > index;
 
             return (
-              <li key={step}>
+              <li key={step} className="flex flex-1 items-center last:flex-none">
                 <button
                   type="button"
                   onClick={() => {
@@ -1084,26 +1086,25 @@ export default function WorkoutForm({
                   }}
                   disabled={!isComplete && !isCurrent}
                   aria-current={isCurrent ? "step" : undefined}
-                  className={`flex min-h-12 w-full items-center justify-center rounded-xl border px-3 py-2 text-center transition ${
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-center text-sm font-bold transition ${
                     isCurrent
-                      ? "border-accent bg-accent/10"
+                      ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/25"
                       : isComplete
-                        ? "border-border bg-surface hover:border-accent/40"
-                        : "cursor-not-allowed border-border bg-surface opacity-55"
+                        ? "border-accent bg-accent text-accent-foreground hover:border-accent/80"
+                        : "cursor-not-allowed border-border bg-surface-elevated text-muted opacity-70"
                   }`}
                 >
                   <span className="sr-only">{t(`steps.${step}.title`)}</span>
+                  <span aria-hidden="true">{index + 1}</span>
+                </button>
+                {index < displayedFormSteps.length - 1 ? (
                   <span
                     aria-hidden="true"
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      isCurrent || isComplete
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-surface-elevated text-muted"
+                    className={`mx-2 h-0.5 flex-1 rounded-full transition ${
+                      isConnectorComplete ? "bg-accent" : "bg-border"
                     }`}
-                  >
-                    {index + 1}
-                  </span>
-                </button>
+                  />
+                ) : null}
               </li>
             );
           })}
