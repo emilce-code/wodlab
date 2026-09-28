@@ -716,7 +716,7 @@ export default function WorkoutSectionForm({
         </div>
       )}
       {simpleMode && editingMovementId ? (
-        <div className="fixed inset-0 z-50 flex items-end overflow-hidden bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[80] flex items-end overflow-hidden bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
           <div className="flex h-[min(92dvh,46rem)] w-full min-h-0 flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:h-auto sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
             <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
               <h3 className="text-lg font-bold">{isAddingMovement ? t("addMovement") : t("editMovement")}</h3>
