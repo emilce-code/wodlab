@@ -777,7 +777,9 @@ export default function WorkoutForm({
 
         description: description.trim() || undefined,
 
-        typeKey,
+        typeKey: advancedMode
+          ? variants.flatMap((variant) => variant.sections).find((section) => section.role === "WOD" && section.typeKey)?.typeKey ?? variants.flatMap((variant) => variant.sections).find((section) => section.typeKey)?.typeKey ?? typeKey
+          : typeKey,
         isBenchmark: isEditing ? isBenchmark : false,
 
         variants: variants.map((variant) => ({
