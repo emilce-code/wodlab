@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useTranslations } from "next-intl";
 
@@ -21,7 +21,6 @@ export type WorkoutVariantFormState = {
 
 type Props = {
   variant: WorkoutVariantFormState;
-  variantNumber: number;
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
   usedLevelKeys: string[];
@@ -39,6 +38,7 @@ function createEmptySection(): WorkoutSectionFormState {
   return {
     id: crypto.randomUUID(),
     typeKey: "",
+    role: "WOD",
     rounds: "",
     durationSeconds: "",
     restSeconds: "",
@@ -84,7 +84,6 @@ function TrashIcon() {
 
 export default function WorkoutVariantForm({
   variant,
-  variantNumber,
   workoutTypes,
   workoutLevels,
   usedLevelKeys,
@@ -98,6 +97,9 @@ export default function WorkoutVariantForm({
   onRemove,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
+  const [showSectionRolePicker, setShowSectionRolePicker] = useState(false);
+  const [draggingSectionId, setDraggingSectionId] = useState<string | null>(null);
+  const sectionPointerId = useRef<number | null>(null);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(variant.name || variant.notes),
@@ -136,11 +138,29 @@ export default function WorkoutVariantForm({
     });
   }
 
-  function addSection() {
+  function addSection(role: WorkoutSectionFormState["role"] = "WOD") {
+    const defaultTypeKey =
+      role === "STRENGTH" && workoutTypes.some((type) => type.key === "STRENGTH")
+        ? "STRENGTH"
+        : role !== "WOD" && workoutTypes.some((type) => type.key === "CUSTOM")
+          ? "CUSTOM"
+          : "";
     onChange({
       ...variant,
-      sections: [...variant.sections, createEmptySection()],
+      sections: [...variant.sections, { ...createEmptySection(), role, typeKey: defaultTypeKey }],
     });
+    setShowSectionRolePicker(false);
+  }
+
+  function reorderSection(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+    const fromIndex = variant.sections.findIndex((item) => item.id === draggedId);
+    const toIndex = variant.sections.findIndex((item) => item.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
+    const sections = [...variant.sections];
+    const [dragged] = sections.splice(fromIndex, 1);
+    sections.splice(toIndex, 0, dragged);
+    onChange({ ...variant, sections });
   }
 
   function removeSection(id: string) {
@@ -220,12 +240,7 @@ export default function WorkoutVariantForm({
     <section className="min-w-0 w-full rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[11px] text-accent-foreground">
-              V{variantNumber}
-            </span>
-            {t("variantLabel")}
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{t("level")}</p>
 
           <h3 className="mt-1 break-words text-lg font-bold">
             {selectedLevel?.name ?? t("configure")}
@@ -465,7 +480,7 @@ export default function WorkoutVariantForm({
             {advancedMode ? (
               <button
                 type="button"
-                onClick={addSection}
+                onClick={() => setShowSectionRolePicker(true)}
                 aria-label={t("addSection")}
                 title={t("addSection")}
                 className="inline-flex h-10 w-10 self-end items-center justify-center rounded-lg border border-border bg-background text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated sm:h-auto sm:w-auto sm:self-auto sm:px-4 sm:py-2.5"
@@ -481,13 +496,26 @@ export default function WorkoutVariantForm({
             ) : null}
           </div>
 
+          {showSectionRolePicker ? (
+            <div className="mt-4 rounded-xl border border-border bg-background p-4">
+              <div className="flex items-center justify-between"><p className="font-semibold">{t("chooseSectionType")}</p><button type="button" onClick={() => setShowSectionRolePicker(false)} className="h-9 w-9 rounded-lg text-xl text-muted">×</button></div>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => (
+                  <button key={role} type="button" onClick={() => addSection(role)} className="min-h-12 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold hover:border-accent/50 hover:bg-accent/5">{t(`sectionRoles.${role.toLowerCase()}`)}</button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div
             id={`variant-sections-${variant.id}`}
             tabIndex={-1}
             className="mt-5 min-w-0 space-y-5"
           >
             {variant.sections.map((section, index) => (
-              <WorkoutSectionForm
+              <div key={section.id} data-section-row={section.id} className={`relative ${draggingSectionId === section.id ? "opacity-70" : ""}`}>
+                {advancedMode && variant.sections.length > 1 ? <button type="button" aria-label={t("reorderSection")} title={t("reorderSection")} onPointerDown={(event) => { event.preventDefault(); sectionPointerId.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); setDraggingSectionId(section.id); }} onPointerMove={(event) => { if (!draggingSectionId || sectionPointerId.current !== event.pointerId) return; const target = document.elementFromPoint(event.clientX,event.clientY)?.closest<HTMLElement>("[data-section-row]"); if (target?.dataset.sectionRow) reorderSection(draggingSectionId,target.dataset.sectionRow); }} onPointerUp={(event) => { if (sectionPointerId.current === event.pointerId) { sectionPointerId.current=null; setDraggingSectionId(null); } }} onPointerCancel={() => { sectionPointerId.current=null; setDraggingSectionId(null); }} className="absolute left-2 top-3 z-10 inline-flex h-9 w-8 touch-none cursor-grab items-center justify-center rounded-lg text-lg text-muted active:cursor-grabbing">⋮⋮</button> : null}
+              <div className={advancedMode && variant.sections.length > 1 ? "pl-8" : ""}><WorkoutSectionForm
                 key={section.id}
                 section={section}
                 sectionNumber={index + 1}
@@ -508,7 +536,7 @@ export default function WorkoutVariantForm({
                   updateSection(section.id, updatedSection)
                 }
                 onRemove={() => removeSection(section.id)}
-              />
+              /></div></div>
             ))}
           </div>
         </div>

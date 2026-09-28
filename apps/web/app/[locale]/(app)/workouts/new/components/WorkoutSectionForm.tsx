@@ -14,6 +14,7 @@ import WorkoutMovementForm, {
 export type WorkoutSectionFormState = {
   id: string;
   typeKey: string;
+  role: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
   rounds: string;
   durationSeconds: string;
   restSeconds: string;
@@ -124,6 +125,7 @@ export default function WorkoutSectionForm({
   const typeT = useTranslations("workoutTypes");
 
   const sectionType = section.typeKey;
+  const sectionRoleLabel = t(`roles.${section.role.toLowerCase()}`);
 
   const selectedSectionType = workoutTypes.find(
     (type) => type.key === sectionType,
@@ -325,11 +327,8 @@ export default function WorkoutSectionForm({
             {t("sectionLabel")}
           </p>
 
-          <h3 className="mt-1 break-words text-lg font-bold">
-            {selectedSectionType
-              ? getWorkoutTypeName(selectedSectionType)
-              : t("configureSection")}
-          </h3>
+          <h3 className="mt-1 break-words text-lg font-bold">{sectionRoleLabel}</h3>
+          {selectedSectionType ? <p className="mt-1 text-sm text-muted">{getWorkoutTypeName(selectedSectionType)} · {t("summary", { movements: section.movements.length })}</p> : null}
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
@@ -398,12 +397,18 @@ export default function WorkoutSectionForm({
 
       {(simpleMode || displayedIsExpanded) && (
         <div id={contentId} className={`${simpleMode ? "mt-0" : "mt-6"} grid min-w-0 gap-5 md:grid-cols-2`}>
+          {!simpleMode ? <div className="md:col-span-2">
+            <label htmlFor={`section-role-${section.id}`} className="mb-1.5 block text-sm font-medium">{t("sectionRole")}</label>
+            <select id={`section-role-${section.id}`} value={section.role} onChange={(event) => update("role", event.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10">
+              {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => <option key={role} value={role}>{t(`roles.${role.toLowerCase()}`)}</option>)}
+            </select>
+          </div> : null}
           <div className="min-w-0 md:col-span-2">
             <label
               htmlFor={`section-type-${section.id}`}
               className="mb-1.5 block text-sm font-medium"
             >
-              {simpleMode ? t("workoutType") : t("sectionType")} *
+              {simpleMode ? t("workoutType") : t("workoutFormat")} *
             </label>
 
             <select

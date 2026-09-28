@@ -1590,7 +1590,17 @@
         "optional": "(optional)",
         "notesPlaceholder": "Add instructions or notes for this section...",
         "optionalDetails": "Optional section notes",
-        "saveChanges": "Save changes"
+        "saveChanges": "Save changes",
+        "sectionRole": "Section type",
+        "roles": {
+          "warm_up": "Warm-up",
+          "strength": "Strength",
+          "wod": "WOD",
+          "accessory": "Accessory",
+          "cooldown": "Cooldown",
+          "custom": "Custom"
+        },
+        "workoutFormat": "Workout format"
       },
       "movementBuilder": {
         "movement": "Movement",
@@ -1656,7 +1666,24 @@
           "variantRequired": "At least one workout variation is required.",
           "levelRequired": "Select a level for variation {variant}.",
           "duplicateLevel": "Each workout variation must use a different level."
+        },
+        "chooseSectionType": "What kind of section is this?",
+        "reorderSection": "Reorder section",
+        "sectionRoles": {
+          "warm_up": "Warm-up",
+          "strength": "Strength",
+          "wod": "WOD",
+          "accessory": "Accessory",
+          "cooldown": "Cooldown",
+          "custom": "Custom"
         }
+      },
+      "levelsBuilder": {
+        "title": "Workout levels",
+        "description": "Choose a level to configure. Each level can have its own sections, movements and targets.",
+        "emptyTitle": "{level} isn’t configured yet",
+        "emptyDescription": "Copy a configured level and adjust it, or start building this level from scratch.",
+        "copyFrom": "Copy from {level}"
       }
     },
     "detail": {

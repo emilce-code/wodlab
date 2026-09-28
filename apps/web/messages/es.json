@@ -1590,7 +1590,17 @@
         "optional": "(opcional)",
         "notesPlaceholder": "Agrega instrucciones o notas para esta sección...",
         "optionalDetails": "Notas opcionales de la sección",
-        "saveChanges": "Guardar cambios"
+        "saveChanges": "Guardar cambios",
+        "sectionRole": "Tipo de sección",
+        "roles": {
+          "warm_up": "Calentamiento",
+          "strength": "Fuerza",
+          "wod": "WOD",
+          "accessory": "Accesorios",
+          "cooldown": "Vuelta a la calma",
+          "custom": "Personalizado"
+        },
+        "workoutFormat": "Formato del entrenamiento"
       },
       "movementBuilder": {
         "movement": "Movimiento",
@@ -1656,7 +1666,24 @@
           "variantRequired": "Se requiere al menos una variación del entrenamiento.",
           "levelRequired": "Selecciona un nivel para la variación {variant}.",
           "duplicateLevel": "Cada variación debe usar un nivel diferente."
+        },
+        "chooseSectionType": "¿Qué tipo de sección es?",
+        "reorderSection": "Reordenar sección",
+        "sectionRoles": {
+          "warm_up": "Calentamiento",
+          "strength": "Fuerza",
+          "wod": "WOD",
+          "accessory": "Accesorios",
+          "cooldown": "Vuelta a la calma",
+          "custom": "Personalizado"
         }
+      },
+      "levelsBuilder": {
+        "title": "Niveles del entrenamiento",
+        "description": "Elige un nivel para configurarlo. Cada nivel puede tener sus propias secciones, movimientos y objetivos.",
+        "emptyTitle": "{level} aún no está configurado",
+        "emptyDescription": "Copia un nivel configurado y ajústalo, o crea este nivel desde cero.",
+        "copyFrom": "Copiar de {level}"
       }
     },
     "detail": {

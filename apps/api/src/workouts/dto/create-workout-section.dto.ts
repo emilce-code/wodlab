@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsInt,
+  IsIn,
   IsOptional,
   IsString,
   Min,
@@ -13,6 +14,10 @@ import { CreateWorkoutMovementDto } from './create-workout-movement.dto';
 export class CreateWorkoutSectionDto {
   @IsString()
   typeKey: string;
+
+  @IsOptional()
+  @IsIn(['WARM_UP', 'STRENGTH', 'WOD', 'ACCESSORY', 'COOLDOWN', 'CUSTOM'])
+  role?: 'WARM_UP' | 'STRENGTH' | 'WOD' | 'ACCESSORY' | 'COOLDOWN' | 'CUSTOM';
 
   @IsInt()
   @Min(1)
