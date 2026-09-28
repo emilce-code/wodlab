@@ -281,6 +281,8 @@ export default function WorkoutForm({
     return [createEmptyVariant("")];
   });
 
+  const [activeLevelKey, setActiveLevelKey] = useState<string>(initialWorkout?.variants[0]?.level.key ?? "");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -399,6 +401,32 @@ export default function WorkoutForm({
     return typeT.has(key) ? typeT(key) : type.name;
   }
 
+  function selectOrAddLevel(levelKey: string) {
+    const existing = variants.find((variant) => variant.levelKey === levelKey);
+    if (existing) {
+      setActiveLevelKey(levelKey);
+      return;
+    }
+    setVariants((current) => {
+      if (current.length === 1 && !current[0].levelKey) {
+        return [{ ...current[0], levelKey }];
+      }
+      return [...current, createEmptyVariant(levelKey)];
+    });
+    setActiveLevelKey(levelKey);
+  }
+
+  function copyLevel(source: WorkoutVariantFormState, targetId: string) {
+    setVariants((current) => current.map((variant) => variant.id === targetId ? {
+      ...variant,
+      sections: source.sections.map((section) => ({
+        ...section,
+        id: crypto.randomUUID(),
+        movements: section.movements.map((movement) => ({ ...movement, id: crypto.randomUUID(), prescriptions: movement.prescriptions.map((p) => ({ ...p })) })),
+      })),
+    } : variant));
+  }
+
   function addVariant() {
     setAdvancedMode(true);
     setCreationMode("levels");
@@ -428,8 +456,11 @@ export default function WorkoutForm({
   }
 
   function updateVariant(id: string, updatedVariant: WorkoutVariantFormState) {
-    if (!advancedMode && updatedVariant.sections[0]?.typeKey) {
-      setTypeKey(updatedVariant.sections[0].typeKey);
+    const primarySection = advancedMode
+      ? updatedVariant.sections.find((section) => section.role === "WOD") ?? updatedVariant.sections[0]
+      : updatedVariant.sections[0];
+    if (primarySection?.typeKey) {
+      setTypeKey(primarySection.typeKey);
     }
     setFieldErrors({});
     setError(null);
@@ -1218,25 +1249,42 @@ export default function WorkoutForm({
       {currentStep === "programming" ? (
         <section className="min-w-0">
           {advancedMode ? (
-            <div className="mb-4 flex justify-end">
-              <Button
-                type="button"
-                onClick={addVariant}
-                disabled={!canAddVariant}
-                variant="secondary"
-              >
-                + {t("variants.add")}
-              </Button>
+            <div className="mb-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+              <h2 className="text-lg font-bold">{t("levelsBuilder.title")}</h2>
+              <p className="mt-1 text-sm text-muted">{t("levelsBuilder.description")}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {workoutLevels.map((level) => {
+                  const configured = variants.some((variant) => variant.levelKey === level.key);
+                  const active = activeLevelKey === level.key;
+                  return (
+                    <button key={level.key} type="button" onClick={() => selectOrAddLevel(level.key)}
+                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-accent bg-accent text-accent-foreground" : configured ? "border-accent/50 bg-accent/10 text-foreground" : "border-border bg-background text-muted"}`}>
+                      {configured ? "✓ " : ""}{levelT.has(`names.${level.key.toLowerCase()}`) ? levelT(`names.${level.key.toLowerCase()}`) : level.name}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ) : null}
 
-          <div
-            id="workout-variants"
-            tabIndex={-1}
-            className="min-w-0 space-y-5"
-          >
+          {advancedMode && activeLevelKey ? (() => {
+            const activeVariant = variants.find((variant) => variant.levelKey === activeLevelKey);
+            const sources = variants.filter((variant) => variant.levelKey && variant.levelKey !== activeLevelKey && variant.sections.some((section) => section.movements.length > 0));
+            const isEmpty = activeVariant && activeVariant.sections.every((section) => section.movements.length === 0 && !section.typeKey);
+            return activeVariant && isEmpty && sources.length ? (
+              <div className="mb-5 rounded-2xl border border-dashed border-border bg-surface p-5 text-center">
+                <h3 className="font-bold">{t("levelsBuilder.emptyTitle", { level: workoutLevels.find((level) => level.key === activeLevelKey)?.name ?? activeLevelKey })}</h3>
+                <p className="mt-1 text-sm text-muted">{t("levelsBuilder.emptyDescription")}</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  {sources.map((source) => <Button key={source.id} type="button" variant="secondary" onClick={() => copyLevel(source, activeVariant.id)}>{t("levelsBuilder.copyFrom", { level: workoutLevels.find((level) => level.key === source.levelKey)?.name ?? source.levelKey })}</Button>)}
+                </div>
+              </div>
+            ) : null;
+          })() : null}
+
+          <div id="workout-variants" tabIndex={-1} className="min-w-0 space-y-5">
             {variants.map((variant, index) => (
-              <WorkoutVariantForm
+              (!advancedMode || !activeLevelKey || variant.levelKey === activeLevelKey) ? <WorkoutVariantForm
                 key={variant.id}
                 variant={variant}
                 variantNumber={index + 1}
@@ -1260,8 +1308,8 @@ export default function WorkoutForm({
                 onChange={(updatedVariant) =>
                   updateVariant(variant.id, updatedVariant)
                 }
-                onRemove={() => removeVariant(variant.id)}
-              />
+                onRemove={() => { removeVariant(variant.id); setActiveLevelKey(""); }}
+              /> : null
             ))}
           </div>
         </section>
