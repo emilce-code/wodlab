@@ -5,12 +5,14 @@ import { useTranslations } from "next-intl";
 
 import HelpGuide from "./HelpGuide";
 import LogResultsGuide from "./LogResultsGuide";
+import PwaInstallGuide from "./PwaInstallGuide";
 
-type Guide = "concepts" | "logResults";
+type Guide = "concepts" | "logResults" | "install";
 
 const guideIcons: Record<Guide, string> = {
   concepts: "◇",
   logResults: "✓",
+  install: "+",
 };
 
 export default function GuideHub() {
@@ -36,7 +38,7 @@ export default function GuideHub() {
           <p className="mt-1 text-sm text-muted">{t("description")}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          {(["concepts", "logResults"] as const).map((guide) => {
+          {(["concepts", "logResults", "install"] as const).map((guide) => {
             const selected = selectedGuide === guide;
             return (
               <button
@@ -77,7 +79,9 @@ export default function GuideHub() {
       </nav>
 
       <div id="selected-guide" className="scroll-mt-5">
-        {selectedGuide === "concepts" ? <HelpGuide /> : <LogResultsGuide />}
+        {selectedGuide === "concepts" ? <HelpGuide /> : null}
+        {selectedGuide === "logResults" ? <LogResultsGuide /> : null}
+        {selectedGuide === "install" ? <PwaInstallGuide /> : null}
       </div>
     </div>
   );

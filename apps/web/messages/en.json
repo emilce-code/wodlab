@@ -35,12 +35,48 @@
     "offline": "You're offline. Results can still be queued from an opened workout.",
     "install": "Install",
     "installDescription": "Install WODLY for faster access.",
+    "howToInstall": "How",
     "synced": "Your offline result was saved.",
     "syncFailed": "An offline result needs your attention. Open the form and try again.",
     "dismiss": "Dismiss message",
     "offlineTitle": "You're offline",
     "offlineDescription": "Previously opened pages remain available. Reconnect to load new data; submitted results will sync automatically.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "guide": {
+      "eyebrow": "Install guide",
+      "title": "Add WODLY to your phone",
+      "close": "Close install guide",
+      "deviceTabs": "Device install options",
+      "note": "Install options depend on the browser. If one path is not visible, try the closest option for your phone.",
+      "ios": {
+        "title": "iPhone or iPad",
+        "description": "Use Safari to add WODLY to your Home Screen as an app-like shortcut.",
+        "step1": "Open WODLY in Safari.",
+        "step2": "Tap the Share button in the bottom toolbar.",
+        "step3": "Choose Add to Home Screen, then tap Add."
+      },
+      "androidChrome": {
+        "title": "Android Chrome",
+        "description": "Chrome can install WODLY directly when the browser shows the install option.",
+        "step1": "Open WODLY in Chrome.",
+        "step2": "Tap Install when WODLY shows the prompt, or open the three-dot menu.",
+        "step3": "Choose Install app or Add to Home screen."
+      },
+      "xiaomi": {
+        "title": "Xiaomi browser",
+        "description": "Xiaomi and MIUI browsers usually place install actions inside the browser menu.",
+        "step1": "Open WODLY in the Xiaomi or MIUI browser.",
+        "step2": "Open the browser menu from the bottom or top toolbar.",
+        "step3": "Choose Add shortcut, Add to Home screen, or Install app."
+      },
+      "androidOther": {
+        "title": "Other Android",
+        "description": "Most Android browsers support a home-screen shortcut even when they do not show a native install prompt.",
+        "step1": "Open WODLY in your mobile browser.",
+        "step2": "Open the browser menu.",
+        "step3": "Choose Add to Home screen, Install, or Create shortcut."
+      }
+    }
   },
   "states": {
     "startup": {
@@ -873,6 +909,10 @@
       "logResults": {
         "title": "Log workout results",
         "description": "Follow the complete flow from choosing a workout to seeing your progress."
+      },
+      "install": {
+        "title": "Install WODLY",
+        "description": "Add WODLY to your phone from iPhone, Android, Xiaomi, or another mobile browser."
       }
     }
   },
