@@ -35,6 +35,7 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
+  simpleMode?: boolean;
   initiallyExpanded?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
@@ -101,6 +102,7 @@ export default function WorkoutSectionForm({
   prescriptionCategories,
   canRemove,
   advancedMode,
+  simpleMode = false,
   initiallyExpanded = true,
   fieldErrors,
   onChange,
@@ -242,8 +244,8 @@ export default function WorkoutSectionForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-border bg-background p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
-      <div className="flex items-start justify-between gap-2 sm:gap-4">
+    <section className={`min-w-0 w-full ${simpleMode ? "" : "rounded-xl border border-border bg-background p-3 sm:p-6"} [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full`}>
+      {!simpleMode ? <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent/15 text-[11px]">
@@ -292,9 +294,9 @@ export default function WorkoutSectionForm({
             </button>
           )}
         </div>
-      </div>
+      </div> : null}
 
-      {!displayedIsExpanded && (
+      {!simpleMode && !displayedIsExpanded && (
         <div className="mt-4">
           <p className="text-sm text-muted">
             {sectionSummary.length
@@ -323,14 +325,14 @@ export default function WorkoutSectionForm({
         </div>
       )}
 
-      {displayedIsExpanded && (
-        <div id={contentId} className="mt-6 grid min-w-0 gap-5 md:grid-cols-2">
+      {(simpleMode || displayedIsExpanded) && (
+        <div id={contentId} className={`${simpleMode ? "mt-0" : "mt-6"} grid min-w-0 gap-5 md:grid-cols-2`}>
           <div className="min-w-0 md:col-span-2">
             <label
               htmlFor={`section-type-${section.id}`}
               className="mb-1.5 block text-sm font-medium"
             >
-              {t("sectionType")}
+              {simpleMode ? t("workoutType") : t("sectionType")} *
             </label>
 
             <select
@@ -522,7 +524,7 @@ export default function WorkoutSectionForm({
             <div className="my-2 border-t border-border" />
 
             <div className="mt-6">
-              <h4 className="font-semibold">{t("movements")}</h4>
+              <h4 className="font-semibold">{t("movements")} *</h4>
 
               <p className="mt-1 text-sm text-muted">
                 {t("movementsDescription")}
