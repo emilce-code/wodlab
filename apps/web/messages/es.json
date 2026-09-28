@@ -903,7 +903,8 @@
     "description": "Selecciona un tema y aprende con un ejemplo interactivo.",
     "guides": {
       "concepts": { "title": "Cómo funciona WODLY", "description": "Entiende movimientos, entrenamientos, secciones, variaciones y prescripciones." },
-      "logResults": { "title": "Registrar resultados", "description": "Sigue el flujo completo, desde elegir un entrenamiento hasta ver tu progreso." }
+      "logResults": { "title": "Registrar resultados", "description": "Sigue el flujo completo, desde elegir un entrenamiento hasta ver tu progreso." },
+      "install": { "title": "Instalar WODLY", "description": "Agrega WODLY a tu teléfono desde iPhone, Android, Xiaomi u otro navegador móvil." }
     }
   },
   "logResultsGuide": {

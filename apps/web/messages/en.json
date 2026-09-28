@@ -909,6 +909,10 @@
       "logResults": {
         "title": "Log workout results",
         "description": "Follow the complete flow from choosing a workout to seeing your progress."
+      },
+      "install": {
+        "title": "Install WODLY",
+        "description": "Add WODLY to your phone from iPhone, Android, Xiaomi, or another mobile browser."
       }
     }
   },
