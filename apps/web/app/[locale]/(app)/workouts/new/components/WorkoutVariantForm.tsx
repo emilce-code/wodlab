@@ -244,39 +244,84 @@ export default function WorkoutVariantForm({
                 {t("level")}
               </label>
 
-              <select
-                id={`variant-level-${variant.id}`}
-                required
-                value={variant.levelKey}
-                onChange={(event) => update("levelKey", event.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/10"
-                aria-invalid={Boolean(
-                  fieldErrors[`variant-level-${variant.id}`],
-                )}
-                aria-describedby={
-                  fieldErrors[`variant-level-${variant.id}`]
-                    ? `variant-level-${variant.id}-error`
-                    : undefined
-                }
-              >
-                <option value="">{t("selectLevel")}</option>
+              {advancedMode ? (
+                <select
+                  id={`variant-level-${variant.id}`}
+                  required
+                  value={variant.levelKey}
+                  onChange={(event) => update("levelKey", event.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/10"
+                  aria-invalid={Boolean(
+                    fieldErrors[`variant-level-${variant.id}`],
+                  )}
+                  aria-describedby={
+                    fieldErrors[`variant-level-${variant.id}`]
+                      ? `variant-level-${variant.id}-error`
+                      : undefined
+                  }
+                >
+                  <option value="">{t("selectLevel")}</option>
 
-                {workoutLevels.map((level) => {
-                  const disabled =
-                    level.key !== variant.levelKey &&
-                    usedLevelKeys.includes(level.key);
+                  {workoutLevels.map((level) => {
+                    const disabled =
+                      level.key !== variant.levelKey &&
+                      usedLevelKeys.includes(level.key);
 
-                  return (
-                    <option
-                      key={level.key}
-                      value={level.key}
-                      disabled={disabled}
-                    >
-                      {level.name}
-                    </option>
-                  );
-                })}
-              </select>
+                    return (
+                      <option
+                        key={level.key}
+                        value={level.key}
+                        disabled={disabled}
+                      >
+                        {level.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              ) : (
+                <div
+                  id={`variant-level-${variant.id}`}
+                  role="radiogroup"
+                  aria-label={t("level")}
+                  aria-describedby={
+                    fieldErrors[`variant-level-${variant.id}`]
+                      ? `variant-level-${variant.id}-error`
+                      : `variant-level-${variant.id}-hint`
+                  }
+                  className="flex flex-wrap gap-2"
+                >
+                  {workoutLevels.map((level) => {
+                    const isSelected = level.key === variant.levelKey;
+
+                    return (
+                      <button
+                        key={level.key}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => update("levelKey", level.key)}
+                        className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                          isSelected
+                            ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/25"
+                            : "border-border bg-background text-foreground hover:border-accent/40"
+                        }`}
+                      >
+                        {levelT.has(`names.${level.key.toLowerCase()}`)
+                          ? levelT(`names.${level.key.toLowerCase()}`)
+                          : level.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {!advancedMode ? (
+                <p
+                  id={`variant-level-${variant.id}-hint`}
+                  className="mt-2 text-xs text-muted"
+                >
+                  {t("singleLevelHint")}
+                </p>
+              ) : null}
               {fieldErrors[`variant-level-${variant.id}`] ? (
                 <p
                   id={`variant-level-${variant.id}-error`}
