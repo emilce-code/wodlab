@@ -1252,31 +1252,7 @@ export default function WorkoutForm({
             </div>
           </details>
 
-          <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold">
-                  {t(advancedMode ? "mode.advancedTitle" : "mode.simpleTitle")}
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  {t(
-                    advancedMode
-                      ? "mode.advancedDescription"
-                      : "mode.simpleDescription",
-                  )}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAdvancedMode((current) => !current)}
-                className="min-h-11 shrink-0 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
-              >
-                {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
                 {t("variants.eyebrow")}
@@ -1285,11 +1261,24 @@ export default function WorkoutForm({
               <h2 className="mt-1 text-xl font-bold">{t("variants.title")}</h2>
 
               <p className="mt-1 text-sm text-muted">
-                {t("variants.description")}
+                {t(
+                  advancedMode
+                    ? "mode.advancedDescription"
+                    : "mode.simpleDescription",
+                )}
               </p>
             </div>
 
-            {advancedMode ? (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setAdvancedMode((current) => !current)}
+                className="min-h-11 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
+              >
+                {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
+              </button>
+
+              {advancedMode ? (
               <Button
                 type="button"
                 onClick={addVariant}
@@ -1298,7 +1287,8 @@ export default function WorkoutForm({
               >
                 + {t("variants.add")}
               </Button>
-            ) : null}
+              ) : null}
+            </div>
           </div>
 
           <div
@@ -1318,6 +1308,13 @@ export default function WorkoutForm({
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
                 advancedMode={advancedMode}
+                initiallyExpanded={
+                  isEditing ||
+                  index === 0 ||
+                  Boolean(fieldErrors[`variant-level-${variant.id}`]) ||
+                  Boolean(fieldErrors[`variant-sections-${variant.id}`])
+                }
+                expandSectionsByDefault={isEditing}
                 onChange={(updatedVariant) =>
                   updateVariant(variant.id, updatedVariant)
                 }

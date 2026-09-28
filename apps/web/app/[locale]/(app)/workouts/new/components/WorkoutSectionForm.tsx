@@ -35,6 +35,7 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
+  initiallyExpanded?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
   onRemove: () => void;
@@ -100,11 +101,12 @@ export default function WorkoutSectionForm({
   prescriptionCategories,
   canRemove,
   advancedMode,
+  initiallyExpanded = true,
   fieldErrors,
   onChange,
   onRemove,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(section.notes),
