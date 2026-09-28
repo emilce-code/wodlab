@@ -1562,6 +1562,7 @@
         "remove": "Remove",
         "level": "Experience level",
         "selectLevel": "Select a level",
+        "singleLevelHint": "Choose one level for this workout.",
         "name": "Variation name",
         "namePlaceholder": "Optional custom name",
         "notes": "Notes",

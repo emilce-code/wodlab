@@ -1550,6 +1550,7 @@
         "remove": "Eliminar",
         "level": "Nivel de experiencia",
         "selectLevel": "Selecciona un nivel",
+        "singleLevelHint": "Elige un solo nivel para este entrenamiento.",
         "name": "Nombre de la variación",
         "namePlaceholder": "Nombre personalizado opcional",
         "notes": "Notas",
