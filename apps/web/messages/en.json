@@ -1599,7 +1599,8 @@
           "accessory": "Accessory",
           "cooldown": "Cooldown",
           "custom": "Custom"
-        }
+        },
+        "workoutFormat": "Workout format"
       },
       "movementBuilder": {
         "movement": "Movement",
