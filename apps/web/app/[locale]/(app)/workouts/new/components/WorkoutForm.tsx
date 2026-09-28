@@ -1457,7 +1457,7 @@ export default function WorkoutForm({
           </div>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
-            {currentStep !== "details" ? (
+            {currentStep !== "start" ? (
               <Button
                 type="button"
                 onClick={goToPreviousStep}
