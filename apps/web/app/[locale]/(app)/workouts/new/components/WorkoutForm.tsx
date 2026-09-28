@@ -130,7 +130,7 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
   }));
 }
 
-type FormStep = "details" | "programming" | "review";
+type FormStep = "start" | "details" | "programming" | "review";
 type CreationMode = "simple" | "levels" | "import";
 
 export type WorkoutFormFieldErrors = Record<string, string>;
@@ -141,7 +141,7 @@ type ValidationResult = {
   step: FormStep;
 };
 
-const formSteps: FormStep[] = ["details", "programming", "review"];
+const formSteps: FormStep[] = ["start", "details", "programming", "review"];
 const WORKOUT_DRAFT_KEY = "wodlab.workout-draft.v1";
 const WORKOUT_DRAFT_EVENT = "wodlab-workout-draft-change";
 
@@ -251,7 +251,9 @@ export default function WorkoutForm({
 
   const [isDraftPromptDismissed, setIsDraftPromptDismissed] = useState(false);
 
-  const [currentStep, setCurrentStep] = useState<FormStep>("details");
+  const [currentStep, setCurrentStep] = useState<FormStep>(
+    initialWorkout ? "details" : "start",
+  );
 
   const [advancedMode, setAdvancedMode] = useState(Boolean(initialWorkout));
   const [creationMode, setCreationMode] = useState<CreationMode>(
@@ -384,7 +386,7 @@ export default function WorkoutForm({
       setTypeKey(draft.typeKey);
       setIsBenchmark(draft.isBenchmark);
       setVariants(draft.variants);
-      setCurrentStep("details");
+      setCurrentStep("start");
       setError(null);
       setFieldErrors({});
       setIsDraftPromptDismissed(true);
@@ -507,7 +509,7 @@ export default function WorkoutForm({
     );
     setError(null);
     setFieldErrors({});
-    setCurrentStep("details");
+    setCurrentStep("programming");
     setCreationMode(result.draft.variants.length > 1 ? "levels" : "simple");
     setAdvancedMode(result.draft.variants.length > 1);
   }
@@ -715,6 +717,16 @@ export default function WorkoutForm({
   }
 
   function goToNextStep() {
+    if (currentStep === "start") {
+      goToStep("details");
+      return;
+    }
+
+    if (currentStep === "details" && creationMode === "import" && !typeKey) {
+      setError(t("validation.importRequired"));
+      return;
+    }
+
     const validationResult =
       currentStep === "details" ? validateDetails() : validateProgramming();
 
@@ -733,8 +745,8 @@ export default function WorkoutForm({
       );
     }
 
-    const currentIndex = formSteps.indexOf(currentStep);
-    const nextStep = formSteps[currentIndex + 1];
+    const currentIndex = displayedFormSteps.indexOf(currentStep);
+    const nextStep = displayedFormSteps[currentIndex + 1];
 
     if (nextStep) {
       goToStep(nextStep);
@@ -742,8 +754,8 @@ export default function WorkoutForm({
   }
 
   function goToPreviousStep() {
-    const currentIndex = formSteps.indexOf(currentStep);
-    const previousStep = formSteps[currentIndex - 1];
+    const currentIndex = displayedFormSteps.indexOf(currentStep);
+    const previousStep = displayedFormSteps[currentIndex - 1];
 
     if (previousStep) {
       goToStep(previousStep);
@@ -911,6 +923,9 @@ export default function WorkoutForm({
 
   const canAddVariant =
     workoutLevels.length === 0 || usedLevelKeys.length < workoutLevels.length;
+  const displayedFormSteps = isEditing
+    ? formSteps.filter((step) => step !== "start")
+    : formSteps;
 
   const totalSections = variants.reduce(
     (total, variant) => total + variant.sections.length,
@@ -1053,10 +1068,10 @@ export default function WorkoutForm({
       ) : null}
 
       <nav aria-label={t("steps.ariaLabel")}>
-        <ol className="grid gap-3 sm:grid-cols-3">
-          {formSteps.map((step, index) => {
+        <ol className="grid grid-cols-4 gap-2">
+          {displayedFormSteps.map((step, index) => {
             const isCurrent = step === currentStep;
-            const isComplete = formSteps.indexOf(currentStep) > index;
+            const isComplete = displayedFormSteps.indexOf(currentStep) > index;
 
             return (
               <li key={step}>
@@ -1069,7 +1084,7 @@ export default function WorkoutForm({
                   }}
                   disabled={!isComplete && !isCurrent}
                   aria-current={isCurrent ? "step" : undefined}
-                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  className={`flex min-h-12 w-full items-center justify-center rounded-xl border px-3 py-2 text-center transition ${
                     isCurrent
                       ? "border-accent bg-accent/10"
                       : isComplete
@@ -1077,23 +1092,16 @@ export default function WorkoutForm({
                         : "cursor-not-allowed border-border bg-surface opacity-55"
                   }`}
                 >
+                  <span className="sr-only">{t(`steps.${step}.title`)}</span>
                   <span
+                    aria-hidden="true"
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       isCurrent || isComplete
                         ? "bg-accent text-accent-foreground"
                         : "bg-surface-elevated text-muted"
                     }`}
                   >
-                    {isComplete ? "✓" : index + 1}
-                  </span>
-
-                  <span>
-                    <span className="block text-sm font-semibold">
-                      {t(`steps.${step}.title`)}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {t(`steps.${step}.description`)}
-                    </span>
+                    {index + 1}
                   </span>
                 </button>
               </li>
@@ -1102,23 +1110,22 @@ export default function WorkoutForm({
         </ol>
       </nav>
 
-      {currentStep === "details" ? (
+      {currentStep === "start" ? (
         <section className="space-y-5 rounded-xl border border-border bg-surface p-4 sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-              {t("details.eyebrow")}
+              {t("start.eyebrow")}
             </p>
 
-            <h2 className="mt-1 text-xl font-bold">{t("details.title")}</h2>
+            <h2 className="mt-1 text-xl font-bold">{t("start.title")}</h2>
 
             <p className="mt-1 text-sm text-muted">
-              {t("details.description")}
+              {t("start.description")}
             </p>
           </div>
 
           {!isEditing ? (
             <div>
-              <p className="text-sm font-semibold">{t("start.title")}</p>
               <div className="mt-3 grid gap-3">
                 {(["simple", "levels", "import"] as const).map((mode) => {
                   const isSelected = creationMode === mode;
@@ -1159,14 +1166,38 @@ export default function WorkoutForm({
               </div>
             </div>
           ) : null}
+        </section>
+      ) : null}
+
+      {currentStep === "details" ? (
+        <section className="space-y-5 rounded-xl border border-border bg-surface p-4 sm:p-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+              {creationMode === "import" && !isEditing
+                ? t("importer.title")
+                : t("details.eyebrow")}
+            </p>
+
+            <h2 className="mt-1 text-xl font-bold">
+              {creationMode === "import" && !isEditing
+                ? t("importer.title")
+                : t("details.title")}
+            </h2>
+
+            <p className="mt-1 text-sm text-muted">
+              {creationMode === "import" && !isEditing
+                ? t("importer.description")
+                : t("details.description")}
+            </p>
+          </div>
 
           {creationMode === "import" && !isEditing ? (
             <div className="rounded-xl border border-border bg-background p-3 sm:p-4">
               <WorkoutTextImporter onApply={applyImport} />
             </div>
-          ) : null}
+          ) : (
 
-          <div className="mt-6 grid gap-5">
+          <div className="grid gap-5">
             <div>
               <label
                 htmlFor="name"
@@ -1293,6 +1324,7 @@ export default function WorkoutForm({
               </div>
             </details>
           </div>
+          )}
         </section>
       ) : null}
 
