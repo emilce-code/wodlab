@@ -57,6 +57,7 @@ export class WorkoutMovementResponseDto {
 export class WorkoutSectionResponseDto {
   id: string;
   order: number;
+  role: 'WARM_UP' | 'STRENGTH' | 'WOD' | 'ACCESSORY' | 'COOLDOWN' | 'CUSTOM';
   rounds: number | null;
   durationSeconds: number | null;
   restSeconds: number | null;
