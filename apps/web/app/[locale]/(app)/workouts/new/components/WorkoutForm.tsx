@@ -1387,12 +1387,8 @@ export default function WorkoutForm({
                       className="rounded-lg border border-border p-3"
                     >
                       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                        {t("review.section", {
-                          number: sectionIndex + 1,
-                        })}{" · "}
-                        {workoutTypes.find(
-                          (type) => type.key === section.typeKey,
-                        )?.name ?? section.typeKey}
+                        {t(`sectionBuilder.roles.${section.role.toLowerCase()}`)}{" · "}
+                        {getWorkoutTypeLabel(section.typeKey)}
                       </p>
                       {formatSectionConfiguration(section).length > 0 ? (
                         <p className="mt-1 text-xs text-muted">
