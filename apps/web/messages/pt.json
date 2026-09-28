@@ -1317,8 +1317,29 @@
         "discard": "Descartar"
       },
       "start": {
+        "title": "Escolha a forma mais fácil de começar",
+        "modes": {
+          "simple": {
+            "title": "Treino simples",
+            "description": "Um nível e uma parte do treino."
+          },
+          "levels": {
+            "title": "Treino com níveis",
+            "description": "RX, Intermediário, Iniciante ou níveis personalizados."
+          },
+          "import": {
+            "title": "Importar de texto",
+            "description": "Cole o treino e revise a estrutura."
+          }
+        },
         "importTitle": "Já tem o treino escrito?",
         "importDescription": "Cole um treino com níveis e prescrições específicas por categoria para criar um rascunho editável."
+      },
+      "scoreTypes": {
+        "time": "Tempo",
+        "roundsReps": "Rondas + reps",
+        "load": "Carga",
+        "reps": "Reps"
       },
       "mode": {
         "simpleTitle": "Configuração simples",
@@ -1393,6 +1414,8 @@
         "movements": "Movimentos",
         "sectionCount": "{count, plural, =1 {1 seção} other {# seções}}",
         "section": "Seção {number}",
+        "countSummary": "{variants} níveis · {sections} partes · {movements} movimentos",
+        "untitled": "Treino sem título",
         "edit": "Editar programação",
         "editDetails": "Editar detalhes",
         "noPrescription": "Sem prescrição geral",
@@ -1408,6 +1431,7 @@
         "descriptionPlaceholder": "Descreva o treino...",
         "type": "Tipo de treino",
         "selectType": "Selecione o tipo de treino",
+        "scoreHint": "Os atletas registrarão o resultado como: {score}.",
         "optionalTitle": "Detalhes opcionais",
         "optionalSummary": "Descrição e benchmark",
         "benchmark": "Treino benchmark",
@@ -1436,11 +1460,14 @@
       },
       "sectionBuilder": {
         "section": "Seção {number}",
-        "sectionLabel": "Seção",
+        "sectionLabel": "Parte",
         "configureSection": "Configurar seção",
         "expand": "Expandir",
         "collapse": "Recolher",
         "summary": "{movements} movimentos",
+        "unselectedMovement": "Movimento não selecionado",
+        "tapToEdit": "Toque para editar",
+        "reps": "reps",
         "remove": "Remover",
         "sectionType": "Tipo de seção",
         "selectSectionType": "Selecione o tipo de seção",

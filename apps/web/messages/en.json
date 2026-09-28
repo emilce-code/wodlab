@@ -1332,8 +1332,29 @@
         "discard": "Discard"
       },
       "start": {
+        "title": "Choose the easiest way to start",
+        "modes": {
+          "simple": {
+            "title": "Simple workout",
+            "description": "One level and one workout part."
+          },
+          "levels": {
+            "title": "Workout with levels",
+            "description": "RX, Intermediate, Beginner, or custom levels."
+          },
+          "import": {
+            "title": "Import from text",
+            "description": "Paste the workout and review the structure."
+          }
+        },
         "importTitle": "Already have the workout written down?",
         "importDescription": "Paste a workout with levels and category-specific prescriptions to create an editable draft."
+      },
+      "scoreTypes": {
+        "time": "Time",
+        "roundsReps": "Rounds + reps",
+        "load": "Load",
+        "reps": "Reps"
       },
       "mode": {
         "simpleTitle": "Simple setup",
@@ -1408,6 +1429,8 @@
         "movements": "Movements",
         "sectionCount": "{count, plural, =1 {1 section} other {# sections}}",
         "section": "Section {number}",
+        "countSummary": "{variants} levels · {sections} parts · {movements} movements",
+        "untitled": "Untitled workout",
         "edit": "Edit programming",
         "editDetails": "Edit details",
         "noPrescription": "No shared prescription",
@@ -1423,6 +1446,7 @@
         "descriptionPlaceholder": "Describe the workout...",
         "type": "Workout type",
         "selectType": "Select workout type",
+        "scoreHint": "Athletes will log this as: {score}.",
         "optionalTitle": "Optional workout details",
         "optionalSummary": "Description and benchmark",
         "benchmark": "Benchmark workout",
@@ -1451,11 +1475,14 @@
       },
       "sectionBuilder": {
         "section": "Section {number}",
-        "sectionLabel": "Section",
+        "sectionLabel": "Part",
         "configureSection": "Configure section",
         "expand": "Expand",
         "collapse": "Collapse",
         "summary": "{movements} movements",
+        "unselectedMovement": "Movement not selected",
+        "tapToEdit": "Tap to edit",
+        "reps": "reps",
         "remove": "Remove",
         "sectionType": "Section type",
         "selectSectionType": "Select section type",

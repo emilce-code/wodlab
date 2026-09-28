@@ -164,7 +164,7 @@ export default function WorkoutVariantForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-2xl border border-accent/35 bg-accent/[0.035] p-3 shadow-sm sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
+    <section className="min-w-0 w-full rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
@@ -223,12 +223,14 @@ export default function WorkoutVariantForm({
       </div>
 
       {!displayedIsExpanded && (
-        <p className="mt-4 text-sm text-muted">
-          {t("summary", {
-            sections: variant.sections.length,
-            movements: movementCount,
-          })}
-        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted">
+            {t("summary", {
+              sections: variant.sections.length,
+              movements: movementCount,
+            })}
+          </span>
+        </div>
       )}
 
       {displayedIsExpanded && (
@@ -398,7 +400,7 @@ export default function WorkoutVariantForm({
                 advancedMode={advancedMode}
                 initiallyExpanded={
                   expandSectionsByDefault ||
-                  index === 0 ||
+                  (index === 0 && section.movements.length === 0) ||
                   section.movements.length === 0 ||
                   Boolean(fieldErrors[`section-type-${section.id}`]) ||
                   Boolean(fieldErrors[`section-movements-${section.id}`]) ||
