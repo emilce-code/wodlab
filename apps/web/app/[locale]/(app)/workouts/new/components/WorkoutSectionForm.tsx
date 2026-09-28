@@ -150,6 +150,7 @@ export default function WorkoutSectionForm({
   ].filter(Boolean);
 
   const showRounds =
+    sectionType === "FOR_TIME" ||
     sectionType === "STRENGTH" ||
     sectionType === "INTERVAL" ||
     sectionType === "CUSTOM";
@@ -187,6 +188,7 @@ export default function WorkoutSectionForm({
     };
 
     if (
+      typeKey !== "FOR_TIME" &&
       typeKey !== "STRENGTH" &&
       typeKey !== "INTERVAL" &&
       typeKey !== "CUSTOM"
