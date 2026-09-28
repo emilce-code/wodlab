@@ -178,6 +178,12 @@ export default function WorkoutSectionForm({
     return typeT.has(key) ? typeT(key) : type.name;
   }
 
+  function getWorkoutTypeDescription(type: WorkoutType) {
+    const key = `descriptions.${type.key.toLowerCase()}`;
+
+    return typeT.has(key) ? typeT(key) : type.description;
+  }
+
   function update(field: keyof WorkoutSectionFormState, value: string) {
     onChange({
       ...section,
@@ -430,11 +436,11 @@ export default function WorkoutSectionForm({
               </p>
             ) : null}
 
-            {selectedSectionType?.description && (
+            {selectedSectionType && getWorkoutTypeDescription(selectedSectionType) ? (
               <p className="mt-2 text-xs text-muted">
-                {selectedSectionType.description}
+                {getWorkoutTypeDescription(selectedSectionType)}
               </p>
-            )}
+            ) : null}
           </div>
 
           {showRounds && (
