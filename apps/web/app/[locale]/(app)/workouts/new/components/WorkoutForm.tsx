@@ -528,10 +528,12 @@ export default function WorkoutForm({
 
     if (mode === "levels") {
       setAdvancedMode(true);
+      setActiveLevelKey(variants.find((variant) => variant.levelKey)?.levelKey ?? "");
     }
 
     if (mode === "simple") {
       setAdvancedMode(false);
+      setActiveLevelKey("");
     }
   }
 
