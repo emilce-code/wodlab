@@ -198,6 +198,9 @@ export default function WorkoutMovementForm({
   }
 
   function selectMovement(option: MovementOption) {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setSearch(option.name);
     setResults([]);
     setSearchError(null);
