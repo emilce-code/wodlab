@@ -39,6 +39,7 @@ function createEmptySection(): WorkoutSectionFormState {
   return {
     id: crypto.randomUUID(),
     typeKey: "",
+    role: "WOD",
     rounds: "",
     durationSeconds: "",
     restSeconds: "",
