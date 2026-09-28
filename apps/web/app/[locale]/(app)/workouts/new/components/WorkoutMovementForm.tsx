@@ -448,7 +448,7 @@ export default function WorkoutMovementForm({
                 <div
                   id={`movement-results-${movement.id}`}
                   role="listbox"
-                  className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-border bg-surface shadow-xl"
+                  className="relative z-30 mt-2 max-h-[min(40dvh,18rem)] w-full overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface shadow-xl sm:absolute sm:max-h-80"
                 >
                   {displayedIsSearching && (
                     <div className="px-4 py-3 text-sm text-muted">
