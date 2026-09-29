@@ -332,6 +332,7 @@
       "another": "Unirse",
       "close": "Cerrar",
       "submit": "Unirme"
+      "pending": "Solicitud enviada. El propietario o administrador del Box debe aprobar tu membresía.",
     },
     "create": {
       "title": "Crear un box",
