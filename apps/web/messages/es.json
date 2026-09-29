@@ -1640,7 +1640,9 @@
         "sameForEveryone": "Igual para todos",
         "differentByCategory": "Mujeres / Hombres",
         "sameForEveryoneDescription": "Usa una sola prescripción para todos. Desactívalo para configurar Mujeres y Hombres por separado.",
-        "womenMenPrescription": "Prescripción Mujeres / Hombres"
+        "womenMenPrescription": "Prescripción Mujeres / Hombres",
+        "women": "Mujeres",
+        "men": "Hombres"
       },
       "variants": {
         "eyebrow": "Variaciones del entrenamiento",
