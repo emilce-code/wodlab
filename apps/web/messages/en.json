@@ -1513,7 +1513,9 @@
         "edit": "Edit programming",
         "editDetails": "Edit details",
         "noPrescription": "No shared prescription",
-        "categoryOverrides": "Category overrides"
+        "categoryOverrides": "Category overrides",
+        "readyTitle": "Ready to create",
+        "readyDescription": "All sections are properly configured."
       },
       "details": {
         "eyebrow": "Workout",
