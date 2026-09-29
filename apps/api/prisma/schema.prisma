@@ -38,12 +38,6 @@ enum UserRole {
   ADMIN
 }
 
-enum BoxMemberRole {
-  OWNER
-  COACH
-  ATHLETE
-}
-
 enum BoxMembershipStatus {
   PENDING
   ACTIVE
@@ -139,21 +133,32 @@ model Box {
   @@index([ownerUserId])
 }
 
+model BoxMembershipRole {
+  id          String          @id @default(cuid())
+  key         String          @unique
+  name        String
+  sortOrder   Int             @default(0)
+  memberships BoxMembership[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
 model BoxMembership {
-  id        String        @id @default(cuid())
+  id        String              @id @default(cuid())
   boxId     String
-  box       Box           @relation(fields: [boxId], references: [id], onDelete: Cascade)
+  box       Box                 @relation(fields: [boxId], references: [id], onDelete: Cascade)
   userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      BoxMemberRole       @default(ATHLETE)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId    String
+  role      BoxMembershipRole   @relation(fields: [roleId], references: [id])
   status    BoxMembershipStatus @default(ACTIVE)
   joinedAt  DateTime?
   leftAt    DateTime?
-  createdAt DateTime             @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 
   @@unique([boxId, userId])
-  @@index([userId, role])
+  @@index([userId, roleId])
   @@index([boxId, status])
   @@index([userId, status])
 }
