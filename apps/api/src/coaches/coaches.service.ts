@@ -515,8 +515,15 @@ export class CoachesService {
       where: {
         boxId_userId: { boxId: user.activeBoxId, userId },
       },
+      include: { role: true, box: { select: { ownerUserId: true } } },
     });
-    if (!membership || (roles && !roles.includes(membership.role))) {
+    const membershipRole =
+      membership?.box.ownerUserId === userId ? 'OWNER' : membership?.role.key;
+    if (
+      !membership ||
+      membership.status !== 'ACTIVE' ||
+      (roles && !roles.includes(membershipRole as 'OWNER' | 'COACH' | 'ATHLETE'))
+    ) {
       throw new ForbiddenException('Active box membership required');
     }
     return user.activeBoxId;
