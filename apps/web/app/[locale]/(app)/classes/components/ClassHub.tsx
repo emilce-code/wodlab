@@ -47,7 +47,7 @@ function initialClassDateTime() {
 export default function ClassHub() {
   const t = useTranslations("boxes");
   const locale = useLocale();
-  const { boxes, activeBox, selectBox, replaceBoxes } = useActiveBox();
+  const { boxes, activeBox, selectBox } = useActiveBox();
   const dayScroller = useRef<HTMLDivElement>(null);
   const days = useMemo(() => scheduleDays(), []);
 
@@ -135,13 +135,6 @@ export default function ClassHub() {
     return () => controller.abort();
   }, [boxId, isStaff]);
 
-  async function refreshBoxes() {
-    const response = await fetch("/api/boxes");
-    if (!response.ok) return [];
-    const data = (await response.json()) as BoxSummary[];
-    replaceBoxes(data);
-    return data;
-  }
 
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
