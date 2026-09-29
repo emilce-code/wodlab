@@ -230,43 +230,6 @@ export default function WorkoutMovementForm({
     });
   }
 
-  function hasPrescription(categoryKey: string) {
-    return movement.prescriptions.some(
-      (prescription) => prescription.categoryKey === categoryKey,
-    );
-  }
-
-  function togglePrescription(categoryKey: string) {
-    if (hasPrescription(categoryKey)) {
-      onChange({
-        ...movement,
-        prescriptions: movement.prescriptions.filter(
-          (prescription) => prescription.categoryKey !== categoryKey,
-        ),
-      });
-      return;
-    }
-
-    onChange({
-      ...movement,
-      prescriptions: [
-        ...movement.prescriptions,
-        {
-          categoryKey,
-          reps: "",
-          weight: "",
-          weightUnit: "",
-          percentage: "",
-          referenceRepMax: "1",
-          distance: "",
-          calories: "",
-          durationSeconds: "",
-          notes: "",
-        },
-      ],
-    });
-  }
-
   function updatePrescription(
     categoryKey: string,
     field:
