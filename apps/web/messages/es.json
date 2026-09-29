@@ -1634,7 +1634,11 @@
         "categoryPrescriptionsDescription": "Agrega valores específicos solo cuando la prescripción difiera según la categoría.",
         "removeCategoryPrescription": "Eliminar",
         "categoryFallbackHint": "Deja un campo vacío para usar el valor compartido.",
-        "categoryNotesPlaceholder": "Notas opcionales para esta categoría"
+        "categoryNotesPlaceholder": "Notas opcionales para esta categoría",
+        "prescriptionAudience": "Prescripción",
+        "prescriptionAudienceDescription": "Elige si el objetivo es igual para todos o cambia entre mujeres y hombres.",
+        "sameForEveryone": "Igual para todos",
+        "differentByCategory": "Mujeres / Hombres"
       },
       "variants": {
         "eyebrow": "Variaciones del entrenamiento",
