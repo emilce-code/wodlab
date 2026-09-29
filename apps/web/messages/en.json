@@ -1676,7 +1676,9 @@
           "accessory": "Accessory",
           "cooldown": "Cooldown",
           "custom": "Custom"
-        }
+        },
+        "editSection": "Edit section",
+        "saveSection": "Save changes"
       },
       "levelsBuilder": {
         "title": "Workout levels",
