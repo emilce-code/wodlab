@@ -230,6 +230,20 @@ export default function WorkoutMovementForm({
     });
   }
 
+  function getCategoryLabel(category: PrescriptionCategory) {
+    const normalized = `${category.key} ${category.name}`.trim().toLowerCase();
+
+    if (/women|woman|female|feminino|feminina|mujer|mulher/.test(normalized)) {
+      return t("women");
+    }
+
+    if (/men|man|male|masculino|hombre|homem/.test(normalized)) {
+      return t("men");
+    }
+
+    return category.name;
+  }
+
   function updatePrescription(
     categoryKey: string,
     field:
@@ -765,7 +779,7 @@ export default function WorkoutMovementForm({
                         return category ? (
                           <button key={category.key} type="button" onClick={() => setActivePrescriptionCategory(category.key)}
                             className={`min-h-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${active ? "bg-surface-elevated text-foreground shadow-sm" : "text-muted"}`}>
-                            {category.name}
+                            {getCategoryLabel(category)}
                           </button>
                         ) : null;
                       })}
