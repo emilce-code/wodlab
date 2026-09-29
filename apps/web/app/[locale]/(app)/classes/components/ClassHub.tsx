@@ -47,7 +47,7 @@ function initialClassDateTime() {
 export default function ClassHub() {
   const t = useTranslations("boxes");
   const locale = useLocale();
-  const { boxes, activeBox, selectBox, replaceBoxes } = useActiveBox();
+  const { boxes, activeBox, selectBox } = useActiveBox();
   const dayScroller = useRef<HTMLDivElement>(null);
   const days = useMemo(() => scheduleDays(), []);
 
@@ -57,6 +57,7 @@ export default function ClassHub() {
   const [loading, setLoading] = useState(Boolean(boxes.length));
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [joinRequestSent, setJoinRequestSent] = useState(false);
   const [showJoin, setShowJoin] = useState(boxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [creatingClass, setCreatingClass] = useState(false);
@@ -134,13 +135,6 @@ export default function ClassHub() {
     return () => controller.abort();
   }, [boxId, isStaff]);
 
-  async function refreshBoxes() {
-    const response = await fetch("/api/boxes");
-    if (!response.ok) return [];
-    const data = (await response.json()) as BoxSummary[];
-    replaceBoxes(data);
-    return data;
-  }
 
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -156,10 +150,7 @@ export default function ClassHub() {
       setError(requestMessage(data, t("errors.save")));
       return;
     }
-    setLoading(true);
-    await refreshBoxes();
-    await selectBox(data.id);
-    setSelectedDay(dayKey(new Date()));
+    setJoinRequestSent(data.status === "PENDING");
     setShowJoin(false);
   }
 
@@ -231,6 +222,12 @@ export default function ClassHub() {
           <input name="joinCode" aria-label={t("join.code")} required minLength={6} maxLength={12} autoCapitalize="characters" autoCorrect="off" placeholder={t("join.placeholder")} className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-lg uppercase tracking-[0.15em]" />
           <Button className="mt-3 w-full">{t("join.submit")}</Button>
         </form>
+      ) : null}
+
+      {joinRequestSent ? (
+        <p role="status" className="rounded-xl border border-accent/30 bg-accent/10 p-3 text-sm text-accent">
+          {t("join.pending")}
+        </p>
       ) : null}
 
       {error ? <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
