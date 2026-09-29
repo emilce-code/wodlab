@@ -39,6 +39,26 @@ function getServerOnlineStatus() {
   return true;
 }
 
+function subscribeToInstallEducation(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("appinstalled", callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("appinstalled", callback);
+  };
+}
+
+function getInstallEducationState() {
+  return (
+    isMobileDevice() && !isStandalone() && !wasInstallPromptRecentlyDismissed()
+  );
+}
+
+function getServerInstallEducationState() {
+  return false;
+}
+
 function wasInstallPromptRecentlyDismissed() {
   const dismissedAt = Number(
     window.localStorage.getItem(INSTALL_PROMPT_DISMISSED_AT_KEY),
@@ -101,13 +121,14 @@ export default function PwaManager() {
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [guideKind, setGuideKind] =
-    useState<InstallGuideKind>(preferredGuideKind);
-  const [canShowInstallEducation, setCanShowInstallEducation] = useState(
-    () =>
-      isMobileDevice() &&
-      !isStandalone() &&
-      !wasInstallPromptRecentlyDismissed(),
+    useState<InstallGuideKind>("android-chrome");
+  const canShowInstallEducation = useSyncExternalStore(
+    subscribeToInstallEducation,
+    getInstallEducationState,
+    getServerInstallEducationState,
   );
+  const [installEducationDismissed, setInstallEducationDismissed] =
+    useState(false);
 
   const installGuides = useMemo<InstallGuide[]>(
     () => [
@@ -205,10 +226,11 @@ export default function PwaManager() {
     );
     setInstallPrompt(null);
     setShowInstallGuide(false);
-    setCanShowInstallEducation(false);
+    setInstallEducationDismissed(true);
   }
 
   function openInstallGuide() {
+    setGuideKind(preferredGuideKind());
     setShowInstallGuide(true);
   }
 
@@ -217,7 +239,10 @@ export default function PwaManager() {
   }
 
   const showInstallEducation =
-    online && canShowInstallEducation && !syncMessage;
+    online &&
+    canShowInstallEducation &&
+    !installEducationDismissed &&
+    !syncMessage;
 
   if (online && !showInstallEducation && !syncMessage && !showInstallGuide)
     return null;

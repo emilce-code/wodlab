@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useTranslations } from "next-intl";
 
@@ -14,6 +14,7 @@ import WorkoutMovementForm, {
 export type WorkoutSectionFormState = {
   id: string;
   typeKey: string;
+  role: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
   rounds: string;
   durationSeconds: string;
   restSeconds: string;
@@ -35,6 +36,9 @@ type Props = {
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
+  simpleMode?: boolean;
+  showSectionRole?: boolean;
+  initiallyExpanded?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
   onRemove: () => void;
@@ -93,6 +97,15 @@ function TrashIcon() {
   );
 }
 
+const SECTION_ROLE_ICONS: Record<WorkoutSectionFormState["role"], string> = {
+  WARM_UP: "🔥",
+  STRENGTH: "🏋",
+  WOD: "⚡",
+  ACCESSORY: "＋",
+  COOLDOWN: "❄",
+  CUSTOM: "◆",
+};
+
 export default function WorkoutSectionForm({
   section,
   sectionNumber,
@@ -100,11 +113,19 @@ export default function WorkoutSectionForm({
   prescriptionCategories,
   canRemove,
   advancedMode,
+  simpleMode = false,
+  showSectionRole = !simpleMode,
+  initiallyExpanded = true,
   fieldErrors,
   onChange,
   onRemove,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
+  const [editingMovementId, setEditingMovementId] = useState<string | null>(null);
+  const [movementDraft, setMovementDraft] = useState<WorkoutMovementFormState | null>(null);
+  const [isAddingMovement, setIsAddingMovement] = useState(false);
+  const [draggingMovementId, setDraggingMovementId] = useState<string | null>(null);
+  const dragPointerId = useRef<number | null>(null);
 
   const [showOptionalDetails, setShowOptionalDetails] = useState(
     Boolean(section.notes),
@@ -115,6 +136,7 @@ export default function WorkoutSectionForm({
   const typeT = useTranslations("workoutTypes");
 
   const sectionType = section.typeKey;
+  const sectionRoleLabel = t(`roles.${section.role.toLowerCase()}`);
 
   const selectedSectionType = workoutTypes.find(
     (type) => type.key === sectionType,
@@ -129,8 +151,23 @@ export default function WorkoutSectionForm({
       Boolean(fieldErrors[`movement-search-${movement.id}`]),
     );
   const displayedIsExpanded = isExpanded || hasValidationErrors;
+  const sectionSummary = [
+    selectedSectionType ? getWorkoutTypeName(selectedSectionType) : null,
+    section.durationSeconds
+      ? `${Number(section.durationSeconds) / 60} ${t("minutes")}`
+      : null,
+    section.rounds
+      ? `${section.rounds} ${
+          sectionType === "STRENGTH" ? t("sets") : t("rounds")
+        }`
+      : null,
+    section.movements.length
+      ? t("summary", { movements: section.movements.length })
+      : null,
+  ].filter(Boolean);
 
   const showRounds =
+    sectionType === "FOR_TIME" ||
     sectionType === "STRENGTH" ||
     sectionType === "INTERVAL" ||
     sectionType === "CUSTOM";
@@ -154,6 +191,12 @@ export default function WorkoutSectionForm({
     return typeT.has(key) ? typeT(key) : type.name;
   }
 
+  function getWorkoutTypeDescription(type: WorkoutType) {
+    const key = `descriptions.${type.key.toLowerCase()}`;
+
+    return typeT.has(key) ? typeT(key) : type.description;
+  }
+
   function update(field: keyof WorkoutSectionFormState, value: string) {
     onChange({
       ...section,
@@ -168,6 +211,7 @@ export default function WorkoutSectionForm({
     };
 
     if (
+      typeKey !== "FOR_TIME" &&
       typeKey !== "STRENGTH" &&
       typeKey !== "INTERVAL" &&
       typeKey !== "CUSTOM"
@@ -200,10 +244,68 @@ export default function WorkoutSectionForm({
   }
 
   function addMovement() {
-    onChange({
-      ...section,
-      movements: [...section.movements, createEmptyMovement()],
-    });
+    const movement = createEmptyMovement();
+    if (simpleMode) {
+      setMovementDraft(movement);
+      setIsAddingMovement(true);
+      setEditingMovementId(movement.id);
+      return;
+    }
+    onChange({ ...section, movements: [...section.movements, movement] });
+  }
+
+  function editMovement(movement: WorkoutMovementFormState) {
+    setMovementDraft({ ...movement, prescriptions: movement.prescriptions.map((item) => ({ ...item })) });
+    setIsAddingMovement(false);
+    setEditingMovementId(movement.id);
+  }
+
+  function cancelMovementEditor() {
+    setMovementDraft(null);
+    setEditingMovementId(null);
+    setIsAddingMovement(false);
+  }
+
+  function confirmMovementEditor() {
+    if (!movementDraft?.movementId) return;
+    if (isAddingMovement) {
+      onChange({ ...section, movements: [...section.movements, movementDraft] });
+    } else {
+      updateMovement(movementDraft.id, movementDraft);
+    }
+    cancelMovementEditor();
+  }
+
+  function reorderMovement(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+    const fromIndex = section.movements.findIndex((item) => item.id === draggedId);
+    const toIndex = section.movements.findIndex((item) => item.id === targetId);
+    if (fromIndex < 0 || toIndex < 0) return;
+    const movements = [...section.movements];
+    const [dragged] = movements.splice(fromIndex, 1);
+    movements.splice(toIndex, 0, dragged);
+    onChange({ ...section, movements });
+  }
+
+  function startMovementDrag(event: React.PointerEvent<HTMLButtonElement>, id: string) {
+    event.preventDefault();
+    dragPointerId.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDraggingMovementId(id);
+  }
+
+  function continueMovementDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (!draggingMovementId || dragPointerId.current !== event.pointerId) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>("[data-movement-row]");
+    const targetId = target?.dataset.movementRow;
+    if (targetId) reorderMovement(draggingMovementId, targetId);
+  }
+
+  function endMovementDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (dragPointerId.current === event.pointerId) {
+      dragPointerId.current = null;
+      setDraggingMovementId(null);
+    }
   }
 
   function removeMovement(id: string) {
@@ -226,21 +328,18 @@ export default function WorkoutSectionForm({
   }
 
   return (
-    <section className="min-w-0 w-full rounded-xl border border-sky-500/30 bg-sky-500/[0.035] p-3 sm:p-6 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full">
-      <div className="flex items-start justify-between gap-2 sm:gap-4">
+    <section className={`min-w-0 w-full ${simpleMode ? "" : "rounded-xl border border-border bg-background p-3 sm:p-6"} [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full [&_textarea]:min-w-0 [&_textarea]:max-w-full`}>
+      {!simpleMode ? <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-sky-600 dark:text-sky-400">
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-sky-500/15 text-[11px]">
-              S{sectionNumber}
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent/15 text-[11px]">
+              {sectionNumber}
             </span>
             {t("sectionLabel")}
           </p>
 
-          <h3 className="mt-1 break-words text-lg font-bold">
-            {selectedSectionType
-              ? getWorkoutTypeName(selectedSectionType)
-              : t("configureSection")}
-          </h3>
+          <h3 className="mt-1 break-words text-lg font-bold">{sectionRoleLabel}</h3>
+          {selectedSectionType ? <p className="mt-1 text-sm text-muted">{getWorkoutTypeName(selectedSectionType)} · {t("summary", { movements: section.movements.length })}</p> : null}
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
@@ -276,24 +375,62 @@ export default function WorkoutSectionForm({
             </button>
           )}
         </div>
-      </div>
+      </div> : null}
 
-      {!displayedIsExpanded && (
-        <p className="mt-4 text-sm text-muted">
-          {t("summary", {
-            movements: section.movements.length,
-          })}
-        </p>
+      {!simpleMode && !displayedIsExpanded && (
+        <div className="mt-4">
+          <p className="text-sm text-muted">
+            {sectionSummary.length
+              ? sectionSummary.join(" · ")
+              : t("summary", { movements: section.movements.length })}
+          </p>
+          {section.movements.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border rounded-lg border border-border bg-surface">
+              {section.movements.slice(0, 4).map((movement) => (
+                <li
+                  key={movement.id}
+                  className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm"
+                >
+                  <span className="min-w-0 truncate font-medium">
+                    {movement.movementName || t("unselectedMovement")}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted">
+                    {movement.reps
+                      ? `${movement.reps} ${t("reps")}`
+                      : t("tapToEdit")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       )}
 
-      {displayedIsExpanded && (
-        <div id={contentId} className="mt-6 grid min-w-0 gap-5 md:grid-cols-2">
+      {(simpleMode || displayedIsExpanded) && (
+        <div id={contentId} className={`${simpleMode ? "mt-0" : "mt-6"} grid min-w-0 gap-5 md:grid-cols-2`}>
+          {showSectionRole ? <div className="md:col-span-2">
+            <span className="mb-2 block text-sm font-medium">{t("sectionRole")} *</span>
+            <div role="radiogroup" aria-label={t("sectionRole")} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => {
+                const selected = section.role === role;
+                return (
+                  <button key={role} type="button" role="radio" aria-checked={selected} onClick={() => update("role", role)}
+                    className={`min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition ${selected ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20" : "border-border bg-background text-foreground hover:border-accent/40"}`}>
+                    <span className="flex items-center justify-center gap-2">
+                      <span aria-hidden="true" className="text-base leading-none">{SECTION_ROLE_ICONS[role]}</span>
+                      <span>{t(`roles.${role.toLowerCase()}`)}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div> : null}
           <div className="min-w-0 md:col-span-2">
             <label
               htmlFor={`section-type-${section.id}`}
               className="mb-1.5 block text-sm font-medium"
             >
-              {t("sectionType")}
+              {simpleMode ? t("workoutType") : t("workoutFormat")} *
             </label>
 
             <select
@@ -326,11 +463,11 @@ export default function WorkoutSectionForm({
               </p>
             ) : null}
 
-            {selectedSectionType?.description && (
+            {selectedSectionType && getWorkoutTypeDescription(selectedSectionType) ? (
               <p className="mt-2 text-xs text-muted">
-                {selectedSectionType.description}
+                {getWorkoutTypeDescription(selectedSectionType)}
               </p>
-            )}
+            ) : null}
           </div>
 
           {showRounds && (
@@ -485,7 +622,7 @@ export default function WorkoutSectionForm({
             <div className="my-2 border-t border-border" />
 
             <div className="mt-6">
-              <h4 className="font-semibold">{t("movements")}</h4>
+              <h4 className="font-semibold">{t("movements")} *</h4>
 
               <p className="mt-1 text-sm text-muted">
                 {t("movementsDescription")}
@@ -533,31 +670,36 @@ export default function WorkoutSectionForm({
               </div>
             ) : (
               <div className="mt-5 min-w-0 space-y-4">
-                {section.movements.map((movement, index) => (
+                {simpleMode ? section.movements.map((movement) => (
+                  <div key={movement.id} data-movement-row={movement.id} className={`flex items-center gap-2 rounded-xl border bg-surface px-2 py-2.5 transition ${draggingMovementId === movement.id ? "border-accent/60 opacity-70 shadow-lg" : "border-border"}`}>
+                    <button type="button" aria-label={t("reorderMovement")} title={t("reorderMovement")}
+                      onPointerDown={(event) => startMovementDrag(event, movement.id)}
+                      onPointerMove={continueMovementDrag}
+                      onPointerUp={endMovementDrag}
+                      onPointerCancel={endMovementDrag}
+                      className="inline-flex h-11 w-9 shrink-0 touch-none cursor-grab select-none items-center justify-center rounded-lg text-xl tracking-[-0.18em] text-muted active:cursor-grabbing active:text-accent"
+                    >
+                      ⋮⋮
+                    </button>
+                    <button type="button" onClick={() => editMovement(movement)} className="min-w-0 flex-1 text-left">
+                      <span className="block truncate text-sm font-semibold">{movement.movementName || t("unselectedMovement")}</span>
+                      <span className="block truncate text-xs text-muted">{(() => {
+                        const shared = [movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.percentage && `${movement.percentage}% ${movement.referenceRepMax || "1"}RM`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean);
+                        const categoryValues = movement.prescriptions.slice(0, 2).map((prescription) => {
+                          const category = prescriptionCategories.find((item) => item.key === prescription.categoryKey);
+                          const value = [prescription.reps && `${prescription.reps} ${t("reps")}`, prescription.weight && `${prescription.weight} ${prescription.weightUnit || movement.weightUnit}`, prescription.percentage && `${prescription.percentage}% ${prescription.referenceRepMax || "1"}RM`, prescription.distance && `${prescription.distance} m`, prescription.calories && `${prescription.calories} cal`].filter(Boolean).join(" · ");
+                          return category && value ? `${category.name}: ${value}` : null;
+                        }).filter(Boolean);
+                        return [...shared, ...categoryValues].join(" · ") || t("tapToEdit");
+                      })()}</span>
+                    </button>
+                    <button type="button" onClick={() => editMovement(movement)} aria-label={t("editMovement")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
+                    <button type="button" onClick={() => removeMovement(movement.id)} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"><TrashIcon /></button>
+                  </div>
+                )) : section.movements.map((movement, index) => (
                   <div key={movement.id}>
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
-                        {t("movementNumber", {
-                          number: index + 1,
-                        })}
-                      </span>
-                    </div>
-
-                    <WorkoutMovementForm
-                      movement={movement}
-                      prescriptionCategories={prescriptionCategories}
-                      advancedMode={advancedMode}
-                      canRemove
-                      autoFocusSearch={
-                        index === section.movements.length - 1 &&
-                        !movement.movementId
-                      }
-                      error={fieldErrors[`movement-search-${movement.id}`]}
-                      onChange={(updatedMovement) =>
-                        updateMovement(movement.id, updatedMovement)
-                      }
-                      onRemove={() => removeMovement(movement.id)}
-                    />
+                    <div className="mb-2 flex items-center gap-2"><span className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">{t("movementNumber", { number: index + 1 })}</span></div>
+                    <WorkoutMovementForm movement={movement} prescriptionCategories={prescriptionCategories} advancedMode={advancedMode} canRemove autoFocusSearch={index === section.movements.length - 1 && !movement.movementId} error={fieldErrors[`movement-search-${movement.id}`]} onChange={(updatedMovement) => updateMovement(movement.id, updatedMovement)} onRemove={() => removeMovement(movement.id)} />
                   </div>
                 ))}
 
@@ -614,6 +756,24 @@ export default function WorkoutSectionForm({
           ) : null}
         </div>
       )}
+      {simpleMode && editingMovementId ? (
+        <div className="fixed inset-0 z-[80] flex items-end overflow-hidden bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
+          <div className="flex h-[min(92dvh,46rem)] w-full min-h-0 flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:h-auto sm:max-h-[88dvh] sm:max-w-xl sm:rounded-2xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+              <h3 className="text-lg font-bold">{isAddingMovement ? t("addMovement") : t("editMovement")}</h3>
+              <button type="button" onClick={cancelMovementEditor} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
+            {movementDraft ? (
+              <WorkoutMovementForm key={movementDraft.id} movement={movementDraft} prescriptionCategories={prescriptionCategories} advancedMode canRemove={false} autoFocusSearch={!movementDraft.movementId} error={fieldErrors[`movement-search-${movementDraft.id}`]} presentation="modal" onChange={setMovementDraft} onRemove={() => undefined} />
+            ) : null}
+            </div>
+            <div className="relative z-20 shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.16)] sm:p-6">
+              <button type="button" disabled={!movementDraft?.movementId} onClick={confirmMovementEditor} className="w-full rounded-xl bg-accent px-4 py-3 font-bold text-accent-foreground shadow-lg disabled:cursor-not-allowed disabled:opacity-40">{isAddingMovement ? t("addMovement") : t("saveChanges")}</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

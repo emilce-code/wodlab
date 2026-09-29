@@ -26,6 +26,90 @@ describe('WorkoutImportsService', () => {
         { measurementType: { key: 'REPS', name: 'Repetitions' } },
       ],
     },
+    {
+      id: 'air-squat',
+      name: 'Air Squat',
+      aliases: [],
+      category: { key: 'WEIGHTLIFTING', name: 'Weightlifting' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+      ],
+    },
+    {
+      id: 'kip-swing',
+      name: 'Kip Swing',
+      aliases: ['Kipping Swing'],
+      category: { key: 'GYMNASTICS', name: 'Gymnastics' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+      ],
+    },
+    {
+      id: 'db-power-snatch',
+      name: 'Dumbbell Power Snatch',
+      aliases: ['DB Power Snatch', 'DB Snatch'],
+      category: { key: 'WEIGHTLIFTING', name: 'Weightlifting' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+        { measurementType: { key: 'WEIGHT', name: 'Weight' } },
+      ],
+    },
+    {
+      id: 'box-jump',
+      name: 'Box Jump',
+      aliases: [],
+      category: { key: 'GYMNASTICS', name: 'Gymnastics' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+      ],
+    },
+    {
+      id: 'run',
+      name: 'Run',
+      aliases: ['Running'],
+      category: { key: 'MONOSTRUCTURAL', name: 'Monostructural' },
+      measurementTypes: [
+        { measurementType: { key: 'DISTANCE', name: 'Distance' } },
+      ],
+    },
+    {
+      id: 'back-squat',
+      name: 'Back Squat',
+      aliases: [],
+      category: { key: 'WEIGHTLIFTING', name: 'Weightlifting' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+        { measurementType: { key: 'WEIGHT', name: 'Weight' } },
+      ],
+    },
+    {
+      id: 'wall-ball-shot',
+      name: 'Wall-ball Shot',
+      aliases: ['Wall Ball', 'Wall-ball'],
+      category: { key: 'WEIGHTLIFTING', name: 'Weightlifting' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+        { measurementType: { key: 'WEIGHT', name: 'Weight' } },
+      ],
+    },
+    {
+      id: 'kipping-toes-to-bar',
+      name: 'Kipping Toes-to-bar',
+      aliases: ['T2B', 'TTB'],
+      category: { key: 'GYMNASTICS', name: 'Gymnastics' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+      ],
+    },
+    {
+      id: 'strict-toes-to-bar',
+      name: 'Strict Toes-to-bar',
+      aliases: ['Strict T2B'],
+      category: { key: 'GYMNASTICS', name: 'Gymnastics' },
+      measurementTypes: [
+        { measurementType: { key: 'REPS', name: 'Repetitions' } },
+      ],
+    },
   ];
 
   beforeEach(async () => {
@@ -74,6 +158,94 @@ describe('WorkoutImportsService', () => {
     expect(result.draft.section.movements.map((item) => item.reps)).toEqual([
       5, 10,
     ]);
+  });
+
+  it('fully matches the built-in importer examples', () => {
+    const examples = [
+      {
+        text: 'Fran\nFor time\n21-15-9\nThrusters 43 kg\nPull-ups',
+        roles: ['WOD'],
+      },
+      {
+        text: [
+          'Friday Training',
+          'Warm-up',
+          '3 rounds',
+          '10 air squats',
+          '10 kip swings',
+          '',
+          'WOD - 12 min AMRAP',
+          '8 DB snatches 22.5/15 kg',
+          '10 box jumps',
+          '200 m run',
+        ].join('\n'),
+        roles: ['WARM_UP', 'WOD'],
+      },
+      {
+        text: [
+          'Strength + WOD',
+          'Strength',
+          '5 sets',
+          '5 back squats 80 kg',
+          '',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['STRENGTH', 'WOD'],
+      },
+      {
+        text: [
+          'Entrenamiento',
+          'Calentamiento',
+          '3 rounds',
+          '10 air squats',
+          'Fuerza',
+          '5 back squats 80 kg',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['WARM_UP', 'STRENGTH', 'WOD'],
+      },
+      {
+        text: [
+          'Treino',
+          'Aquecimento',
+          '3 rounds',
+          '10 air squats',
+          'Força',
+          '5 back squats 80 kg',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['WARM_UP', 'STRENGTH', 'WOD'],
+      },
+    ];
+
+    for (const example of examples) {
+      const result = service.parseWithCatalog(example.text, catalog);
+
+      expect(result.summary.unresolvedMovements).toBe(0);
+      expect(
+        result.draft.variants[0].sections.map((section) => section.role),
+      ).toEqual(example.roles);
+      expect(result.issues).toEqual(
+        result.issues.filter((issue) => issue.code === 'MULTIPLE_LOADS'),
+      );
+      expect(
+        result.draft.section.movements.every(
+          (movement) => movement.matchStatus === 'MATCHED',
+        ),
+      ).toBe(true);
+    }
   });
 
   it('keeps unknown movements visible for manual review', () => {

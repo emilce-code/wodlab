@@ -38,6 +38,7 @@ export type EditableWorkout = {
     sections: Array<{
       id: string;
       type: { key: string };
+      role?: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
       rounds: number | null;
       durationSeconds: number | null;
       restSeconds: number | null;
@@ -88,6 +89,7 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
     sections: variant.sections.map((section) => ({
       id: section.id,
       typeKey: section.type.key,
+      role: section.role ?? "WOD",
       rounds: formValue(section.rounds),
       durationSeconds: formValue(section.durationSeconds),
       restSeconds: formValue(section.restSeconds),
@@ -130,7 +132,8 @@ function mapWorkoutToForm(workout: EditableWorkout): WorkoutVariantFormState[] {
   }));
 }
 
-type FormStep = "details" | "programming" | "review";
+type FormStep = "start" | "details" | "programming" | "review";
+type CreationMode = "simple" | "levels" | "import";
 
 export type WorkoutFormFieldErrors = Record<string, string>;
 
@@ -140,7 +143,7 @@ type ValidationResult = {
   step: FormStep;
 };
 
-const formSteps: FormStep[] = ["details", "programming", "review"];
+const formSteps: FormStep[] = ["start", "details", "programming", "review"];
 const WORKOUT_DRAFT_KEY = "wodlab.workout-draft.v1";
 const WORKOUT_DRAFT_EVENT = "wodlab-workout-draft-change";
 
@@ -192,6 +195,7 @@ function createEmptySection(): WorkoutSectionFormState {
   return {
     id: crypto.randomUUID(),
     typeKey: "",
+    role: "WOD",
     rounds: "",
     durationSeconds: "",
     restSeconds: "",
@@ -230,6 +234,15 @@ function parseRepScheme(value: string): number[] {
     .filter((value) => Number.isInteger(value) && value > 0);
 }
 
+const REVIEW_SECTION_ICONS: Record<WorkoutSectionFormState["role"], string> = {
+  WARM_UP: "🔥",
+  STRENGTH: "🏋",
+  WOD: "⚡",
+  ACCESSORY: "＋",
+  COOLDOWN: "❄",
+  CUSTOM: "◆",
+};
+
 export default function WorkoutForm({
   workoutTypes,
   workoutLevels,
@@ -239,6 +252,7 @@ export default function WorkoutForm({
   const t = useTranslations("workouts.create");
 
   const typeT = useTranslations("workoutTypes");
+  const levelT = useTranslations("workoutLevels");
 
   const router = useRouter();
 
@@ -250,9 +264,14 @@ export default function WorkoutForm({
 
   const [isDraftPromptDismissed, setIsDraftPromptDismissed] = useState(false);
 
-  const [currentStep, setCurrentStep] = useState<FormStep>("details");
+  const [currentStep, setCurrentStep] = useState<FormStep>(
+    initialWorkout ? "details" : "start",
+  );
 
   const [advancedMode, setAdvancedMode] = useState(Boolean(initialWorkout));
+  const [creationMode, setCreationMode] = useState<CreationMode>(
+    initialWorkout ? "levels" : "simple",
+  );
 
   const isEditing = Boolean(initialWorkout);
 
@@ -264,23 +283,16 @@ export default function WorkoutForm({
 
   const [typeKey, setTypeKey] = useState(initialWorkout?.type.key ?? "");
 
-  const [isBenchmark, setIsBenchmark] = useState(
-    initialWorkout?.isBenchmark ?? false,
-  );
-
-  const [showOptionalDetails, setShowOptionalDetails] = useState(
-    Boolean(initialWorkout?.description || initialWorkout?.isBenchmark),
-  );
+  const isBenchmark = initialWorkout?.isBenchmark ?? false;
 
   const [variants, setVariants] = useState<WorkoutVariantFormState[]>(() => {
     if (initialWorkout) {
       return mapWorkoutToForm(initialWorkout);
     }
-    const defaultLevel =
-      workoutLevels.find((level) => level.key === "RX") ?? workoutLevels[0];
-
-    return [createEmptyVariant(defaultLevel?.key ?? "")];
+    return [createEmptyVariant("")];
   });
+
+  const [activeLevelKey, setActiveLevelKey] = useState<string>(initialWorkout?.variants[0]?.level.key ?? "");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -378,9 +390,8 @@ export default function WorkoutForm({
       setName(draft.name);
       setDescription(draft.description);
       setTypeKey(draft.typeKey);
-      setIsBenchmark(draft.isBenchmark);
       setVariants(draft.variants);
-      setCurrentStep("details");
+      setCurrentStep("start");
       setError(null);
       setFieldErrors({});
       setIsDraftPromptDismissed(true);
@@ -401,19 +412,30 @@ export default function WorkoutForm({
     return typeT.has(key) ? typeT(key) : type.name;
   }
 
-  function addVariant() {
-    const usedLevelKeys = variants
-      .map((variant) => variant.levelKey)
-      .filter(Boolean);
+  function selectOrAddLevel(levelKey: string) {
+    const existing = variants.find((variant) => variant.levelKey === levelKey);
+    if (existing) {
+      setActiveLevelKey(levelKey);
+      return;
+    }
+    setVariants((current) => {
+      if (current.length === 1 && !current[0].levelKey) {
+        return [{ ...current[0], levelKey }];
+      }
+      return [...current, createEmptyVariant(levelKey)];
+    });
+    setActiveLevelKey(levelKey);
+  }
 
-    const nextLevel = workoutLevels.find(
-      (level) => !usedLevelKeys.includes(level.key),
-    );
-
-    setVariants((current) => [
-      ...current,
-      createEmptyVariant(nextLevel?.key ?? ""),
-    ]);
+  function copyLevel(source: WorkoutVariantFormState, targetId: string) {
+    setVariants((current) => current.map((variant) => variant.id === targetId ? {
+      ...variant,
+      sections: source.sections.map((section) => ({
+        ...section,
+        id: crypto.randomUUID(),
+        movements: section.movements.map((movement) => ({ ...movement, id: crypto.randomUUID(), prescriptions: movement.prescriptions.map((p) => ({ ...p })) })),
+      })),
+    } : variant));
   }
 
   function removeVariant(id: string) {
@@ -427,6 +449,12 @@ export default function WorkoutForm({
   }
 
   function updateVariant(id: string, updatedVariant: WorkoutVariantFormState) {
+    const primarySection = advancedMode
+      ? updatedVariant.sections.find((section) => section.role === "WOD") ?? updatedVariant.sections[0]
+      : updatedVariant.sections[0];
+    if (primarySection?.typeKey) {
+      setTypeKey(primarySection.typeKey);
+    }
     setFieldErrors({});
     setError(null);
     setVariants((current) =>
@@ -445,62 +473,84 @@ export default function WorkoutForm({
             name: null,
             notes: null,
             section: result.draft.section,
+            sections: result.draft.sections,
           },
         ];
+
+    const mapImportedSection = (
+      section: WorkoutImportResult["draft"]["section"],
+    ): WorkoutSectionFormState => ({
+      id: crypto.randomUUID(),
+      typeKey: section.typeKey,
+      role: section.role ?? "WOD",
+      rounds: formValue(section.rounds),
+      durationSeconds: formValue(section.durationSeconds),
+      restSeconds: formValue(section.restSeconds),
+      repScheme: section.repScheme.join("-"),
+      notes: section.notes ?? "",
+      movements: section.movements.map((item) => ({
+        id: crypto.randomUUID(),
+        movementId: item.movement?.id ?? "",
+        movementName: item.movement?.name ?? item.notes ?? "",
+        movementOption: item.movement,
+        reps: formValue(item.reps),
+        weight: formValue(item.weight),
+        weightUnit: item.weightUnit ?? "",
+        percentage: "",
+        referenceRepMax: "1",
+        distance: formValue(item.distance),
+        calories: formValue(item.calories),
+        durationSeconds: formValue(item.durationSeconds),
+        notes: item.matchStatus === "MATCHED" ? "" : item.source,
+        prescriptions: item.prescriptions.map((prescription) => ({
+          categoryKey: prescription.categoryKey,
+          reps: formValue(prescription.reps),
+          weight: formValue(prescription.weight),
+          weightUnit: prescription.weightUnit ?? "",
+          percentage: "",
+          referenceRepMax: "",
+          distance: formValue(prescription.distance),
+          calories: formValue(prescription.calories),
+          durationSeconds: formValue(prescription.durationSeconds),
+          notes: prescription.notes ?? "",
+        })),
+      })),
+    });
 
     setName(result.draft.name);
     setDescription(result.draft.description ?? "");
     setTypeKey(result.draft.typeKey);
-    setIsBenchmark(false);
     setVariants(
       importedVariants.map((variant) => ({
         id: crypto.randomUUID(),
         levelKey: variant.levelKey,
         name: variant.name ?? "",
         notes: variant.notes ?? "",
-        sections: [
-          {
-            id: crypto.randomUUID(),
-            typeKey: variant.section.typeKey,
-            rounds: formValue(variant.section.rounds),
-            durationSeconds: formValue(variant.section.durationSeconds),
-            restSeconds: formValue(variant.section.restSeconds),
-            repScheme: variant.section.repScheme.join("-"),
-            notes: variant.section.notes ?? "",
-            movements: variant.section.movements.map((item) => ({
-              id: crypto.randomUUID(),
-              movementId: item.movement?.id ?? "",
-              movementName: item.movement?.name ?? item.notes ?? "",
-              movementOption: item.movement,
-              reps: formValue(item.reps),
-              weight: formValue(item.weight),
-              weightUnit: item.weightUnit ?? "",
-              percentage: "",
-              referenceRepMax: "1",
-              distance: formValue(item.distance),
-              calories: formValue(item.calories),
-              durationSeconds: formValue(item.durationSeconds),
-              notes: item.matchStatus === "MATCHED" ? "" : item.source,
-              prescriptions: item.prescriptions.map((prescription) => ({
-                categoryKey: prescription.categoryKey,
-                reps: formValue(prescription.reps),
-                weight: formValue(prescription.weight),
-                weightUnit: prescription.weightUnit ?? "",
-                percentage: "",
-                referenceRepMax: "",
-                distance: formValue(prescription.distance),
-                calories: formValue(prescription.calories),
-                durationSeconds: formValue(prescription.durationSeconds),
-                notes: prescription.notes ?? "",
-              })),
-            })),
-          },
-        ],
+        sections: (variant.sections?.length
+          ? variant.sections
+          : [variant.section]
+        ).map(mapImportedSection),
       })),
     );
     setError(null);
     setFieldErrors({});
-    setCurrentStep("details");
+    setCurrentStep("programming");
+    setCreationMode(result.draft.variants.length > 1 ? "levels" : "simple");
+    setAdvancedMode(result.draft.variants.length > 1);
+  }
+
+  function selectCreationMode(mode: CreationMode) {
+    setCreationMode(mode);
+
+    if (mode === "levels") {
+      setAdvancedMode(true);
+      setActiveLevelKey(variants.find((variant) => variant.levelKey)?.levelKey ?? "");
+    }
+
+    if (mode === "simple") {
+      setAdvancedMode(false);
+      setActiveLevelKey("");
+    }
   }
 
   function clearFieldError(fieldId: string) {
@@ -517,10 +567,6 @@ export default function WorkoutForm({
 
     if (!name.trim()) {
       errors.name = t("validation.nameRequired");
-    }
-
-    if (!typeKey) {
-      errors.type = t("validation.typeRequired");
     }
 
     return {
@@ -694,6 +740,11 @@ export default function WorkoutForm({
   }
 
   function goToNextStep() {
+    if (currentStep === "start") {
+      goToStep("details");
+      return;
+    }
+
     const validationResult =
       currentStep === "details" ? validateDetails() : validateProgramming();
 
@@ -701,19 +752,8 @@ export default function WorkoutForm({
       return;
     }
 
-    if (currentStep === "details") {
-      setVariants((current) =>
-        current.map((variant) => ({
-          ...variant,
-          sections: variant.sections.map((section, index) =>
-            index === 0 && !section.typeKey ? { ...section, typeKey } : section,
-          ),
-        })),
-      );
-    }
-
-    const currentIndex = formSteps.indexOf(currentStep);
-    const nextStep = formSteps[currentIndex + 1];
+    const currentIndex = displayedFormSteps.indexOf(currentStep);
+    const nextStep = displayedFormSteps[currentIndex + 1];
 
     if (nextStep) {
       goToStep(nextStep);
@@ -721,8 +761,8 @@ export default function WorkoutForm({
   }
 
   function goToPreviousStep() {
-    const currentIndex = formSteps.indexOf(currentStep);
-    const previousStep = formSteps[currentIndex - 1];
+    const currentIndex = displayedFormSteps.indexOf(currentStep);
+    const previousStep = displayedFormSteps[currentIndex - 1];
 
     if (previousStep) {
       goToStep(previousStep);
@@ -753,8 +793,10 @@ export default function WorkoutForm({
 
         description: description.trim() || undefined,
 
-        typeKey,
-        isBenchmark,
+        typeKey: advancedMode
+          ? variants.flatMap((variant) => variant.sections).find((section) => section.role === "WOD" && section.typeKey)?.typeKey ?? variants.flatMap((variant) => variant.sections).find((section) => section.typeKey)?.typeKey ?? typeKey
+          : typeKey,
+        isBenchmark: isEditing ? isBenchmark : false,
 
         variants: variants.map((variant) => ({
           levelKey: variant.levelKey,
@@ -765,6 +807,8 @@ export default function WorkoutForm({
 
           sections: variant.sections.map((section, sectionIndex) => ({
             typeKey: section.typeKey,
+
+            role: section.role,
 
             order: sectionIndex + 1,
 
@@ -884,12 +928,10 @@ export default function WorkoutForm({
     }
   }
 
-  const usedLevelKeys = variants
-    .map((variant) => variant.levelKey)
-    .filter(Boolean);
 
-  const canAddVariant =
-    workoutLevels.length === 0 || usedLevelKeys.length < workoutLevels.length;
+  const displayedFormSteps = isEditing
+    ? formSteps.filter((step) => step !== "start")
+    : formSteps;
 
   const totalSections = variants.reduce(
     (total, variant) => total + variant.sections.length,
@@ -932,60 +974,14 @@ export default function WorkoutForm({
     return values;
   }
 
-  function formatMovementPrescription(
-    movement: WorkoutSectionFormState["movements"][number],
-  ) {
-    const values: string[] = [];
+  function getWorkoutTypeLabel(typeKeyValue: string) {
+    const workoutType = workoutTypes.find((type) => type.key === typeKeyValue);
 
-    if (movement.reps) {
-      values.push(`${movement.reps} ${t("movementBuilder.reps")}`);
-    }
-
-    if (movement.weight) {
-      values.push(`${movement.weight} ${movement.weightUnit}`.trim());
-    }
-
-    if (movement.percentage && movement.referenceRepMax) {
-      values.push(`${movement.percentage}% · ${movement.referenceRepMax}RM`);
-    }
-
-    if (movement.distance) {
-      values.push(`${movement.distance} m`);
-    }
-
-    if (movement.calories) {
-      values.push(`${movement.calories} cal`);
-    }
-
-    if (movement.durationSeconds) {
-      values.push(
-        `${movement.durationSeconds} ${t("movementBuilder.secondsShort")}`,
-      );
-    }
-
-    return values;
+    return workoutType ? getWorkoutTypeName(workoutType) : typeKeyValue;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {!isEditing ? (
-        <details className="rounded-xl border border-border bg-surface">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-semibold marker:content-none">
-            <span>
-              <span className="block text-sm">{t("start.importTitle")}</span>
-              <span className="mt-0.5 block text-xs font-normal text-muted">
-                {t("start.importDescription")}
-              </span>
-            </span>
-            <span aria-hidden="true" className="text-xl text-muted">
-              +
-            </span>
-          </summary>
-          <div className="border-t border-border p-3 sm:p-4">
-            <WorkoutTextImporter onApply={applyImport} />
-          </div>
-        </details>
-      ) : null}
       {!isEditing &&
       storedDraft &&
       !isDraftPromptDismissed &&
@@ -1026,13 +1022,15 @@ export default function WorkoutForm({
       ) : null}
 
       <nav aria-label={t("steps.ariaLabel")}>
-        <ol className="grid gap-3 sm:grid-cols-3">
-          {formSteps.map((step, index) => {
+        <ol className="flex items-center">
+          {displayedFormSteps.map((step, index) => {
+            const currentStepIndex = displayedFormSteps.indexOf(currentStep);
             const isCurrent = step === currentStep;
-            const isComplete = formSteps.indexOf(currentStep) > index;
+            const isComplete = currentStepIndex > index;
+            const isConnectorComplete = currentStepIndex > index;
 
             return (
-              <li key={step}>
+              <li key={step} className="flex flex-1 items-center last:flex-none">
                 <button
                   type="button"
                   onClick={() => {
@@ -1042,54 +1040,119 @@ export default function WorkoutForm({
                   }}
                   disabled={!isComplete && !isCurrent}
                   aria-current={isCurrent ? "step" : undefined}
-                  className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-center text-sm font-bold transition ${
                     isCurrent
-                      ? "border-accent bg-accent/10"
+                      ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/25"
                       : isComplete
-                        ? "border-border bg-surface hover:border-accent/40"
-                        : "cursor-not-allowed border-border bg-surface opacity-55"
+                        ? "border-accent bg-accent text-accent-foreground hover:border-accent/80"
+                        : "cursor-not-allowed border-border bg-surface-elevated text-muted opacity-70"
                   }`}
                 >
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      isCurrent || isComplete
-                        ? "bg-accent text-accent-foreground"
-                        : "bg-surface-elevated text-muted"
-                    }`}
-                  >
-                    {isComplete ? "✓" : index + 1}
-                  </span>
-
-                  <span>
-                    <span className="block text-sm font-semibold">
-                      {t(`steps.${step}.title`)}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {t(`steps.${step}.description`)}
-                    </span>
-                  </span>
+                  <span className="sr-only">{t(`steps.${step}.title`)}</span>
+                  <span aria-hidden="true">{index + 1}</span>
                 </button>
+                {index < displayedFormSteps.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className={`mx-2 h-0.5 flex-1 rounded-full transition ${
+                      isConnectorComplete ? "bg-accent" : "bg-border"
+                    }`}
+                  />
+                ) : null}
               </li>
             );
           })}
         </ol>
       </nav>
 
-      {currentStep === "details" ? (
-        <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+      {currentStep === "start" ? (
+        <section className="space-y-5 rounded-xl border border-border bg-surface p-4 sm:p-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-              {t("details.eyebrow")}
+              {t("start.eyebrow")}
             </p>
 
-            <h2 className="mt-1 text-xl font-bold">{t("details.title")}</h2>
+            <h2 className="mt-1 text-xl font-bold">{t("start.title")}</h2>
 
             <p className="mt-1 text-sm text-muted">
-              {t("details.description")}
+              {t("start.description")}
             </p>
           </div>
 
-          <div className="mt-6 grid gap-5">
+          {!isEditing ? (
+            <div>
+              <div className="mt-3 grid gap-3">
+                {(["simple", "levels", "import"] as const).map((mode) => {
+                  const isSelected = creationMode === mode;
+
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => selectCreationMode(mode)}
+                      aria-pressed={isSelected}
+                      className={`flex min-h-16 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                        isSelected
+                          ? "border-accent bg-accent/10"
+                          : "border-border bg-background hover:border-accent/40"
+                      }`}
+                    >
+                      <span>
+                        <span className="block text-sm font-semibold">
+                          {t(`start.modes.${mode}.title`)}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-muted">
+                          {t(`start.modes.${mode}.description`)}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+                          isSelected
+                            ? "border-accent bg-accent text-accent-foreground"
+                            : "border-border"
+                        }`}
+                      >
+                        {isSelected ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {currentStep === "details" ? (
+        <section className="space-y-5 rounded-xl border border-border bg-surface p-4 sm:p-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+              {creationMode === "import" && !isEditing
+                ? t("importer.title")
+                : t("details.eyebrow")}
+            </p>
+
+            <h2 className="mt-1 text-xl font-bold">
+              {creationMode === "import" && !isEditing
+                ? t("importer.title")
+                : t("details.title")}
+            </h2>
+
+            <p className="mt-1 text-sm text-muted">
+              {creationMode === "import" && !isEditing
+                ? t("importer.description")
+                : t("details.description")}
+            </p>
+          </div>
+
+          {creationMode === "import" && !isEditing ? (
+            <div className="rounded-xl border border-border bg-background p-3 sm:p-4">
+              <WorkoutTextImporter onApply={applyImport} />
+            </div>
+          ) : (
+
+<div className="grid gap-5">
             <div>
               <label
                 htmlFor="name"
@@ -1120,209 +1183,77 @@ export default function WorkoutForm({
             </div>
 
             <div>
-              <label
-                htmlFor="type"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("details.type")}
+              <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
+                {t("details.workoutDescription")} <span className="font-normal text-muted">({t("variants.optional")})</span>
               </label>
-
-              <select
-                id="type"
-                required
-                value={typeKey}
-                onChange={(event) => {
-                  setTypeKey(event.target.value);
-                  clearFieldError("type");
-                }}
-                aria-invalid={Boolean(fieldErrors.type)}
-                aria-describedby={fieldErrors.type ? "type-error" : undefined}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/10"
-              >
-                <option value="">{t("details.selectType")}</option>
-
-                {workoutTypes.map((type) => (
-                  <option key={type.key} value={type.key}>
-                    {getWorkoutTypeName(type)}
-                  </option>
-                ))}
-              </select>
-              {fieldErrors.type ? (
-                <p id="type-error" className="mt-1.5 text-sm text-red-500">
-                  {fieldErrors.type}
-                </p>
-              ) : null}
+              <textarea id="description" rows={4} value={description} onChange={(event) => setDescription(event.target.value)} placeholder={t("details.descriptionPlaceholder")} className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10" />
             </div>
-
-            <details
-              open={showOptionalDetails}
-              onToggle={(event) =>
-                setShowOptionalDetails(event.currentTarget.open)
-              }
-              className="group rounded-xl border border-dashed border-border bg-background"
-            >
-              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold marker:content-none">
-                <span>
-                  {t("details.optionalTitle")}
-                  <span className="ml-2 font-normal text-muted">
-                    {t("details.optionalSummary")}
-                  </span>
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="text-lg text-muted transition group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <div className="grid gap-5 border-t border-border p-4">
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="mb-1.5 block text-sm font-medium"
-                  >
-                    {t("details.workoutDescription")}
-                  </label>
-                  <textarea
-                    id="description"
-                    rows={3}
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder={t("details.descriptionPlaceholder")}
-                    className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                  />
-                </div>
-                <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={isBenchmark}
-                    onChange={(event) => setIsBenchmark(event.target.checked)}
-                    className="mt-0.5 h-5 w-5 rounded border-border accent-[var(--accent)]"
-                  />
-                  <span>
-                    <span className="block text-sm font-medium">
-                      {t("details.benchmark")}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {t("details.benchmarkDescription")}
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </details>
           </div>
+          )}
         </section>
       ) : null}
 
       {currentStep === "programming" ? (
         <section className="min-w-0">
-          <details className="group mb-4 rounded-xl border border-border bg-surface">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none">
-              <span>
-                <span className="block text-sm font-semibold">
-                  {t("concepts.title")}
-                </span>
-                <span className="mt-0.5 block text-xs font-normal text-muted">
-                  {t("concepts.description")}
-                </span>
-              </span>
-              <span
-                aria-hidden="true"
-                className="text-lg text-muted transition group-open:rotate-45"
-              >
-                +
-              </span>
-            </summary>
-            <div className="grid gap-3 border-t border-border p-4 sm:grid-cols-3">
-              {["variation", "section", "movement"].map((concept, index) => (
-                <div key={concept} className="flex gap-3 sm:block">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-bold text-accent">
-                    {index + 1}
-                  </span>
-                  <div className="sm:mt-2">
-                    <p className="text-sm font-semibold">
-                      {t(`concepts.${concept}.title`)}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {t(`concepts.${concept}.description`)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </details>
-
-          <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold">
-                  {t(advancedMode ? "mode.advancedTitle" : "mode.simpleTitle")}
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  {t(
-                    advancedMode
-                      ? "mode.advancedDescription"
-                      : "mode.simpleDescription",
-                  )}
-                </p>
+          {advancedMode ? (
+            <div className="mb-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+              <h2 className="text-lg font-bold">{t("levelsBuilder.title")}</h2>
+              <p className="mt-1 text-sm text-muted">{t("levelsBuilder.description")}</p>
+              <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">
+                {workoutLevels.map((level) => {
+                  const configured = variants.some((variant) => variant.levelKey === level.key);
+                  const active = activeLevelKey === level.key;
+                  return (
+                    <button key={level.key} type="button" onClick={() => selectOrAddLevel(level.key)}
+                      className={`min-h-11 min-w-0 rounded-full border px-1.5 py-2 text-xs font-semibold transition min-[380px]:px-2 min-[380px]:text-sm sm:px-4 ${active ? "border-accent bg-accent text-accent-foreground" : configured ? "border-accent/50 bg-accent/10 text-foreground" : "border-border bg-background text-muted"}`}>
+                      {configured ? "✓ " : ""}{levelT.has(`names.${level.key.toLowerCase()}`) ? levelT(`names.${level.key.toLowerCase()}`) : level.name}
+                    </button>
+                  );
+                })}
               </div>
-              <button
-                type="button"
-                onClick={() => setAdvancedMode((current) => !current)}
-                className="min-h-11 shrink-0 rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-accent/40"
-              >
-                {t(advancedMode ? "mode.useSimple" : "mode.useAdvanced")}
-              </button>
             </div>
-          </div>
+          ) : null}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                {t("variants.eyebrow")}
-              </p>
+          {advancedMode && activeLevelKey ? (() => {
+            const activeVariant = variants.find((variant) => variant.levelKey === activeLevelKey);
+            const sources = variants.filter((variant) => variant.levelKey && variant.levelKey !== activeLevelKey && variant.sections.some((section) => section.movements.length > 0));
+            const isEmpty = activeVariant && activeVariant.sections.every((section) => section.movements.length === 0 && !section.typeKey);
+            return activeVariant && isEmpty && sources.length ? (
+              <div className="mb-5 rounded-2xl border border-dashed border-border bg-surface p-5 text-center">
+                <h3 className="font-bold">{t("levelsBuilder.emptyTitle", { level: workoutLevels.find((level) => level.key === activeLevelKey)?.name ?? activeLevelKey })}</h3>
+                <p className="mt-1 text-sm text-muted">{t("levelsBuilder.emptyDescription")}</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  {sources.map((source) => <Button key={source.id} type="button" variant="secondary" onClick={() => copyLevel(source, activeVariant.id)}>{t("levelsBuilder.copyFrom", { level: workoutLevels.find((level) => level.key === source.levelKey)?.name ?? source.levelKey })}</Button>)}
+                </div>
+              </div>
+            ) : null;
+          })() : null}
 
-              <h2 className="mt-1 text-xl font-bold">{t("variants.title")}</h2>
-
-              <p className="mt-1 text-sm text-muted">
-                {t("variants.description")}
-              </p>
-            </div>
-
-            {advancedMode ? (
-              <Button
-                type="button"
-                onClick={addVariant}
-                disabled={!canAddVariant}
-                variant="secondary"
-              >
-                + {t("variants.add")}
-              </Button>
-            ) : null}
-          </div>
-
-          <div
-            id="workout-variants"
-            tabIndex={-1}
-            className="mt-5 min-w-0 space-y-5"
-          >
+          <div id="workout-variants" tabIndex={-1} className="min-w-0 space-y-5">
             {variants.map((variant, index) => (
-              <WorkoutVariantForm
+              (!advancedMode || !activeLevelKey || variant.levelKey === activeLevelKey) ? <WorkoutVariantForm
                 key={variant.id}
                 variant={variant}
-                variantNumber={index + 1}
                 workoutTypes={workoutTypes}
                 workoutLevels={workoutLevels}
-                usedLevelKeys={usedLevelKeys}
                 canRemove={variants.length > 1}
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
                 advancedMode={advancedMode}
+                initiallyExpanded={
+                  isEditing ||
+                  (index === 0 &&
+                    variant.sections.every(
+                      (section) => section.movements.length === 0,
+                    )) ||
+                  Boolean(fieldErrors[`variant-level-${variant.id}`]) ||
+                  Boolean(fieldErrors[`variant-sections-${variant.id}`])
+                }
                 onChange={(updatedVariant) =>
                   updateVariant(variant.id, updatedVariant)
                 }
-                onRemove={() => removeVariant(variant.id)}
-              />
+                onRemove={() => { removeVariant(variant.id); setActiveLevelKey(""); }}
+              /> : null
             ))}
           </div>
         </section>
@@ -1330,204 +1261,67 @@ export default function WorkoutForm({
 
       {currentStep === "review" ? (
         <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                {t("review.eyebrow")}
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold">{t("review.title")}</h2>
-
-              <p className="mt-1 text-sm text-muted">
-                {t("review.description")}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => goToStep("details")}
-              className="text-sm font-semibold text-accent hover:text-accent-strong"
-            >
-              {t("review.editDetails")}
-            </button>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{t("review.eyebrow")}</p>
+            <h2 className="mt-1 text-xl font-bold">{t("review.title")}</h2>
+            <p className="mt-1 text-sm text-muted">{t("review.description")}</p>
           </div>
 
-          <dl className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.workout")}
-              </dt>
-              <dd className="mt-2 font-semibold">{name}</dd>
-              <dd className="mt-1 text-sm text-muted">
-                {workoutTypes.find((type) => type.key === typeKey)
-                  ? getWorkoutTypeName(
-                      workoutTypes.find((type) => type.key === typeKey)!,
-                    )
-                  : typeKey}
-              </dd>
-              {description ? (
-                <dd className="mt-2 line-clamp-2 text-xs text-muted">
-                  {description}
-                </dd>
-              ) : null}
-              {isBenchmark ? (
-                <dd className="mt-2 inline-flex rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
-                  {t("details.benchmark")}
-                </dd>
-              ) : null}
+          <div className="mt-5 rounded-2xl border border-border bg-background p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="truncate text-2xl font-black tracking-tight">{name || t("review.untitled")}</h3>
+                {description ? <p className="mt-1 line-clamp-2 text-sm text-muted">{description}</p> : null}
+              </div>
+              <button type="button" onClick={() => goToStep("details")} aria-label={t("review.editDetails")} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
             </div>
+            <p className="mt-3 text-xs text-muted">{t("review.countSummary", { variants: variants.length, sections: totalSections, movements: totalMovements })}</p>
+          </div>
 
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.sections")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{totalSections}</dd>
+          {advancedMode && variants.length > 1 ? (
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {variants.map((variant) => {
+                const selected = variant.levelKey === activeLevelKey || (!activeLevelKey && variant.id === variants[0]?.id);
+                return <button key={variant.id} type="button" onClick={() => setActiveLevelKey(variant.levelKey)} className={`min-h-10 min-w-0 truncate rounded-xl border px-2 text-xs font-semibold transition ${selected ? "border-accent bg-accent text-accent-foreground" : "border-border bg-background text-foreground"}`}>{workoutLevels.find((level) => level.key === variant.levelKey)?.name ?? variant.levelKey}</button>;
+              })}
             </div>
+          ) : null}
 
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.variants")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{variants.length}</dd>
-            </div>
-
-            <div className="rounded-lg border border-border bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {t("review.movements")}
-              </dt>
-              <dd className="mt-2 text-2xl font-bold">{totalMovements}</dd>
-            </div>
-          </dl>
-
-          <div className="mt-6 space-y-4">
-            {variants.map((variant, variantIndex) => (
-              <article
-                key={variant.id}
-                className="rounded-xl border border-border bg-background p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold">
-                      {workoutLevels.find(
-                        (level) => level.key === variant.levelKey,
-                      )?.name ?? t("variants.configure")}
-                    </p>
-                    {variant.name ? (
-                      <p className="mt-1 text-sm font-medium">{variant.name}</p>
-                    ) : null}
-                    <p className="mt-1 text-sm text-muted">
-                      {t("review.sectionCount", {
-                        count: variant.sections.length,
-                      })}
-                    </p>
-                    {variant.notes ? (
-                      <p className="mt-2 text-xs text-muted">{variant.notes}</p>
-                    ) : null}
+          <div className="mt-4 space-y-2.5">
+            {variants.filter((variant) => !advancedMode || variants.length === 1 || variant.levelKey === activeLevelKey || (!activeLevelKey && variant.id === variants[0]?.id)).flatMap((variant) => variant.sections.map((section) => {
+              const config = formatSectionConfiguration(section);
+              const movementNames = section.movements.slice(0, 3).map((movement) => movement.movementName).filter(Boolean);
+              return (
+                <article key={section.id} className="rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-start gap-3">
+                    <span aria-hidden="true" className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-lg">{REVIEW_SECTION_ICONS[section.role]}</span>
+                    <button type="button" onClick={() => { setActiveLevelKey(variant.levelKey); goToStep("programming"); }} className="min-w-0 flex-1 text-left">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-bold">{t(`sectionBuilder.roles.${section.role.toLowerCase()}`)}</span>
+                        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">{getWorkoutTypeLabel(section.typeKey)}</span>
+                      </span>
+                      {config.length ? <span className="mt-1 block truncate text-xs text-muted">{config.join(" · ")}</span> : null}
+                      <span className="mt-2 block truncate text-xs font-medium">{movementNames.join(" · ")}{section.movements.length > 3 ? ` +${section.movements.length - 3}` : ""}</span>
+                      <span className="mt-0.5 block text-[11px] text-muted">{t("sectionBuilder.summary", { movements: section.movements.length })}</span>
+                    </button>
+                    <button type="button" onClick={() => { setActiveLevelKey(variant.levelKey); goToStep("programming"); }} aria-label={t("review.edit")} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                   </div>
+                </article>
+              );
+            }))}
+          </div>
 
-                  <button
-                    type="button"
-                    onClick={() => goToStep("programming")}
-                    className="text-sm font-semibold text-accent hover:text-accent-strong"
-                  >
-                    {t("review.edit")}
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {variant.sections.map((section, sectionIndex) => (
-                    <div
-                      key={section.id}
-                      className="rounded-lg border border-border p-3"
-                    >
-                      <p className="text-sm font-medium">
-                        {t("review.section", {
-                          number: sectionIndex + 1,
-                        })}{" "}
-                        ·{" "}
-                        {workoutTypes.find(
-                          (type) => type.key === section.typeKey,
-                        )?.name ?? section.typeKey}
-                      </p>
-                      {formatSectionConfiguration(section).length > 0 ? (
-                        <p className="mt-1 text-xs text-muted">
-                          {formatSectionConfiguration(section).join(" · ")}
-                        </p>
-                      ) : null}
-
-                      <ul className="mt-3 space-y-2">
-                        {section.movements.map((movement) => {
-                          const prescription =
-                            formatMovementPrescription(movement);
-
-                          return (
-                            <li
-                              key={movement.id}
-                              className="rounded-lg bg-surface px-3 py-2.5"
-                            >
-                              <div className="flex flex-wrap items-start justify-between gap-2">
-                                <p className="text-sm font-semibold">
-                                  {movement.movementName}
-                                </p>
-                                <p className="text-xs text-muted">
-                                  {prescription.length > 0
-                                    ? prescription.join(" · ")
-                                    : t("review.noPrescription")}
-                                </p>
-                              </div>
-
-                              {movement.prescriptions.length > 0 ? (
-                                <div className="mt-2 flex flex-wrap gap-1.5">
-                                  <span className="text-xs text-muted">
-                                    {t("review.categoryOverrides")}:
-                                  </span>
-                                  {movement.prescriptions.map(
-                                    (categoryPrescription) => (
-                                      <span
-                                        key={categoryPrescription.categoryKey}
-                                        className="rounded-full border border-border bg-background px-2 py-0.5 text-xs font-medium"
-                                      >
-                                        {prescriptionCategories.find(
-                                          (category) =>
-                                            category.key ===
-                                            categoryPrescription.categoryKey,
-                                        )?.name ??
-                                          categoryPrescription.categoryKey}
-                                      </span>
-                                    ),
-                                  )}
-                                </div>
-                              ) : null}
-
-                              {movement.notes ? (
-                                <p className="mt-2 text-xs text-muted">
-                                  {movement.notes}
-                                </p>
-                              ) : null}
-                            </li>
-                          );
-                        })}
-                      </ul>
-
-                      {section.notes ? (
-                        <p className="mt-3 text-xs text-muted">
-                          {section.notes}
-                        </p>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-
-                <span className="sr-only">
-                  {t("variants.variant", { number: variantIndex + 1 })}
-                </span>
-              </article>
-            ))}
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
+            <span aria-hidden="true" className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">✓</span>
+            <div>
+              <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{t("review.readyTitle")}</p>
+              <p className="mt-0.5 text-xs text-muted">{t("review.readyDescription")}</p>
+            </div>
           </div>
         </section>
       ) : null}
 
-      <div className="sticky bottom-20 z-20 rounded-xl border border-border bg-background/95 p-4 shadow-xl backdrop-blur lg:bottom-4">
+      <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div aria-live="polite" aria-atomic="true">
             {error ? (
@@ -1540,7 +1334,7 @@ export default function WorkoutForm({
           </div>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
-            {currentStep !== "details" ? (
+            {currentStep !== "start" ? (
               <Button
                 type="button"
                 onClick={goToPreviousStep}

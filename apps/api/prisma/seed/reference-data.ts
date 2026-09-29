@@ -182,6 +182,7 @@ const workoutTypeResultTypeMap = {
   AMRAP: 'ROUNDS_REPS',
   STRENGTH: 'LOAD',
   MAX_REPS: 'REPS',
+  CUSTOM: 'ROUNDS_REPS',
 } as const;
 
 export async function seedReferenceData(

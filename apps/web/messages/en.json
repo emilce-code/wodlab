@@ -229,7 +229,10 @@
       "timezone": "Time zone",
       "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries."
     },
-    "details": { "title": "Box information", "save": "Save changes" },
+    "details": {
+      "title": "Box information",
+      "save": "Save changes"
+    },
     "create": {
       "open": "New Box",
       "title": "Create a Box",
@@ -257,7 +260,11 @@
       "searchPlaceholder": "Search by name, email, or role",
       "empty": "No members match your search."
     },
-    "roles": { "owner": "Owner", "coach": "Coach", "athlete": "Athlete" },
+    "roles": {
+      "owner": "Owner",
+      "coach": "Coach",
+      "athlete": "Athlete"
+    },
     "errors": {
       "load": "Unable to load Box members.",
       "save": "Unable to save the Box.",
@@ -329,33 +336,33 @@
       "saving": "Saving..."
     },
     "classForm": {
-    "open": "Schedule class",
-    "cancel": "Close",
-    "eyebrow": "New class",
-    "title": "Schedule a class",
-    "help": "Set the essentials now. You can link a workout or add coach notes if needed.",
-    "essentials": "Class essentials",
-    "requiredHelp": "Only these details are required to publish the class.",
-    "name": "Class name",
-    "namePlaceholder": "e.g. Evening CrossFit",
-    "startsAt": "Class date and time",
-    "today": "Today",
-    "tomorrow": "Tomorrow",
-    "workout": "Workout",
-    "variation": "Workout variation",
-    "description": "Coach notes or class focus (optional)",
-    "descriptionPlaceholder": "Add preparation notes, the class focus, or anything athletes should know",
-    "duration": "Duration in minutes",
-    "minutes": "Choose a common duration or enter another value.",
-    "capacity": "Capacity",
-    "decreaseCapacity": "Decrease capacity",
-    "increaseCapacity": "Increase capacity",
-    "optionalTitle": "Workout and notes",
-    "optionalHelp": "Optional details athletes can review before booking",
-    "noWorkout": "No linked workout",
-    "noVariation": "No variation",
-    "submit": "Publish class",
-    "submitting": "Publishing…"
+      "open": "Schedule class",
+      "cancel": "Close",
+      "eyebrow": "New class",
+      "title": "Schedule a class",
+      "help": "Set the essentials now. You can link a workout or add coach notes if needed.",
+      "essentials": "Class essentials",
+      "requiredHelp": "Only these details are required to publish the class.",
+      "name": "Class name",
+      "namePlaceholder": "e.g. Evening CrossFit",
+      "startsAt": "Class date and time",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "workout": "Workout",
+      "variation": "Workout variation",
+      "description": "Coach notes or class focus (optional)",
+      "descriptionPlaceholder": "Add preparation notes, the class focus, or anything athletes should know",
+      "duration": "Duration in minutes",
+      "minutes": "Choose a common duration or enter another value.",
+      "capacity": "Capacity",
+      "decreaseCapacity": "Decrease capacity",
+      "increaseCapacity": "Increase capacity",
+      "optionalTitle": "Workout and notes",
+      "optionalHelp": "Optional details athletes can review before booking",
+      "noWorkout": "No linked workout",
+      "noVariation": "No variation",
+      "submit": "Publish class",
+      "submitting": "Publishing…"
     },
     "errors": {
       "load": "Unable to load classes.",
@@ -897,47 +904,104 @@
   "help": {
     "eyebrow": "Help & guides",
     "title": "Learn WODLY at your pace",
-  "description": "Learn how WODLY fits together through a guided, hands-on example.",
-  "guideMenu": {
-    "title": "Choose a guide",
-    "description": "Pick a topic and learn with an interactive example.",
-    "guides": {
-      "concepts": {
-        "title": "How WODLY works",
-        "description": "Understand movements, workouts, sections, variations, and prescriptions."
-      },
-      "logResults": {
-        "title": "Log workout results",
-        "description": "Follow the complete flow from choosing a workout to seeing your progress."
-      },
-      "install": {
-        "title": "Install WODLY",
-        "description": "Add WODLY to your phone from iPhone, Android, Xiaomi, or another mobile browser."
+    "description": "Learn how WODLY fits together through a guided, hands-on example.",
+    "guideMenu": {
+      "title": "Choose a guide",
+      "description": "Pick a topic and learn with an interactive example.",
+      "guides": {
+        "concepts": {
+          "title": "How WODLY works",
+          "description": "Understand movements, workouts, sections, variations, and prescriptions."
+        },
+        "logResults": {
+          "title": "Log workout results",
+          "description": "Follow the complete flow from choosing a workout to seeing your progress."
+        },
+        "install": {
+          "title": "Install WODLY",
+          "description": "Add WODLY to your phone from iPhone, Android, Xiaomi, or another mobile browser."
+        }
       }
-    }
-  },
-  "logResultsGuide": {
-    "eyebrow": "Log results guide",
-    "skip": "Skip",
-    "back": "Back",
-    "next": "Next",
-    "finish": "Choose a workout",
-    "progressLabel": "Log results guide progress",
-    "goToStep": "Go to step {step}",
-    "steps": {
-      "workout": { "title": "Select your workout", "description": "Choose the workout you trained from your recommendations, your workouts, or your history.", "tip": "Start by selecting the workout you actually performed." },
-      "variation": { "title": "Choose your variation", "description": "Select the level you followed during the workout, such as Rx, Intermediate, or Beginner.", "tip": "Your saved level is a helpful default, but you can choose a different variation each day." },
-      "target": { "title": "Review your target", "description": "Check the sections, movements, and prescribed targets for your selected variation.", "tip": "The prescription is a reference. Your result should record what you actually completed." },
-      "performance": { "title": "Log what you did", "description": "Enter the workout score and optionally expand movements to record loads, reps, or other details.", "tip": "Movement details are optional. Record the main score first, then add only the detail that helps you." },
-      "progress": { "title": "See your progress", "description": "Your saved result is added to History and contributes to progress charts and personal records.", "tip": "Every result counts. Consistent logging makes your trends more useful over time." }
     },
-    "example": {
-      "forYou": "For you", "yourWorkouts": "Your workouts", "history": "History", "today": "Today", "workoutName": "Friday Training", "workoutMeta": "4 sections · Multiple variations", "date": "Fri, Sep 18", "upperBody": "Upper Body", "conditioning": "Conditioning", "olympicLifting": "Olympic Lifting", "sectionsCount": "4 sections", "twoMovements": "2 movements", "men": "Men", "women": "Women", "yourResult": "Your result", "saved": "Result saved!", "savedDescription": "Great job! Your result has been saved.", "totalTime": "Total time", "movements": "Movements", "viewHistory": "View in History",
-      "variations": { "rx": { "name": "Rx", "description": "As prescribed" }, "intermediate": { "name": "Intermediate", "description": "A balanced challenge" }, "beginner": { "name": "Beginner", "description": "Scaled movements" } },
-      "sections": { "warmup": "Warm-up", "strength": "Strength", "wod": "WOD", "cooldown": "Cooldown" }
-    }
-  },
-  "visualGuide": {
+    "logResultsGuide": {
+      "eyebrow": "Log results guide",
+      "skip": "Skip",
+      "back": "Back",
+      "next": "Next",
+      "finish": "Choose a workout",
+      "progressLabel": "Log results guide progress",
+      "goToStep": "Go to step {step}",
+      "steps": {
+        "workout": {
+          "title": "Select your workout",
+          "description": "Choose the workout you trained from your recommendations, your workouts, or your history.",
+          "tip": "Start by selecting the workout you actually performed."
+        },
+        "variation": {
+          "title": "Choose your variation",
+          "description": "Select the level you followed during the workout, such as Rx, Intermediate, or Beginner.",
+          "tip": "Your saved level is a helpful default, but you can choose a different variation each day."
+        },
+        "target": {
+          "title": "Review your target",
+          "description": "Check the sections, movements, and prescribed targets for your selected variation.",
+          "tip": "The prescription is a reference. Your result should record what you actually completed."
+        },
+        "performance": {
+          "title": "Log what you did",
+          "description": "Enter the workout score and optionally expand movements to record loads, reps, or other details.",
+          "tip": "Movement details are optional. Record the main score first, then add only the detail that helps you."
+        },
+        "progress": {
+          "title": "See your progress",
+          "description": "Your saved result is added to History and contributes to progress charts and personal records.",
+          "tip": "Every result counts. Consistent logging makes your trends more useful over time."
+        }
+      },
+      "example": {
+        "forYou": "For you",
+        "yourWorkouts": "Your workouts",
+        "history": "History",
+        "today": "Today",
+        "workoutName": "Friday Training",
+        "workoutMeta": "4 sections · Multiple variations",
+        "date": "Fri, Sep 18",
+        "upperBody": "Upper Body",
+        "conditioning": "Conditioning",
+        "olympicLifting": "Olympic Lifting",
+        "sectionsCount": "4 sections",
+        "twoMovements": "2 movements",
+        "men": "Men",
+        "women": "Women",
+        "yourResult": "Your result",
+        "saved": "Result saved!",
+        "savedDescription": "Great job! Your result has been saved.",
+        "totalTime": "Total time",
+        "movements": "Movements",
+        "viewHistory": "View in History",
+        "variations": {
+          "rx": {
+            "name": "Rx",
+            "description": "As prescribed"
+          },
+          "intermediate": {
+            "name": "Intermediate",
+            "description": "A balanced challenge"
+          },
+          "beginner": {
+            "name": "Beginner",
+            "description": "Scaled movements"
+          }
+        },
+        "sections": {
+          "warmup": "Warm-up",
+          "strength": "Strength",
+          "wod": "WOD",
+          "cooldown": "Cooldown"
+        }
+      }
+    },
+    "visualGuide": {
       "skip": "Skip",
       "back": "Back",
       "next": "Next",
@@ -1016,7 +1080,10 @@
           "section": "WOD",
           "scheme": "21 – 15 – 9",
           "levels": {
-            "rx": { "name": "Rx", "description": "For experienced athletes" },
+            "rx": {
+              "name": "Rx",
+              "description": "For experienced athletes"
+            },
             "intermediate": {
               "name": "Intermediate",
               "description": "A balanced challenge"
@@ -1190,8 +1257,14 @@
         "categoryHelp": "The category changes the assigned load without creating another variation.",
         "tryLabel": "Compare prescription categories",
         "categories": {
-          "men": { "name": "Men", "value": "60 kg" },
-          "women": { "name": "Women", "value": "42.5 kg" }
+          "men": {
+            "name": "Men",
+            "value": "60 kg"
+          },
+          "women": {
+            "name": "Women",
+            "value": "42.5 kg"
+          }
         }
       }
     },
@@ -1332,8 +1405,31 @@
         "discard": "Discard"
       },
       "start": {
+        "eyebrow": "Start",
+        "title": "Choose the easiest way to start",
+        "description": "Pick the path that matches how you already have the workout.",
+        "modes": {
+          "simple": {
+            "title": "Simple workout",
+            "description": "One level and one workout part."
+          },
+          "levels": {
+            "title": "Workout with levels",
+            "description": "RX, Intermediate, Beginner, or custom levels."
+          },
+          "import": {
+            "title": "Import from text",
+            "description": "Paste the workout and review the structure."
+          }
+        },
         "importTitle": "Already have the workout written down?",
         "importDescription": "Paste a workout with levels and category-specific prescriptions to create an editable draft."
+      },
+      "scoreTypes": {
+        "time": "Time",
+        "roundsReps": "Rounds + reps",
+        "load": "Load",
+        "reps": "Reps"
       },
       "mode": {
         "simpleTitle": "Simple setup",
@@ -1363,7 +1459,7 @@
         "title": "Import workout text",
         "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
         "label": "Workout text",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nMen: Thrusters 95 lb\nWomen: Thrusters 65 lb\nPull-ups\n\nIntermediate\nMen: Thrusters 75 lb\nWomen: Thrusters 55 lb\nJumping pull-ups\n\nBeginner\nMen: Thrusters 45 lb\nWomen: Thrusters 35 lb\nRing rows",
+        "placeholder": "Friday Training\nWarm-up\n3 rounds\n10 air squats\n10 kip swings\n\nStrength\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Preview import",
         "parsing": "Reading workout...",
         "parseError": "Unable to read this workout. Check the text and try again.",
@@ -1379,10 +1475,39 @@
         },
         "formatHint": "Use a level heading (RX, Intermediate, or Beginner). Prefix category-specific movements with Men or Women.",
         "variantsDetected": "{count, plural, =1 {1 variation detected} other {# variations detected}}",
-        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}"
+        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}",
+        "examplesTitle": "Try an example",
+        "examples": {
+          "forTime": "For Time",
+          "amrap": "AMRAP",
+          "strength": "Strength + WOD"
+        },
+        "understoodTitle": "WODLY understood",
+        "understoodDescription": "Check the parsed structure before reviewing.",
+        "sections": "sections",
+        "movements": "movements",
+        "matchedShort": "matched",
+        "reviewShort": "need review",
+        "sectionFallback": "Section",
+        "detected": "Detected",
+        "editText": "Edit text",
+        "reviewItems": "{count, plural, =1 {Review 1 item} other {Review # items}}",
+        "continueToBuilder": "Continue to builder",
+        "reviewTitle": "Review import",
+        "reviewDescription": "Fix only what WODLY could not confirm. Everything else looks good.",
+        "needsReviewBadge": "Needs review",
+        "matchedBadge": "Matched",
+        "suggestedMatches": "Suggested matches",
+        "manualReviewHint": "No confident match was found. Continue to the builder and choose the movement there.",
+        "allConfirmed": "All import items are confirmed.",
+        "backToPreview": "Back to preview"
       },
       "steps": {
         "ariaLabel": "Workout creation progress",
+        "start": {
+          "title": "Start",
+          "description": "Choose how to begin"
+        },
         "details": {
           "title": "Details",
           "description": "Name and type"
@@ -1408,10 +1533,14 @@
         "movements": "Movements",
         "sectionCount": "{count, plural, =1 {1 section} other {# sections}}",
         "section": "Section {number}",
+        "countSummary": "{variants} levels · {sections} parts · {movements} movements",
+        "untitled": "Untitled workout",
         "edit": "Edit programming",
         "editDetails": "Edit details",
         "noPrescription": "No shared prescription",
-        "categoryOverrides": "Category overrides"
+        "categoryOverrides": "Category overrides",
+        "readyTitle": "Ready to create",
+        "readyDescription": "All sections are properly configured."
       },
       "details": {
         "eyebrow": "Workout",
@@ -1423,6 +1552,7 @@
         "descriptionPlaceholder": "Describe the workout...",
         "type": "Workout type",
         "selectType": "Select workout type",
+        "scoreHint": "Athletes will log this as: {score}.",
         "optionalTitle": "Optional workout details",
         "optionalSummary": "Description and benchmark",
         "benchmark": "Benchmark workout",
@@ -1446,16 +1576,24 @@
         "sectionTypeRequired": "Section {section}: select a section type.",
         "movementRequired": "Section {section}: add at least one movement.",
         "movementSelectionRequired": "Section {section}, movement {movement}: select a movement.",
+        "importRequired": "Paste and use a workout draft before continuing.",
         "invalidRepScheme": "Section {section}: rep scheme must contain positive numbers separated by hyphens, for example 21-15-9.",
         "createError": "Unable to create workout."
       },
       "sectionBuilder": {
         "section": "Section {number}",
-        "sectionLabel": "Section",
+        "sectionLabel": "Part",
         "configureSection": "Configure section",
+        "workoutType": "Workout type",
+        "editMovement": "Edit movement",
+        "saveMovement": "Save movement",
+        "reorderMovement": "Reorder movement",
         "expand": "Expand",
         "collapse": "Collapse",
         "summary": "{movements} movements",
+        "unselectedMovement": "Movement not selected",
+        "tapToEdit": "Tap to edit",
+        "reps": "reps",
         "remove": "Remove",
         "sectionType": "Section type",
         "selectSectionType": "Select section type",
@@ -1478,7 +1616,18 @@
         "notes": "Notes",
         "optional": "(optional)",
         "notesPlaceholder": "Add instructions or notes for this section...",
-        "optionalDetails": "Optional section notes"
+        "optionalDetails": "Optional section notes",
+        "saveChanges": "Save changes",
+        "sectionRole": "Section type",
+        "roles": {
+          "warm_up": "Warm-up",
+          "strength": "Strength",
+          "wod": "WOD",
+          "accessory": "Accessory",
+          "cooldown": "Cooldown",
+          "custom": "Custom"
+        },
+        "workoutFormat": "Workout format"
       },
       "movementBuilder": {
         "movement": "Movement",
@@ -1512,7 +1661,15 @@
         "categoryPrescriptionsDescription": "Add overrides only when the prescribed values differ by category.",
         "removeCategoryPrescription": "Remove",
         "categoryFallbackHint": "Leave a field blank to use the shared prescription value.",
-        "categoryNotesPlaceholder": "Optional notes for this category"
+        "categoryNotesPlaceholder": "Optional notes for this category",
+        "prescriptionAudience": "Prescription",
+        "prescriptionAudienceDescription": "Choose whether the target is shared or differs for women and men.",
+        "sameForEveryone": "Same for everyone",
+        "differentByCategory": "Women / Men",
+        "sameForEveryoneDescription": "Use one prescription for everyone. Turn this off to set Women and Men separately.",
+        "womenMenPrescription": "Women / Men prescription",
+        "women": "Women",
+        "men": "Men"
       },
       "variants": {
         "eyebrow": "Workout variations",
@@ -1528,6 +1685,9 @@
         "remove": "Remove",
         "level": "Experience level",
         "selectLevel": "Select a level",
+        "singleLevelHint": "Choose one level for this workout.",
+        "singleBuilderTitle": "Build your workout",
+        "singleBuilderDescription": "Choose the experience level, workout type and add the movements.",
         "name": "Variation name",
         "namePlaceholder": "Optional custom name",
         "notes": "Notes",
@@ -1541,7 +1701,27 @@
           "variantRequired": "At least one workout variation is required.",
           "levelRequired": "Select a level for variation {variant}.",
           "duplicateLevel": "Each workout variation must use a different level."
-        }
+        },
+        "chooseSectionType": "What kind of section is this?",
+        "reorderSection": "Reorder section",
+        "sectionRoles": {
+          "warm_up": "Warm-up",
+          "strength": "Strength",
+          "wod": "WOD",
+          "accessory": "Accessory",
+          "cooldown": "Cooldown",
+          "custom": "Custom"
+        },
+        "editSection": "Edit section",
+        "saveSection": "Save changes",
+        "noMovementsYet": "No movements yet"
+      },
+      "levelsBuilder": {
+        "title": "Workout levels",
+        "description": "Choose a level to configure. Each level can have its own sections, movements and targets.",
+        "emptyTitle": "{level} isn’t configured yet",
+        "emptyDescription": "Copy a configured level and adjust it, or start building this level from scratch.",
+        "copyFrom": "Copy from {level}"
       }
     },
     "detail": {
@@ -1621,6 +1801,8 @@
       "description": "Record your performance for this workout.",
       "quickLogTitle": "Quick log",
       "quickLogDescription": "Enter your score and save. Movement performance, date, and notes are optional.",
+      "guideToggleTitle": "Need help logging?",
+      "guideToggleDescription": "Open a quick walkthrough only if you want guidance.",
       "firstUse": {
         "eyebrow": "First result",
         "title": "Logging takes only a moment",
@@ -1652,6 +1834,8 @@
       },
       "movementDetails": "Movement performance",
       "movementDetailsDescription": "{count, plural, =1 {Add optional details for 1 movement} other {Add optional details for # movements}}",
+      "movementDetailsProgress": "{logged} of {total} movements logged.",
+      "movementDetailsTargets": "{count, plural, =1 {1 target available} other {# targets available}}. Add details only if useful.",
       "detailsAdded": "Details added",
       "percentageTarget": "{percentage}% of your {reps}RM",
       "percentageSource": "Based on your best {load} {unit}",
@@ -1714,7 +1898,16 @@
     "strength": "Strength",
     "interval": "Interval",
     "max_reps": "Max Reps",
-    "custom": "Custom"
+    "custom": "Custom",
+    "descriptions": {
+      "for_time": "Complete the prescribed work as fast as possible.",
+      "amrap": "Complete as many rounds or repetitions as possible within the time limit.",
+      "emom": "Perform the prescribed work at the start of every minute.",
+      "strength": "Strength-focused work organized into sets and repetitions.",
+      "interval": "Alternate timed work and rest periods.",
+      "max_reps": "Complete the maximum number of repetitions possible.",
+      "custom": "Use a flexible structure for workouts that do not fit the standard formats."
+    }
   },
   "resultTypes": {
     "time": "Time",

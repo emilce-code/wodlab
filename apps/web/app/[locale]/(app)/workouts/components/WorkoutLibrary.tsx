@@ -12,7 +12,7 @@ import type { PaginatedResponse } from "@/lib/pagination";
 
 import WorkoutCard, { Workout } from "./WorkoutCard";
 
-type LibraryFilter = LibraryScopeFilter | "benchmark";
+type LibraryFilter = LibraryScopeFilter;
 type LibraryView = "ACTIVE" | "ARCHIVED";
 
 type Props = {
@@ -114,6 +114,29 @@ export default function WorkoutLibrary({
     view,
   ]);
 
+  function removeWorkoutFromCachedPages(workoutId: string) {
+    setPages((current) =>
+      Object.fromEntries(
+        Object.entries(current).map(([key, page]) => {
+          const items = page.items.filter((workout) => workout.id !== workoutId);
+
+          if (items.length === page.items.length) {
+            return [key, page];
+          }
+
+          return [
+            key,
+            {
+              ...page,
+              items,
+              total: Math.max(0, page.total - 1),
+            },
+          ];
+        }),
+      ),
+    );
+  }
+
   async function loadMore() {
     if (!displayedPage?.hasNextPage || isLoading) {
       return;
@@ -192,13 +215,13 @@ export default function WorkoutLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "mine", "benchmark"] as LibraryFilter[]).map((value) => (
+          {(["all", "mine"] as LibraryFilter[]).map((value) => (
             <FilterButton
               key={value}
               active={filter === value}
               onClick={() => setFilter(value)}
             >
-              {value === "benchmark" ? t("benchmark") : scopeLabels[value]}
+              {scopeLabels[value]}
             </FilterButton>
           ))}
         </div>
@@ -243,6 +266,7 @@ export default function WorkoutLibrary({
                 workout={workout}
                 canManage={workout.canManage}
                 preferredWorkoutLevelKey={preferredWorkoutLevelKey}
+                onDeleted={removeWorkoutFromCachedPages}
               />
             ))}
           </div>
@@ -297,9 +321,6 @@ function createQuery(
     query.set("view", "archived");
   }
 
-  if (filter === "benchmark") {
-    query.set("benchmark", "true");
-  }
 
   if (search) {
     query.set("search", search);

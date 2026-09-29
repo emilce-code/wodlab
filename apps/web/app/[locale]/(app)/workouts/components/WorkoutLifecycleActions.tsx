@@ -16,6 +16,7 @@ type LifecycleWorkout = {
 type Props = {
   workout: LifecycleWorkout;
   redirectAfterDelete?: boolean;
+  onActionComplete?: (action: LifecycleAction) => void;
 };
 
 type LifecycleAction = "delete" | "deactivate" | "reactivate";
@@ -41,6 +42,7 @@ const archiveLabels = {
 export default function WorkoutLifecycleActions({
   workout,
   redirectAfterDelete = false,
+  onActionComplete,
 }: Props) {
   const t = useTranslations("workouts.lifecycle");
   const locale = useLocale();
@@ -81,6 +83,7 @@ export default function WorkoutLifecycleActions({
       }
 
       setConfirmingAction(null);
+      onActionComplete?.(action);
 
       if (action === "delete" && redirectAfterDelete) {
         router.push("/workouts");

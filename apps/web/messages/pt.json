@@ -229,7 +229,10 @@
       "timezone": "Fuso horário",
       "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box."
     },
-    "details": { "title": "Informações do Box", "save": "Salvar alterações" },
+    "details": {
+      "title": "Informações do Box",
+      "save": "Salvar alterações"
+    },
     "create": {
       "open": "Novo Box",
       "title": "Criar um Box",
@@ -257,7 +260,11 @@
       "searchPlaceholder": "Buscar por nome, e-mail ou função",
       "empty": "Nenhum membro corresponde à busca."
     },
-    "roles": { "owner": "Proprietário", "coach": "Coach", "athlete": "Atleta" },
+    "roles": {
+      "owner": "Proprietário",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    },
     "errors": {
       "load": "Não foi possível carregar os membros.",
       "save": "Não foi possível salvar o Box.",
@@ -329,33 +336,33 @@
       "saving": "Salvando..."
     },
     "classForm": {
-    "open": "Agendar aula",
-    "cancel": "Fechar",
-    "eyebrow": "Nova aula",
-    "title": "Agendar uma aula",
-    "help": "Preencha primeiro o essencial. Se precisar, vincule um treino ou adicione observações.",
-    "essentials": "Dados essenciais",
-    "requiredHelp": "Somente estes dados são obrigatórios para publicar a aula.",
-    "name": "Nome da aula",
-    "namePlaceholder": "Ex.: CrossFit da noite",
-    "startsAt": "Data e hora da aula",
-    "today": "Hoje",
-    "tomorrow": "Amanhã",
-    "workout": "Treino",
-    "variation": "Variação do treino",
-    "description": "Notas do coach ou foco (opcional)",
-    "descriptionPlaceholder": "Adicione orientações, o foco da aula ou informações para os atletas",
-    "duration": "Duração em minutos",
-    "minutes": "Escolha uma duração comum ou informe outro valor.",
-    "capacity": "Capacidade",
-    "decreaseCapacity": "Diminuir capacidade",
-    "increaseCapacity": "Aumentar capacidade",
-    "optionalTitle": "Treino e observações",
-    "optionalHelp": "Informações opcionais que os atletas podem consultar antes de reservar",
-    "noWorkout": "Sem treino vinculado",
-    "noVariation": "Sem variação",
-    "submit": "Publicar aula",
-    "submitting": "Publicando…"
+      "open": "Agendar aula",
+      "cancel": "Fechar",
+      "eyebrow": "Nova aula",
+      "title": "Agendar uma aula",
+      "help": "Preencha primeiro o essencial. Se precisar, vincule um treino ou adicione observações.",
+      "essentials": "Dados essenciais",
+      "requiredHelp": "Somente estes dados são obrigatórios para publicar a aula.",
+      "name": "Nome da aula",
+      "namePlaceholder": "Ex.: CrossFit da noite",
+      "startsAt": "Data e hora da aula",
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "workout": "Treino",
+      "variation": "Variação do treino",
+      "description": "Notas do coach ou foco (opcional)",
+      "descriptionPlaceholder": "Adicione orientações, o foco da aula ou informações para os atletas",
+      "duration": "Duração em minutos",
+      "minutes": "Escolha uma duração comum ou informe outro valor.",
+      "capacity": "Capacidade",
+      "decreaseCapacity": "Diminuir capacidade",
+      "increaseCapacity": "Aumentar capacidade",
+      "optionalTitle": "Treino e observações",
+      "optionalHelp": "Informações opcionais que os atletas podem consultar antes de reservar",
+      "noWorkout": "Sem treino vinculado",
+      "noVariation": "Sem variação",
+      "submit": "Publicar aula",
+      "submitting": "Publicando…"
     },
     "errors": {
       "load": "Não foi possível carregar as aulas.",
@@ -897,32 +904,104 @@
   "help": {
     "eyebrow": "Ajuda e guias",
     "title": "Aprenda WODLY no seu ritmo",
-  "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
-  "guideMenu": {
-    "title": "Escolha um guia",
-    "description": "Selecione um tema e aprenda com um exemplo interativo.",
-    "guides": {
-      "concepts": { "title": "Como o WODLY funciona", "description": "Entenda movimentos, treinos, seções, variações e prescrições." },
-      "logResults": { "title": "Registrar resultados", "description": "Acompanhe o fluxo completo, da escolha do treino até visualizar seu progresso." },
-      "install": { "title": "Instalar WODLY", "description": "Adicione o WODLY ao seu telefone no iPhone, Android, Xiaomi ou outro navegador móvel." }
-    }
-  },
-  "logResultsGuide": {
-    "eyebrow": "Guia de registro de resultados", "skip": "Pular", "back": "Voltar", "next": "Próximo", "finish": "Escolher um treino", "progressLabel": "Progresso do guia de resultados", "goToStep": "Ir para a etapa {step}",
-    "steps": {
-      "workout": { "title": "Selecione seu treino", "description": "Escolha o treino que você realizou entre as recomendações, seus treinos ou o histórico.", "tip": "Comece selecionando o treino que você realmente fez." },
-      "variation": { "title": "Escolha sua variação", "description": "Selecione o nível seguido no treino, como Rx, Intermediário ou Iniciante.", "tip": "Seu nível salvo é uma opção padrão útil, mas você pode escolher outra variação a cada dia." },
-      "target": { "title": "Revise sua meta", "description": "Confira as seções, os movimentos e as metas prescritas para a variação escolhida.", "tip": "A prescrição é uma referência. Seu resultado deve registrar o que você realmente completou." },
-      "performance": { "title": "Registre o que você fez", "description": "Informe o resultado geral e, se quiser, expanda os movimentos para registrar cargas, repetições ou outros detalhes.", "tip": "Os detalhes por movimento são opcionais. Registre primeiro o resultado principal e adicione apenas o que for útil." },
-      "progress": { "title": "Veja seu progresso", "description": "O resultado salvo é adicionado ao Histórico e contribui para gráficos de progresso e recordes pessoais.", "tip": "Cada resultado conta. Registros consistentes tornam suas tendências mais úteis com o tempo." }
+    "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
+    "guideMenu": {
+      "title": "Escolha um guia",
+      "description": "Selecione um tema e aprenda com um exemplo interativo.",
+      "guides": {
+        "concepts": {
+          "title": "Como o WODLY funciona",
+          "description": "Entenda movimentos, treinos, seções, variações e prescrições."
+        },
+        "logResults": {
+          "title": "Registrar resultados",
+          "description": "Acompanhe o fluxo completo, da escolha do treino até visualizar seu progresso."
+        },
+        "install": {
+          "title": "Instalar WODLY",
+          "description": "Adicione o WODLY ao seu telefone no iPhone, Android, Xiaomi ou outro navegador móvel."
+        }
+      }
     },
-    "example": {
-      "forYou": "Para você", "yourWorkouts": "Seus treinos", "history": "Histórico", "today": "Hoje", "workoutName": "Treino de sexta-feira", "workoutMeta": "4 seções · Várias variações", "date": "Sex, 18 set", "upperBody": "Parte superior", "conditioning": "Condicionamento", "olympicLifting": "Levantamento olímpico", "sectionsCount": "4 seções", "twoMovements": "2 movimentos", "men": "Homens", "women": "Mulheres", "yourResult": "Seu resultado", "saved": "Resultado salvo!", "savedDescription": "Ótimo trabalho! Seu resultado foi salvo.", "totalTime": "Tempo total", "movements": "Movimentos", "viewHistory": "Ver no Histórico",
-      "variations": { "rx": { "name": "Rx", "description": "Conforme prescrito" }, "intermediate": { "name": "Intermediário", "description": "Um desafio equilibrado" }, "beginner": { "name": "Iniciante", "description": "Movimentos adaptados" } },
-      "sections": { "warmup": "Aquecimento", "strength": "Força", "wod": "WOD", "cooldown": "Volta à calma" }
-    }
-  },
-  "visualGuide": {
+    "logResultsGuide": {
+      "eyebrow": "Guia de registro de resultados",
+      "skip": "Pular",
+      "back": "Voltar",
+      "next": "Próximo",
+      "finish": "Escolher um treino",
+      "progressLabel": "Progresso do guia de resultados",
+      "goToStep": "Ir para a etapa {step}",
+      "steps": {
+        "workout": {
+          "title": "Selecione seu treino",
+          "description": "Escolha o treino que você realizou entre as recomendações, seus treinos ou o histórico.",
+          "tip": "Comece selecionando o treino que você realmente fez."
+        },
+        "variation": {
+          "title": "Escolha sua variação",
+          "description": "Selecione o nível seguido no treino, como Rx, Intermediário ou Iniciante.",
+          "tip": "Seu nível salvo é uma opção padrão útil, mas você pode escolher outra variação a cada dia."
+        },
+        "target": {
+          "title": "Revise sua meta",
+          "description": "Confira as seções, os movimentos e as metas prescritas para a variação escolhida.",
+          "tip": "A prescrição é uma referência. Seu resultado deve registrar o que você realmente completou."
+        },
+        "performance": {
+          "title": "Registre o que você fez",
+          "description": "Informe o resultado geral e, se quiser, expanda os movimentos para registrar cargas, repetições ou outros detalhes.",
+          "tip": "Os detalhes por movimento são opcionais. Registre primeiro o resultado principal e adicione apenas o que for útil."
+        },
+        "progress": {
+          "title": "Veja seu progresso",
+          "description": "O resultado salvo é adicionado ao Histórico e contribui para gráficos de progresso e recordes pessoais.",
+          "tip": "Cada resultado conta. Registros consistentes tornam suas tendências mais úteis com o tempo."
+        }
+      },
+      "example": {
+        "forYou": "Para você",
+        "yourWorkouts": "Seus treinos",
+        "history": "Histórico",
+        "today": "Hoje",
+        "workoutName": "Treino de sexta-feira",
+        "workoutMeta": "4 seções · Várias variações",
+        "date": "Sex, 18 set",
+        "upperBody": "Parte superior",
+        "conditioning": "Condicionamento",
+        "olympicLifting": "Levantamento olímpico",
+        "sectionsCount": "4 seções",
+        "twoMovements": "2 movimentos",
+        "men": "Homens",
+        "women": "Mulheres",
+        "yourResult": "Seu resultado",
+        "saved": "Resultado salvo!",
+        "savedDescription": "Ótimo trabalho! Seu resultado foi salvo.",
+        "totalTime": "Tempo total",
+        "movements": "Movimentos",
+        "viewHistory": "Ver no Histórico",
+        "variations": {
+          "rx": {
+            "name": "Rx",
+            "description": "Conforme prescrito"
+          },
+          "intermediate": {
+            "name": "Intermediário",
+            "description": "Um desafio equilibrado"
+          },
+          "beginner": {
+            "name": "Iniciante",
+            "description": "Movimentos adaptados"
+          }
+        },
+        "sections": {
+          "warmup": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "cooldown": "Volta à calma"
+        }
+      }
+    },
+    "visualGuide": {
       "skip": "Pular",
       "back": "Voltar",
       "next": "Próximo",
@@ -1001,7 +1080,10 @@
           "section": "WOD",
           "scheme": "21 – 15 – 9",
           "levels": {
-            "rx": { "name": "Rx", "description": "Para atletas experientes" },
+            "rx": {
+              "name": "Rx",
+              "description": "Para atletas experientes"
+            },
             "intermediate": {
               "name": "Intermediário",
               "description": "Um desafio equilibrado"
@@ -1175,8 +1257,14 @@
         "categoryHelp": "A categoria altera a carga atribuída sem criar outra variação.",
         "tryLabel": "Compare categorias de prescrição",
         "categories": {
-          "men": { "name": "Homens", "value": "60 kg" },
-          "women": { "name": "Mulheres", "value": "42,5 kg" }
+          "men": {
+            "name": "Homens",
+            "value": "60 kg"
+          },
+          "women": {
+            "name": "Mulheres",
+            "value": "42,5 kg"
+          }
         }
       }
     },
@@ -1317,8 +1405,31 @@
         "discard": "Descartar"
       },
       "start": {
+        "eyebrow": "Início",
+        "title": "Escolha a forma mais fácil de começar",
+        "description": "Escolha o caminho que combina com a forma como você já tem o treino.",
+        "modes": {
+          "simple": {
+            "title": "Treino simples",
+            "description": "Um nível e uma parte do treino."
+          },
+          "levels": {
+            "title": "Treino com níveis",
+            "description": "RX, Intermediário, Iniciante ou níveis personalizados."
+          },
+          "import": {
+            "title": "Importar de texto",
+            "description": "Cole o treino e revise a estrutura."
+          }
+        },
         "importTitle": "Já tem o treino escrito?",
         "importDescription": "Cole um treino com níveis e prescrições específicas por categoria para criar um rascunho editável."
+      },
+      "scoreTypes": {
+        "time": "Tempo",
+        "roundsReps": "Rondas + reps",
+        "load": "Carga",
+        "reps": "Reps"
       },
       "mode": {
         "simpleTitle": "Configuração simples",
@@ -1348,7 +1459,7 @@
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 43 kg\nMulheres: Thrusters 29 kg\nPull-ups\n\nIntermediário\nHomens: Thrusters 34 kg\nMulheres: Thrusters 25 kg\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 20 kg\nMulheres: Thrusters 16 kg\nRing rows",
+        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
@@ -1364,10 +1475,39 @@
         },
         "formatHint": "Use um cabeçalho de nível (RX, Intermediário ou Iniciante). Escreva Homens ou Mulheres antes dos movimentos específicos.",
         "variantsDetected": "{count, plural, =1 {1 variação detectada} other {# variações detectadas}}",
-        "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}"
+        "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}",
+        "examplesTitle": "Teste um exemplo",
+        "examples": {
+          "forTime": "For Time",
+          "amrap": "AMRAP",
+          "strength": "Força + WOD"
+        },
+        "understoodTitle": "WODLY entendeu",
+        "understoodDescription": "Revise a estrutura detectada antes de continuar.",
+        "sections": "seções",
+        "movements": "movimentos",
+        "matchedShort": "encontrados",
+        "reviewShort": "para revisar",
+        "sectionFallback": "Seção",
+        "detected": "Detectado",
+        "editText": "Editar texto",
+        "reviewItems": "{count, plural, =1 {Revisar 1 item} other {Revisar # itens}}",
+        "continueToBuilder": "Continuar para o editor",
+        "reviewTitle": "Revisar importação",
+        "reviewDescription": "Corrija apenas o que o WODLY não conseguiu confirmar. O resto está bom.",
+        "needsReviewBadge": "Revisar",
+        "matchedBadge": "Encontrado",
+        "suggestedMatches": "Sugestões",
+        "manualReviewHint": "Nenhuma correspondência confiável foi encontrada. Continue para o editor e escolha o movimento lá.",
+        "allConfirmed": "Todos os itens importados estão confirmados.",
+        "backToPreview": "Voltar à prévia"
       },
       "steps": {
         "ariaLabel": "Progresso de criação do treino",
+        "start": {
+          "title": "Início",
+          "description": "Escolha como começar"
+        },
         "details": {
           "title": "Detalhes",
           "description": "Nome e tipo"
@@ -1393,10 +1533,14 @@
         "movements": "Movimentos",
         "sectionCount": "{count, plural, =1 {1 seção} other {# seções}}",
         "section": "Seção {number}",
+        "countSummary": "{variants} níveis · {sections} partes · {movements} movimentos",
+        "untitled": "Treino sem título",
         "edit": "Editar programação",
         "editDetails": "Editar detalhes",
         "noPrescription": "Sem prescrição geral",
-        "categoryOverrides": "Valores por categoria"
+        "categoryOverrides": "Valores por categoria",
+        "readyTitle": "Pronto para criar",
+        "readyDescription": "Todas as seções estão configuradas corretamente."
       },
       "details": {
         "eyebrow": "Treino",
@@ -1408,6 +1552,7 @@
         "descriptionPlaceholder": "Descreva o treino...",
         "type": "Tipo de treino",
         "selectType": "Selecione o tipo de treino",
+        "scoreHint": "Os atletas registrarão o resultado como: {score}.",
         "optionalTitle": "Detalhes opcionais",
         "optionalSummary": "Descrição e benchmark",
         "benchmark": "Treino benchmark",
@@ -1431,16 +1576,24 @@
         "sectionTypeRequired": "Seção {section}: selecione um tipo de seção.",
         "movementRequired": "Seção {section}: adicione pelo menos um movimento.",
         "movementSelectionRequired": "Seção {section}, movimento {movement}: selecione um movimento.",
+        "importRequired": "Cole e use um rascunho do treino antes de continuar.",
         "invalidRepScheme": "Seção {section}: o esquema de repetições deve conter números positivos separados por hífens, por exemplo 21-15-9.",
         "createError": "Não foi possível criar o treino."
       },
       "sectionBuilder": {
         "section": "Seção {number}",
-        "sectionLabel": "Seção",
+        "sectionLabel": "Parte",
         "configureSection": "Configurar seção",
+        "workoutType": "Tipo de treino",
+        "editMovement": "Editar movimento",
+        "saveMovement": "Salvar movimento",
+        "reorderMovement": "Reordenar movimento",
         "expand": "Expandir",
         "collapse": "Recolher",
         "summary": "{movements} movimentos",
+        "unselectedMovement": "Movimento não selecionado",
+        "tapToEdit": "Toque para editar",
+        "reps": "reps",
         "remove": "Remover",
         "sectionType": "Tipo de seção",
         "selectSectionType": "Selecione o tipo de seção",
@@ -1463,7 +1616,18 @@
         "notes": "Observações",
         "optional": "(opcional)",
         "notesPlaceholder": "Adicione instruções ou observações para esta seção...",
-        "optionalDetails": "Observações opcionais da seção"
+        "optionalDetails": "Observações opcionais da seção",
+        "saveChanges": "Salvar alterações",
+        "sectionRole": "Tipo de seção",
+        "roles": {
+          "warm_up": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "accessory": "Acessórios",
+          "cooldown": "Volta à calma",
+          "custom": "Personalizado"
+        },
+        "workoutFormat": "Formato do treino"
       },
       "movementBuilder": {
         "movement": "Movimento",
@@ -1497,7 +1661,15 @@
         "categoryPrescriptionsDescription": "Adicione valores específicos apenas quando a prescrição variar por categoria.",
         "removeCategoryPrescription": "Remover",
         "categoryFallbackHint": "Deixe um campo vazio para usar o valor compartilhado.",
-        "categoryNotesPlaceholder": "Notas opcionais para esta categoria"
+        "categoryNotesPlaceholder": "Notas opcionais para esta categoria",
+        "prescriptionAudience": "Prescrição",
+        "prescriptionAudienceDescription": "Escolha se o objetivo é igual para todos ou muda entre mulheres e homens.",
+        "sameForEveryone": "Igual para todos",
+        "differentByCategory": "Mulheres / Homens",
+        "sameForEveryoneDescription": "Use uma única prescrição para todos. Desative para configurar Mulheres e Homens separadamente.",
+        "womenMenPrescription": "Prescrição Mulheres / Homens",
+        "women": "Mulheres",
+        "men": "Homens"
       },
       "variants": {
         "eyebrow": "Variações do treino",
@@ -1513,6 +1685,9 @@
         "remove": "Remover",
         "level": "Nível de experiência",
         "selectLevel": "Selecione um nível",
+        "singleLevelHint": "Escolha um único nível para este treino.",
+        "singleBuilderTitle": "Monte seu treino",
+        "singleBuilderDescription": "Escolha o nível de experiência, o tipo de treino e adicione os movimentos.",
         "name": "Nome da variação",
         "namePlaceholder": "Nome personalizado opcional",
         "notes": "Notas",
@@ -1526,7 +1701,27 @@
           "variantRequired": "É necessária pelo menos uma variação do treino.",
           "levelRequired": "Selecione um nível para a variação {variant}.",
           "duplicateLevel": "Cada variação deve usar um nível diferente."
-        }
+        },
+        "chooseSectionType": "Que tipo de seção é esta?",
+        "reorderSection": "Reordenar seção",
+        "sectionRoles": {
+          "warm_up": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "accessory": "Acessórios",
+          "cooldown": "Volta à calma",
+          "custom": "Personalizado"
+        },
+        "editSection": "Editar seção",
+        "saveSection": "Salvar alterações",
+        "noMovementsYet": "Nenhum movimento ainda"
+      },
+      "levelsBuilder": {
+        "title": "Níveis do treino",
+        "description": "Escolha um nível para configurar. Cada nível pode ter suas próprias seções, movimentos e objetivos.",
+        "emptyTitle": "{level} ainda não está configurado",
+        "emptyDescription": "Copie um nível configurado e ajuste-o, ou crie este nível do zero.",
+        "copyFrom": "Copiar de {level}"
       }
     },
     "detail": {
@@ -1606,6 +1801,8 @@
       "description": "Registre seu desempenho neste treino.",
       "quickLogTitle": "Registro rápido",
       "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+      "guideToggleTitle": "Precisa de ajuda para registrar?",
+      "guideToggleDescription": "Abra uma guia rápida somente se quiser orientação.",
       "firstUse": {
         "eyebrow": "Primeiro resultado",
         "title": "Registrar leva só um momento",
@@ -1637,6 +1834,8 @@
       },
       "movementDetails": "Desempenho por movimento",
       "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
+      "movementDetailsProgress": "{logged} de {total} movimentos registrados.",
+      "movementDetailsTargets": "{count, plural, =1 {1 meta disponível} other {# metas disponíveis}}. Adicione detalhes só se forem úteis.",
       "detailsAdded": "Detalhes adicionados",
       "percentageTarget": "{percentage}% do seu {reps}RM",
       "percentageSource": "Com base na sua melhor marca de {load} {unit}",
@@ -1699,7 +1898,16 @@
     "strength": "Força",
     "interval": "Intervalos",
     "max_reps": "Máximo de repetições",
-    "custom": "Personalizado"
+    "custom": "Personalizado",
+    "descriptions": {
+      "for_time": "Complete o trabalho prescrito o mais rápido possível.",
+      "amrap": "Complete o maior número possível de rounds ou repetições dentro do tempo estabelecido.",
+      "emom": "Realize o trabalho prescrito no início de cada minuto.",
+      "strength": "Trabalho de força organizado em séries e repetições.",
+      "interval": "Alterne períodos cronometrados de trabalho e descanso.",
+      "max_reps": "Complete o maior número possível de repetições.",
+      "custom": "Use uma estrutura flexível para treinos que não se encaixam nos formatos padrão."
+    }
   },
   "resultTypes": {
     "time": "Tempo",
