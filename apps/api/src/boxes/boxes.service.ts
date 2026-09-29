@@ -84,7 +84,7 @@ export class BoxesService {
             include: {
               _count: {
                 select: {
-                  memberships: true,
+                  memberships: { where: { status: 'ACTIVE' } },
                 },
               },
             },
@@ -108,7 +108,7 @@ export class BoxesService {
       include: {
         _count: {
           select: {
-            memberships: true,
+            memberships: { where: { status: 'ACTIVE' } },
             classes: true,
           },
         },
