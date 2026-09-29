@@ -103,6 +103,8 @@ export default function WorkoutMovementForm({
 
   const [activeResultIndex, setActiveResultIndex] = useState(0);
 
+  const [activePrescriptionCategory, setActivePrescriptionCategory] = useState(movement.prescriptions[0]?.categoryKey ?? prescriptionCategories[0]?.key ?? "");
+
   const [showPrescription, setShowPrescription] = useState(
     Boolean(
       movement.reps ||
@@ -773,342 +775,67 @@ export default function WorkoutMovementForm({
 
             {advancedMode && prescriptionCategories.length > 0 && (
               <div className="mt-5 border-t border-border pt-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-                  {t("categoryPrescriptions")}
-                </p>
+                <p className="text-sm font-semibold">{t("prescriptionAudience")}</p>
+                <p className="mt-1 text-xs text-muted">{t("prescriptionAudienceDescription")}</p>
 
-                <p className="mt-1 text-xs text-muted">
-                  {t("categoryPrescriptionsDescription")}
-                </p>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {prescriptionCategories.map((category) => {
-                    const enabled = hasPrescription(category.key);
-
-                    return (
-                      <button
-                        key={category.key}
-                        type="button"
-                        onClick={() => togglePrescription(category.key)}
-                        className={
-                          enabled
-                            ? "max-w-full whitespace-normal break-words rounded-full border border-accent bg-accent/10 px-3 py-1.5 text-left text-sm font-semibold text-accent"
-                            : "max-w-full whitespace-normal break-words rounded-full border border-border bg-surface px-3 py-1.5 text-left text-sm font-semibold text-muted transition hover:border-accent/40 hover:text-foreground"
-                        }
-                      >
-                        {enabled ? "✓ " : "+ "}
-                        {category.name}
-                      </button>
-                    );
-                  })}
+                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-elevated p-1">
+                  <button type="button" onClick={() => onChange({ ...movement, prescriptions: [] })}
+                    className={`min-h-11 rounded-lg px-2 py-2 text-sm font-semibold transition ${movement.prescriptions.length === 0 ? "bg-accent text-accent-foreground shadow-sm" : "text-muted hover:text-foreground"}`}>
+                    {t("sameForEveryone")}
+                  </button>
+                  <button type="button" onClick={() => {
+                    const categories = prescriptionCategories.slice(0, 2);
+                    const existingKeys = new Set(movement.prescriptions.map((item) => item.categoryKey));
+                    const additions = categories.filter((category) => !existingKeys.has(category.key)).map((category) => ({
+                      categoryKey: category.key, reps: "", weight: "", weightUnit: "" as const, percentage: "", referenceRepMax: "1", distance: "", calories: "", durationSeconds: "", notes: "",
+                    }));
+                    onChange({ ...movement, prescriptions: [...movement.prescriptions, ...additions] });
+                    setActivePrescriptionCategory(categories[0]?.key ?? "");
+                  }}
+                    className={`min-h-11 rounded-lg px-2 py-2 text-sm font-semibold transition ${movement.prescriptions.length > 0 ? "bg-accent text-accent-foreground shadow-sm" : "text-muted hover:text-foreground"}`}>
+                    {t("differentByCategory")}
+                  </button>
                 </div>
 
-                {movement.prescriptions.length > 0 && (
-                  <div className="mt-5 space-y-4">
-                    {movement.prescriptions.map((prescription) => {
-                      const category = prescriptionCategories.find(
-                        (item) => item.key === prescription.categoryKey,
-                      );
+                {movement.prescriptions.length > 0 ? (
+                  <div className="mt-4">
+                    <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
+                      {movement.prescriptions.slice(0, 2).map((prescription) => {
+                        const category = prescriptionCategories.find((item) => item.key === prescription.categoryKey);
+                        const active = activePrescriptionCategory === prescription.categoryKey || (!activePrescriptionCategory && movement.prescriptions[0]?.categoryKey === prescription.categoryKey);
+                        return category ? (
+                          <button key={category.key} type="button" onClick={() => setActivePrescriptionCategory(category.key)}
+                            className={`min-h-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${active ? "bg-surface-elevated text-foreground shadow-sm" : "text-muted"}`}>
+                            {category.name}
+                          </button>
+                        ) : null;
+                      })}
+                    </div>
 
-                      if (!category) {
-                        return null;
-                      }
-
+                    {movement.prescriptions.slice(0, 2).map((prescription) => {
+                      const category = prescriptionCategories.find((item) => item.key === prescription.categoryKey);
+                      const active = activePrescriptionCategory === prescription.categoryKey || (!activePrescriptionCategory && movement.prescriptions[0]?.categoryKey === prescription.categoryKey);
+                      if (!category || !active) return null;
                       return (
-                        <div
-                          key={prescription.categoryKey}
-                          className="min-w-0 rounded-xl border border-border bg-surface p-2.5 sm:p-4"
-                        >
-                          <div className="flex items-start justify-between gap-2 sm:gap-4">
-                            <div className="min-w-0">
-                              <h5 className="font-semibold">{category.name}</h5>
-
-                              {category.description && (
-                                <p className="mt-1 text-xs text-muted">
-                                  {category.description}
-                                </p>
-                              )}
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => togglePrescription(category.key)}
-                              aria-label={t("removeCategoryPrescription")}
-                              title={t("removeCategoryPrescription")}
-                              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-medium text-muted transition hover:bg-red-500/10 hover:text-red-500 sm:h-auto sm:w-auto sm:rounded-none"
-                            >
-                              <span className="sm:hidden">
-                                <TrashIcon />
-                              </span>
-                              <span className="hidden sm:inline">
-                                {t("removeCategoryPrescription")}
-                              </span>
-                            </button>
-                          </div>
-
-                          <p className="mt-3 text-xs text-muted">
-                            {t("categoryFallbackHint")}
-                          </p>
-
-                          <div className="mt-4 grid gap-4 md:grid-cols-2">
-                            {supportsReps && (
-                              <div>
-                                <label
-                                  htmlFor={`prescription-reps-${movement.id}-${category.key}`}
-                                  className="mb-1.5 block text-sm font-medium"
-                                >
-                                  {t("reps")}
-                                </label>
-
-                                <input
-                                  id={`prescription-reps-${movement.id}-${category.key}`}
-                                  type="number"
-                                  min="1"
-                                  value={prescription.reps}
-                                  onChange={(event) =>
-                                    updatePrescription(
-                                      category.key,
-                                      "reps",
-                                      event.target.value,
-                                    )
-                                  }
-                                  placeholder={movement.reps || "10"}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                />
-                              </div>
-                            )}
-
-                            {supportsWeight && (
-                              <>
-                                <div>
-                                  <label
-                                    htmlFor={`prescription-weight-${movement.id}-${category.key}`}
-                                    className="mb-1.5 block text-sm font-medium"
-                                  >
-                                    {t("weight")}
-                                  </label>
-
-                                  <input
-                                    id={`prescription-weight-${movement.id}-${category.key}`}
-                                    type="number"
-                                    min="0"
-                                    step="0.1"
-                                    value={prescription.weight}
-                                    onChange={(event) =>
-                                      updatePrescription(
-                                        category.key,
-                                        "weight",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder={movement.weight || "43"}
-                                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                  />
-                                </div>
-
-                                <div>
-                                  <label
-                                    htmlFor={`prescription-unit-${movement.id}-${category.key}`}
-                                    className="mb-1.5 block text-sm font-medium"
-                                  >
-                                    {t("unit")}
-                                  </label>
-
-                                  <select
-                                    id={`prescription-unit-${movement.id}-${category.key}`}
-                                    value={prescription.weightUnit}
-                                    onChange={(event) =>
-                                      updatePrescription(
-                                        category.key,
-                                        "weightUnit",
-                                        event.target.value,
-                                      )
-                                    }
-                                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                  >
-                                    <option value="">
-                                      {movement.weightUnit
-                                        ? t("useSharedUnit", {
-                                            unit: movement.weightUnit,
-                                          })
-                                        : t("selectUnit")}
-                                    </option>
-
-                                    <option value="KG">KG</option>
-
-                                    <option value="LB">LB</option>
-                                  </select>
-                                </div>
-                              </>
-                            )}
-
-                            {supportsWeight && (
-                              <>
-                                <div>
-                                  <label
-                                    htmlFor={`prescription-percentage-${movement.id}-${category.key}`}
-                                    className="mb-1.5 block text-sm font-medium"
-                                  >
-                                    {t("percentageOfRm")}
-                                  </label>
-                                  <input
-                                    id={`prescription-percentage-${movement.id}-${category.key}`}
-                                    type="number"
-                                    min="1"
-                                    max="200"
-                                    step="0.5"
-                                    value={prescription.percentage}
-                                    onChange={(event) =>
-                                      updatePrescription(
-                                        category.key,
-                                        "percentage",
-                                        event.target.value,
-                                      )
-                                    }
-                                    placeholder="75"
-                                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                  />
-                                </div>
-                                <div>
-                                  <label
-                                    htmlFor={`prescription-rm-${movement.id}-${category.key}`}
-                                    className="mb-1.5 block text-sm font-medium"
-                                  >
-                                    {t("referenceRm")}
-                                  </label>
-                                  <select
-                                    id={`prescription-rm-${movement.id}-${category.key}`}
-                                    value={prescription.referenceRepMax}
-                                    disabled={!prescription.percentage}
-                                    onChange={(event) =>
-                                      updatePrescription(
-                                        category.key,
-                                        "referenceRepMax",
-                                        event.target.value,
-                                      )
-                                    }
-                                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 disabled:opacity-50"
-                                  >
-                                    {[1, 2, 3, 5, 8, 10].map((reps) => (
-                                      <option key={reps} value={reps}>
-                                        {reps}RM
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                              </>
-                            )}
-
-                            {supportsDistance && (
-                              <div>
-                                <label
-                                  htmlFor={`prescription-distance-${movement.id}-${category.key}`}
-                                  className="mb-1.5 block text-sm font-medium"
-                                >
-                                  {t("distance")}
-                                </label>
-
-                                <input
-                                  id={`prescription-distance-${movement.id}-${category.key}`}
-                                  type="number"
-                                  min="0"
-                                  value={prescription.distance}
-                                  onChange={(event) =>
-                                    updatePrescription(
-                                      category.key,
-                                      "distance",
-                                      event.target.value,
-                                    )
-                                  }
-                                  placeholder={movement.distance || "500"}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                />
-                              </div>
-                            )}
-
-                            {supportsCalories && (
-                              <div>
-                                <label
-                                  htmlFor={`prescription-calories-${movement.id}-${category.key}`}
-                                  className="mb-1.5 block text-sm font-medium"
-                                >
-                                  {t("calories")}
-                                </label>
-
-                                <input
-                                  id={`prescription-calories-${movement.id}-${category.key}`}
-                                  type="number"
-                                  min="0"
-                                  value={prescription.calories}
-                                  onChange={(event) =>
-                                    updatePrescription(
-                                      category.key,
-                                      "calories",
-                                      event.target.value,
-                                    )
-                                  }
-                                  placeholder={movement.calories || "15"}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                />
-                              </div>
-                            )}
-
-                            {supportsDuration && (
-                              <div>
-                                <label
-                                  htmlFor={`prescription-duration-${movement.id}-${category.key}`}
-                                  className="mb-1.5 block text-sm font-medium"
-                                >
-                                  {t("duration")}
-                                </label>
-
-                                <input
-                                  id={`prescription-duration-${movement.id}-${category.key}`}
-                                  type="number"
-                                  min="0"
-                                  value={prescription.durationSeconds}
-                                  onChange={(event) =>
-                                    updatePrescription(
-                                      category.key,
-                                      "durationSeconds",
-                                      event.target.value,
-                                    )
-                                  }
-                                  placeholder={movement.durationSeconds || "30"}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                                />
-                              </div>
-                            )}
-
-                            <div className="md:col-span-2">
-                              <label
-                                htmlFor={`prescription-notes-${movement.id}-${category.key}`}
-                                className="mb-1.5 block text-sm font-medium"
-                              >
-                                {t("notes")}
-                              </label>
-
-                              <input
-                                id={`prescription-notes-${movement.id}-${category.key}`}
-                                type="text"
-                                value={prescription.notes}
-                                onChange={(event) =>
-                                  updatePrescription(
-                                    category.key,
-                                    "notes",
-                                    event.target.value,
-                                  )
-                                }
-                                placeholder={t("categoryNotesPlaceholder")}
-                                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                              />
-                            </div>
+                        <div key={category.key} className="mt-4">
+                          <p className="mb-3 text-xs text-muted">{t("categoryFallbackHint")}</p>
+                          <div className="grid grid-cols-2 gap-3">
+                            {supportsReps ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-reps-${movement.id}-${category.key}`}>{t("reps")}</label><input id={`prescription-reps-${movement.id}-${category.key}`} type="number" min="1" value={prescription.reps} onChange={(event) => updatePrescription(category.key,"reps",event.target.value)} placeholder={movement.reps || "10"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10" /></div> : null}
+                            {supportsWeight ? <>
+                              <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-weight-${movement.id}-${category.key}`}>{t("weight")}</label><input id={`prescription-weight-${movement.id}-${category.key}`} type="number" min="0" step="0.1" value={prescription.weight} onChange={(event) => updatePrescription(category.key,"weight",event.target.value)} placeholder={movement.weight || "43"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/10" /></div>
+                              <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-unit-${movement.id}-${category.key}`}>{t("unit")}</label><select id={`prescription-unit-${movement.id}-${category.key}`} value={prescription.weightUnit} onChange={(event) => updatePrescription(category.key,"weightUnit",event.target.value)} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60"><option value="">{movement.weightUnit || t("selectUnit")}</option><option value="KG">KG</option><option value="LB">LB</option></select></div>
+                              <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-percentage-${movement.id}-${category.key}`}>{t("percentageOfRm")}</label><input id={`prescription-percentage-${movement.id}-${category.key}`} type="number" min="1" max="200" step="0.5" value={prescription.percentage} onChange={(event) => updatePrescription(category.key,"percentage",event.target.value)} placeholder="75" className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div>
+                              {prescription.percentage ? <div><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-rm-${movement.id}-${category.key}`}>{t("referenceRm")}</label><select id={`prescription-rm-${movement.id}-${category.key}`} value={prescription.referenceRepMax} onChange={(event) => updatePrescription(category.key,"referenceRepMax",event.target.value)} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60">{[1,2,3,5,8,10].map((reps) => <option key={reps} value={reps}>{reps}RM</option>)}</select></div> : null}
+                            </> : null}
+                            {supportsDistance ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-distance-${movement.id}-${category.key}`}>{t("distance")}</label><input id={`prescription-distance-${movement.id}-${category.key}`} type="number" min="0" value={prescription.distance} onChange={(event) => updatePrescription(category.key,"distance",event.target.value)} placeholder={movement.distance || "500"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
+                            {supportsCalories ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-calories-${movement.id}-${category.key}`}>{t("calories")}</label><input id={`prescription-calories-${movement.id}-${category.key}`} type="number" min="0" value={prescription.calories} onChange={(event) => updatePrescription(category.key,"calories",event.target.value)} placeholder={movement.calories || "15"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
+                            {supportsDuration ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-duration-${movement.id}-${category.key}`}>{t("duration")}</label><input id={`prescription-duration-${movement.id}-${category.key}`} type="number" min="0" value={prescription.durationSeconds} onChange={(event) => updatePrescription(category.key,"durationSeconds",event.target.value)} placeholder={movement.durationSeconds || "30"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                )}
+                ) : null}
               </div>
             )}
 
