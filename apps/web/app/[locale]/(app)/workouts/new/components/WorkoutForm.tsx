@@ -473,8 +473,49 @@ export default function WorkoutForm({
             name: null,
             notes: null,
             section: result.draft.section,
+            sections: result.draft.sections,
           },
         ];
+
+    const mapImportedSection = (
+      section: WorkoutImportResult["draft"]["section"],
+    ): WorkoutSectionFormState => ({
+      id: crypto.randomUUID(),
+      typeKey: section.typeKey,
+      role: section.role ?? "WOD",
+      rounds: formValue(section.rounds),
+      durationSeconds: formValue(section.durationSeconds),
+      restSeconds: formValue(section.restSeconds),
+      repScheme: section.repScheme.join("-"),
+      notes: section.notes ?? "",
+      movements: section.movements.map((item) => ({
+        id: crypto.randomUUID(),
+        movementId: item.movement?.id ?? "",
+        movementName: item.movement?.name ?? item.notes ?? "",
+        movementOption: item.movement,
+        reps: formValue(item.reps),
+        weight: formValue(item.weight),
+        weightUnit: item.weightUnit ?? "",
+        percentage: "",
+        referenceRepMax: "1",
+        distance: formValue(item.distance),
+        calories: formValue(item.calories),
+        durationSeconds: formValue(item.durationSeconds),
+        notes: item.matchStatus === "MATCHED" ? "" : item.source,
+        prescriptions: item.prescriptions.map((prescription) => ({
+          categoryKey: prescription.categoryKey,
+          reps: formValue(prescription.reps),
+          weight: formValue(prescription.weight),
+          weightUnit: prescription.weightUnit ?? "",
+          percentage: "",
+          referenceRepMax: "",
+          distance: formValue(prescription.distance),
+          calories: formValue(prescription.calories),
+          durationSeconds: formValue(prescription.durationSeconds),
+          notes: prescription.notes ?? "",
+        })),
+      })),
+    });
 
     setName(result.draft.name);
     setDescription(result.draft.description ?? "");
@@ -485,45 +526,10 @@ export default function WorkoutForm({
         levelKey: variant.levelKey,
         name: variant.name ?? "",
         notes: variant.notes ?? "",
-        sections: [
-          {
-            id: crypto.randomUUID(),
-            typeKey: variant.section.typeKey,
-            role: "WOD",
-            rounds: formValue(variant.section.rounds),
-            durationSeconds: formValue(variant.section.durationSeconds),
-            restSeconds: formValue(variant.section.restSeconds),
-            repScheme: variant.section.repScheme.join("-"),
-            notes: variant.section.notes ?? "",
-            movements: variant.section.movements.map((item) => ({
-              id: crypto.randomUUID(),
-              movementId: item.movement?.id ?? "",
-              movementName: item.movement?.name ?? item.notes ?? "",
-              movementOption: item.movement,
-              reps: formValue(item.reps),
-              weight: formValue(item.weight),
-              weightUnit: item.weightUnit ?? "",
-              percentage: "",
-              referenceRepMax: "1",
-              distance: formValue(item.distance),
-              calories: formValue(item.calories),
-              durationSeconds: formValue(item.durationSeconds),
-              notes: item.matchStatus === "MATCHED" ? "" : item.source,
-              prescriptions: item.prescriptions.map((prescription) => ({
-                categoryKey: prescription.categoryKey,
-                reps: formValue(prescription.reps),
-                weight: formValue(prescription.weight),
-                weightUnit: prescription.weightUnit ?? "",
-                percentage: "",
-                referenceRepMax: "",
-                distance: formValue(prescription.distance),
-                calories: formValue(prescription.calories),
-                durationSeconds: formValue(prescription.durationSeconds),
-                notes: prescription.notes ?? "",
-              })),
-            })),
-          },
-        ],
+        sections: (variant.sections?.length
+          ? variant.sections
+          : [variant.section]
+        ).map(mapImportedSection),
       })),
     );
     setError(null);

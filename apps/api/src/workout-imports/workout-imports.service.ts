@@ -52,6 +52,20 @@ type ParsedMovement = {
   prescriptions: ParsedPrescription[];
 };
 
+type SectionRole =
+  'WARM_UP' | 'STRENGTH' | 'WOD' | 'ACCESSORY' | 'COOLDOWN' | 'CUSTOM';
+
+type ParsedSection = {
+  typeKey: string;
+  role: SectionRole;
+  rounds: number | null;
+  durationSeconds: number | null;
+  restSeconds: null;
+  repScheme: number[];
+  notes: string | null;
+  movements: ParsedMovement[];
+};
+
 const levelAliases: Record<string, string> = {
   rx: 'RX',
   intermediate: 'INTERMEDIATE',
@@ -86,6 +100,31 @@ const categoryAliases: Record<string, 'MEN' | 'WOMEN'> = {
   femininas: 'WOMEN',
   mulher: 'WOMEN',
   mulheres: 'WOMEN',
+};
+
+const sectionRoleAliases: Record<string, SectionRole> = {
+  'warm up': 'WARM_UP',
+  warmup: 'WARM_UP',
+  calentamiento: 'WARM_UP',
+  aquecimento: 'WARM_UP',
+  strength: 'STRENGTH',
+  fuerza: 'STRENGTH',
+  forca: 'STRENGTH',
+  wod: 'WOD',
+  metcon: 'WOD',
+  conditioning: 'WOD',
+  condicionamiento: 'WOD',
+  condicionamento: 'WOD',
+  accessory: 'ACCESSORY',
+  accesorios: 'ACCESSORY',
+  accesorio: 'ACCESSORY',
+  acessorio: 'ACCESSORY',
+  acessorios: 'ACCESSORY',
+  'cool down': 'COOLDOWN',
+  cooldown: 'COOLDOWN',
+  'vuelta a la calma': 'COOLDOWN',
+  enfriamiento: 'COOLDOWN',
+  desaquecimento: 'COOLDOWN',
 };
 
 function normalize(value: string) {
@@ -130,6 +169,30 @@ function detectCategory(value: string) {
   return categoryAliases[headerValue(value)] ?? null;
 }
 
+function detectSectionRole(value: string): SectionRole | null {
+  const header = headerValue(value);
+  const direct = sectionRoleAliases[header];
+  if (direct) return direct;
+
+  const prefix = normalize(
+    value.replace(/^#+\s*/, '').split(/\s*[-:–—]\s*/)[0],
+  );
+  return sectionRoleAliases[prefix] ?? null;
+}
+
+function typeForSection(
+  role: SectionRole,
+  value: string,
+  fallbackType: string,
+) {
+  const detected = detectType(value);
+  if (detected !== 'CUSTOM') return detected;
+  if (role === 'STRENGTH') return 'STRENGTH';
+  if (role === 'WOD')
+    return fallbackType === 'STRENGTH' ? 'CUSTOM' : fallbackType;
+  return 'CUSTOM';
+}
+
 function splitCategoryPrefix(value: string) {
   const match = value.match(/^([^:–—-]+)\s*[:–—-]\s*(.+)$/);
 
@@ -161,21 +224,7 @@ function detectType(text: string) {
 }
 
 function isDirective(line: string) {
-  const header = headerValue(line);
-  if (
-    [
-      'warm up',
-      'warmup',
-      'strength',
-      'skill',
-      'wod',
-      'metcon',
-      'conditioning',
-      'cool down',
-      'cooldown',
-      'accessory',
-    ].includes(header)
-  ) {
+  if (detectSectionRole(line)) {
     return true;
   }
 
@@ -263,15 +312,71 @@ export class WorkoutImportsService {
       : [];
     const roundsMatch = fullText.match(/\b(\d+)\s+rounds?\b/i);
     const issues: ImportIssue[] = [];
-    const variantMovements = new Map<string, ParsedMovement[]>();
+    const variantSections = new Map<string, ParsedSection[]>();
     let currentLevel = 'RX';
     let currentCategory: 'MEN' | 'WOMEN' | null = null;
+    let currentRole: SectionRole = 'WOD';
+
+    const createSection = (
+      role: SectionRole,
+      source: string,
+      movements: ParsedMovement[] = [],
+    ): ParsedSection => ({
+      typeKey: typeForSection(role, source, typeKey),
+      role,
+      rounds: /\b(\d+)\s+rounds?\b/i.test(source)
+        ? Number(source.match(/\b(\d+)\s+rounds?\b/i)?.[1])
+        : null,
+      durationSeconds: durationSeconds(source),
+      restSeconds: null,
+      repScheme: /\b(\d+(?:\s*[-–—]\s*\d+){1,})\b/.test(source)
+        ? (source.match(/\b(\d+(?:\s*[-–—]\s*\d+){1,})\b/)?.[1] ?? '')
+            .split(/\s*[-–—]\s*/)
+            .filter(Boolean)
+            .map(Number)
+        : [],
+      notes: null,
+      movements,
+    });
+
+    const sectionsForLevel = (level: string) => {
+      const existing = variantSections.get(level);
+      if (existing) return existing;
+
+      const sections = [createSection(currentRole, fullText)];
+      variantSections.set(level, sections);
+      return sections;
+    };
+
+    const currentSection = () => {
+      const sections = sectionsForLevel(currentLevel);
+      return sections[sections.length - 1];
+    };
 
     for (const line of lines) {
       const level = detectLevel(line.value);
       if (level) {
         currentLevel = level;
         currentCategory = null;
+        currentRole = 'WOD';
+        continue;
+      }
+
+      const sectionRole = detectSectionRole(line.value);
+      if (sectionRole) {
+        currentRole = sectionRole;
+        currentCategory = null;
+        const sections = sectionsForLevel(currentLevel);
+        const nextSection = createSection(sectionRole, line.value);
+        if (
+          sections.length === 1 &&
+          sections[0].movements.length === 0 &&
+          sections[0].role === 'WOD'
+        ) {
+          sections[0] = nextSection;
+        } else {
+          sections.push(nextSection);
+        }
         continue;
       }
 
@@ -281,11 +386,27 @@ export class WorkoutImportsService {
         continue;
       }
 
-      if (
-        line.value === name ||
-        isDirective(line.value) ||
-        repSchemeMatch?.[0] === line.value
-      ) {
+      const section = currentSection();
+
+      if (isDirective(line.value)) {
+        section.typeKey = typeForSection(section.role, line.value, typeKey);
+        section.rounds =
+          section.rounds ??
+          (/\b(\d+)\s+rounds?\b/i.test(line.value)
+            ? Number(line.value.match(/\b(\d+)\s+rounds?\b/i)?.[1])
+            : null);
+        section.durationSeconds =
+          section.durationSeconds ?? durationSeconds(line.value);
+        continue;
+      }
+
+      const lineRepScheme = line.value.match(/\b(\d+(?:\s*[-–—]\s*\d+){1,})\b/);
+      if (lineRepScheme?.[0] === line.value) {
+        section.repScheme = lineRepScheme[1].split(/\s*[-–—]\s*/).map(Number);
+        continue;
+      }
+
+      if (line.value === name) {
         continue;
       }
 
@@ -340,12 +461,11 @@ export class WorkoutImportsService {
       }
 
       const values = numericValues(prefixed.value);
-      const movements = variantMovements.get(currentLevel) ?? [];
-      variantMovements.set(currentLevel, movements);
+      const movements = section.movements;
       const identity = match?.id ?? normalized;
       let movement = movements.find(
         (item) =>
-          (item.movement?.id ?? normalize(item.notes ?? '')) === identity,
+          (item.movement?.id ?? matchValue(item.notes ?? '')) === identity,
       );
 
       if (!movement) {
@@ -401,28 +521,37 @@ export class WorkoutImportsService {
       }
     }
 
-    const sectionBase = {
-      typeKey,
-      rounds: roundsMatch ? Number(roundsMatch[1]) : null,
-      durationSeconds: durationSeconds(fullText),
-      restSeconds: null,
-      repScheme,
-      notes: null,
-    };
-    const variants = [...variantMovements.entries()].map(
-      ([levelKey, movements]) => ({
+    for (const sections of variantSections.values()) {
+      if (sections.length === 1 && sections[0].movements.length === 0) {
+        sections[0] = {
+          ...sections[0],
+          typeKey,
+          role: 'WOD',
+          rounds: roundsMatch ? Number(roundsMatch[1]) : null,
+          durationSeconds: durationSeconds(fullText),
+          repScheme,
+        };
+      }
+    }
+
+    const fallbackSection = createSection('WOD', fullText);
+    fallbackSection.typeKey = typeKey;
+    fallbackSection.rounds = roundsMatch ? Number(roundsMatch[1]) : null;
+    fallbackSection.durationSeconds = durationSeconds(fullText);
+    fallbackSection.repScheme = repScheme;
+
+    const variants = [...variantSections.entries()].map(
+      ([levelKey, sections]) => ({
         levelKey,
         name: null,
         notes: null,
-        section: { ...sectionBase, movements },
+        section:
+          sections.find((section) => section.role === 'WOD') ?? sections[0],
+        sections,
       }),
     );
-    const fallbackSection = {
-      ...sectionBase,
-      movements: [] as ParsedMovement[],
-    };
-    const allMovements = variants.flatMap(
-      (variant) => variant.section.movements,
+    const allMovements = variants.flatMap((variant) =>
+      variant.sections.flatMap((section) => section.movements),
     );
 
     return {
@@ -432,6 +561,7 @@ export class WorkoutImportsService {
         description: null,
         typeKey,
         section: variants[0]?.section ?? fallbackSection,
+        sections: variants[0]?.sections ?? [fallbackSection],
         variants,
       },
       summary: {

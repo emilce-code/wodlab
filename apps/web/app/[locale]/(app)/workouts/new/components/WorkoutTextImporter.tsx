@@ -34,6 +34,7 @@ type ImportedMovement = {
 
 type ImportedSection = {
   typeKey: string;
+  role: "WARM_UP" | "STRENGTH" | "WOD" | "ACCESSORY" | "COOLDOWN" | "CUSTOM";
   rounds: number | null;
   durationSeconds: number | null;
   restSeconds: number | null;
@@ -48,11 +49,13 @@ export type WorkoutImportResult = {
     description: string | null;
     typeKey: string;
     section: ImportedSection;
+    sections?: ImportedSection[];
     variants: Array<{
       levelKey: string;
       name: string | null;
       notes: string | null;
       section: ImportedSection;
+      sections?: ImportedSection[];
     }>;
   };
   summary: {
@@ -84,20 +87,25 @@ const EXAMPLES = {
 
 function collectSections(result: WorkoutImportResult) {
   if (result.draft.variants.length) {
-    return result.draft.variants.map((variant) => ({
-      key: variant.levelKey,
-      title: variant.name ?? variant.levelKey,
-      section: variant.section,
-    }));
+    return result.draft.variants.flatMap((variant) =>
+      (variant.sections?.length ? variant.sections : [variant.section]).map(
+        (section, index) => ({
+          key: `${variant.levelKey}-${index}`,
+          title: variant.name ?? variant.levelKey,
+          section,
+        }),
+      ),
+    );
   }
 
-  return [
-    {
-      key: "draft",
-      title: result.draft.name,
-      section: result.draft.section,
-    },
-  ];
+  return (result.draft.sections?.length
+    ? result.draft.sections
+    : [result.draft.section]
+  ).map((section, index) => ({
+    key: `draft-${index}`,
+    title: result.draft.name,
+    section,
+  }));
 }
 
 function countMovements(result: WorkoutImportResult) {
@@ -216,9 +224,15 @@ export default function WorkoutTextImporter({ onApply }: Props) {
               line,
               movement,
             ),
+            sections: current.draft.sections?.map((section) =>
+              updateSectionMovement(section, line, movement),
+            ),
             variants: current.draft.variants.map((variant) => ({
               ...variant,
               section: updateSectionMovement(variant.section, line, movement),
+              sections: variant.sections?.map((section) =>
+                updateSectionMovement(section, line, movement),
+              ),
             })),
           },
           summary: {
@@ -293,6 +307,7 @@ export default function WorkoutTextImporter({ onApply }: Props) {
                     </p>
                     <p className="mt-1 text-xs text-muted">
                       {item.section.typeKey}
+                      {` · ${item.section.role}`}
                       {meta ? ` · ${meta}` : ""}
                     </p>
                   </div>
