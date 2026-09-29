@@ -216,18 +216,38 @@ export default function ClassHub() {
       {boxes.length ? <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button> : null}
 
       {showJoin ? (
-        <form onSubmit={submitBox} className="rounded-2xl border border-border bg-surface p-4">
-          <h2 className="font-bold">{t("join.title")}</h2>
-          <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
-          <input name="joinCode" aria-label={t("join.code")} required minLength={6} maxLength={12} autoCapitalize="characters" autoCorrect="off" placeholder={t("join.placeholder")} className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-lg uppercase tracking-[0.15em]" />
+        <form onSubmit={submitBox} className="rounded-3xl border border-border bg-surface p-5 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl font-black text-accent">
+            W
+          </div>
+          <h2 className="mt-4 text-xl font-bold">{t("join.title")}</h2>
+          <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">{t("join.description")}</p>
+          <label htmlFor="join-box-code" className="sr-only">{t("join.code")}</label>
+          <input
+            id="join-box-code"
+            name="joinCode"
+            aria-label={t("join.code")}
+            required
+            minLength={6}
+            maxLength={12}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            inputMode="text"
+            placeholder={t("join.placeholder")}
+            className="mt-5 min-h-14 w-full rounded-2xl border border-border bg-background px-4 text-center font-mono text-xl font-bold uppercase tracking-[0.22em] outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          />
           <Button className="mt-3 w-full">{t("join.submit")}</Button>
         </form>
       ) : null}
 
       {joinRequestSent ? (
-        <p role="status" className="rounded-xl border border-accent/30 bg-accent/10 p-3 text-sm text-accent">
-          {t("join.pending")}
-        </p>
+        <section role="status" className="rounded-3xl border border-accent/20 bg-surface p-5 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl font-bold text-accent">
+            ✓
+          </div>
+          <h2 className="mt-3 font-bold text-accent">{t("join.title")}</h2>
+          <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">{t("join.pending")}</p>
+        </section>
       ) : null}
 
       {error ? <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
