@@ -234,6 +234,15 @@ function parseRepScheme(value: string): number[] {
     .filter((value) => Number.isInteger(value) && value > 0);
 }
 
+const REVIEW_SECTION_ICONS: Record<WorkoutSectionFormState["role"], string> = {
+  WARM_UP: "🔥",
+  STRENGTH: "🏋",
+  WOD: "⚡",
+  ACCESSORY: "＋",
+  COOLDOWN: "❄",
+  CUSTOM: "◆",
+};
+
 export default function WorkoutForm({
   workoutTypes,
   workoutLevels,
@@ -1298,177 +1307,62 @@ export default function WorkoutForm({
 
       {currentStep === "review" ? (
         <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-                {t("review.eyebrow")}
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold">{t("review.title")}</h2>
-
-              <p className="mt-1 text-sm text-muted">
-                {t("review.description")}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => goToStep("details")}
-              className="text-sm font-semibold text-accent hover:text-accent-strong"
-            >
-              {t("review.editDetails")}
-            </button>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{t("review.eyebrow")}</p>
+            <h2 className="mt-1 text-xl font-bold">{t("review.title")}</h2>
+            <p className="mt-1 text-sm text-muted">{t("review.description")}</p>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-border bg-background p-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">
-                {typeKey ? getWorkoutTypeLabel(typeKey) : t("review.workout")}
-              </span>
-              <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold">
-                {getPrimaryScoreLabel()}
-              </span>
-              <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold">
-                {t("review.countSummary", {
-                  variants: variants.length,
-                  sections: totalSections,
-                  movements: totalMovements,
-                })}
-              </span>
+          <div className="mt-5 rounded-2xl border border-border bg-background p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="truncate text-2xl font-black tracking-tight">{name || t("review.untitled")}</h3>
+                {description ? <p className="mt-1 line-clamp-2 text-sm text-muted">{description}</p> : null}
+              </div>
+              <button type="button" onClick={() => goToStep("details")} aria-label={t("review.editDetails")} className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
             </div>
-
-            <h3 className="mt-4 text-3xl font-black tracking-tight">
-              {name || t("review.untitled")}
-            </h3>
-            {description ? (
-              <p className="mt-2 text-sm text-muted">{description}</p>
-            ) : null}
+            <p className="mt-3 text-xs text-muted">{t("review.countSummary", { variants: variants.length, sections: totalSections, movements: totalMovements })}</p>
           </div>
 
-          <div className="mt-6 space-y-4">
-            {variants.map((variant, variantIndex) => (
-              <article
-                key={variant.id}
-                className="rounded-2xl border border-border bg-background p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold">
-                      {workoutLevels.find(
-                        (level) => level.key === variant.levelKey,
-                      )?.name ?? t("variants.configure")}
-                    </p>
-                    {variant.name ? (
-                      <p className="mt-1 text-sm font-medium">{variant.name}</p>
-                    ) : null}
-                    <p className="mt-1 text-sm text-muted">
-                      {t("review.sectionCount", {
-                        count: variant.sections.length,
-                      })}
-                    </p>
-                    {variant.notes ? (
-                      <p className="mt-2 text-xs text-muted">{variant.notes}</p>
-                    ) : null}
+          {advancedMode && variants.length > 1 ? (
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {variants.map((variant) => {
+                const selected = variant.levelKey === activeLevelKey || (!activeLevelKey && variant.id === variants[0]?.id);
+                return <button key={variant.id} type="button" onClick={() => setActiveLevelKey(variant.levelKey)} className={`min-h-10 min-w-0 truncate rounded-xl border px-2 text-xs font-semibold transition ${selected ? "border-accent bg-accent text-accent-foreground" : "border-border bg-background text-foreground"}`}>{workoutLevels.find((level) => level.key === variant.levelKey)?.name ?? variant.levelKey}</button>;
+              })}
+            </div>
+          ) : null}
+
+          <div className="mt-4 space-y-2.5">
+            {variants.filter((variant) => !advancedMode || variants.length === 1 || variant.levelKey === activeLevelKey || (!activeLevelKey && variant.id === variants[0]?.id)).flatMap((variant) => variant.sections.map((section) => {
+              const config = formatSectionConfiguration(section);
+              const movementNames = section.movements.slice(0, 3).map((movement) => movement.movementName).filter(Boolean);
+              return (
+                <article key={section.id} className="rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-start gap-3">
+                    <span aria-hidden="true" className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-lg">{REVIEW_SECTION_ICONS[section.role]}</span>
+                    <button type="button" onClick={() => { setActiveLevelKey(variant.levelKey); goToStep("programming"); }} className="min-w-0 flex-1 text-left">
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-bold">{t(`sectionBuilder.roles.${section.role.toLowerCase()}`)}</span>
+                        <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">{getWorkoutTypeLabel(section.typeKey)}</span>
+                      </span>
+                      {config.length ? <span className="mt-1 block truncate text-xs text-muted">{config.join(" · ")}</span> : null}
+                      <span className="mt-2 block truncate text-xs font-medium">{movementNames.join(" · ")}{section.movements.length > 3 ? ` +${section.movements.length - 3}` : ""}</span>
+                      <span className="mt-0.5 block text-[11px] text-muted">{t("sectionBuilder.summary", { movements: section.movements.length })}</span>
+                    </button>
+                    <button type="button" onClick={() => { setActiveLevelKey(variant.levelKey); goToStep("programming"); }} aria-label={t("review.edit")} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                   </div>
+                </article>
+              );
+            }))}
+          </div>
 
-                  <button
-                    type="button"
-                    onClick={() => goToStep("programming")}
-                    className="text-sm font-semibold text-accent hover:text-accent-strong"
-                  >
-                    {t("review.edit")}
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {variant.sections.map((section) => (
-                    <div
-                      key={section.id}
-                      className="rounded-lg border border-border p-3"
-                    >
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                        {t(`sectionBuilder.roles.${section.role.toLowerCase()}`)}{" · "}
-                        {getWorkoutTypeLabel(section.typeKey)}
-                      </p>
-                      {formatSectionConfiguration(section).length > 0 ? (
-                        <p className="mt-1 text-xs text-muted">
-                          {formatSectionConfiguration(section).join(" · ")}
-                        </p>
-                      ) : null}
-
-                      <ul className="mt-3 space-y-2">
-                        {section.movements.map((movement) => {
-                          const prescription =
-                            formatMovementPrescription(movement);
-
-                          return (
-                            <li
-                              key={movement.id}
-                              className="rounded-lg bg-surface px-3 py-2.5"
-                            >
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-semibold">
-                                  {prescription.length > 0 ? (
-                                    <span className="mr-2 text-accent">
-                                      {prescription.join(" · ")}
-                                    </span>
-                                  ) : null}
-                                  {movement.movementName}
-                                </p>
-                                <p className="text-xs text-muted">
-                                  {prescription.length > 0
-                                    ? null
-                                    : t("review.noPrescription")}
-                                </p>
-                              </div>
-
-                              {movement.prescriptions.length > 0 ? (
-                                <div className="mt-2 flex flex-wrap gap-1.5">
-                                  <span className="text-xs text-muted">
-                                    {t("review.categoryOverrides")}:
-                                  </span>
-                                  {movement.prescriptions.map(
-                                    (categoryPrescription) => (
-                                      <span
-                                        key={categoryPrescription.categoryKey}
-                                        className="rounded-full border border-border bg-background px-2 py-0.5 text-xs font-medium"
-                                      >
-                                        {prescriptionCategories.find(
-                                          (category) =>
-                                            category.key ===
-                                            categoryPrescription.categoryKey,
-                                        )?.name ??
-                                          categoryPrescription.categoryKey}
-                                      </span>
-                                    ),
-                                  )}
-                                </div>
-                              ) : null}
-
-                              {movement.notes ? (
-                                <p className="mt-2 text-xs text-muted">
-                                  {movement.notes}
-                                </p>
-                              ) : null}
-                            </li>
-                          );
-                        })}
-                      </ul>
-
-                      {section.notes ? (
-                        <p className="mt-3 text-xs text-muted">
-                          {section.notes}
-                        </p>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-
-                <span className="sr-only">
-                  {t("variants.variant", { number: variantIndex + 1 })}
-                </span>
-              </article>
-            ))}
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3">
+            <span aria-hidden="true" className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">✓</span>
+            <div>
+              <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">{t("review.readyTitle")}</p>
+              <p className="mt-0.5 text-xs text-muted">{t("review.readyDescription")}</p>
+            </div>
           </div>
         </section>
       ) : null}
