@@ -44,6 +44,12 @@ enum BoxMemberRole {
   ATHLETE
 }
 
+enum BoxMembershipStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
 enum ClassBookingStatus {
   BOOKED
   ATTENDED
@@ -139,12 +145,17 @@ model BoxMembership {
   box       Box           @relation(fields: [boxId], references: [id], onDelete: Cascade)
   userId    String
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      BoxMemberRole @default(ATHLETE)
-  createdAt DateTime      @default(now())
+  role      BoxMemberRole       @default(ATHLETE)
+  status    BoxMembershipStatus @default(ACTIVE)
+  joinedAt  DateTime?
+  leftAt    DateTime?
+  createdAt DateTime             @default(now())
   updatedAt DateTime      @updatedAt
 
   @@unique([boxId, userId])
   @@index([userId, role])
+  @@index([boxId, status])
+  @@index([userId, status])
 }
 
 model ClassSession {
