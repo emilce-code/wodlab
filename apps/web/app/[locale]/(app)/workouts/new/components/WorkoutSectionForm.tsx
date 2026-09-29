@@ -97,6 +97,15 @@ function TrashIcon() {
   );
 }
 
+const SECTION_ROLE_ICONS: Record<WorkoutSectionFormState["role"], string> = {
+  WARM_UP: "🔥",
+  STRENGTH: "🏋",
+  WOD: "⚡",
+  ACCESSORY: "＋",
+  COOLDOWN: "❄",
+  CUSTOM: "◆",
+};
+
 export default function WorkoutSectionForm({
   section,
   sectionNumber,
@@ -407,7 +416,10 @@ export default function WorkoutSectionForm({
                 return (
                   <button key={role} type="button" role="radio" aria-checked={selected} onClick={() => update("role", role)}
                     className={`min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition ${selected ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20" : "border-border bg-background text-foreground hover:border-accent/40"}`}>
-                    {t(`roles.${role.toLowerCase()}`)}
+                    <span className="flex items-center justify-center gap-2">
+                      <span aria-hidden="true" className="text-base leading-none">{SECTION_ROLE_ICONS[role]}</span>
+                      <span>{t(`roles.${role.toLowerCase()}`)}</span>
+                    </span>
                   </button>
                 );
               })}

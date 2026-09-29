@@ -81,6 +81,15 @@ function TrashIcon() {
   );
 }
 
+const SECTION_ROLE_ICONS: Record<WorkoutSectionFormState["role"], string> = {
+  WARM_UP: "🔥",
+  STRENGTH: "🏋",
+  WOD: "⚡",
+  ACCESSORY: "＋",
+  COOLDOWN: "❄",
+  CUSTOM: "◆",
+};
+
 export default function WorkoutVariantForm({
   variant,
   workoutTypes,
@@ -435,9 +444,24 @@ export default function WorkoutVariantForm({
                     onPointerUp={(event) => { if (sectionPointerId.current === event.pointerId) { sectionPointerId.current=null; setDraggingSectionId(null); } }}
                     onPointerCancel={() => { sectionPointerId.current=null; setDraggingSectionId(null); }}
                     className="inline-flex h-11 w-9 shrink-0 touch-none cursor-grab select-none items-center justify-center rounded-lg text-xl tracking-[-0.18em] text-muted active:cursor-grabbing active:text-accent">⋮⋮</button>
-                  <button type="button" onClick={() => editSection(section)} className="min-w-0 flex-1 text-left">
-                    <span className="block truncate text-sm font-semibold">{t(`sectionRoles.${section.role.toLowerCase()}`)}</span>
-                    <span className="block truncate text-xs text-muted">{[formatName, section.rounds ? `${section.rounds} ${section.typeKey === "STRENGTH" ? sectionT("sets") : sectionT("rounds")}` : null, section.movements.length ? sectionT("summary", { movements: section.movements.length }) : null].filter(Boolean).join(" · ")}</span>
+                  <button type="button" onClick={() => editSection(section)} className="min-w-0 flex-1 py-1 text-left">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span aria-hidden="true" className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-base">{SECTION_ROLE_ICONS[section.role]}</span>
+                      <span className="truncate text-sm font-bold">{t(`sectionRoles.${section.role.toLowerCase()}`)}</span>
+                    </span>
+                    <span className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {formatName ? <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-accent">{formatName}</span> : null}
+                      {section.durationSeconds ? <span className="text-xs text-muted">◷ {Number(section.durationSeconds) / 60} {sectionT("minutes")}</span> : null}
+                      {section.rounds ? <span className="text-xs text-muted">↻ {section.rounds} {section.typeKey === "STRENGTH" ? sectionT("sets") : sectionT("rounds")}</span> : null}
+                    </span>
+                    {section.movements.length ? (
+                      <>
+                        <span className="mt-2 block truncate text-xs font-medium text-foreground">{section.movements.slice(0, 3).map((movement) => movement.movementName).filter(Boolean).join(" · ")}{section.movements.length > 3 ? ` +${section.movements.length - 3}` : ""}</span>
+                        <span className="mt-0.5 block text-[11px] text-muted">{sectionT("summary", { movements: section.movements.length })}</span>
+                      </>
+                    ) : (
+                      <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">⚠ {t("noMovementsYet")}</span>
+                    )}
                   </button>
                   <button type="button" onClick={() => editSection(section)} aria-label={t("editSection")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                   <button type="button" onClick={() => removeSection(section.id)} disabled={variant.sections.length === 1} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"><TrashIcon /></button>

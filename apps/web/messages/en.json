@@ -1686,7 +1686,8 @@
           "custom": "Custom"
         },
         "editSection": "Edit section",
-        "saveSection": "Save changes"
+        "saveSection": "Save changes",
+        "noMovementsYet": "No movements yet"
       },
       "levelsBuilder": {
         "title": "Workout levels",
