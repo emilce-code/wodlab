@@ -1459,7 +1459,7 @@
         "title": "Import workout text",
         "description": "Paste a workout with levels and category-specific prescriptions to create an editable draft.",
         "label": "Workout text",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nMen: Thrusters 95 lb\nWomen: Thrusters 65 lb\nPull-ups\n\nIntermediate\nMen: Thrusters 75 lb\nWomen: Thrusters 55 lb\nJumping pull-ups\n\nBeginner\nMen: Thrusters 45 lb\nWomen: Thrusters 35 lb\nRing rows",
+        "placeholder": "Friday Training\nWarm-up\n3 rounds\n10 air squats\n10 kip swings\n\nStrength\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Preview import",
         "parsing": "Reading workout...",
         "parseError": "Unable to read this workout. Check the text and try again.",

@@ -162,37 +162,81 @@ describe('WorkoutImportsService', () => {
 
   it('fully matches the built-in importer examples', () => {
     const examples = [
-      'Fran\nFor time\n21-15-9\nThrusters 43 kg\nPull-ups',
-      [
-        'Friday Training',
-        'Warm-up',
-        '3 rounds',
-        '10 air squats',
-        '10 kip swings',
-        '',
-        'WOD - 12 min AMRAP',
-        '8 DB snatches 22.5/15 kg',
-        '10 box jumps',
-        '200 m run',
-      ].join('\n'),
-      [
-        'Strength + WOD',
-        'Strength',
-        '5 sets',
-        '5 back squats 80 kg',
-        '',
-        'WOD',
-        'For time',
-        '21-15-9',
-        'Wall balls 9/6 kg',
-        'Toes-to-bar',
-      ].join('\n'),
+      {
+        text: 'Fran\nFor time\n21-15-9\nThrusters 43 kg\nPull-ups',
+        roles: ['WOD'],
+      },
+      {
+        text: [
+          'Friday Training',
+          'Warm-up',
+          '3 rounds',
+          '10 air squats',
+          '10 kip swings',
+          '',
+          'WOD - 12 min AMRAP',
+          '8 DB snatches 22.5/15 kg',
+          '10 box jumps',
+          '200 m run',
+        ].join('\n'),
+        roles: ['WARM_UP', 'WOD'],
+      },
+      {
+        text: [
+          'Strength + WOD',
+          'Strength',
+          '5 sets',
+          '5 back squats 80 kg',
+          '',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['STRENGTH', 'WOD'],
+      },
+      {
+        text: [
+          'Entrenamiento',
+          'Calentamiento',
+          '3 rounds',
+          '10 air squats',
+          'Fuerza',
+          '5 back squats 80 kg',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['WARM_UP', 'STRENGTH', 'WOD'],
+      },
+      {
+        text: [
+          'Treino',
+          'Aquecimento',
+          '3 rounds',
+          '10 air squats',
+          'Força',
+          '5 back squats 80 kg',
+          'WOD',
+          'For time',
+          '21-15-9',
+          'Wall balls 9/6 kg',
+          'Toes-to-bar',
+        ].join('\n'),
+        roles: ['WARM_UP', 'STRENGTH', 'WOD'],
+      },
     ];
 
     for (const example of examples) {
-      const result = service.parseWithCatalog(example, catalog);
+      const result = service.parseWithCatalog(example.text, catalog);
 
       expect(result.summary.unresolvedMovements).toBe(0);
+      expect(
+        result.draft.variants[0].sections.map((section) => section.role),
+      ).toEqual(example.roles);
       expect(result.issues).toEqual(
         result.issues.filter((issue) => issue.code === 'MULTIPLE_LOADS'),
       );

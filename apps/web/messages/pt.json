@@ -1459,7 +1459,7 @@
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Fran\nFor time\n21-15-9\n\nRX\nHomens: Thrusters 43 kg\nMulheres: Thrusters 29 kg\nPull-ups\n\nIntermediário\nHomens: Thrusters 34 kg\nMulheres: Thrusters 25 kg\nJumping pull-ups\n\nIniciante\nHomens: Thrusters 20 kg\nMulheres: Thrusters 16 kg\nRing rows",
+        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
