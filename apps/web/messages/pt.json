@@ -331,8 +331,8 @@
       "placeholder": "DIGITE O CÓDIGO",
       "another": "Entrar",
       "close": "Fechar",
-      "submit": "Entrar"
-      "pending": "Solicitação enviada. O proprietário ou administrador do Box precisa aprovar sua associação.",
+      "submit": "Entrar",
+      "pending": "Solicitação enviada. O proprietário ou administrador do Box precisa aprovar sua associação."
     },
     "create": {
       "title": "Criar um box",
