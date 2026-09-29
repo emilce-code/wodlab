@@ -1071,9 +1071,11 @@ export class MovementsService {
         role: true,
         activeBoxId: true,
         boxMemberships: {
+          where: { status: 'ACTIVE' },
           select: {
             boxId: true,
-            role: true,
+            role: { select: { key: true } },
+            box: { select: { ownerUserId: true } },
           },
         },
       },
@@ -1093,7 +1095,11 @@ export class MovementsService {
       userId: user.userId,
       appRole: dbUser.role,
       activeBoxId: activeMembership ? dbUser.activeBoxId : null,
-      activeBoxRole: activeMembership?.role ?? null,
+      activeBoxRole: activeMembership
+        ? activeMembership.box.ownerUserId === user.userId
+          ? 'OWNER'
+          : (activeMembership.role.key as 'COACH' | 'ATHLETE')
+        : null,
     };
   }
 
