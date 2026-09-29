@@ -75,6 +75,7 @@ type Props = {
   workout: Workout;
   canManage: boolean;
   preferredWorkoutLevelKey: string | null;
+  onDeleted?: (workoutId: string) => void;
 };
 
 const scopeLabels = {
@@ -102,6 +103,7 @@ export default function WorkoutCard({
   workout,
   canManage,
   preferredWorkoutLevelKey,
+  onDeleted,
 }: Props) {
   const t = useTranslations("workouts.library");
   const typeT = useTranslations("workoutTypes");
@@ -222,7 +224,7 @@ export default function WorkoutCard({
             ) : null}
 
             {canManage ? (
-              <WorkoutLifecycleActions workout={workout} />
+              <WorkoutLifecycleActions workout={workout} onActionComplete={(action) => { if (action === "delete") onDeleted?.(workout.id); }} />
             ) : null}
           </div>
         ) : null}
