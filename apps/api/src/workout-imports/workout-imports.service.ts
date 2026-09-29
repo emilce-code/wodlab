@@ -97,6 +97,27 @@ function normalize(value: string) {
     .trim();
 }
 
+function singularizeToken(token: string) {
+  if (token.length <= 3) return token;
+  if (token.endsWith('ies')) return `${token.slice(0, -3)}y`;
+  if (token.endsWith('ches') || token.endsWith('shes')) {
+    return token.slice(0, -2);
+  }
+  if (token.endsWith('s') && !token.endsWith('ss')) return token.slice(0, -1);
+  return token;
+}
+
+function matchValue(value: string) {
+  return normalize(value)
+    .split(' ')
+    .map((token) => {
+      if (token === 'dumbbell') return 'db';
+      if (token === 'kipping') return 'kip';
+      return singularizeToken(token);
+    })
+    .join(' ');
+}
+
 function headerValue(value: string) {
   return normalize(value.replace(/^#+\s*/, '').replace(/[:\s]+$/, ''));
 }
@@ -140,7 +161,25 @@ function detectType(text: string) {
 }
 
 function isDirective(line: string) {
-  return /^(?:amrap|emom|for time|max (?:reps?|rounds?)|every minute|\d+\s+rounds?\b)/i.test(
+  const header = headerValue(line);
+  if (
+    [
+      'warm up',
+      'warmup',
+      'strength',
+      'skill',
+      'wod',
+      'metcon',
+      'conditioning',
+      'cool down',
+      'cooldown',
+      'accessory',
+    ].includes(header)
+  ) {
+    return true;
+  }
+
+  return /^(?:(?:wod|metcon|conditioning|strength|warm[-\s]?up)\s*[-:–—]\s*)?(?:amrap|emom|for time|max (?:reps?|rounds?)|every minute|\d+\s*(?:min(?:ute)?s?\s+)?(?:amrap|emom)\b|\d+\s+rounds?\b|\d+\s+sets?\b)/i.test(
     line,
   );
 }
@@ -253,24 +292,28 @@ export class WorkoutImportsService {
       const prefixed = splitCategoryPrefix(line.value);
       const categoryKey = prefixed.categoryKey ?? currentCategory;
       const candidateText = movementCandidate(prefixed.value);
-      const normalized = normalize(candidateText);
+      const normalized = matchValue(candidateText);
 
       if (!normalized) continue;
 
       const exact = catalog.filter((movement) =>
         [movement.name, ...movement.aliases].some(
-          (label) => normalize(label) === normalized,
+          (label) => matchValue(label) === normalized,
         ),
       );
       const possible = exact.length
         ? exact
         : catalog.filter((movement) =>
             [movement.name, ...movement.aliases].some((label) => {
-              const value = normalize(label);
+              const value = matchValue(label);
               return value.includes(normalized) || normalized.includes(value);
             }),
           );
-      const match = possible.length === 1 ? possible[0] : null;
+      const preferred =
+        normalized === 'toe to bar'
+          ? possible.find((movement) => movement.name === 'Kipping Toes-to-bar')
+          : null;
+      const match = preferred ?? (possible.length === 1 ? possible[0] : null);
 
       if (!match) {
         issues.push({
