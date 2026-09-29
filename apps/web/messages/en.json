@@ -332,6 +332,7 @@
       "another": "Join",
       "close": "Close",
       "submit": "Join box"
+      "pending": "Request sent. A Box owner or administrator needs to approve your membership.",
     },
     "create": {
       "title": "Create a box",
