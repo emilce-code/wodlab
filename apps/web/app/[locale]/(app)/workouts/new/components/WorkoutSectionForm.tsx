@@ -671,7 +671,15 @@ export default function WorkoutSectionForm({
                     </button>
                     <button type="button" onClick={() => editMovement(movement)} className="min-w-0 flex-1 text-left">
                       <span className="block truncate text-sm font-semibold">{movement.movementName || t("unselectedMovement")}</span>
-                      <span className="block truncate text-xs text-muted">{[movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean).join(" · ") || t("tapToEdit")}</span>
+                      <span className="block truncate text-xs text-muted">{(() => {
+                        const shared = [movement.reps && `${movement.reps} ${t("reps")}`, movement.weight && `${movement.weight} ${movement.weightUnit}`, movement.percentage && `${movement.percentage}% ${movement.referenceRepMax || "1"}RM`, movement.distance && `${movement.distance} m`, movement.calories && `${movement.calories} cal`].filter(Boolean);
+                        const categoryValues = movement.prescriptions.slice(0, 2).map((prescription) => {
+                          const category = prescriptionCategories.find((item) => item.key === prescription.categoryKey);
+                          const value = [prescription.reps && `${prescription.reps} ${t("reps")}`, prescription.weight && `${prescription.weight} ${prescription.weightUnit || movement.weightUnit}`, prescription.percentage && `${prescription.percentage}% ${prescription.referenceRepMax || "1"}RM`, prescription.distance && `${prescription.distance} m`, prescription.calories && `${prescription.calories} cal`].filter(Boolean).join(" · ");
+                          return category && value ? `${category.name}: ${value}` : null;
+                        }).filter(Boolean);
+                        return [...shared, ...categoryValues].join(" · ") || t("tapToEdit");
+                      })()}</span>
                     </button>
                     <button type="button" onClick={() => editMovement(movement)} aria-label={t("editMovement")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                     <button type="button" onClick={() => removeMovement(movement.id)} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500"><TrashIcon /></button>
