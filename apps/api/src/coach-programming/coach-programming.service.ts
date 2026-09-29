@@ -613,8 +613,13 @@ export class CoachProgrammingService {
       where: {
         boxId_userId: { boxId: user.activeBoxId, userId },
       },
+      include: { role: true },
     });
-    if (!membership || membership.role === 'ATHLETE') {
+    if (
+      !membership ||
+      membership.status !== 'ACTIVE' ||
+      membership.role.key === 'ATHLETE'
+    ) {
       throw new ForbiddenException('Active box staff access required');
     }
     return { coach, boxId: user.activeBoxId };
