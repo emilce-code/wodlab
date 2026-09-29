@@ -1686,7 +1686,8 @@
           "custom": "Personalizado"
         },
         "editSection": "Editar sección",
-        "saveSection": "Guardar cambios"
+        "saveSection": "Guardar cambios",
+        "noMovementsYet": "Sin movimientos todavía"
       },
       "levelsBuilder": {
         "title": "Niveles del entrenamiento",
