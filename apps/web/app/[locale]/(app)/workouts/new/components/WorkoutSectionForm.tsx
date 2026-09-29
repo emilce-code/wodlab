@@ -745,7 +745,7 @@ export default function WorkoutSectionForm({
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
             {movementDraft ? (
-              <WorkoutMovementForm key={movementDraft.id} movement={movementDraft} prescriptionCategories={prescriptionCategories} advancedMode={false} canRemove={false} autoFocusSearch={!movementDraft.movementId} error={fieldErrors[`movement-search-${movementDraft.id}`]} onChange={setMovementDraft} onRemove={() => undefined} />
+              <WorkoutMovementForm key={movementDraft.id} movement={movementDraft} prescriptionCategories={prescriptionCategories} advancedMode={advancedMode} canRemove={false} autoFocusSearch={!movementDraft.movementId} error={fieldErrors[`movement-search-${movementDraft.id}`]} onChange={setMovementDraft} onRemove={() => undefined} />
             ) : null}
             </div>
             <div className="relative z-20 shrink-0 border-t border-border bg-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.16)] sm:p-6">
