@@ -912,9 +912,6 @@ export default function WorkoutForm({
     }
   }
 
-  const usedLevelKeys = variants
-    .map((variant) => variant.levelKey)
-    .filter(Boolean);
 
   const displayedFormSteps = isEditing
     ? formSteps.filter((step) => step !== "start")
@@ -1238,13 +1235,13 @@ export default function WorkoutForm({
             <div className="mb-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
               <h2 className="text-lg font-bold">{t("levelsBuilder.title")}</h2>
               <p className="mt-1 text-sm text-muted">{t("levelsBuilder.description")}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">
                 {workoutLevels.map((level) => {
                   const configured = variants.some((variant) => variant.levelKey === level.key);
                   const active = activeLevelKey === level.key;
                   return (
                     <button key={level.key} type="button" onClick={() => selectOrAddLevel(level.key)}
-                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${active ? "border-accent bg-accent text-accent-foreground" : configured ? "border-accent/50 bg-accent/10 text-foreground" : "border-border bg-background text-muted"}`}>
+                      className={`min-h-11 min-w-0 rounded-full border px-1.5 py-2 text-xs font-semibold transition min-[380px]:px-2 min-[380px]:text-sm sm:px-4 ${active ? "border-accent bg-accent text-accent-foreground" : configured ? "border-accent/50 bg-accent/10 text-foreground" : "border-border bg-background text-muted"}`}>
                       {configured ? "✓ " : ""}{levelT.has(`names.${level.key.toLowerCase()}`) ? levelT(`names.${level.key.toLowerCase()}`) : level.name}
                     </button>
                   );
@@ -1275,7 +1272,6 @@ export default function WorkoutForm({
                 variant={variant}
                 workoutTypes={workoutTypes}
                 workoutLevels={workoutLevels}
-                usedLevelKeys={usedLevelKeys}
                 canRemove={variants.length > 1}
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}

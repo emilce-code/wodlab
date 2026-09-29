@@ -23,7 +23,6 @@ type Props = {
   variant: WorkoutVariantFormState;
   workoutTypes: WorkoutType[];
   workoutLevels: WorkoutLevel[];
-  usedLevelKeys: string[];
   prescriptionCategories: PrescriptionCategory[];
   canRemove: boolean;
   advancedMode: boolean;
@@ -86,7 +85,6 @@ export default function WorkoutVariantForm({
   variant,
   workoutTypes,
   workoutLevels,
-  usedLevelKeys,
   canRemove,
   advancedMode,
   initiallyExpanded = true,
@@ -97,7 +95,9 @@ export default function WorkoutVariantForm({
   onRemove,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
-  const [showSectionRolePicker, setShowSectionRolePicker] = useState(false);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [sectionDraft, setSectionDraft] = useState<WorkoutSectionFormState | null>(null);
+  const [isAddingSection, setIsAddingSection] = useState(false);
   const [draggingSectionId, setDraggingSectionId] = useState<string | null>(null);
   const sectionPointerId = useRef<number | null>(null);
 
@@ -106,6 +106,8 @@ export default function WorkoutVariantForm({
   );
 
   const t = useTranslations("workouts.create.variants");
+  const sectionT = useTranslations("workouts.create.sectionBuilder");
+  const typeT = useTranslations("workoutTypes");
   const levelT = useTranslations("workoutLevels");
 
   const selectedLevel = workoutLevels.find(
@@ -138,18 +140,39 @@ export default function WorkoutVariantForm({
     });
   }
 
-  function addSection(role: WorkoutSectionFormState["role"] = "WOD") {
-    const defaultTypeKey =
-      role === "STRENGTH" && workoutTypes.some((type) => type.key === "STRENGTH")
-        ? "STRENGTH"
-        : role !== "WOD" && workoutTypes.some((type) => type.key === "CUSTOM")
-          ? "CUSTOM"
-          : "";
-    onChange({
-      ...variant,
-      sections: [...variant.sections, { ...createEmptySection(), role, typeKey: defaultTypeKey }],
+  function addSection() {
+    const section = createEmptySection();
+    setSectionDraft(section);
+    setEditingSectionId(section.id);
+    setIsAddingSection(true);
+  }
+
+  function editSection(section: WorkoutSectionFormState) {
+    setSectionDraft({
+      ...section,
+      movements: section.movements.map((movement) => ({
+        ...movement,
+        prescriptions: movement.prescriptions.map((item) => ({ ...item })),
+      })),
     });
-    setShowSectionRolePicker(false);
+    setEditingSectionId(section.id);
+    setIsAddingSection(false);
+  }
+
+  function cancelSectionEditor() {
+    setSectionDraft(null);
+    setEditingSectionId(null);
+    setIsAddingSection(false);
+  }
+
+  function confirmSectionEditor() {
+    if (!sectionDraft?.typeKey || sectionDraft.movements.length === 0) return;
+    if (isAddingSection) {
+      onChange({ ...variant, sections: [...variant.sections, sectionDraft] });
+    } else {
+      updateSection(sectionDraft.id, sectionDraft);
+    }
+    cancelSectionEditor();
   }
 
   function reorderSection(draggedId: string, targetId: string) {
@@ -304,102 +327,6 @@ export default function WorkoutVariantForm({
       {displayedIsExpanded && (
         <div id={contentId} className="min-w-0">
           <div className="mt-6 grid min-w-0 gap-5">
-            <div>
-              <label
-                htmlFor={`variant-level-${variant.id}`}
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("level")}
-              </label>
-
-              {advancedMode ? (
-                <select
-                  id={`variant-level-${variant.id}`}
-                  required
-                  value={variant.levelKey}
-                  onChange={(event) => update("levelKey", event.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/10"
-                  aria-invalid={Boolean(
-                    fieldErrors[`variant-level-${variant.id}`],
-                  )}
-                  aria-describedby={
-                    fieldErrors[`variant-level-${variant.id}`]
-                      ? `variant-level-${variant.id}-error`
-                      : undefined
-                  }
-                >
-                  <option value="">{t("selectLevel")}</option>
-
-                  {workoutLevels.map((level) => {
-                    const disabled =
-                      level.key !== variant.levelKey &&
-                      usedLevelKeys.includes(level.key);
-
-                    return (
-                      <option
-                        key={level.key}
-                        value={level.key}
-                        disabled={disabled}
-                      >
-                        {level.name}
-                      </option>
-                    );
-                  })}
-                </select>
-              ) : (
-                <div
-                  id={`variant-level-${variant.id}`}
-                  role="radiogroup"
-                  aria-label={t("level")}
-                  aria-describedby={
-                    fieldErrors[`variant-level-${variant.id}`]
-                      ? `variant-level-${variant.id}-error`
-                      : `variant-level-${variant.id}-hint`
-                  }
-                  className="flex flex-wrap gap-2"
-                >
-                  {workoutLevels.map((level) => {
-                    const isSelected = level.key === variant.levelKey;
-
-                    return (
-                      <button
-                        key={level.key}
-                        type="button"
-                        role="radio"
-                        aria-checked={isSelected}
-                        onClick={() => update("levelKey", level.key)}
-                        className={`min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                          isSelected
-                            ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/25"
-                            : "border-border bg-background text-foreground hover:border-accent/40"
-                        }`}
-                      >
-                        {levelT.has(`names.${level.key.toLowerCase()}`)
-                          ? levelT(`names.${level.key.toLowerCase()}`)
-                          : level.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {!advancedMode ? (
-                <p
-                  id={`variant-level-${variant.id}-hint`}
-                  className="mt-2 text-xs text-muted"
-                >
-                  {t("singleLevelHint")}
-                </p>
-              ) : null}
-              {fieldErrors[`variant-level-${variant.id}`] ? (
-                <p
-                  id={`variant-level-${variant.id}-error`}
-                  className="mt-1.5 text-sm text-red-500"
-                >
-                  {fieldErrors[`variant-level-${variant.id}`]}
-                </p>
-              ) : null}
-            </div>
-
             {advancedMode ? (
               <details
                 open={showOptionalDetails}
@@ -480,7 +407,7 @@ export default function WorkoutVariantForm({
             {advancedMode ? (
               <button
                 type="button"
-                onClick={() => setShowSectionRolePicker(true)}
+                onClick={addSection}
                 aria-label={t("addSection")}
                 title={t("addSection")}
                 className="inline-flex h-10 w-10 self-end items-center justify-center rounded-lg border border-border bg-background text-sm font-semibold text-foreground transition hover:border-accent/40 hover:bg-surface-elevated sm:h-auto sm:w-auto sm:self-auto sm:px-4 sm:py-2.5"
@@ -496,49 +423,47 @@ export default function WorkoutVariantForm({
             ) : null}
           </div>
 
-          {showSectionRolePicker ? (
-            <div className="mt-4 rounded-xl border border-border bg-background p-4">
-              <div className="flex items-center justify-between"><p className="font-semibold">{t("chooseSectionType")}</p><button type="button" onClick={() => setShowSectionRolePicker(false)} className="h-9 w-9 rounded-lg text-xl text-muted">×</button></div>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => (
-                  <button key={role} type="button" onClick={() => addSection(role)} className="min-h-12 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold hover:border-accent/50 hover:bg-accent/5">{t(`sectionRoles.${role.toLowerCase()}`)}</button>
-                ))}
+          <div id={`variant-sections-${variant.id}`} tabIndex={-1} className="mt-5 min-w-0 space-y-2">
+            {variant.sections.map((section) => {
+              const format = workoutTypes.find((type) => type.key === section.typeKey);
+              const formatName = format ? (typeT.has(format.key.toLowerCase()) ? typeT(format.key.toLowerCase()) : format.name) : null;
+              return (
+                <div key={section.id} data-section-row={section.id} className={`flex items-center gap-2 rounded-xl border bg-background px-2 py-2.5 transition ${draggingSectionId === section.id ? "border-accent/60 opacity-70 shadow-lg" : "border-border"}`}>
+                  <button type="button" aria-label={t("reorderSection")} title={t("reorderSection")}
+                    onPointerDown={(event) => { event.preventDefault(); sectionPointerId.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); setDraggingSectionId(section.id); }}
+                    onPointerMove={(event) => { if (!draggingSectionId || sectionPointerId.current !== event.pointerId) return; const target = document.elementFromPoint(event.clientX,event.clientY)?.closest<HTMLElement>("[data-section-row]"); if (target?.dataset.sectionRow) reorderSection(draggingSectionId,target.dataset.sectionRow); }}
+                    onPointerUp={(event) => { if (sectionPointerId.current === event.pointerId) { sectionPointerId.current=null; setDraggingSectionId(null); } }}
+                    onPointerCancel={() => { sectionPointerId.current=null; setDraggingSectionId(null); }}
+                    className="inline-flex h-11 w-9 shrink-0 touch-none cursor-grab select-none items-center justify-center rounded-lg text-xl tracking-[-0.18em] text-muted active:cursor-grabbing active:text-accent">⋮⋮</button>
+                  <button type="button" onClick={() => editSection(section)} className="min-w-0 flex-1 text-left">
+                    <span className="block truncate text-sm font-semibold">{t(`sectionRoles.${section.role.toLowerCase()}`)}</span>
+                    <span className="block truncate text-xs text-muted">{[formatName, section.rounds ? `${section.rounds} ${section.typeKey === "STRENGTH" ? sectionT("sets") : sectionT("rounds")}` : null, section.movements.length ? sectionT("summary", { movements: section.movements.length }) : null].filter(Boolean).join(" · ")}</span>
+                  </button>
+                  <button type="button" onClick={() => editSection(section)} aria-label={t("editSection")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
+                  <button type="button" onClick={() => removeSection(section.id)} disabled={variant.sections.length === 1} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"><TrashIcon /></button>
+                </div>
+              );
+            })}
+          </div>
+
+          {editingSectionId && sectionDraft ? (
+            <div className="fixed inset-0 z-[80] flex items-end overflow-hidden bg-black/60 sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true">
+              <div className="flex h-[min(94dvh,52rem)] w-full min-h-0 flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-2xl sm:h-auto sm:max-h-[90dvh] sm:max-w-2xl sm:rounded-2xl">
+                <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3 sm:px-6">
+                  <h3 className="text-lg font-bold">{isAddingSection ? t("addSection") : t("editSection")}</h3>
+                  <button type="button" onClick={cancelSectionEditor} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
+                  <WorkoutSectionForm section={sectionDraft} sectionNumber={1} workoutTypes={workoutTypes} canRemove={false} prescriptionCategories={prescriptionCategories} fieldErrors={fieldErrors} advancedMode simpleMode initiallyExpanded onChange={setSectionDraft} onRemove={() => undefined} />
+                </div>
+                <div className="relative z-10 shrink-0 border-t border-border bg-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
+                  <button type="button" disabled={!sectionDraft.typeKey || sectionDraft.movements.length === 0} onClick={confirmSectionEditor} className="min-h-12 w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40">
+                    {isAddingSection ? t("addSection") : t("saveSection")}
+                  </button>
+                </div>
               </div>
             </div>
           ) : null}
-
-          <div
-            id={`variant-sections-${variant.id}`}
-            tabIndex={-1}
-            className="mt-5 min-w-0 space-y-5"
-          >
-            {variant.sections.map((section, index) => (
-              <div key={section.id} data-section-row={section.id} className={`relative ${draggingSectionId === section.id ? "opacity-70" : ""}`}>
-                {advancedMode && variant.sections.length > 1 ? <button type="button" aria-label={t("reorderSection")} title={t("reorderSection")} onPointerDown={(event) => { event.preventDefault(); sectionPointerId.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); setDraggingSectionId(section.id); }} onPointerMove={(event) => { if (!draggingSectionId || sectionPointerId.current !== event.pointerId) return; const target = document.elementFromPoint(event.clientX,event.clientY)?.closest<HTMLElement>("[data-section-row]"); if (target?.dataset.sectionRow) reorderSection(draggingSectionId,target.dataset.sectionRow); }} onPointerUp={(event) => { if (sectionPointerId.current === event.pointerId) { sectionPointerId.current=null; setDraggingSectionId(null); } }} onPointerCancel={() => { sectionPointerId.current=null; setDraggingSectionId(null); }} className="absolute left-2 top-3 z-10 inline-flex h-9 w-8 touch-none cursor-grab items-center justify-center rounded-lg text-lg text-muted active:cursor-grabbing">⋮⋮</button> : null}
-              <div className={advancedMode && variant.sections.length > 1 ? "pl-8" : ""}><WorkoutSectionForm
-                key={section.id}
-                section={section}
-                sectionNumber={index + 1}
-                workoutTypes={workoutTypes}
-                canRemove={variant.sections.length > 1}
-                prescriptionCategories={prescriptionCategories}
-                fieldErrors={fieldErrors}
-                advancedMode={advancedMode}
-                initiallyExpanded={
-                  expandSectionsByDefault ||
-                  (index === 0 && section.movements.length === 0) ||
-                  section.movements.length === 0 ||
-                  Boolean(fieldErrors[`section-type-${section.id}`]) ||
-                  Boolean(fieldErrors[`section-movements-${section.id}`]) ||
-                  Boolean(fieldErrors[`section-rep-scheme-${section.id}`])
-                }
-                onChange={(updatedSection) =>
-                  updateSection(section.id, updatedSection)
-                }
-                onRemove={() => removeSection(section.id)}
-              /></div></div>
-            ))}
-          </div>
         </div>
       )}
     </section>
