@@ -255,7 +255,7 @@ export class BoxesService {
 
     return {
       boxId,
-      role: membership.role,
+      role: membership.role.key,
       active: true,
     };
   }
@@ -440,7 +440,7 @@ export class BoxesService {
     }>;
 
     return {
-      role: membership.role,
+      role: membership.role.key,
       classes: classes.map((session) => ({
         ...session,
         bookedCount: session.bookings.length,
