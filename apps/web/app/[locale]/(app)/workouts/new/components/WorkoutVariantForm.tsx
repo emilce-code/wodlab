@@ -454,7 +454,7 @@ export default function WorkoutVariantForm({
                   <button type="button" onClick={cancelSectionEditor} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-xl text-muted hover:bg-surface-elevated">×</button>
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-6 sm:p-6">
-                  <WorkoutSectionForm section={sectionDraft} sectionNumber={1} workoutTypes={workoutTypes} canRemove={false} prescriptionCategories={prescriptionCategories} fieldErrors={fieldErrors} advancedMode simpleMode initiallyExpanded onChange={setSectionDraft} onRemove={() => undefined} />
+                  <WorkoutSectionForm section={sectionDraft} sectionNumber={1} workoutTypes={workoutTypes} canRemove={false} prescriptionCategories={prescriptionCategories} fieldErrors={fieldErrors} advancedMode simpleMode showSectionRole initiallyExpanded onChange={setSectionDraft} onRemove={() => undefined} />
                 </div>
                 <div className="relative z-10 shrink-0 border-t border-border bg-surface px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
                   <button type="button" disabled={!sectionDraft.typeKey || sectionDraft.movements.length === 0} onClick={confirmSectionEditor} className="min-h-12 w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold text-accent-foreground transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40">

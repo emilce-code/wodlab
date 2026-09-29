@@ -37,6 +37,7 @@ type Props = {
   canRemove: boolean;
   advancedMode: boolean;
   simpleMode?: boolean;
+  showSectionRole?: boolean;
   initiallyExpanded?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (section: WorkoutSectionFormState) => void;
@@ -104,6 +105,7 @@ export default function WorkoutSectionForm({
   canRemove,
   advancedMode,
   simpleMode = false,
+  showSectionRole = !simpleMode,
   initiallyExpanded = true,
   fieldErrors,
   onChange,
@@ -397,11 +399,19 @@ export default function WorkoutSectionForm({
 
       {(simpleMode || displayedIsExpanded) && (
         <div id={contentId} className={`${simpleMode ? "mt-0" : "mt-6"} grid min-w-0 gap-5 md:grid-cols-2`}>
-          {!simpleMode ? <div className="md:col-span-2">
-            <label htmlFor={`section-role-${section.id}`} className="mb-1.5 block text-sm font-medium">{t("sectionRole")}</label>
-            <select id={`section-role-${section.id}`} value={section.role} onChange={(event) => update("role", event.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10">
-              {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => <option key={role} value={role}>{t(`roles.${role.toLowerCase()}`)}</option>)}
-            </select>
+          {showSectionRole ? <div className="md:col-span-2">
+            <span className="mb-2 block text-sm font-medium">{t("sectionRole")} *</span>
+            <div role="radiogroup" aria-label={t("sectionRole")} className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {(["WARM_UP","STRENGTH","WOD","ACCESSORY","COOLDOWN","CUSTOM"] as const).map((role) => {
+                const selected = section.role === role;
+                return (
+                  <button key={role} type="button" role="radio" aria-checked={selected} onClick={() => update("role", role)}
+                    className={`min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition ${selected ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20" : "border-border bg-background text-foreground hover:border-accent/40"}`}>
+                    {t(`roles.${role.toLowerCase()}`)}
+                  </button>
+                );
+              })}
+            </div>
           </div> : null}
           <div className="min-w-0 md:col-span-2">
             <label
