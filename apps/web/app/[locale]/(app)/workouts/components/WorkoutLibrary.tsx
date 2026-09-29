@@ -114,6 +114,29 @@ export default function WorkoutLibrary({
     view,
   ]);
 
+  function removeWorkoutFromCachedPages(workoutId: string) {
+    setPages((current) =>
+      Object.fromEntries(
+        Object.entries(current).map(([key, page]) => {
+          const items = page.items.filter((workout) => workout.id !== workoutId);
+
+          if (items.length === page.items.length) {
+            return [key, page];
+          }
+
+          return [
+            key,
+            {
+              ...page,
+              items,
+              total: Math.max(0, page.total - 1),
+            },
+          ];
+        }),
+      ),
+    );
+  }
+
   async function loadMore() {
     if (!displayedPage?.hasNextPage || isLoading) {
       return;
@@ -243,6 +266,7 @@ export default function WorkoutLibrary({
                 workout={workout}
                 canManage={workout.canManage}
                 preferredWorkoutLevelKey={preferredWorkoutLevelKey}
+                onDeleted={removeWorkoutFromCachedPages}
               />
             ))}
           </div>
