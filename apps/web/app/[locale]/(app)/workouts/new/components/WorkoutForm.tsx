@@ -489,6 +489,7 @@ export default function WorkoutForm({
           {
             id: crypto.randomUUID(),
             typeKey: variant.section.typeKey,
+            role: "WOD",
             rounds: formValue(variant.section.rounds),
             durationSeconds: formValue(variant.section.durationSeconds),
             restSeconds: formValue(variant.section.restSeconds),
@@ -973,58 +974,6 @@ export default function WorkoutForm({
     return workoutType ? getWorkoutTypeName(workoutType) : typeKeyValue;
   }
 
-  function getPrimaryScoreLabel() {
-    const normalizedTypeKey = typeKey.toUpperCase();
-
-    if (normalizedTypeKey === "FOR_TIME") {
-      return t("scoreTypes.time");
-    }
-
-    if (normalizedTypeKey === "STRENGTH") {
-      return t("scoreTypes.load");
-    }
-
-    if (normalizedTypeKey === "MAX_REPS") {
-      return t("scoreTypes.reps");
-    }
-
-    return t("scoreTypes.roundsReps");
-  }
-
-  function formatMovementPrescription(
-    movement: WorkoutSectionFormState["movements"][number],
-  ) {
-    const values: string[] = [];
-
-    if (movement.reps) {
-      values.push(`${movement.reps} ${t("movementBuilder.reps")}`);
-    }
-
-    if (movement.weight) {
-      values.push(`${movement.weight} ${movement.weightUnit}`.trim());
-    }
-
-    if (movement.percentage && movement.referenceRepMax) {
-      values.push(`${movement.percentage}% · ${movement.referenceRepMax}RM`);
-    }
-
-    if (movement.distance) {
-      values.push(`${movement.distance} m`);
-    }
-
-    if (movement.calories) {
-      values.push(`${movement.calories} cal`);
-    }
-
-    if (movement.durationSeconds) {
-      values.push(
-        `${movement.durationSeconds} ${t("movementBuilder.secondsShort")}`,
-      );
-    }
-
-    return values;
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {!isEditing &&
@@ -1294,7 +1243,6 @@ export default function WorkoutForm({
                   Boolean(fieldErrors[`variant-level-${variant.id}`]) ||
                   Boolean(fieldErrors[`variant-sections-${variant.id}`])
                 }
-                expandSectionsByDefault={isEditing}
                 onChange={(updatedVariant) =>
                   updateVariant(variant.id, updatedVariant)
                 }

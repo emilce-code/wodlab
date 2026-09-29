@@ -27,7 +27,6 @@ type Props = {
   canRemove: boolean;
   advancedMode: boolean;
   initiallyExpanded?: boolean;
-  expandSectionsByDefault?: boolean;
   fieldErrors: WorkoutFormFieldErrors;
   onChange: (variant: WorkoutVariantFormState) => void;
   onRemove: () => void;
@@ -97,7 +96,6 @@ export default function WorkoutVariantForm({
   canRemove,
   advancedMode,
   initiallyExpanded = true,
-  expandSectionsByDefault = false,
   fieldErrors,
   prescriptionCategories,
   onChange,
