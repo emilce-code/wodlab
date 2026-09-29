@@ -1634,7 +1634,11 @@
         "categoryPrescriptionsDescription": "Add overrides only when the prescribed values differ by category.",
         "removeCategoryPrescription": "Remove",
         "categoryFallbackHint": "Leave a field blank to use the shared prescription value.",
-        "categoryNotesPlaceholder": "Optional notes for this category"
+        "categoryNotesPlaceholder": "Optional notes for this category",
+        "prescriptionAudience": "Prescription",
+        "prescriptionAudienceDescription": "Choose whether the target is shared or differs for women and men.",
+        "sameForEveryone": "Same for everyone",
+        "differentByCategory": "Women / Men"
       },
       "variants": {
         "eyebrow": "Workout variations",
