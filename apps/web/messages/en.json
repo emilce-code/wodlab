@@ -1475,7 +1475,32 @@
         },
         "formatHint": "Use a level heading (RX, Intermediate, or Beginner). Prefix category-specific movements with Men or Women.",
         "variantsDetected": "{count, plural, =1 {1 variation detected} other {# variations detected}}",
-        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}"
+        "prescriptionsDetected": "{count, plural, =1 {1 category prescription} other {# category prescriptions}}",
+        "examplesTitle": "Try an example",
+        "examples": {
+          "forTime": "For Time",
+          "amrap": "AMRAP",
+          "strength": "Strength + WOD"
+        },
+        "understoodTitle": "WODLY understood",
+        "understoodDescription": "Check the parsed structure before reviewing.",
+        "sections": "sections",
+        "movements": "movements",
+        "matchedShort": "matched",
+        "reviewShort": "need review",
+        "sectionFallback": "Section",
+        "detected": "Detected",
+        "editText": "Edit text",
+        "reviewItems": "{count, plural, =1 {Review 1 item} other {Review # items}}",
+        "continueToBuilder": "Continue to builder",
+        "reviewTitle": "Review import",
+        "reviewDescription": "Fix only what WODLY could not confirm. Everything else looks good.",
+        "needsReviewBadge": "Needs review",
+        "matchedBadge": "Matched",
+        "suggestedMatches": "Suggested matches",
+        "manualReviewHint": "No confident match was found. Continue to the builder and choose the movement there.",
+        "allConfirmed": "All import items are confirmed.",
+        "backToPreview": "Back to preview"
       },
       "steps": {
         "ariaLabel": "Workout creation progress",
