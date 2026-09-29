@@ -1275,7 +1275,6 @@ export default function WorkoutForm({
                 variant={variant}
                 workoutTypes={workoutTypes}
                 workoutLevels={workoutLevels}
-                usedLevelKeys={usedLevelKeys}
                 canRemove={variants.length > 1}
                 prescriptionCategories={prescriptionCategories}
                 fieldErrors={fieldErrors}
