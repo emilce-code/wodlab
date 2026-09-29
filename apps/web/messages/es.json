@@ -1638,7 +1638,9 @@
         "prescriptionAudience": "Prescripción",
         "prescriptionAudienceDescription": "Elige si el objetivo es igual para todos o cambia entre mujeres y hombres.",
         "sameForEveryone": "Igual para todos",
-        "differentByCategory": "Mujeres / Hombres"
+        "differentByCategory": "Mujeres / Hombres",
+        "sameForEveryoneDescription": "Usa una sola prescripción para todos. Desactívalo para configurar Mujeres y Hombres por separado.",
+        "womenMenPrescription": "Prescripción Mujeres / Hombres"
       },
       "variants": {
         "eyebrow": "Variaciones del entrenamiento",
