@@ -253,7 +253,20 @@
       "description": "{count, plural, =1 {1 membro do Box} other {# membros do Box}}",
       "roleFor": "Função de {name}",
       "roleSaved": "Função do membro atualizada.",
-      "remove": "Remover",
+
+      "approve": "Aprovar",
+      "reactivate": "Reativar",
+      "deactivate": "Desativar",
+      "deactivateConfirm": "Desativar este membro? O histórico será preservado.",
+      "approved": "Membro aprovado.",
+      "reactivated": "Membro reativado.",
+      "deactivated": "Membro desativado.",
+      "statusLabel": "Status da associação",
+      "status": {
+        "active": "Ativos",
+        "pending": "Pendentes",
+        "inactive": "Inativos"
+      },      "remove": "Remover",
       "removeConfirm": "Remover este membro do Box?",
       "removed": "Membro removido do Box.",
       "searchLabel": "Buscar membros",
