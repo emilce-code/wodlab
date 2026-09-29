@@ -1475,7 +1475,32 @@
         },
         "formatHint": "Usa un encabezado de nivel (RX, Intermedio o Principiante). Escribe Hombres o Mujeres antes de los movimientos específicos.",
         "variantsDetected": "{count, plural, =1 {1 variación detectada} other {# variaciones detectadas}}",
-        "prescriptionsDetected": "{count, plural, =1 {1 prescripción por categoría} other {# prescripciones por categoría}}"
+        "prescriptionsDetected": "{count, plural, =1 {1 prescripción por categoría} other {# prescripciones por categoría}}",
+        "examplesTitle": "Prueba un ejemplo",
+        "examples": {
+          "forTime": "For Time",
+          "amrap": "AMRAP",
+          "strength": "Fuerza + WOD"
+        },
+        "understoodTitle": "WODLY entendió",
+        "understoodDescription": "Revisa la estructura detectada antes de continuar.",
+        "sections": "secciones",
+        "movements": "movimientos",
+        "matchedShort": "encontrados",
+        "reviewShort": "por revisar",
+        "sectionFallback": "Sección",
+        "detected": "Detectado",
+        "editText": "Editar texto",
+        "reviewItems": "{count, plural, =1 {Revisar 1 ítem} other {Revisar # ítems}}",
+        "continueToBuilder": "Continuar al editor",
+        "reviewTitle": "Revisar importación",
+        "reviewDescription": "Corrige solo lo que WODLY no pudo confirmar. Lo demás se ve bien.",
+        "needsReviewBadge": "Revisar",
+        "matchedBadge": "Encontrado",
+        "suggestedMatches": "Sugerencias",
+        "manualReviewHint": "No se encontró una coincidencia confiable. Continúa al editor y elige el movimiento allí.",
+        "allConfirmed": "Todos los elementos importados están confirmados.",
+        "backToPreview": "Volver a vista previa"
       },
       "steps": {
         "ariaLabel": "Progreso de creación del entrenamiento",
