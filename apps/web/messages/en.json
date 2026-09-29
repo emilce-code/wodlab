@@ -1640,7 +1640,9 @@
         "sameForEveryone": "Same for everyone",
         "differentByCategory": "Women / Men",
         "sameForEveryoneDescription": "Use one prescription for everyone. Turn this off to set Women and Men separately.",
-        "womenMenPrescription": "Women / Men prescription"
+        "womenMenPrescription": "Women / Men prescription",
+        "women": "Women",
+        "men": "Men"
       },
       "variants": {
         "eyebrow": "Workout variations",
