@@ -1676,7 +1676,9 @@
           "accessory": "Accesorios",
           "cooldown": "Vuelta a la calma",
           "custom": "Personalizado"
-        }
+        },
+        "editSection": "Editar sección",
+        "saveSection": "Guardar cambios"
       },
       "levelsBuilder": {
         "title": "Niveles del entrenamiento",
