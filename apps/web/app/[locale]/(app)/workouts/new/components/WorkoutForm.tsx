@@ -912,9 +912,6 @@ export default function WorkoutForm({
     }
   }
 
-  const usedLevelKeys = variants
-    .map((variant) => variant.levelKey)
-    .filter(Boolean);
 
   const displayedFormSteps = isEditing
     ? formSteps.filter((step) => step !== "start")
