@@ -96,6 +96,26 @@ export class BoxesController {
     );
   }
 
+  @Post(':boxId/members/:memberId/approve')
+  approveMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+    return this.boxes.approveMember(request.user.userId, boxId, memberId);
+  }
+
+  @Post(':boxId/members/:memberId/reactivate')
+  reactivateMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+    return this.boxes.reactivateMember(request.user.userId, boxId, memberId);
+  }
+
+  @Post(':boxId/members/:memberId/deactivate')
+  deactivateMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+    return this.boxes.deactivateMember(request.user.userId, boxId, memberId);
+  }
+
+  @Post(':boxId/leave')
+  leave(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string) {
+    return this.boxes.leave(request.user.userId, boxId);
+  }
+
   @Delete(':boxId/members/:memberId')
   removeMember(
     @Req() request: AuthenticatedRequest,
