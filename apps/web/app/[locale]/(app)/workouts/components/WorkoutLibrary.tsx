@@ -12,7 +12,7 @@ import type { PaginatedResponse } from "@/lib/pagination";
 
 import WorkoutCard, { Workout } from "./WorkoutCard";
 
-type LibraryFilter = LibraryScopeFilter | "benchmark";
+type LibraryFilter = LibraryScopeFilter;
 type LibraryView = "ACTIVE" | "ARCHIVED";
 
 type Props = {
@@ -215,13 +215,13 @@ export default function WorkoutLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "mine", "benchmark"] as LibraryFilter[]).map((value) => (
+          {(["all", "mine"] as LibraryFilter[]).map((value) => (
             <FilterButton
               key={value}
               active={filter === value}
               onClick={() => setFilter(value)}
             >
-              {value === "benchmark" ? t("benchmark") : scopeLabels[value]}
+              {scopeLabels[value]}
             </FilterButton>
           ))}
         </div>
@@ -321,9 +321,6 @@ function createQuery(
     query.set("view", "archived");
   }
 
-  if (filter === "benchmark") {
-    query.set("benchmark", "true");
-  }
 
   if (search) {
     query.set("search", search);
