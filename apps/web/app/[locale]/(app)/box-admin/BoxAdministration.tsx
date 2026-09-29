@@ -494,6 +494,156 @@ export default function BoxAdministration({
           {t("empty")}
         </p>
       )}
+
+      {selectedMember ? (
+        <MemberActionSheet
+          member={members.find((item) => item.id === selectedMember.id) ?? selectedMember}
+          busy={busy === selectedMember.id}
+          t={t}
+          onClose={() => setSelectedMember(null)}
+          onRoleChange={(member, role) => void changeRole(member, role)}
+          onStatusChange={(member, action) =>
+            void changeMembershipStatus(member, action)
+          }
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function MemberActionSheet({
+  member,
+  busy,
+  t,
+  onClose,
+  onRoleChange,
+  onStatusChange,
+}: {
+  member: BoxMember;
+  busy: boolean;
+  t: ReturnType<typeof useTranslations>;
+  onClose: () => void;
+  onRoleChange: (member: BoxMember, role: "ATHLETE" | "COACH") => void;
+  onStatusChange: (
+    member: BoxMember,
+    action: "approve" | "deactivate" | "reactivate",
+  ) => void;
+}) {
+  const name =
+    member.user.athleteProfile?.displayName ??
+    member.user.coachProfile?.displayName ??
+    member.user.email;
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-end bg-black/60 sm:items-center sm:justify-center"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={name}
+        className="w-full rounded-t-3xl border border-border bg-surface px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-5"
+      >
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-bold text-accent">
+            {initials || "W"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-lg font-bold">{name}</h3>
+            <p className="truncate text-xs text-muted">{member.user.email}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-muted hover:bg-background"
+            aria-label={t("cancel")}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between rounded-xl bg-background px-3 py-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+            {t("members.statusLabel")}
+          </span>
+          <span className="text-sm font-semibold">
+            {t(`members.status.${member.status.toLowerCase()}`)}
+          </span>
+        </div>
+
+        {member.role === "OWNER" ? (
+          <div className="mt-4 rounded-xl bg-accent/10 px-3 py-3 text-sm font-semibold text-accent">
+            {t("roles.owner")}
+          </div>
+        ) : (
+          <>
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                {t("members.roleFor", { name })}
+              </p>
+              <div className="grid grid-cols-2 rounded-xl bg-background p-1">
+                {(["ATHLETE", "COACH"] as const).map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onRoleChange(member, role)}
+                    className={`min-h-11 rounded-lg text-sm font-semibold transition ${
+                      member.role === role
+                        ? "bg-surface text-accent shadow-sm"
+                        : "text-muted"
+                    }`}
+                  >
+                    {t(`roles.${role.toLowerCase()}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 border-t border-border pt-4">
+              {member.status === "PENDING" ? (
+                <Button
+                  type="button"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "approve")}
+                >
+                  {t("members.approve")}
+                </Button>
+              ) : member.status === "INACTIVE" ? (
+                <Button
+                  type="button"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "reactivate")}
+                >
+                  {t("members.reactivate")}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "deactivate")}
+                >
+                  {t("members.deactivate")}
+                </Button>
+              )}
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 }
