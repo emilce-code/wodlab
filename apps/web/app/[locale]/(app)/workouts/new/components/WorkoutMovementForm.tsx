@@ -60,6 +60,7 @@ type Props = {
   advancedMode?: boolean;
   autoFocusSearch?: boolean;
   error?: string;
+  presentation?: "card" | "modal";
   onChange: (movement: WorkoutMovementFormState) => void;
   onRemove: () => void;
 };
@@ -88,6 +89,7 @@ export default function WorkoutMovementForm({
   advancedMode = true,
   autoFocusSearch = false,
   error,
+  presentation = "card",
   onChange,
   onRemove,
 }: Props) {
@@ -129,6 +131,8 @@ export default function WorkoutMovementForm({
   const displayedIsSearching = hasSearchQuery && isSearching;
 
   const displayedSearchError = hasSearchQuery ? searchError : null;
+
+  const isModalPresentation = presentation === "modal";
 
   useEffect(() => {
     if (movement.movementId && normalizedSearch === movement.movementName) {
@@ -328,13 +332,27 @@ export default function WorkoutMovementForm({
   }
 
   return (
-    <div className="min-w-0 w-full rounded-xl border border-emerald-500/30 bg-emerald-500/[0.035] p-2.5 sm:p-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full">
+    <div
+      className={
+        isModalPresentation
+          ? "min-w-0 w-full [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full"
+          : "min-w-0 w-full rounded-xl border border-emerald-500/30 bg-emerald-500/[0.035] p-2.5 sm:p-4 [&_input]:min-w-0 [&_input]:max-w-full [&_select]:min-w-0 [&_select]:max-w-full"
+      }
+    >
       <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0 flex-1">
-          <p className="mb-1.5 block text-sm font-medium">{t("movement")}</p>
+          {!isModalPresentation ? (
+            <p className="mb-1.5 block text-sm font-medium">{t("movement")}</p>
+          ) : null}
 
           {movement.movementId ? (
-            <div className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-3 sm:gap-4 sm:px-4">
+            <div
+              className={
+                isModalPresentation
+                  ? "flex min-w-0 items-center justify-between gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-3 sm:gap-4 sm:px-4"
+                  : "flex min-w-0 items-center justify-between gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-3 sm:gap-4 sm:px-4"
+              }
+            >
               <div className="min-w-0">
                 <p className="truncate font-semibold">
                   {movement.movementName}
@@ -512,7 +530,11 @@ export default function WorkoutMovementForm({
         <details
           open={showPrescription}
           onToggle={(event) => setShowPrescription(event.currentTarget.open)}
-          className="group mt-4 rounded-xl border border-dashed border-emerald-500/30 bg-background"
+          className={
+            isModalPresentation
+              ? "group mt-5 rounded-xl border border-border bg-background"
+              : "group mt-4 rounded-xl border border-dashed border-emerald-500/30 bg-background"
+          }
         >
           <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none">
             <span>
