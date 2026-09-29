@@ -38,11 +38,13 @@ export default function BoxAdministration({
   const [tab, setTab] = useState<"details" | "members">("details");
   const [showCreate, setShowCreate] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
+  const [memberStatus, setMemberStatus] = useState<BoxMember["status"]>("ACTIVE");
   const { confirm, dialog } = useConfirmationDialog();
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
   const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
+  const statusMembers = members.filter((member) => member.status === memberStatus);
   const visibleMembers = normalizedSearch
-    ? members.filter((member) => {
+    ? statusMembers.filter((member) => {
         const name =
           member.user.athleteProfile?.displayName ??
           member.user.coachProfile?.displayName ??
@@ -51,7 +53,7 @@ export default function BoxAdministration({
           .toLocaleLowerCase()
           .includes(normalizedSearch);
       })
-    : members;
+    : statusMembers;
 
   useEffect(() => {
     if (!boxId) return;
@@ -182,31 +184,49 @@ export default function BoxAdministration({
     setBusy(null);
   }
 
-  async function removeMember(member: BoxMember) {
-    if (!(await confirm({ description: t("members.removeConfirm") }))) return;
+  async function changeMembershipStatus(
+    member: BoxMember,
+    action: "approve" | "deactivate" | "reactivate",
+  ) {
+    if (
+      action === "deactivate" &&
+      !(await confirm({ description: t("members.deactivateConfirm") }))
+    )
+      return;
+
     clearMessages();
     setBusy(member.id);
-    const response = await fetch(`/api/boxes/${boxId}/members/${member.id}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `/api/boxes/${boxId}/members/${member.id}/${action}`,
+      { method: "POST" },
+    );
     const data = await response.json();
+
     if (response.ok) {
-      setMembers((current) => current.filter((item) => item.id !== member.id));
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === boxId
+      const status =
+        action === "deactivate" ? "INACTIVE" : "ACTIVE";
+      setMembers((current) =>
+        current.map((item) =>
+          item.id === member.id
             ? {
-                ...box,
-                _count: {
-                  ...box._count,
-                  memberships: Math.max(0, box._count.memberships - 1),
-                },
+                ...item,
+                status,
+                joinedAt:
+                  status === "ACTIVE"
+                    ? new Date().toISOString()
+                    : item.joinedAt,
+                leftAt:
+                  status === "INACTIVE"
+                    ? new Date().toISOString()
+                    : null,
               }
-            : box,
+            : item,
         ),
       );
-      setSuccess(t("members.removed"));
-    } else setError(message(data, t("errors.action")));
+      setSuccess(t(`members.${action}d`));
+    } else {
+      setError(message(data, t("errors.action")));
+    }
     setBusy(null);
   }
 
@@ -367,6 +387,27 @@ export default function BoxAdministration({
                   {t("members.description", { count: members.length })}
                 </p>
               </div>
+              <div className="mt-4 grid grid-cols-3 gap-2" role="tablist" aria-label={t("members.statusLabel")}>
+                {(["ACTIVE", "PENDING", "INACTIVE"] as const).map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    role="tab"
+                    aria-selected={memberStatus === status}
+                    onClick={() => setMemberStatus(status)}
+                    className={`min-h-11 rounded-xl border px-2 text-sm font-semibold transition ${
+                      memberStatus === status
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-border bg-background text-muted"
+                    }`}
+                  >
+                    {t(`members.status.${status.toLowerCase()}`)}{" "}
+                    <span className="tabular-nums">
+                      {members.filter((member) => member.status === status).length}
+                    </span>
+                  </button>
+                ))}
+              </div>
               <label htmlFor="member-search" className="sr-only">
                 {t("members.searchLabel")}
               </label>
@@ -419,14 +460,32 @@ export default function BoxAdministration({
                             </option>
                             <option value="COACH">{t("roles.coach")}</option>
                           </select>
-                          <Button
-                            type="button"
-                            variant="danger"
-                            disabled={busy === member.id}
-                            onClick={() => void removeMember(member)}
-                          >
-                            {t("members.remove")}
-                          </Button>
+                          {member.status === "PENDING" ? (
+                            <Button
+                              type="button"
+                              disabled={busy === member.id}
+                              onClick={() => void changeMembershipStatus(member, "approve")}
+                            >
+                              {t("members.approve")}
+                            </Button>
+                          ) : member.status === "INACTIVE" ? (
+                            <Button
+                              type="button"
+                              disabled={busy === member.id}
+                              onClick={() => void changeMembershipStatus(member, "reactivate")}
+                            >
+                              {t("members.reactivate")}
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="danger"
+                              disabled={busy === member.id}
+                              onClick={() => void changeMembershipStatus(member, "deactivate")}
+                            >
+                              {t("members.deactivate")}
+                            </Button>
+                          )}
                         </div>
                       )}
                     </article>
