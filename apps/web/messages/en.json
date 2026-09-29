@@ -1638,7 +1638,9 @@
         "prescriptionAudience": "Prescription",
         "prescriptionAudienceDescription": "Choose whether the target is shared or differs for women and men.",
         "sameForEveryone": "Same for everyone",
-        "differentByCategory": "Women / Men"
+        "differentByCategory": "Women / Men",
+        "sameForEveryoneDescription": "Use one prescription for everyone. Turn this off to set Women and Men separately.",
+        "womenMenPrescription": "Women / Men prescription"
       },
       "variants": {
         "eyebrow": "Workout variations",

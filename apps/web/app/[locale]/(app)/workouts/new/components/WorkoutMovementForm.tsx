@@ -517,11 +517,30 @@ export default function WorkoutMovementForm({
             </span>
           </summary>
           <div className="border-t border-border p-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
-                {t("prescription")}
-              </p>
+            {advancedMode && prescriptionCategories.length > 0 && (
+              <div className="">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold">{t("sameForEveryone")}</p>
+                    <p className="mt-1 text-xs text-muted">{t("sameForEveryoneDescription")}</p>
+                  </div>
+                  <button type="button" role="switch" aria-checked={movement.prescriptions.length === 0}
+                    onClick={() => {
+                      if (movement.prescriptions.length > 0) {
+                        onChange({ ...movement, prescriptions: [] });
+                        return;
+                      }
+                      const categories = prescriptionCategories.slice(0, 2);
+                      const additions = categories.map((category) => ({ categoryKey: category.key, reps: "", weight: "", weightUnit: "" as const, percentage: "", referenceRepMax: "1", distance: "", calories: "", durationSeconds: "", notes: "" }));
+                      onChange({ ...movement, prescriptions: additions });
+                      setActivePrescriptionCategory(categories[0]?.key ?? "");
+                    }}
+                    className={`relative h-7 w-12 shrink-0 rounded-full transition ${movement.prescriptions.length === 0 ? "bg-accent" : "bg-surface-elevated ring-1 ring-border"}`}>
+                    <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${movement.prescriptions.length === 0 ? "left-6" : "left-1"}`} />
+                  </button>
+                </div>
 
+                {movement.prescriptions.length === 0 ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {supportsReps && (
                   <div>
@@ -734,33 +753,10 @@ export default function WorkoutMovementForm({
                   </div>
                 )}
               </div>
-            </div>
+                ) : (
+                  <div>
+                    <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-accent">{t("womenMenPrescription")}</p>
 
-            {advancedMode && prescriptionCategories.length > 0 && (
-              <div className="mt-5 border-t border-border pt-5">
-                <p className="text-sm font-semibold">{t("prescriptionAudience")}</p>
-                <p className="mt-1 text-xs text-muted">{t("prescriptionAudienceDescription")}</p>
-
-                <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-surface-elevated p-1">
-                  <button type="button" onClick={() => onChange({ ...movement, prescriptions: [] })}
-                    className={`min-h-11 rounded-lg px-2 py-2 text-sm font-semibold transition ${movement.prescriptions.length === 0 ? "bg-accent text-accent-foreground shadow-sm" : "text-muted hover:text-foreground"}`}>
-                    {t("sameForEveryone")}
-                  </button>
-                  <button type="button" onClick={() => {
-                    const categories = prescriptionCategories.slice(0, 2);
-                    const existingKeys = new Set(movement.prescriptions.map((item) => item.categoryKey));
-                    const additions = categories.filter((category) => !existingKeys.has(category.key)).map((category) => ({
-                      categoryKey: category.key, reps: "", weight: "", weightUnit: "" as const, percentage: "", referenceRepMax: "1", distance: "", calories: "", durationSeconds: "", notes: "",
-                    }));
-                    onChange({ ...movement, prescriptions: [...movement.prescriptions, ...additions] });
-                    setActivePrescriptionCategory(categories[0]?.key ?? "");
-                  }}
-                    className={`min-h-11 rounded-lg px-2 py-2 text-sm font-semibold transition ${movement.prescriptions.length > 0 ? "bg-accent text-accent-foreground shadow-sm" : "text-muted hover:text-foreground"}`}>
-                    {t("differentByCategory")}
-                  </button>
-                </div>
-
-                {movement.prescriptions.length > 0 ? (
                   <div className="mt-4">
                     <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-background p-1">
                       {movement.prescriptions.slice(0, 2).map((prescription) => {
@@ -798,7 +794,8 @@ export default function WorkoutMovementForm({
                       );
                     })}
                   </div>
-                ) : null}
+                  </div>
+                )}
               </div>
             )}
 
