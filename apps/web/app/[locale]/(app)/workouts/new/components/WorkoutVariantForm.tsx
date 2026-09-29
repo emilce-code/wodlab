@@ -106,6 +106,8 @@ export default function WorkoutVariantForm({
   );
 
   const t = useTranslations("workouts.create.variants");
+  const sectionT = useTranslations("workouts.create.sectionBuilder");
+  const typeT = useTranslations("workoutTypes");
   const levelT = useTranslations("workoutLevels");
 
   const selectedLevel = workoutLevels.find(
@@ -424,6 +426,7 @@ export default function WorkoutVariantForm({
           <div id={`variant-sections-${variant.id}`} tabIndex={-1} className="mt-5 min-w-0 space-y-2">
             {variant.sections.map((section) => {
               const format = workoutTypes.find((type) => type.key === section.typeKey);
+              const formatName = format ? (typeT.has(format.key.toLowerCase()) ? typeT(format.key.toLowerCase()) : format.name) : null;
               return (
                 <div key={section.id} data-section-row={section.id} className={`flex items-center gap-2 rounded-xl border bg-background px-2 py-2.5 transition ${draggingSectionId === section.id ? "border-accent/60 opacity-70 shadow-lg" : "border-border"}`}>
                   <button type="button" aria-label={t("reorderSection")} title={t("reorderSection")}
@@ -434,7 +437,7 @@ export default function WorkoutVariantForm({
                     className="inline-flex h-11 w-9 shrink-0 touch-none cursor-grab select-none items-center justify-center rounded-lg text-xl tracking-[-0.18em] text-muted active:cursor-grabbing active:text-accent">⋮⋮</button>
                   <button type="button" onClick={() => editSection(section)} className="min-w-0 flex-1 text-left">
                     <span className="block truncate text-sm font-semibold">{t(`sectionRoles.${section.role.toLowerCase()}`)}</span>
-                    <span className="block truncate text-xs text-muted">{[format?.name, section.rounds ? `${section.rounds} ${section.typeKey === "STRENGTH" ? "sets" : "rounds"}` : null, section.movements.length ? `${section.movements.length} movements` : null].filter(Boolean).join(" · ")}</span>
+                    <span className="block truncate text-xs text-muted">{[formatName, section.rounds ? `${section.rounds} ${section.typeKey === "STRENGTH" ? sectionT("sets") : sectionT("rounds")}` : null, section.movements.length ? sectionT("summary", { movements: section.movements.length }) : null].filter(Boolean).join(" · ")}</span>
                   </button>
                   <button type="button" onClick={() => editSection(section)} aria-label={t("editSection")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface-elevated hover:text-foreground">✎</button>
                   <button type="button" onClick={() => removeSection(section.id)} disabled={variant.sections.length === 1} aria-label={t("remove")} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"><TrashIcon /></button>
