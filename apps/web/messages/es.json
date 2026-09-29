@@ -1513,7 +1513,9 @@
         "edit": "Editar programación",
         "editDetails": "Editar detalles",
         "noPrescription": "Sin prescripción general",
-        "categoryOverrides": "Valores por categoría"
+        "categoryOverrides": "Valores por categoría",
+        "readyTitle": "Listo para crear",
+        "readyDescription": "Todas las secciones están configuradas correctamente."
       },
       "details": {
         "eyebrow": "Entrenamiento",
