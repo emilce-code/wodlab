@@ -147,7 +147,7 @@ export class BoxesService {
           memberships: {
             create: {
               userId,
-              role: { connect: { key: 'ATHLETE' } },
+              roleId: 'box-membership-role-athlete',
               status: 'ACTIVE',
               joinedAt: new Date(),
             },
@@ -237,7 +237,7 @@ export class BoxesService {
           data: {
             boxId: box.id,
             userId,
-            role: { connect: { key: 'ATHLETE' } },
+            roleId: 'box-membership-role-athlete',
             status: 'PENDING',
           },
         });
