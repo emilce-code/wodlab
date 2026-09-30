@@ -291,7 +291,12 @@
       "cover": "Cover image",
       "change": "Choose image",
       "help": "Images are resized and compressed to WebP before upload to keep them fast and storage-efficient.",
-      "saved": "Box image updated."
+      "saved": "Box image updated.",
+      "eyebrow": "Box identity",
+      "title": "Brand your Box",
+      "description": "Your logo and cover appear across WODLY for coaches and athletes.",
+      "changeLogo": "Change logo",
+      "changeCover": "Change cover"
     }
   },
   "boxes": {
