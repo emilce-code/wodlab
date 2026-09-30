@@ -610,18 +610,23 @@ export default function AthleteProfileForm({
       </Card>
 
       {(isDirty || isSubmitting) && (
-        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 border-y border-border bg-surface/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.16)] backdrop-blur sm:hidden">
-          <div className="mx-auto flex max-w-3xl items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold">{t("unsaved")}</p>
-              <p className="truncate text-xs text-muted">{t("unsavedHelp")}</p>
+        <div className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-border bg-surface/95 p-3 shadow-[0_-12px_32px_rgba(0,0,0,0.28)] backdrop-blur sm:hidden">
+          <div className="mx-auto max-w-3xl">
+            <p className="text-sm font-bold">{t("unsaved")}</p>
+            <p className="mt-0.5 text-xs text-muted">{t("unsavedHelp")}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={resetForm}
+              >
+                {t("cancel")}
+              </Button>
+              <Button type="submit" isLoading={isSubmitting} className="w-full">
+                {t("saveShort")}
+              </Button>
             </div>
-            <Button type="button" variant="secondary" onClick={resetForm}>
-              {t("cancel")}
-            </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              {t("saveShort")}
-            </Button>
           </div>
         </div>
       )}
