@@ -21,4 +21,13 @@ export class CreateBoxDto {
   @MaxLength(120)
   location?: string;
 
-  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  logoPath?: string;\n\n  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  coverImagePath?: string;\n}
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  logoPath?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  coverImagePath?: string;
+}
