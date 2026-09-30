@@ -230,9 +230,7 @@
       "timezone": "Fuso horário",
       "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box.",
       "location": "Localização",
-      "locationPlaceholder": "Cidade, região ou comunidade",
-      "logoUrl": "URL do logo",
-      "coverImageUrl": "URL da imagem de capa"
+      "locationPlaceholder": "Cidade, região ou comunidade"
     },
     "details": {
       "title": "Perfil do Box",
@@ -287,6 +285,13 @@
       "load": "Não foi possível carregar os membros.",
       "save": "Não foi possível salvar o Box.",
       "action": "Não foi possível concluir esta ação."
+    },
+    "images": {
+      "logo": "Logo do Box",
+      "cover": "Imagem de capa",
+      "change": "Escolher imagem",
+      "help": "As imagens são redimensionadas e comprimidas para WebP antes do envio para manter rapidez e economia de armazenamento.",
+      "saved": "Imagem do Box atualizada."
     }
   },
   "boxes": {
