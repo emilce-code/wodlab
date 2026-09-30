@@ -203,7 +203,7 @@ export default async function DashboardPage({ params }: Props) {
         >
           <div className="relative h-24 bg-gradient-to-br from-surface-elevated to-background sm:h-28">
             {boxImageUrl(activeBox.coverImagePath) ? (
-              <Image src={boxImageUrl(activeBox.coverImagePath)} alt="" fill sizes="(max-width: 640px) 100vw, 1024px" className="object-cover opacity-60 transition group-hover:opacity-70" unoptimized />
+              <Image src={boxImageUrl(activeBox.coverImagePath)!} alt="" fill sizes="(max-width: 640px) 100vw, 1024px" className="object-cover opacity-60 transition group-hover:opacity-70" unoptimized />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.15),transparent_55%)]" />
             )}
@@ -212,7 +212,7 @@ export default async function DashboardPage({ params }: Props) {
           <div className="-mt-6 relative flex items-end gap-3 px-4 pb-4 sm:px-5">
             {boxImageUrl(activeBox.logoPath) ? (
               <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background">
-                <Image src={boxImageUrl(activeBox.logoPath)} alt="" fill sizes="56px" className="object-cover" unoptimized />
+                <Image src={boxImageUrl(activeBox.logoPath)!} alt="" fill sizes="56px" className="object-cover" unoptimized />
               </span>
             ) : (
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-xl font-black text-accent-foreground">
