@@ -213,13 +213,24 @@ function durationSeconds(text: string) {
   return shorthand ? Number(shorthand[1]) * 60 : null;
 }
 
+function roundsValue(text: string) {
+  const match = text.match(/\b(\d+)\s+(?:rounds?|rondas?)\b/i);
+  return match ? Number(match[1]) : null;
+}
+
 function detectType(text: string) {
   if (/\bamrap\b/i.test(text)) return 'AMRAP';
-  if (/\bemom\b|every minute/i.test(text)) return 'EMOM';
-  if (/\bfor time\b/i.test(text)) return 'FOR_TIME';
-  if (/\bmax (?:reps?|rounds?)\b/i.test(text)) return 'MAX_REPS';
-  if (/\b(?:strength|heavy|1rm|3rm|5rm)\b/i.test(text)) return 'STRENGTH';
-  if (/\binterval/i.test(text)) return 'INTERVAL';
+  if (/\bemom\b|every minute|cada minuto/i.test(text)) return 'EMOM';
+  if (/\bfor time\b|por tiempo|por tempo/i.test(text)) return 'FOR_TIME';
+  if (
+    /\bmax (?:reps?|rounds?)\b|max(?:imas?|imo)? (?:reps?|rondas?)\b/i.test(
+      text,
+    )
+  )
+    return 'MAX_REPS';
+  if (/\b(?:strength|heavy|1rm|3rm|5rm|fuerza|forca)\b/i.test(text))
+    return 'STRENGTH';
+  if (/\binterval|intervalo/i.test(text)) return 'INTERVAL';
   return 'CUSTOM';
 }
 
@@ -228,7 +239,7 @@ function isDirective(line: string) {
     return true;
   }
 
-  return /^(?:(?:wod|metcon|conditioning|strength|warm[-\s]?up)\s*[-:–—]\s*)?(?:amrap|emom|for time|max (?:reps?|rounds?)|every minute|\d+\s*(?:min(?:ute)?s?\s+)?(?:amrap|emom)\b|\d+\s+rounds?\b|\d+\s+sets?\b)/i.test(
+  return /^(?:(?:wod|metcon|conditioning|strength|fuerza|forca|warm[-\s]?up|calentamiento|aquecimento)\s*[-:–—]\s*)?(?:amrap|emom|for time|por tiempo|por tempo|max (?:reps?|rounds?)|every minute|cada minuto|\d+\s*(?:min(?:ute)?s?\s+)?(?:amrap|emom)\b|\d+\s+(?:rounds?|rondas?)\b|\d+\s+(?:sets?|series|séries)\b)/i.test(
     line,
   );
 }
@@ -310,7 +321,7 @@ export class WorkoutImportsService {
     const repScheme = repSchemeMatch
       ? repSchemeMatch[1].split(/\s*[-–—]\s*/).map(Number)
       : [];
-    const roundsMatch = fullText.match(/\b(\d+)\s+rounds?\b/i);
+    const detectedRounds = roundsValue(fullText);
     const issues: ImportIssue[] = [];
     const variantSections = new Map<string, ParsedSection[]>();
     let currentLevel = 'RX';
@@ -324,9 +335,7 @@ export class WorkoutImportsService {
     ): ParsedSection => ({
       typeKey: typeForSection(role, source, typeKey),
       role,
-      rounds: /\b(\d+)\s+rounds?\b/i.test(source)
-        ? Number(source.match(/\b(\d+)\s+rounds?\b/i)?.[1])
-        : null,
+      rounds: roundsValue(source),
       durationSeconds: durationSeconds(source),
       restSeconds: null,
       repScheme: /\b(\d+(?:\s*[-–—]\s*\d+){1,})\b/.test(source)
@@ -390,11 +399,7 @@ export class WorkoutImportsService {
 
       if (isDirective(line.value)) {
         section.typeKey = typeForSection(section.role, line.value, typeKey);
-        section.rounds =
-          section.rounds ??
-          (/\b(\d+)\s+rounds?\b/i.test(line.value)
-            ? Number(line.value.match(/\b(\d+)\s+rounds?\b/i)?.[1])
-            : null);
+        section.rounds = section.rounds ?? roundsValue(line.value);
         section.durationSeconds =
           section.durationSeconds ?? durationSeconds(line.value);
         continue;
@@ -527,7 +532,7 @@ export class WorkoutImportsService {
           ...sections[0],
           typeKey,
           role: 'WOD',
-          rounds: roundsMatch ? Number(roundsMatch[1]) : null,
+          rounds: detectedRounds,
           durationSeconds: durationSeconds(fullText),
           repScheme,
         };
@@ -536,7 +541,7 @@ export class WorkoutImportsService {
 
     const fallbackSection = createSection('WOD', fullText);
     fallbackSection.typeKey = typeKey;
-    fallbackSection.rounds = roundsMatch ? Number(roundsMatch[1]) : null;
+    fallbackSection.rounds = detectedRounds;
     fallbackSection.durationSeconds = durationSeconds(fullText);
     fallbackSection.repScheme = repScheme;
 
