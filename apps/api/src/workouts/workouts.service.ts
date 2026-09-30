@@ -595,9 +595,11 @@ export class WorkoutsService {
           },
         },
         boxMemberships: {
+          where: { status: 'ACTIVE' },
           select: {
             boxId: true,
-            role: true,
+            role: { select: { key: true } },
+            box: { select: { ownerUserId: true } },
           },
         },
       },
@@ -618,7 +620,11 @@ export class WorkoutsService {
       appRole: dbUser.role,
       activeBoxId: activeMembership ? dbUser.activeBoxId : null,
       activeBoxName: activeMembership ? (dbUser.activeBox?.name ?? null) : null,
-      activeBoxRole: activeMembership?.role ?? null,
+      activeBoxRole: activeMembership
+        ? activeMembership.box.ownerUserId === user.userId
+          ? 'OWNER'
+          : (activeMembership.role.key as 'COACH' | 'ATHLETE')
+        : null,
     };
   }
 

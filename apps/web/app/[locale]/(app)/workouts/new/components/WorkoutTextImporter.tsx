@@ -77,13 +77,7 @@ type ImportStage = "compose" | "preview" | "review";
 
 type Props = { onApply: (result: WorkoutImportResult) => void };
 
-const EXAMPLES = {
-  forTime: "Fran\nFor time\n21-15-9\nThrusters 43 kg\nPull-ups",
-  amrap:
-    "Friday Training\nWarm-up\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
-  strength:
-    "Strength + WOD\nStrength\n5 sets\n5 back squats 80 kg\n\nWOD\nFor time\n21-15-9\nWall balls 9/6 kg\nToes-to-bar",
-};
+const EXAMPLE_KEYS = ["forTime", "amrap", "strength"] as const;
 
 function collectSections(result: WorkoutImportResult) {
   if (result.draft.variants.length) {
@@ -473,12 +467,12 @@ export default function WorkoutTextImporter({ onApply }: Props) {
           {t("examplesTitle")}
         </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
-          {Object.entries(EXAMPLES).map(([key, value]) => (
+          {EXAMPLE_KEYS.map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => {
-                setText(value);
+                setText(t(`exampleTexts.${key}`));
                 setResult(null);
                 setStage("compose");
               }}

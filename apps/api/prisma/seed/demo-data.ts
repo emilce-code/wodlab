@@ -1,7 +1,6 @@
 import type { Prisma, PrismaClient } from '../../generated/prisma/client';
 import {
   AthleteTrainingGoal,
-  BoxMemberRole,
   ClassBookingStatus,
   CoachAthleteStatus,
   MovementScope,
@@ -297,12 +296,12 @@ export async function seedLocalDemoData(prisma: PrismaClient): Promise<void> {
       id: id('membership', index),
       boxId: id('box', boxIndexForUser(index)),
       userId: id('user', index),
-      role:
-        index === 1 || index === 2
-          ? BoxMemberRole.OWNER
-          : index < 5
-            ? BoxMemberRole.COACH
-            : BoxMemberRole.ATHLETE,
+      roleId:
+        index < 5
+          ? 'box-membership-role-coach'
+          : 'box-membership-role-athlete',
+      status: 'ACTIVE',
+      joinedAt: createdAt,
       createdAt,
       updatedAt: utcDay(-1),
     }),

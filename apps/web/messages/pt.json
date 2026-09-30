@@ -153,7 +153,8 @@
     },
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
-    "closeAccountMenu": "Fechar menu da conta"
+    "closeAccountMenu": "Fechar menu da conta",
+    "myBox": "Meu Box"
   },
   "boxContext": {
     "label": "Box ativo",
@@ -200,9 +201,9 @@
     }
   },
   "boxAdministration": {
-    "eyebrow": "Operações do Box",
-    "title": "Administração do Box",
-    "description": "Gerencie informações, acesso e funções dos membros em um só lugar.",
+    "eyebrow": "Meu Box",
+    "title": "Meu Box",
+    "description": "Dê identidade ao seu Box e gerencie membros e acesso no WODLY.",
     "selectBox": "Box para administrar",
     "cancel": "Cancelar",
     "working": "Salvando...",
@@ -227,10 +228,12 @@
       "name": "Nome do Box",
       "description": "Descrição",
       "timezone": "Fuso horário",
-      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box."
+      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box.",
+      "location": "Localização",
+      "locationPlaceholder": "Cidade, região ou comunidade"
     },
     "details": {
-      "title": "Informações do Box",
+      "title": "Perfil do Box",
       "save": "Salvar alterações"
     },
     "create": {
@@ -253,6 +256,19 @@
       "description": "{count, plural, =1 {1 membro do Box} other {# membros do Box}}",
       "roleFor": "Função de {name}",
       "roleSaved": "Função do membro atualizada.",
+      "approve": "Aprovar",
+      "reactivate": "Reativar",
+      "deactivate": "Desativar",
+      "deactivateConfirm": "Desativar este membro? O histórico será preservado.",
+      "approved": "Membro aprovado.",
+      "reactivated": "Membro reativado.",
+      "deactivated": "Membro desativado.",
+      "statusLabel": "Status da associação",
+      "status": {
+        "active": "Ativos",
+        "pending": "Pendentes",
+        "inactive": "Inativos"
+      },
       "remove": "Remover",
       "removeConfirm": "Remover este membro do Box?",
       "removed": "Membro removido do Box.",
@@ -269,6 +285,18 @@
       "load": "Não foi possível carregar os membros.",
       "save": "Não foi possível salvar o Box.",
       "action": "Não foi possível concluir esta ação."
+    },
+    "images": {
+      "logo": "Logo do Box",
+      "cover": "Imagem de capa",
+      "change": "Escolher imagem",
+      "help": "As imagens são redimensionadas e comprimidas para WebP antes do envio para manter rapidez e economia de armazenamento.",
+      "saved": "Imagem do Box atualizada.",
+      "eyebrow": "Identidade do Box",
+      "title": "Personalize seu Box",
+      "description": "Seu logo e capa aparecem no WODLY para coaches e atletas.",
+      "changeLogo": "Alterar logo",
+      "changeCover": "Alterar capa"
     }
   },
   "boxes": {
@@ -318,7 +346,8 @@
       "placeholder": "DIGITE O CÓDIGO",
       "another": "Entrar",
       "close": "Fechar",
-      "submit": "Entrar"
+      "submit": "Entrar",
+      "pending": "Solicitação enviada. O proprietário ou administrador do Box precisa aprovar sua associação."
     },
     "create": {
       "title": "Criar um box",
@@ -1459,7 +1488,7 @@
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 séries\n5 back squats 80 kg\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
@@ -1478,9 +1507,14 @@
         "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}",
         "examplesTitle": "Teste um exemplo",
         "examples": {
-          "forTime": "For Time",
+          "forTime": "Por tempo",
           "amrap": "AMRAP",
           "strength": "Força + WOD"
+        },
+        "exampleTexts": {
+          "forTime": "Fran\nPor tempo\n21-15-9\nThruster 43 kg\nPull-up",
+          "amrap": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+          "strength": "Força + WOD\nForça\n5 séries\n5 back squats 80 kg\n\nWOD\nPor tempo\n21-15-9\nWall balls 9/6 kg\nToes-to-bar"
         },
         "understoodTitle": "WODLY entendeu",
         "understoodDescription": "Revise a estrutura detectada antes de continuar.",
@@ -2378,12 +2412,12 @@
     },
     "language": {
       "title": "Idioma",
-      "description": "Escolha o idioma usado em todo o WODLY."
+      "description": "Escolha o idioma usado no app."
     },
     "session": {
       "eyebrow": "Sessão",
       "title": "Sair",
-      "description": "Saia do WODLY neste dispositivo.",
+      "description": "Saia neste dispositivo.",
       "logout": "Sair"
     },
     "profile": {
@@ -2398,8 +2432,10 @@
       "bio": "Descrição de treino",
       "email": "E-mail",
       "emailDescription": "Seu e-mail é gerenciado pelo seu provedor de login.",
+      "basicProfile": "Perfil básico",
       "trainingPreferences": "Preferências de treino",
       "trainingPreferencesDescription": "Esses valores serão usados como padrão ao registrar treinos.",
+      "trainingDefaults": "Padrões de treino",
       "weightUnit": "Unidade de peso",
       "kilograms": "Quilogramas (kg)",
       "pounds": "Libras (lb)",
@@ -2408,6 +2444,8 @@
       "prescriptionCategory": "Prescrição padrão",
       "noPrescriptionPreference": "Sem prescrição padrão",
       "prescriptionDescription": "Usada quando um treino possui prescrições específicas por categoria.",
+      "morePreferences": "Mais preferências",
+      "morePreferencesDescription": "Objetivos, meta semanal, arredondamento de carga e privacidade.",
       "goals": {
         "title": "Objetivos de treino",
         "description": "Escolha todos os que importam para você agora.",
@@ -2435,7 +2473,11 @@
         "hiddenDescription": "Seus resultados ficam fora dos rankings públicos."
       },
       "preferencesUnavailable": "Algumas preferências de treino estão temporariamente indisponíveis. Você ainda pode atualizar os campos de perfil disponíveis ou tentar novamente mais tarde.",
+      "unsaved": "Alterações não salvas",
+      "unsavedHelp": "Salve para manter essas alterações.",
+      "cancel": "Cancelar",
       "save": "Salvar alterações",
+      "saveShort": "Salvar",
       "saving": "Salvando...",
       "saved": "Perfil salvo com sucesso.",
       "savedState": "Atualizado",
@@ -2443,7 +2485,13 @@
         "displayNameRequired": "Informe um nome de exibição.",
         "saveError": "Não foi possível salvar seu perfil.",
         "connectionError": "Não foi possível conectar. Tente novamente."
-      }
+      },
+      "profilePhoto": "Foto de perfil",
+      "photoTitle": "Foto de perfil",
+      "photoDescription": "Toque na foto para escolher uma imagem. Ela será recortada e comprimida automaticamente.",
+      "changePhoto": "Alterar",
+      "photoSaved": "Foto de perfil atualizada.",
+      "uploadingPhoto": "Enviando…"
     },
     "preferences": {
       "eyebrow": "Preferências da conta",

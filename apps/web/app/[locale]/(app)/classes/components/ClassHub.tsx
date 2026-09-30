@@ -6,6 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
 
 type View = "all" | "mine";
@@ -47,7 +49,7 @@ function initialClassDateTime() {
 export default function ClassHub() {
   const t = useTranslations("boxes");
   const locale = useLocale();
-  const { boxes, activeBox, selectBox, replaceBoxes } = useActiveBox();
+  const { boxes, activeBox, selectBox } = useActiveBox();
   const dayScroller = useRef<HTMLDivElement>(null);
   const days = useMemo(() => scheduleDays(), []);
 
@@ -57,6 +59,7 @@ export default function ClassHub() {
   const [loading, setLoading] = useState(Boolean(boxes.length));
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [joinRequestSent, setJoinRequestSent] = useState(false);
   const [showJoin, setShowJoin] = useState(boxes.length === 0);
   const [showCreateClass, setShowCreateClass] = useState(false);
   const [creatingClass, setCreatingClass] = useState(false);
@@ -65,7 +68,7 @@ export default function ClassHub() {
 
   const selectedBox = activeBox;
   const role = selectedBox?.role ?? null;
-  const isStaff = role === "OWNER" || role === "COACH";
+  const isStaff = role === "OWNER";
 
   const filteredClasses = useMemo(() => {
     const byDay = classes.filter((session) => dayKey(session.startsAt) === selectedDay);
@@ -134,13 +137,6 @@ export default function ClassHub() {
     return () => controller.abort();
   }, [boxId, isStaff]);
 
-  async function refreshBoxes() {
-    const response = await fetch("/api/boxes");
-    if (!response.ok) return [];
-    const data = (await response.json()) as BoxSummary[];
-    replaceBoxes(data);
-    return data;
-  }
 
   async function submitBox(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -156,10 +152,7 @@ export default function ClassHub() {
       setError(requestMessage(data, t("errors.save")));
       return;
     }
-    setLoading(true);
-    await refreshBoxes();
-    await selectBox(data.id);
-    setSelectedDay(dayKey(new Date()));
+    setJoinRequestSent(data.status === "PENDING");
     setShowJoin(false);
   }
 
@@ -225,26 +218,80 @@ export default function ClassHub() {
       {boxes.length ? <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button> : null}
 
       {showJoin ? (
-        <form onSubmit={submitBox} className="rounded-2xl border border-border bg-surface p-4">
-          <h2 className="font-bold">{t("join.title")}</h2>
-          <p className="mt-1 text-sm text-muted">{t("join.description")}</p>
-          <input name="joinCode" aria-label={t("join.code")} required minLength={6} maxLength={12} autoCapitalize="characters" autoCorrect="off" placeholder={t("join.placeholder")} className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-lg uppercase tracking-[0.15em]" />
+        <form onSubmit={submitBox} className="rounded-3xl border border-border bg-surface p-5 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl font-black text-accent">
+            W
+          </div>
+          <h2 className="mt-4 text-xl font-bold">{t("join.title")}</h2>
+          <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">{t("join.description")}</p>
+          <label htmlFor="join-box-code" className="sr-only">{t("join.code")}</label>
+          <input
+            id="join-box-code"
+            name="joinCode"
+            aria-label={t("join.code")}
+            required
+            minLength={6}
+            maxLength={12}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            inputMode="text"
+            placeholder={t("join.placeholder")}
+            className="mt-5 min-h-14 w-full rounded-2xl border border-border bg-background px-4 text-center font-mono text-xl font-bold uppercase tracking-[0.22em] outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+          />
           <Button className="mt-3 w-full">{t("join.submit")}</Button>
         </form>
+      ) : null}
+
+      {joinRequestSent ? (
+        <section role="status" className="rounded-3xl border border-accent/20 bg-surface p-5 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-xl font-bold text-accent">
+            ✓
+          </div>
+          <h2 className="mt-3 font-bold text-accent">{t("join.title")}</h2>
+          <p className="mx-auto mt-1 max-w-sm text-sm leading-6 text-muted">{t("join.pending")}</p>
+        </section>
       ) : null}
 
       {error ? <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
 
       {selectedBox ? (
-        <section className="rounded-2xl border border-border bg-surface p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="truncate text-xl font-bold">{selectedBox.name}</h2>
-              <p className="mt-1 text-sm text-muted">{t("members", { count: selectedBox._count.memberships })}</p>
-            </div>
-            <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
+          <div className="relative h-28 bg-gradient-to-br from-surface-elevated to-background sm:h-36">
+            {boxImageUrl(selectedBox.coverImagePath) ? (
+              <Image src={boxImageUrl(selectedBox.coverImagePath)!} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
           </div>
-          {role === "OWNER" ? <Link href="/box-admin" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent">{t("openAdministration")}</Link> : null}
+          <div className="-mt-7 relative flex items-end gap-3 px-4 pb-4">
+            {boxImageUrl(selectedBox.logoPath) ? (
+              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background shadow-lg">
+                <Image src={boxImageUrl(selectedBox.logoPath)!} alt="" fill sizes="64px" className="object-cover" unoptimized />
+              </span>
+            ) : (
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+                {selectedBox.name.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0 flex-1 pb-1">
+              <div className="flex items-center gap-2">
+                <h2 className="truncate text-xl font-black">{selectedBox.name}</h2>
+                <span className="shrink-0 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
+              </div>
+              <p className="mt-0.5 truncate text-xs text-muted">
+                {selectedBox.location || t("members", { count: selectedBox._count.memberships })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+            <span className="text-xs text-muted">{t("members", { count: selectedBox._count.memberships })}</span>
+            {role === "OWNER" || role === "COACH" ? (
+              <Link href="/box-admin" className="inline-flex min-h-10 items-center text-sm font-semibold text-accent">
+                {t("openAdministration")} →
+              </Link>
+            ) : null}
+          </div>
         </section>
       ) : null}
 

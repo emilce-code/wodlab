@@ -153,7 +153,8 @@
     },
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
-    "closeAccountMenu": "Close account menu"
+    "closeAccountMenu": "Close account menu",
+    "myBox": "My Box"
   },
   "boxContext": {
     "label": "Active box",
@@ -200,9 +201,9 @@
     }
   },
   "boxAdministration": {
-    "eyebrow": "Box operations",
-    "title": "Box administration",
-    "description": "Manage Box information, access, and member roles from one place.",
+    "eyebrow": "My Box",
+    "title": "My Box",
+    "description": "Shape your Box identity, members, and access in WODLY.",
     "selectBox": "Box to manage",
     "cancel": "Cancel",
     "working": "Saving...",
@@ -227,10 +228,12 @@
       "name": "Box name",
       "description": "Description",
       "timezone": "Time zone",
-      "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries."
+      "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries.",
+      "location": "Location",
+      "locationPlaceholder": "City, region or community"
     },
     "details": {
-      "title": "Box information",
+      "title": "Box profile",
       "save": "Save changes"
     },
     "create": {
@@ -253,6 +256,19 @@
       "description": "{count, plural, =1 {1 Box member} other {# Box members}}",
       "roleFor": "Role for {name}",
       "roleSaved": "Member role updated.",
+      "approve": "Approve",
+      "reactivate": "Reactivate",
+      "deactivate": "Deactivate",
+      "deactivateConfirm": "Deactivate this member? Their history will be preserved.",
+      "approved": "Membership approved.",
+      "reactivated": "Membership reactivated.",
+      "deactivated": "Membership deactivated.",
+      "statusLabel": "Membership status",
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "inactive": "Inactive"
+      },
       "remove": "Remove",
       "removeConfirm": "Remove this member from the Box?",
       "removed": "Member removed from the Box.",
@@ -269,6 +285,18 @@
       "load": "Unable to load Box members.",
       "save": "Unable to save the Box.",
       "action": "Unable to complete this action."
+    },
+    "images": {
+      "logo": "Box logo",
+      "cover": "Cover image",
+      "change": "Choose image",
+      "help": "Images are resized and compressed to WebP before upload to keep them fast and storage-efficient.",
+      "saved": "Box image updated.",
+      "eyebrow": "Box identity",
+      "title": "Brand your Box",
+      "description": "Your logo and cover appear across WODLY for coaches and athletes.",
+      "changeLogo": "Change logo",
+      "changeCover": "Change cover"
     }
   },
   "boxes": {
@@ -318,7 +346,8 @@
       "placeholder": "ENTER CODE",
       "another": "Join",
       "close": "Close",
-      "submit": "Join box"
+      "submit": "Join box",
+      "pending": "Request sent. A Box owner or administrator needs to approve your membership."
     },
     "create": {
       "title": "Create a box",
@@ -1482,6 +1511,11 @@
           "amrap": "AMRAP",
           "strength": "Strength + WOD"
         },
+        "exampleTexts": {
+          "forTime": "Fran\nFor time\n21-15-9\nThruster 43 kg\nPull-up",
+          "amrap": "Friday Training\nWarm-up\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+          "strength": "Strength + WOD\nStrength\n5 sets\n5 back squats 80 kg\n\nWOD\nFor time\n21-15-9\nWall balls 9/6 kg\nToes-to-bar"
+        },
         "understoodTitle": "WODLY understood",
         "understoodDescription": "Check the parsed structure before reviewing.",
         "sections": "sections",
@@ -2378,12 +2412,12 @@
     },
     "language": {
       "title": "Language",
-      "description": "Choose the language used throughout WODLY."
+      "description": "Choose the language used across the app."
     },
     "session": {
       "eyebrow": "Session",
       "title": "Sign out",
-      "description": "Sign out of WODLY on this device.",
+      "description": "Sign out on this device.",
       "logout": "Log out"
     },
     "profile": {
@@ -2398,8 +2432,10 @@
       "bio": "Training bio",
       "email": "Email",
       "emailDescription": "Your email is managed by your sign-in provider.",
+      "basicProfile": "Basic profile",
       "trainingPreferences": "Training preferences",
       "trainingPreferencesDescription": "These defaults will be used when logging workouts.",
+      "trainingDefaults": "Training defaults",
       "weightUnit": "Weight unit",
       "kilograms": "Kilograms (kg)",
       "pounds": "Pounds (lb)",
@@ -2408,6 +2444,8 @@
       "prescriptionCategory": "Default prescription",
       "noPrescriptionPreference": "No default prescription",
       "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "morePreferences": "More preferences",
+      "morePreferencesDescription": "Goals, weekly target, load rounding, and privacy.",
       "goals": {
         "title": "Training goals",
         "description": "Choose all that currently matter to you.",
@@ -2435,7 +2473,11 @@
         "hiddenDescription": "Your results stay out of public workout rankings."
       },
       "preferencesUnavailable": "Some training preferences are temporarily unavailable. You can still update the available profile fields or try again later.",
+      "unsaved": "Unsaved changes",
+      "unsavedHelp": "Save to keep these updates.",
+      "cancel": "Cancel",
       "save": "Save changes",
+      "saveShort": "Save",
       "saving": "Saving...",
       "saved": "Profile saved successfully.",
       "savedState": "Up to date",
@@ -2443,7 +2485,13 @@
         "displayNameRequired": "Enter a display name.",
         "saveError": "Unable to save your profile.",
         "connectionError": "Unable to connect. Please try again."
-      }
+      },
+      "profilePhoto": "Profile photo",
+      "photoTitle": "Profile photo",
+      "photoDescription": "Tap the photo to choose an image. It will be cropped and compressed automatically.",
+      "changePhoto": "Change",
+      "photoSaved": "Profile photo updated.",
+      "uploadingPhoto": "Uploading…"
     },
     "preferences": {
       "eyebrow": "Account preferences",

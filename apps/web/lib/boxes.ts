@@ -2,6 +2,9 @@ export type BoxSummary = {
   id: string;
   name: string;
   description: string | null;
+  location: string | null;
+  logoPath: string | null;
+  coverImagePath: string | null;
   timezone: string;
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";
@@ -54,6 +57,10 @@ export type BoxMember = {
   id: string;
   userId: string;
   role: "OWNER" | "COACH" | "ATHLETE";
+  status: "PENDING" | "ACTIVE" | "INACTIVE";
+  joinedAt: string | null;
+  leftAt: string | null;
+  createdAt: string;
   user: {
     email: string;
     athleteProfile: { displayName: string } | null;

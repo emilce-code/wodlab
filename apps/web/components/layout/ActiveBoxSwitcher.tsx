@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 
 import { useActiveBox } from "./ActiveBoxContext";
 
@@ -57,7 +59,15 @@ export default function ActiveBoxSwitcher() {
           onClick={() => { clearError(); setOpen(true); }}
           className="flex min-h-12 w-full min-w-0 items-center gap-3 rounded-xl border border-border bg-surface px-3 text-left shadow-sm transition hover:border-accent/40 disabled:cursor-default disabled:opacity-100 sm:w-auto sm:max-w-sm sm:min-w-72"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 font-black text-accent">B</span>
+          {boxImageUrl(activeBox.logoPath) ? (
+            <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
+              <Image src={boxImageUrl(activeBox.logoPath)!} alt="" fill sizes="36px" className="object-cover" unoptimized />
+            </span>
+          ) : (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 font-black text-accent">
+              {activeBox.name.slice(0, 1).toUpperCase()}
+            </span>
+          )}
           <span className="min-w-0 flex-1">
             <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{t("label")}</span>
             <span className="block truncate text-sm font-bold">{activeBox.name}</span>
@@ -85,7 +95,7 @@ export default function ActiveBoxSwitcher() {
                   const selected = box.id === activeBox.id;
                   return (
                     <button key={box.id} type="button" disabled={saving} onClick={() => void chooseBox(box.id)} className={`flex min-h-16 w-full items-center gap-3 rounded-xl border px-3 text-left transition ${selected ? "border-accent/40 bg-accent/10" : "border-transparent hover:bg-surface-elevated"}`}>
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black ${selected ? "bg-accent text-accent-foreground" : "bg-surface-elevated text-muted"}`}>{selected ? "✓" : "B"}</span>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black ${selected ? "bg-accent text-accent-foreground" : "bg-surface-elevated text-muted"}`}>{selected ? "✓" : box.name.slice(0, 1).toUpperCase()}</span>
                       <span className="min-w-0 flex-1"><span className="block break-words text-sm font-bold">{box.name}</span><span className="mt-0.5 block text-xs text-muted">{t(`roles.${box.role.toLowerCase()}`)}</span></span>
                       {selected ? <span className="shrink-0 text-xs font-bold text-accent">{t("active")}</span> : null}
                     </button>

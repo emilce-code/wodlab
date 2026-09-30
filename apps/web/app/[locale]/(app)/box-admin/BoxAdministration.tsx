@@ -2,11 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
+import { boxImageUrl, optimizeBoxImage } from "@/lib/box-images";
 
 type Props = {
   initialBoxes: ManagedBox[];
@@ -38,11 +40,14 @@ export default function BoxAdministration({
   const [tab, setTab] = useState<"details" | "members">("details");
   const [showCreate, setShowCreate] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
+  const [memberStatus, setMemberStatus] = useState<BoxMember["status"]>("ACTIVE");
+  const [selectedMember, setSelectedMember] = useState<BoxMember | null>(null);
   const { confirm, dialog } = useConfirmationDialog();
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
   const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
+  const statusMembers = members.filter((member) => member.status === memberStatus);
   const visibleMembers = normalizedSearch
-    ? members.filter((member) => {
+    ? statusMembers.filter((member) => {
         const name =
           member.user.athleteProfile?.displayName ??
           member.user.coachProfile?.displayName ??
@@ -51,7 +56,7 @@ export default function BoxAdministration({
           .toLocaleLowerCase()
           .includes(normalizedSearch);
       })
-    : members;
+    : statusMembers;
 
   useEffect(() => {
     if (!boxId) return;
@@ -90,6 +95,7 @@ export default function BoxAdministration({
         name: String(form.get("name")),
         description: String(form.get("description")),
         timezone: String(form.get("timezone")),
+        location: String(form.get("location") || ""),
       }),
     });
     const data = await response.json();
@@ -116,6 +122,7 @@ export default function BoxAdministration({
         name: String(form.get("name")),
         description: String(form.get("description")) || undefined,
         timezone: String(form.get("timezone")),
+        location: String(form.get("location") || "") || undefined,
       }),
     });
     const data = await response.json();
@@ -127,6 +134,35 @@ export default function BoxAdministration({
       setSuccess(t("created"));
     } else setError(message(data, t("errors.save")));
     setBusy(null);
+  }
+
+  async function uploadBoxImage(kind: "logo" | "cover", file: File) {
+    if (!selectedBox) return;
+    clearMessages();
+    setBusy(`image-${kind}`);
+    try {
+      const optimized = await optimizeBoxImage(file, kind);
+      const form = new FormData();
+      form.set("kind", kind);
+      form.set("file", optimized);
+      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
+        method: "POST",
+        body: form,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(message(data, t("errors.save")));
+      const field = kind === "logo" ? "logoPath" : "coverImagePath";
+      setBoxes((current) =>
+        current.map((box) =>
+          box.id === selectedBox.id ? { ...box, [field]: data.path } : box,
+        ),
+      );
+      setSuccess(t("images.saved"));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("errors.save"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function rotateJoinCode() {
@@ -182,31 +218,49 @@ export default function BoxAdministration({
     setBusy(null);
   }
 
-  async function removeMember(member: BoxMember) {
-    if (!(await confirm({ description: t("members.removeConfirm") }))) return;
+  async function changeMembershipStatus(
+    member: BoxMember,
+    action: "approve" | "deactivate" | "reactivate",
+  ) {
+    if (
+      action === "deactivate" &&
+      !(await confirm({ description: t("members.deactivateConfirm") }))
+    )
+      return;
+
     clearMessages();
     setBusy(member.id);
-    const response = await fetch(`/api/boxes/${boxId}/members/${member.id}`, {
-      method: "DELETE",
-    });
+    const response = await fetch(
+      `/api/boxes/${boxId}/members/${member.id}/${action}`,
+      { method: "POST" },
+    );
     const data = await response.json();
+
     if (response.ok) {
-      setMembers((current) => current.filter((item) => item.id !== member.id));
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === boxId
+      const status =
+        action === "deactivate" ? "INACTIVE" : "ACTIVE";
+      setMembers((current) =>
+        current.map((item) =>
+          item.id === member.id
             ? {
-                ...box,
-                _count: {
-                  ...box._count,
-                  memberships: Math.max(0, box._count.memberships - 1),
-                },
+                ...item,
+                status,
+                joinedAt:
+                  status === "ACTIVE"
+                    ? new Date().toISOString()
+                    : item.joinedAt,
+                leftAt:
+                  status === "INACTIVE"
+                    ? new Date().toISOString()
+                    : null,
               }
-            : box,
+            : item,
         ),
       );
-      setSuccess(t("members.removed"));
-    } else setError(message(data, t("errors.action")));
+      setSuccess(t(`members.${action}d`));
+    } else {
+      setError(message(data, t("errors.action")));
+    }
     setBusy(null);
   }
 
@@ -324,6 +378,78 @@ export default function BoxAdministration({
 
           {tab === "details" ? (
             <div className="space-y-4">
+              <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
+                    {t("images.eyebrow")}
+                  </p>
+                  <h2 className="mt-1 text-lg font-black">{t("images.title")}</h2>
+                  <p className="mt-1 text-sm leading-5 text-muted">{t("images.description")}</p>
+                </div>
+                <label className="group relative block h-36 cursor-pointer overflow-hidden bg-background sm:h-44">
+                  {boxImageUrl(selectedBox.coverImagePath) ? (
+                    <Image
+                      src={boxImageUrl(selectedBox.coverImagePath)!}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, 768px"
+                      className="object-cover opacity-70 transition group-active:opacity-50"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
+                    {busy === "image-cover" ? t("working") : t("images.changeCover")}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    disabled={busy?.startsWith("image-") ?? false}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadBoxImage("cover", file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+                <div className="relative px-4 pb-4">
+                  <label className="-mt-8 inline-flex cursor-pointer flex-col items-center">
+                    <span className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+                      {boxImageUrl(selectedBox.logoPath) ? (
+                        <Image
+                          src={boxImageUrl(selectedBox.logoPath)!}
+                          alt=""
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        selectedBox.name.slice(0, 1).toUpperCase()
+                      )}
+                    </span>
+                    <span className="mt-2 text-xs font-bold text-accent">
+                      {busy === "image-logo" ? t("working") : t("images.changeLogo")}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void uploadBoxImage("logo", file);
+                        event.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                  <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
+                </div>
+              </section>
+
               <BoxForm
                 t={t}
                 idPrefix="edit"
@@ -367,6 +493,35 @@ export default function BoxAdministration({
                   {t("members.description", { count: members.length })}
                 </p>
               </div>
+              <div
+                className="mt-4 grid grid-cols-3 rounded-xl bg-background p-1"
+                role="tablist"
+                aria-label={t("members.statusLabel")}
+              >
+                {(["ACTIVE", "PENDING", "INACTIVE"] as const).map((status) => {
+                  const count = members.filter((member) => member.status === status).length;
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      role="tab"
+                      aria-selected={memberStatus === status}
+                      onClick={() => setMemberStatus(status)}
+                      className={`relative min-h-11 rounded-lg px-1 text-xs font-semibold transition sm:text-sm ${
+                        memberStatus === status
+                          ? "bg-surface text-accent shadow-sm"
+                          : "text-muted"
+                      }`}
+                    >
+                      <span>{t(`members.status.${status.toLowerCase()}`)}</span>
+                      <span className="ml-1 tabular-nums">{count}</span>
+                      {status === "PENDING" && count > 0 && memberStatus !== status ? (
+                        <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
               <label htmlFor="member-search" className="sr-only">
                 {t("members.searchLabel")}
               </label>
@@ -381,59 +536,57 @@ export default function BoxAdministration({
               {loadingMembers ? (
                 <p className="mt-4 text-sm text-muted">{t("loading")}</p>
               ) : null}
-              <div className="mt-4 space-y-3">
+              <div className="mt-3 divide-y divide-border">
                 {visibleMembers.map((member) => {
                   const name =
                     member.user.athleteProfile?.displayName ??
                     member.user.coachProfile?.displayName ??
                     member.user.email;
+                  const initials = name
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0]?.toUpperCase())
+                    .join("");
                   return (
-                    <article
-                      key={member.id}
-                      className="rounded-xl border border-border bg-background p-3"
-                    >
-                      <p className="truncate font-semibold">{name}</p>
-                      <p className="truncate text-xs text-muted">
-                        {member.user.email}
-                      </p>
-                      {member.role === "OWNER" ? (
-                        <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-accent">
-                          {t("roles.owner")}
+                    <article key={member.id} className="flex min-h-[72px] items-center gap-3 py-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
+                        {initials || "W"}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMember(member)}
+                        className="min-w-0 flex-1 text-left"
+                      >
+                        <p className="truncate text-sm font-semibold">{name}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted">
+                          {t(`roles.${member.role.toLowerCase()}`)}
+                          {member.status === "PENDING" ? ` · ${t("members.status.pending")}` : ""}
                         </p>
+                      </button>
+                      {member.status === "PENDING" && member.role !== "OWNER" ? (
+                        <Button
+                          type="button"
+                          disabled={busy === member.id}
+                          onClick={() => void changeMembershipStatus(member, "approve")}
+                        >
+                          {t("members.approve")}
+                        </Button>
                       ) : (
-                        <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
-                          <select
-                            aria-label={t("members.roleFor", { name })}
-                            value={member.role}
-                            disabled={busy === member.id}
-                            onChange={(event) =>
-                              void changeRole(
-                                member,
-                                event.target.value as "COACH" | "ATHLETE",
-                              )
-                            }
-                            className="min-h-11 min-w-0 rounded-lg border border-border bg-surface px-3"
-                          >
-                            <option value="ATHLETE">
-                              {t("roles.athlete")}
-                            </option>
-                            <option value="COACH">{t("roles.coach")}</option>
-                          </select>
-                          <Button
-                            type="button"
-                            variant="danger"
-                            disabled={busy === member.id}
-                            onClick={() => void removeMember(member)}
-                          >
-                            {t("members.remove")}
-                          </Button>
-                        </div>
+                        <button
+                          type="button"
+                          aria-label={t("members.roleFor", { name })}
+                          onClick={() => setSelectedMember(member)}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl font-bold text-muted hover:bg-background hover:text-foreground"
+                        >
+                          ···
+                        </button>
                       )}
                     </article>
                   );
                 })}
                 {!loadingMembers && visibleMembers.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted">
+                  <p className="py-8 text-center text-sm text-muted">
                     {t("members.empty")}
                   </p>
                 ) : null}
@@ -446,6 +599,156 @@ export default function BoxAdministration({
           {t("empty")}
         </p>
       )}
+
+      {selectedMember ? (
+        <MemberActionSheet
+          member={members.find((item) => item.id === selectedMember.id) ?? selectedMember}
+          busy={busy === selectedMember.id}
+          t={t}
+          onClose={() => setSelectedMember(null)}
+          onRoleChange={(member, role) => void changeRole(member, role)}
+          onStatusChange={(member, action) =>
+            void changeMembershipStatus(member, action)
+          }
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function MemberActionSheet({
+  member,
+  busy,
+  t,
+  onClose,
+  onRoleChange,
+  onStatusChange,
+}: {
+  member: BoxMember;
+  busy: boolean;
+  t: ReturnType<typeof useTranslations>;
+  onClose: () => void;
+  onRoleChange: (member: BoxMember, role: "ATHLETE" | "COACH") => void;
+  onStatusChange: (
+    member: BoxMember,
+    action: "approve" | "deactivate" | "reactivate",
+  ) => void;
+}) {
+  const name =
+    member.user.athleteProfile?.displayName ??
+    member.user.coachProfile?.displayName ??
+    member.user.email;
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-end bg-black/60 sm:items-center sm:justify-center"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-label={name}
+        className="w-full rounded-t-3xl border border-border bg-surface px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-5"
+      >
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-bold text-accent">
+            {initials || "W"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-lg font-bold">{name}</h3>
+            <p className="truncate text-xs text-muted">{member.user.email}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-xl text-muted hover:bg-background"
+            aria-label={t("cancel")}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between rounded-xl bg-background px-3 py-3">
+          <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+            {t("members.statusLabel")}
+          </span>
+          <span className="text-sm font-semibold">
+            {t(`members.status.${member.status.toLowerCase()}`)}
+          </span>
+        </div>
+
+        {member.role === "OWNER" ? (
+          <div className="mt-4 rounded-xl bg-accent/10 px-3 py-3 text-sm font-semibold text-accent">
+            {t("roles.owner")}
+          </div>
+        ) : (
+          <>
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                {t("members.roleFor", { name })}
+              </p>
+              <div className="grid grid-cols-2 rounded-xl bg-background p-1">
+                {(["ATHLETE", "COACH"] as const).map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => onRoleChange(member, role)}
+                    className={`min-h-11 rounded-lg text-sm font-semibold transition ${
+                      member.role === role
+                        ? "bg-surface text-accent shadow-sm"
+                        : "text-muted"
+                    }`}
+                  >
+                    {t(`roles.${role.toLowerCase()}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 border-t border-border pt-4">
+              {member.status === "PENDING" ? (
+                <Button
+                  type="button"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "approve")}
+                >
+                  {t("members.approve")}
+                </Button>
+              ) : member.status === "INACTIVE" ? (
+                <Button
+                  type="button"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "reactivate")}
+                >
+                  {t("members.reactivate")}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="w-full"
+                  disabled={busy}
+                  onClick={() => onStatusChange(member, "deactivate")}
+                >
+                  {t("members.deactivate")}
+                </Button>
+              )}
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 }
@@ -502,6 +805,17 @@ function BoxForm({
           maxLength={500}
           defaultValue={box?.description ?? ""}
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base"
+        />
+        <label htmlFor={`${idPrefix}-location`} className="block text-sm font-semibold">
+          {t("fields.location")}
+        </label>
+        <input
+          id={`${idPrefix}-location`}
+          name="location"
+          maxLength={120}
+          defaultValue={box?.location ?? ""}
+          placeholder={t("fields.locationPlaceholder")}
+          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
         />
         <label
           htmlFor={`${idPrefix}-timezone`}

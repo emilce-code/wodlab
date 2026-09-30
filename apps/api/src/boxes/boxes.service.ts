@@ -77,13 +77,14 @@ export class BoxesService {
         select: { activeBoxId: true },
       }),
       this.prisma.boxMembership.findMany({
-        where: { userId },
+        where: { userId, status: 'ACTIVE' },
         include: {
+          role: true,
           box: {
             include: {
               _count: {
                 select: {
-                  memberships: true,
+                  memberships: { where: { status: 'ACTIVE' } },
                 },
               },
             },
@@ -97,7 +98,7 @@ export class BoxesService {
 
     return memberships.map(({ box, role }) => ({
       ...box,
-      role,
+      role: box.ownerUserId === userId ? 'OWNER' : role.key,
       isActive: box.id === user?.activeBoxId,
     }));
   }
@@ -107,7 +108,7 @@ export class BoxesService {
       include: {
         _count: {
           select: {
-            memberships: true,
+            memberships: { where: { status: 'ACTIVE' } },
             classes: true,
           },
         },
@@ -141,12 +142,17 @@ export class BoxesService {
           name,
           description: dto.description?.trim() || null,
           timezone: dto.timezone?.trim() || 'UTC',
+          location: dto.location?.trim() || null,
+          logoPath: dto.logoPath?.trim() || null,
+          coverImagePath: dto.coverImagePath?.trim() || null,
           joinCode,
           ownerUserId: userId,
           memberships: {
             create: {
               userId,
-              role: 'OWNER',
+              roleId: 'box-membership-role-athlete',
+              status: 'ACTIVE',
+              joinedAt: new Date(),
             },
           },
         },
@@ -204,49 +210,51 @@ export class BoxesService {
               timezone: dto.timezone.trim() || 'UTC',
             }
           : {}),
+        ...(dto.location !== undefined
+          ? { location: dto.location.trim() || null }
+          : {}),
+        ...(dto.logoPath !== undefined
+          ? { logoPath: dto.logoPath.trim() || null }
+          : {}),
+        ...(dto.coverImagePath !== undefined
+          ? { coverImagePath: dto.coverImagePath.trim() || null }
+          : {}),
       },
     });
   }
 
   async join(userId: string, joinCode: string) {
     const box = await this.prisma.box.findUnique({
-      where: {
-        joinCode: joinCode.trim().toUpperCase(),
-      },
+      where: { joinCode: joinCode.trim().toUpperCase() },
     });
-
-    if (!box) {
-      throw new NotFoundException('Box not found');
-    }
+    if (!box) throw new NotFoundException('Box not found');
 
     const existing = await this.prisma.boxMembership.findUnique({
-      where: {
-        boxId_userId: {
-          boxId: box.id,
-          userId,
-        },
-      },
+      where: { boxId_userId: { boxId: box.id, userId } },
     });
 
-    if (existing) {
+    if (existing?.status === 'ACTIVE') {
       throw new ConflictException('You already belong to this box');
     }
+    if (existing?.status === 'PENDING') {
+      throw new ConflictException('Your request to join this box is pending');
+    }
 
-    await this.prisma.$transaction([
-      this.prisma.boxMembership.create({
-        data: {
-          boxId: box.id,
-          userId,
-          role: 'ATHLETE',
-        },
-      }),
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { activeBoxId: box.id },
-      }),
-    ]);
+    const membership = existing
+      ? await this.prisma.boxMembership.update({
+          where: { id: existing.id },
+          data: { status: 'PENDING', leftAt: null },
+        })
+      : await this.prisma.boxMembership.create({
+          data: {
+            boxId: box.id,
+            userId,
+            roleId: 'box-membership-role-athlete',
+            status: 'PENDING',
+          },
+        });
 
-    return box;
+    return { box, membershipId: membership.id, status: membership.status };
   }
 
   async setActiveBox(userId: string, boxId: string) {
@@ -259,7 +267,7 @@ export class BoxesService {
 
     return {
       boxId,
-      role: membership.role,
+      role: membership.role.key,
       active: true,
     };
   }
@@ -312,117 +320,88 @@ export class BoxesService {
 
   async findMembers(userId: string, boxId: string) {
     await this.requireOwnerOrAdmin(userId, boxId);
-
-    return this.prisma.boxMembership.findMany({
+    const box = await this.prisma.box.findUniqueOrThrow({ where: { id: boxId }, select: { ownerUserId: true } });
+    const memberships = await this.prisma.boxMembership.findMany({
       where: { boxId },
       select: {
-        id: true,
-        userId: true,
-        role: true,
+        id: true, userId: true, status: true, joinedAt: true, leftAt: true, createdAt: true,
+        role: { select: { key: true } },
         user: {
           select: {
             email: true,
-            athleteProfile: {
-              select: {
-                displayName: true,
-              },
-            },
-            coachProfile: {
-              select: {
-                displayName: true,
-              },
-            },
+            athleteProfile: { select: { displayName: true } },
+            coachProfile: { select: { displayName: true } },
           },
         },
       },
-      orderBy: [
-        {
-          role: 'asc',
-        },
-        {
-          createdAt: 'asc',
-        },
-      ],
+      orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
+    });
+    return memberships.map((membership) => ({
+      ...membership,
+      role: membership.userId === box.ownerUserId ? 'OWNER' : membership.role.key,
+    }));
+  }
+
+  async updateMember(userId: string, boxId: string, memberId: string, role: 'COACH' | 'ATHLETE') {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const box = await this.prisma.box.findUniqueOrThrow({ where: { id: boxId }, select: { ownerUserId: true } });
+    const membership = await this.prisma.boxMembership.findFirst({ where: { id: memberId, boxId } });
+    if (!membership) throw new NotFoundException('Box member not found');
+    if (membership.userId === box.ownerUserId) throw new ConflictException('The Box owner role cannot be changed');
+    return this.prisma.boxMembership.update({
+      where: { id: memberId },
+      data: { role: { connect: { key: role } } },
+      include: { role: true },
     });
   }
 
-  async updateMember(
-    userId: string,
-    boxId: string,
-    memberId: string,
-    role: 'COACH' | 'ATHLETE',
-  ) {
+  async approveMember(userId: string, boxId: string, memberId: string) {
     await this.requireOwnerOrAdmin(userId, boxId);
-
-    const membership = await this.prisma.boxMembership.findFirst({
-      where: { id: memberId, boxId, role: { not: 'OWNER' } },
-      select: {
-        id: true,
-        userId: true,
-        role: true,
-      },
-    });
-
-    if (!membership) throw new NotFoundException('Box member not found');
-
-    if (membership.role === role) {
-      return membership;
-    }
-
+    const membership = await this.prisma.boxMembership.findFirst({ where: { id: memberId, boxId, status: 'PENDING' } });
+    if (!membership) throw new NotFoundException('Pending membership not found');
     return this.prisma.boxMembership.update({
       where: { id: memberId },
-      data: { role },
+      data: { status: 'ACTIVE', joinedAt: new Date(), leftAt: null },
+    });
+  }
+
+  async deactivateMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const box = await this.prisma.box.findUniqueOrThrow({ where: { id: boxId }, select: { ownerUserId: true } });
+    const membership = await this.prisma.boxMembership.findFirst({ where: { id: memberId, boxId } });
+    if (!membership) throw new NotFoundException('Box member not found');
+    if (membership.userId === box.ownerUserId) throw new ConflictException('The Box owner cannot be deactivated');
+    await this.prisma.$transaction([
+      this.prisma.boxMembership.update({ where: { id: memberId }, data: { status: 'INACTIVE', leftAt: new Date() } }),
+      this.prisma.user.updateMany({ where: { id: membership.userId, activeBoxId: boxId }, data: { activeBoxId: null } }),
+    ]);
+    return { id: memberId, status: 'INACTIVE' };
+  }
+
+  async reactivateMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const membership = await this.prisma.boxMembership.findFirst({ where: { id: memberId, boxId, status: 'INACTIVE' } });
+    if (!membership) throw new NotFoundException('Inactive membership not found');
+    return this.prisma.boxMembership.update({
+      where: { id: memberId },
+      data: { status: 'ACTIVE', joinedAt: new Date(), leftAt: null },
     });
   }
 
   async removeMember(userId: string, boxId: string, memberId: string) {
-    await this.requireOwnerOrAdmin(userId, boxId);
+    return this.deactivateMember(userId, boxId, memberId);
+  }
 
-    const membership = await this.prisma.boxMembership.findFirst({
-      where: {
-        id: memberId,
-        boxId,
-      },
-      select: {
-        id: true,
-        userId: true,
-        role: true,
-      },
-    });
-
-    if (!membership) {
-      throw new NotFoundException('Box member not found');
-    }
-
-    if (membership.role === 'OWNER') {
-      throw new ConflictException('The Box owner cannot be removed');
-    }
-
-    if (membership.userId === userId) {
-      throw new ConflictException('You cannot remove your own membership');
-    }
-
+  async leave(userId: string, boxId: string) {
+    const box = await this.prisma.box.findUnique({ where: { id: boxId }, select: { ownerUserId: true } });
+    if (!box) throw new NotFoundException('Box not found');
+    if (box.ownerUserId === userId) throw new ConflictException('Transfer Box ownership before leaving');
+    const membership = await this.requireMember(userId, boxId);
     await this.prisma.$transaction([
-      this.prisma.boxMembership.delete({
-        where: {
-          id: membership.id,
-        },
-      }),
-      this.prisma.user.updateMany({
-        where: {
-          id: membership.userId,
-          activeBoxId: boxId,
-        },
-        data: {
-          activeBoxId: null,
-        },
-      }),
+      this.prisma.boxMembership.update({ where: { id: membership.id }, data: { status: 'INACTIVE', leftAt: new Date() } }),
+      this.prisma.user.updateMany({ where: { id: userId, activeBoxId: boxId }, data: { activeBoxId: null } }),
     ]);
-
-    return {
-      id: membership.id,
-      deleted: true,
-    };
+    return { id: membership.id, status: 'INACTIVE' };
   }
 
   async rotateJoinCode(userId: string, boxId: string) {
@@ -473,7 +452,7 @@ export class BoxesService {
     }>;
 
     return {
-      role: membership.role,
+      role: membership.role.key,
       classes: classes.map((session) => ({
         ...session,
         bookedCount: session.bookings.length,
@@ -732,39 +711,30 @@ export class BoxesService {
 
   private async requireMember(userId: string, boxId: string) {
     const membership = await this.prisma.boxMembership.findUnique({
-      where: {
-        boxId_userId: {
-          boxId,
-          userId,
-        },
-      },
+      where: { boxId_userId: { boxId, userId } },
+      include: { role: true },
     });
-
-    if (!membership) {
-      throw new ForbiddenException('Box membership required');
+    if (!membership || membership.status !== 'ACTIVE') {
+      throw new ForbiddenException('Active Box membership required');
     }
-
     return membership;
   }
 
   private async requireStaff(userId: string, boxId: string) {
     const membership = await this.requireMember(userId, boxId);
-
-    if (membership.role === 'ATHLETE') {
+    const box = await this.prisma.box.findUniqueOrThrow({ where: { id: boxId }, select: { ownerUserId: true } });
+    if (box.ownerUserId !== userId && membership.role.key !== 'COACH') {
       throw new ForbiddenException('Box staff access required');
     }
-
     return membership;
   }
 
   private async requireOwner(userId: string, boxId: string) {
-    const membership = await this.requireMember(userId, boxId);
-
-    if (membership.role !== 'OWNER') {
+    const box = await this.prisma.box.findUnique({ where: { id: boxId }, select: { ownerUserId: true } });
+    if (!box || box.ownerUserId !== userId) {
       throw new ForbiddenException('Box owner access required');
     }
-
-    return membership;
+    return box;
   }
 
   private async requireOwnerOrAdmin(userId: string, boxId: string) {
