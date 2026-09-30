@@ -61,7 +61,7 @@ export default function ActiveBoxSwitcher() {
         >
           {boxImageUrl(activeBox.logoPath) ? (
             <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
-              <Image src={boxImageUrl(activeBox.logoPath)} alt="" fill sizes="36px" className="object-cover" unoptimized />
+              <Image src={boxImageUrl(activeBox.logoPath)!} alt="" fill sizes="36px" className="object-cover" unoptimized />
             </span>
           ) : (
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 font-black text-accent">
