@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 
 import { useActiveBox } from "./ActiveBoxContext";
 
@@ -58,9 +59,9 @@ export default function ActiveBoxSwitcher() {
           onClick={() => { clearError(); setOpen(true); }}
           className="flex min-h-12 w-full min-w-0 items-center gap-3 rounded-xl border border-border bg-surface px-3 text-left shadow-sm transition hover:border-accent/40 disabled:cursor-default disabled:opacity-100 sm:w-auto sm:max-w-sm sm:min-w-72"
         >
-          {activeBox.logoUrl ? (
+          {boxImageUrl(activeBox.logoPath) ? (
             <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-border bg-surface-elevated">
-              <Image src={activeBox.logoUrl} alt="" fill sizes="36px" className="object-cover" unoptimized />
+              <Image src={boxImageUrl(activeBox.logoPath)} alt="" fill sizes="36px" className="object-cover" unoptimized />
             </span>
           ) : (
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 font-black text-accent">
