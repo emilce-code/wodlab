@@ -42,6 +42,18 @@ export async function POST(request: NextRequest, context: Context) {
     }),
   });
 
+  const authorization = await authenticatedApiFetch(`/boxes/${boxId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  });
+  if (!authorization?.ok) {
+    return NextResponse.json(
+      { message: "Box owner access required" },
+      { status: authorization?.status ?? 503 },
+    );
+  }
+
   const path = `boxes/${boxId}/${kind}.webp`;
   const storageUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${path}`;
   const upload = await fetch(storageUrl, {
