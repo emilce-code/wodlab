@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
 import LogoutButton from "@/components/auth/LogoutButton";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
@@ -11,6 +12,7 @@ import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetchJson } from "@/lib/api";
 
 import { getCurrentUser } from "@/lib/auth";
+import { mediaImageUrl } from "@/lib/profile-images";
 
 import AthleteProfileForm from "./components/AthleteProfileForm";
 
@@ -149,22 +151,16 @@ export default async function AccountPage() {
 
       <Card className="mt-6 p-4 sm:mt-8 sm:p-6">
         <div className="flex items-center gap-4">
-          <div
-            role={user.athleteProfile?.avatarUrl ? "img" : undefined}
-            aria-label={
-              user.athleteProfile?.avatarUrl
-                ? t("profile.avatarAlt", { name: displayName })
-                : undefined
-            }
-            style={
-              user.athleteProfile?.avatarUrl
-                ? { backgroundImage: `url(${user.athleteProfile.avatarUrl})` }
-                : undefined
-            }
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-accent bg-cover bg-center text-lg font-black text-accent"
-          >
-            {user.athleteProfile?.avatarUrl ? (
-              <span className="sr-only">{initials}</span>
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent bg-background text-lg font-black text-accent">
+            {mediaImageUrl(user.athleteProfile?.avatarPath) ? (
+              <Image
+                src={mediaImageUrl(user.athleteProfile?.avatarPath)!}
+                alt={t("profile.avatarAlt", { name: displayName })}
+                fill
+                sizes="64px"
+                className="object-cover"
+                unoptimized
+              />
             ) : (
               initials
             )}
@@ -300,7 +296,7 @@ export default async function AccountPage() {
 
             preferredPrescriptionCategoryKey:
               user.athleteProfile?.preferredPrescriptionCategory?.key ?? "",
-            avatarUrl: user.athleteProfile?.avatarUrl ?? "",
+            avatarPath: user.athleteProfile?.avatarPath ?? "",
             bio: user.athleteProfile?.bio ?? "",
             trainingGoals: user.athleteProfile?.trainingGoals ?? [],
             weeklyTrainingTarget:
