@@ -115,8 +115,8 @@ model Box {
   name               String
   description        String?
   location           String?
-  logoUrl            String?
-  coverImageUrl      String?
+  logoPath           String?
+  coverImagePath     String?
   timezone           String                     @default("UTC")
   joinCode           String                     @unique
   ownerUserId        String
