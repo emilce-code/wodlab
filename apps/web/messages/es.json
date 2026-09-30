@@ -2407,12 +2407,12 @@
     },
     "language": {
       "title": "Idioma",
-      "description": "Elige el idioma que se utilizará en WODLY."
+      "description": "Elige el idioma que se usará en la app."
     },
     "session": {
       "eyebrow": "Sesión",
       "title": "Cerrar sesión",
-      "description": "Cierra tu sesión de WODLY en este dispositivo.",
+      "description": "Cierra tu sesión en este dispositivo.",
       "logout": "Cerrar sesión"
     },
     "profile": {
@@ -2482,8 +2482,8 @@
         "connectionError": "No se pudo conectar. Inténtalo de nuevo."
       },
       "profilePhoto": "Foto de perfil",
-      "photoTitle": "Tu foto de WODLY",
-      "photoDescription": "Toca la foto para elegir una imagen. WODLY la recorta y comprime automáticamente.",
+      "photoTitle": "Foto de perfil",
+      "photoDescription": "Toca la foto para elegir una imagen. Se recortará y comprimirá automáticamente.",
       "changePhoto": "Cambiar",
       "photoSaved": "Foto de perfil actualizada.",
       "uploadingPhoto": "Subiendo…"
