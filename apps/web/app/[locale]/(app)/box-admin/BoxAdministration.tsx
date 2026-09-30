@@ -701,6 +701,41 @@ function BoxForm({
           defaultValue={box?.description ?? ""}
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base"
         />
+        <label htmlFor={`${idPrefix}-location`} className="block text-sm font-semibold">
+          {t("fields.location")}
+        </label>
+        <input
+          id={`${idPrefix}-location`}
+          name="location"
+          maxLength={120}
+          defaultValue={box?.location ?? ""}
+          placeholder={t("fields.locationPlaceholder")}
+          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+        />
+        <label htmlFor={`${idPrefix}-logoUrl`} className="block text-sm font-semibold">
+          {t("fields.logoUrl")}
+        </label>
+        <input
+          id={`${idPrefix}-logoUrl`}
+          name="logoUrl"
+          type="url"
+          maxLength={500}
+          defaultValue={box?.logoUrl ?? ""}
+          placeholder="https://"
+          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+        />
+        <label htmlFor={`${idPrefix}-coverImageUrl`} className="block text-sm font-semibold">
+          {t("fields.coverImageUrl")}
+        </label>
+        <input
+          id={`${idPrefix}-coverImageUrl`}
+          name="coverImageUrl"
+          type="url"
+          maxLength={500}
+          defaultValue={box?.coverImageUrl ?? ""}
+          placeholder="https://"
+          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+        />
         <label
           htmlFor={`${idPrefix}-timezone`}
           className="block text-sm font-semibold"
