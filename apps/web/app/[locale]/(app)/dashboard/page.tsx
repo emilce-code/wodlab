@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 
 import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
@@ -201,17 +202,17 @@ export default async function DashboardPage({ params }: Props) {
           className="group overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition hover:border-accent/30"
         >
           <div className="relative h-24 bg-gradient-to-br from-surface-elevated to-background sm:h-28">
-            {activeBox.coverImageUrl ? (
-              <Image src={activeBox.coverImageUrl} alt="" fill sizes="(max-width: 640px) 100vw, 1024px" className="object-cover opacity-60 transition group-hover:opacity-70" unoptimized />
+            {boxImageUrl(activeBox.coverImagePath) ? (
+              <Image src={boxImageUrl(activeBox.coverImagePath)} alt="" fill sizes="(max-width: 640px) 100vw, 1024px" className="object-cover opacity-60 transition group-hover:opacity-70" unoptimized />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.15),transparent_55%)]" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
           </div>
           <div className="-mt-6 relative flex items-end gap-3 px-4 pb-4 sm:px-5">
-            {activeBox.logoUrl ? (
+            {boxImageUrl(activeBox.logoPath) ? (
               <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background">
-                <Image src={activeBox.logoUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
+                <Image src={boxImageUrl(activeBox.logoPath)} alt="" fill sizes="56px" className="object-cover" unoptimized />
               </span>
             ) : (
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-xl font-black text-accent-foreground">
