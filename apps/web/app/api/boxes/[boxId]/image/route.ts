@@ -26,6 +26,22 @@ export async function POST(request: NextRequest, context: Context) {
     return NextResponse.json({ message: "Image storage is not configured" }, { status: 503 });
   }
 
+  await fetch(`${supabaseUrl}/storage/v1/bucket`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${serviceKey}`,
+      apikey: serviceKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: BUCKET,
+      name: BUCKET,
+      public: true,
+      file_size_limit: MAX_BYTES,
+      allowed_mime_types: ["image/webp"],
+    }),
+  });
+
   const path = `boxes/${boxId}/${kind}.webp`;
   const storageUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${path}`;
   const upload = await fetch(storageUrl, {
