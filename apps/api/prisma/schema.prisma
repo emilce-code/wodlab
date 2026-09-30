@@ -232,7 +232,7 @@ model AthleteProfile {
   displayName                     String
   leaderboardEnabled              Boolean                    @default(false)
   preferredWeightUnit             WeightUnit                 @default(KG)
-  avatarUrl                       String?
+  avatarPath                      String?
   bio                             String?
   trainingGoals                   AthleteTrainingGoal[]      @default([])
   weeklyTrainingTarget            Int?
