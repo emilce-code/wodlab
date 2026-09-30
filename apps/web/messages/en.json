@@ -2427,8 +2427,10 @@
       "bio": "Training bio",
       "email": "Email",
       "emailDescription": "Your email is managed by your sign-in provider.",
+      "basicProfile": "Basic profile",
       "trainingPreferences": "Training preferences",
       "trainingPreferencesDescription": "These defaults will be used when logging workouts.",
+      "trainingDefaults": "Training defaults",
       "weightUnit": "Weight unit",
       "kilograms": "Kilograms (kg)",
       "pounds": "Pounds (lb)",
@@ -2437,6 +2439,8 @@
       "prescriptionCategory": "Default prescription",
       "noPrescriptionPreference": "No default prescription",
       "prescriptionDescription": "Used when a workout provides category-specific prescriptions.",
+      "morePreferences": "More preferences",
+      "morePreferencesDescription": "Goals, weekly target, load rounding, and privacy.",
       "goals": {
         "title": "Training goals",
         "description": "Choose all that currently matter to you.",
@@ -2464,7 +2468,11 @@
         "hiddenDescription": "Your results stay out of public workout rankings."
       },
       "preferencesUnavailable": "Some training preferences are temporarily unavailable. You can still update the available profile fields or try again later.",
+      "unsaved": "Unsaved changes",
+      "unsavedHelp": "Save to keep these updates.",
+      "cancel": "Cancel",
       "save": "Save changes",
+      "saveShort": "Save",
       "saving": "Saving...",
       "saved": "Profile saved successfully.",
       "savedState": "Up to date",
@@ -2477,6 +2485,7 @@
       "photoTitle": "Your WODLY photo",
       "photoDescription": "Tap the photo to choose an image. WODLY crops and compresses it automatically.",
       "changePhoto": "Change",
+      "photoSaved": "Profile photo updated.",
       "uploadingPhoto": "Uploading…"
     },
     "preferences": {
