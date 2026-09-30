@@ -3,8 +3,8 @@ export type BoxSummary = {
   name: string;
   description: string | null;
   location: string | null;
-  logoUrl: string | null;
-  coverImageUrl: string | null;
+  logoPath: string | null;
+  coverImagePath: string | null;
   timezone: string;
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";
