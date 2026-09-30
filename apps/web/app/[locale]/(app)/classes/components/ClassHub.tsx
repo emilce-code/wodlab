@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
 
 type View = "all" | "mine";
@@ -256,17 +257,17 @@ export default function ClassHub() {
       {selectedBox ? (
         <section className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
           <div className="relative h-28 bg-gradient-to-br from-surface-elevated to-background sm:h-36">
-            {selectedBox.coverImageUrl ? (
-              <Image src={selectedBox.coverImageUrl} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
+            {boxImageUrl(selectedBox.coverImagePath) ? (
+              <Image src={boxImageUrl(selectedBox.coverImagePath)} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
             ) : (
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
           </div>
           <div className="-mt-7 relative flex items-end gap-3 px-4 pb-4">
-            {selectedBox.logoUrl ? (
+            {boxImageUrl(selectedBox.logoPath) ? (
               <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background shadow-lg">
-                <Image src={selectedBox.logoUrl} alt="" fill sizes="64px" className="object-cover" unoptimized />
+                <Image src={boxImageUrl(selectedBox.logoPath)} alt="" fill sizes="64px" className="object-cover" unoptimized />
               </span>
             ) : (
               <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
