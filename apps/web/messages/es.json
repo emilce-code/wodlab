@@ -2472,7 +2472,12 @@
         "displayNameRequired": "Ingresa un nombre para mostrar.",
         "saveError": "No se pudo guardar tu perfil.",
         "connectionError": "No se pudo conectar. Inténtalo de nuevo."
-      }
+      },
+      "profilePhoto": "Foto de perfil",
+      "photoTitle": "Tu foto de WODLY",
+      "photoDescription": "Toca la foto para elegir una imagen. WODLY la recorta y comprime automáticamente.",
+      "changePhoto": "Cambiar",
+      "uploadingPhoto": "Subiendo…"
     },
     "preferences": {
       "eyebrow": "Preferencias de la cuenta",
