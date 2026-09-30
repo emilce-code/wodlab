@@ -24,7 +24,7 @@ export type CurrentUser = {
     displayName: string;
     leaderboardEnabled: boolean;
     preferredWeightUnit: "KG" | "LB";
-    avatarUrl: string | null;
+    avatarPath: string | null;
     bio: string | null;
     trainingGoals: Array<
       | "GENERAL_FITNESS"

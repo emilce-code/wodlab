@@ -6,7 +6,6 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -41,9 +40,9 @@ export class UpdateAthleteProfileDto {
   preferredPrescriptionCategoryKey?: string | null;
 
   @IsOptional()
-  @IsUrl({ protocols: ['https'], require_protocol: true })
+  @IsString()
   @MaxLength(500)
-  avatarUrl?: string | null;
+  avatarPath?: string | null;
 
   @IsOptional()
   @IsString()

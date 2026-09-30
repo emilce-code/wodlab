@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Image from "next/image";
 
 import { useTranslations } from "next-intl";
 
@@ -10,6 +11,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import type { WeightUnit } from "@/lib/result-types";
+import { mediaImageUrl, optimizeProfileImage } from "@/lib/profile-images";
 
 type WorkoutLevel = {
   id: string;
@@ -35,7 +37,7 @@ type Profile = {
   preferredWorkoutLevelKey: string;
 
   preferredPrescriptionCategoryKey: string;
-  avatarUrl: string;
+  avatarPath: string;
   bio: string;
   trainingGoals: TrainingGoal[];
   weeklyTrainingTarget: number | null;
@@ -100,7 +102,8 @@ export default function AthleteProfileForm({
   const [error, setError] = useState<string | null>(null);
 
   const [success, setSuccess] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
+  const [avatarPath, setAvatarPath] = useState(profile.avatarPath);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [bio, setBio] = useState(profile.bio);
   const [selectedGoals, setSelectedGoals] = useState<TrainingGoal[]>(
     profile.trainingGoals,
@@ -120,7 +123,6 @@ export default function AthleteProfileForm({
       preferredWorkoutLevelKey !== profile.preferredWorkoutLevelKey ||
       preferredPrescriptionCategoryKey !==
         profile.preferredPrescriptionCategoryKey ||
-      avatarUrl !== profile.avatarUrl ||
       bio !== profile.bio ||
       weeklyTrainingTarget !==
         (profile.weeklyTrainingTarget?.toString() ?? "") ||
@@ -128,7 +130,6 @@ export default function AthleteProfileForm({
         (profile.loadRoundingIncrement?.toString() ?? "") ||
       selectedGoals.join(",") !== profile.trainingGoals.join(","),
     [
-      avatarUrl,
       bio,
       displayName,
       leaderboardEnabled,
@@ -186,7 +187,6 @@ export default function AthleteProfileForm({
 
           preferredPrescriptionCategoryKey:
             preferredPrescriptionCategoryKey || null,
-          avatarUrl: avatarUrl.trim() || null,
           bio: bio.trim() || null,
           trainingGoals: selectedGoals,
           weeklyTrainingTarget: weeklyTrainingTarget
@@ -279,27 +279,62 @@ export default function AthleteProfileForm({
               </div>
 
               <div>
-                <label
-                  htmlFor="avatarUrl"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("avatarUrl")}
-                </label>
-                <input
-                  id="avatarUrl"
-                  type="url"
-                  inputMode="url"
-                  value={avatarUrl}
-                  onChange={(event) => {
-                    setAvatarUrl(event.target.value);
-                    setSuccess(false);
-                  }}
-                  placeholder="https://"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                />
-                <p className="mt-1.5 text-xs text-muted">
-                  {t("avatarDescription")}
-                </p>
+                <p className="mb-2 block text-sm font-medium">{t("profilePhoto")}</p>
+                <div className="flex items-center gap-4">
+                  <label className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 bg-background text-xl font-black text-accent">
+                    {mediaImageUrl(avatarPath) ? (
+                      <Image
+                        src={mediaImageUrl(avatarPath)!}
+                        alt={t("avatarAlt", { name: displayName || email })}
+                        fill
+                        sizes="96px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      (displayName || email).slice(0, 1).toUpperCase()
+                    )}
+                    <span className="absolute inset-x-0 bottom-0 bg-black/70 py-1.5 text-center text-[10px] font-bold text-white">
+                      {isUploadingAvatar ? t("uploadingPhoto") : t("changePhoto")}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={isUploadingAvatar}
+                      onChange={async (event) => {
+                        const file = event.target.files?.[0];
+                        event.currentTarget.value = "";
+                        if (!file) return;
+                        setError(null);
+                        setSuccess(false);
+                        setIsUploadingAvatar(true);
+                        try {
+                          const optimized = await optimizeProfileImage(file);
+                          const form = new FormData();
+                          form.set("file", optimized);
+                          const response = await fetch("/api/athlete-profile/image", {
+                            method: "POST",
+                            body: form,
+                          });
+                          const data = await response.json();
+                          if (!response.ok) throw new Error(data.detail || data.message || t("validation.saveError"));
+                          setAvatarPath(data.path as string);
+                          setSuccess(true);
+                          router.refresh();
+                        } catch (caught) {
+                          setError(caught instanceof Error ? caught.message : t("validation.saveError"));
+                        } finally {
+                          setIsUploadingAvatar(false);
+                        }
+                      }}
+                    />
+                  </label>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{t("photoTitle")}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted">{t("photoDescription")}</p>
+                  </div>
+                </div>
               </div>
 
               <div>
