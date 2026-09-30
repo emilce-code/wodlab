@@ -115,8 +115,8 @@ export class AthleteProfilesService {
             }
           : {}),
 
-        ...(dto.avatarUrl !== undefined
-          ? { avatarUrl: dto.avatarUrl?.trim() || null }
+        ...(dto.avatarPath !== undefined
+          ? { avatarPath: dto.avatarPath?.trim() || null }
           : {}),
 
         ...(dto.bio !== undefined ? { bio: dto.bio?.trim() || null } : {}),
