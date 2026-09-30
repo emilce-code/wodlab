@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
 import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
@@ -8,6 +9,7 @@ import { authenticatedApiFetchJson } from "@/lib/api";
 import { formatShortDate } from "@/lib/date-formatters";
 import { formatDuration, formatWeight } from "@/lib/result-formatters";
 import type { WeightUnit } from "@/lib/result-types";
+import type { BoxSummary } from "@/lib/boxes";
 
 import TimeAwareGreeting from "./components/TimeAwareGreeting";
 import TodaySchedule from "./components/TodaySchedule";
@@ -119,17 +121,19 @@ async function getDashboard(): Promise<DashboardResponse> {
 export default async function DashboardPage({ params }: Props) {
   const { locale } = await params;
 
-  const [t, workoutTypeT, measurementT, dashboard] = await Promise.all([
+  const [t, workoutTypeT, measurementT, dashboard, boxes] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("workoutTypes"),
     getTranslations("measurementTypes"),
     getDashboard(),
+    authenticatedApiFetchJson<BoxSummary[]>("/boxes"),
   ]);
 
   const { profile, currentMonth, overall, onboarding, recentActivity } =
     dashboard;
 
   const hasActivity = recentActivity.length > 0;
+  const activeBox = boxes.find((box) => box.isActive) ?? boxes[0] ?? null;
 
   function getSubtitle(activity: DashboardActivity) {
     const key = activity.subtitle.key.toLowerCase();
@@ -189,6 +193,39 @@ export default async function DashboardPage({ params }: Props) {
 
         <p className="mt-2 text-muted">{t("readyToTrain")}</p>
       </header>
+
+      {activeBox ? (
+        <Link
+          href="/classes"
+          className="group overflow-hidden rounded-3xl border border-border bg-surface shadow-sm transition hover:border-accent/30"
+        >
+          <div className="relative h-24 bg-gradient-to-br from-surface-elevated to-background sm:h-28">
+            {activeBox.coverImageUrl ? (
+              <Image src={activeBox.coverImageUrl} alt="" fill sizes="(max-width: 640px) 100vw, 1024px" className="object-cover opacity-60 transition group-hover:opacity-70" unoptimized />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.15),transparent_55%)]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+          </div>
+          <div className="-mt-6 relative flex items-end gap-3 px-4 pb-4 sm:px-5">
+            {activeBox.logoUrl ? (
+              <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background">
+                <Image src={activeBox.logoUrl} alt="" fill sizes="56px" className="object-cover" unoptimized />
+              </span>
+            ) : (
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-xl font-black text-accent-foreground">
+                {activeBox.name.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0 flex-1 pb-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-accent">{activeBox.role === "ATHLETE" ? "Your Box" : "My Box"}</p>
+              <p className="truncate text-lg font-black">{activeBox.name}</p>
+              {activeBox.location ? <p className="truncate text-xs text-muted">{activeBox.location}</p> : null}
+            </div>
+            <span className="pb-2 text-accent">→</span>
+          </div>
+        </Link>
+      ) : null}
 
       <GettingStartedChecklist userId={profile.id} progress={onboarding} />
 
