@@ -153,7 +153,8 @@
     },
     "skipToContent": "Skip to main content",
     "accountMenu": "Open account menu",
-    "closeAccountMenu": "Close account menu"
+    "closeAccountMenu": "Close account menu",
+    "myBox": "My Box"
   },
   "boxContext": {
     "label": "Active box",
@@ -200,9 +201,9 @@
     }
   },
   "boxAdministration": {
-    "eyebrow": "Box operations",
-    "title": "Box administration",
-    "description": "Manage Box information, access, and member roles from one place.",
+    "eyebrow": "My Box",
+    "title": "My Box",
+    "description": "Shape your Box identity, members, and access in WODLY.",
     "selectBox": "Box to manage",
     "cancel": "Cancel",
     "working": "Saving...",
@@ -227,10 +228,12 @@
       "name": "Box name",
       "description": "Description",
       "timezone": "Time zone",
-      "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries."
+      "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries.",
+      "location": "Location",
+      "locationPlaceholder": "City, region or community"
     },
     "details": {
-      "title": "Box information",
+      "title": "Box profile",
       "save": "Save changes"
     },
     "create": {
@@ -253,7 +256,6 @@
       "description": "{count, plural, =1 {1 Box member} other {# Box members}}",
       "roleFor": "Role for {name}",
       "roleSaved": "Member role updated.",
-
       "approve": "Approve",
       "reactivate": "Reactivate",
       "deactivate": "Deactivate",
@@ -266,7 +268,8 @@
         "active": "Active",
         "pending": "Pending",
         "inactive": "Inactive"
-      },      "remove": "Remove",
+      },
+      "remove": "Remove",
       "removeConfirm": "Remove this member from the Box?",
       "removed": "Member removed from the Box.",
       "searchLabel": "Search members",
@@ -282,6 +285,13 @@
       "load": "Unable to load Box members.",
       "save": "Unable to save the Box.",
       "action": "Unable to complete this action."
+    },
+    "images": {
+      "logo": "Box logo",
+      "cover": "Cover image",
+      "change": "Choose image",
+      "help": "Images are resized and compressed to WebP before upload to keep them fast and storage-efficient.",
+      "saved": "Box image updated."
     }
   },
   "boxes": {

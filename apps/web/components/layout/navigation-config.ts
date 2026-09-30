@@ -52,7 +52,7 @@ export const navigationGroups = [
         permission: "coach:use",
       },
       {
-        key: "boxAdmin",
+        key: "myBox",
         href: "/box-admin",
         icon: "boxes",
         permission: "box:manage",

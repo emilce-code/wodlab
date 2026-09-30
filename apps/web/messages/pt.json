@@ -153,7 +153,8 @@
     },
     "skipToContent": "Pular para o conteúdo principal",
     "accountMenu": "Abrir menu da conta",
-    "closeAccountMenu": "Fechar menu da conta"
+    "closeAccountMenu": "Fechar menu da conta",
+    "myBox": "Meu Box"
   },
   "boxContext": {
     "label": "Box ativo",
@@ -200,9 +201,9 @@
     }
   },
   "boxAdministration": {
-    "eyebrow": "Operações do Box",
-    "title": "Administração do Box",
-    "description": "Gerencie informações, acesso e funções dos membros em um só lugar.",
+    "eyebrow": "Meu Box",
+    "title": "Meu Box",
+    "description": "Dê identidade ao seu Box e gerencie membros e acesso no WODLY.",
     "selectBox": "Box para administrar",
     "cancel": "Cancelar",
     "working": "Salvando...",
@@ -227,10 +228,12 @@
       "name": "Nome do Box",
       "description": "Descrição",
       "timezone": "Fuso horário",
-      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box."
+      "timezoneHelp": "Usado para aulas, lembretes e limites do calendário do Box.",
+      "location": "Localização",
+      "locationPlaceholder": "Cidade, região ou comunidade"
     },
     "details": {
-      "title": "Informações do Box",
+      "title": "Perfil do Box",
       "save": "Salvar alterações"
     },
     "create": {
@@ -253,7 +256,6 @@
       "description": "{count, plural, =1 {1 membro do Box} other {# membros do Box}}",
       "roleFor": "Função de {name}",
       "roleSaved": "Função do membro atualizada.",
-
       "approve": "Aprovar",
       "reactivate": "Reativar",
       "deactivate": "Desativar",
@@ -266,7 +268,8 @@
         "active": "Ativos",
         "pending": "Pendentes",
         "inactive": "Inativos"
-      },      "remove": "Remover",
+      },
+      "remove": "Remover",
       "removeConfirm": "Remover este membro do Box?",
       "removed": "Membro removido do Box.",
       "searchLabel": "Buscar membros",
@@ -282,6 +285,13 @@
       "load": "Não foi possível carregar os membros.",
       "save": "Não foi possível salvar o Box.",
       "action": "Não foi possível concluir esta ação."
+    },
+    "images": {
+      "logo": "Logo do Box",
+      "cover": "Imagem de capa",
+      "change": "Escolher imagem",
+      "help": "As imagens são redimensionadas e comprimidas para WebP antes do envio para manter rapidez e economia de armazenamento.",
+      "saved": "Imagem do Box atualizada."
     }
   },
   "boxes": {

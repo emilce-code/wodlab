@@ -114,6 +114,9 @@ model Box {
   id                 String                     @id @default(cuid())
   name               String
   description        String?
+  location           String?
+  logoPath           String?
+  coverImagePath     String?
   timezone           String                     @default("UTC")
   joinCode           String                     @unique
   ownerUserId        String

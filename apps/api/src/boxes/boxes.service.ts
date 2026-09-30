@@ -142,6 +142,9 @@ export class BoxesService {
           name,
           description: dto.description?.trim() || null,
           timezone: dto.timezone?.trim() || 'UTC',
+          location: dto.location?.trim() || null,
+          logoPath: dto.logoPath?.trim() || null,
+          coverImagePath: dto.coverImagePath?.trim() || null,
           joinCode,
           ownerUserId: userId,
           memberships: {
@@ -206,6 +209,15 @@ export class BoxesService {
           ? {
               timezone: dto.timezone.trim() || 'UTC',
             }
+          : {}),
+        ...(dto.location !== undefined
+          ? { location: dto.location.trim() || null }
+          : {}),
+        ...(dto.logoPath !== undefined
+          ? { logoPath: dto.logoPath.trim() || null }
+          : {}),
+        ...(dto.coverImagePath !== undefined
+          ? { coverImagePath: dto.coverImagePath.trim() || null }
           : {}),
       },
     });

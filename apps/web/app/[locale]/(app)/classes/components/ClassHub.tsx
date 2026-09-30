@@ -6,6 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
+import { boxImageUrl } from "@/lib/box-images";
 import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
 
 type View = "all" | "mine";
@@ -66,7 +68,7 @@ export default function ClassHub() {
 
   const selectedBox = activeBox;
   const role = selectedBox?.role ?? null;
-  const isStaff = role === "OWNER" || role === "COACH";
+  const isStaff = role === "OWNER";
 
   const filteredClasses = useMemo(() => {
     const byDay = classes.filter((session) => dayKey(session.startsAt) === selectedDay);
@@ -253,15 +255,43 @@ export default function ClassHub() {
       {error ? <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
 
       {selectedBox ? (
-        <section className="rounded-2xl border border-border bg-surface p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="truncate text-xl font-bold">{selectedBox.name}</h2>
-              <p className="mt-1 text-sm text-muted">{t("members", { count: selectedBox._count.memberships })}</p>
-            </div>
-            <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
+        <section className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
+          <div className="relative h-28 bg-gradient-to-br from-surface-elevated to-background sm:h-36">
+            {boxImageUrl(selectedBox.coverImagePath) ? (
+              <Image src={boxImageUrl(selectedBox.coverImagePath)!} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
           </div>
-          {role === "OWNER" ? <Link href="/box-admin" className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-accent">{t("openAdministration")}</Link> : null}
+          <div className="-mt-7 relative flex items-end gap-3 px-4 pb-4">
+            {boxImageUrl(selectedBox.logoPath) ? (
+              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background shadow-lg">
+                <Image src={boxImageUrl(selectedBox.logoPath)!} alt="" fill sizes="64px" className="object-cover" unoptimized />
+              </span>
+            ) : (
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+                {selectedBox.name.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0 flex-1 pb-1">
+              <div className="flex items-center gap-2">
+                <h2 className="truncate text-xl font-black">{selectedBox.name}</h2>
+                <span className="shrink-0 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
+              </div>
+              <p className="mt-0.5 truncate text-xs text-muted">
+                {selectedBox.location || t("members", { count: selectedBox._count.memberships })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+            <span className="text-xs text-muted">{t("members", { count: selectedBox._count.memberships })}</span>
+            {role === "OWNER" || role === "COACH" ? (
+              <Link href="/box-admin" className="inline-flex min-h-10 items-center text-sm font-semibold text-accent">
+                {t("openAdministration")} →
+              </Link>
+            ) : null}
+          </div>
         </section>
       ) : null}
 

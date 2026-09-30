@@ -16,4 +16,10 @@ export class UpdateBoxDto {
   @IsString()
   @MaxLength(80)
   timezone?: string;
-}
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  location?: string;
+
+  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  logoPath?: string;\n\n  @IsOptional()\n  @IsString()\n  @MaxLength(500)\n  coverImagePath?: string;\n}
