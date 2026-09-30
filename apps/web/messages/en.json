@@ -230,9 +230,7 @@
       "timezone": "Time zone",
       "timezoneHelp": "Used for classes, reminders, and Box calendar boundaries.",
       "location": "Location",
-      "locationPlaceholder": "City, region or community",
-      "logoUrl": "Logo URL",
-      "coverImageUrl": "Cover image URL"
+      "locationPlaceholder": "City, region or community"
     },
     "details": {
       "title": "Box profile",
@@ -287,6 +285,13 @@
       "load": "Unable to load Box members.",
       "save": "Unable to save the Box.",
       "action": "Unable to complete this action."
+    },
+    "images": {
+      "logo": "Box logo",
+      "cover": "Cover image",
+      "change": "Choose image",
+      "help": "Images are resized and compressed to WebP before upload to keep them fast and storage-efficient.",
+      "saved": "Box image updated."
     }
   },
   "boxes": {
