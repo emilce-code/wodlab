@@ -7,6 +7,7 @@ import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
+import { optimizeBoxImage } from "@/lib/box-images";
 
 type Props = {
   initialBoxes: ManagedBox[];
@@ -93,6 +94,7 @@ export default function BoxAdministration({
         name: String(form.get("name")),
         description: String(form.get("description")),
         timezone: String(form.get("timezone")),
+        location: String(form.get("location") || ""),
       }),
     });
     const data = await response.json();
@@ -119,6 +121,7 @@ export default function BoxAdministration({
         name: String(form.get("name")),
         description: String(form.get("description")) || undefined,
         timezone: String(form.get("timezone")),
+        location: String(form.get("location") || "") || undefined,
       }),
     });
     const data = await response.json();
@@ -130,6 +133,35 @@ export default function BoxAdministration({
       setSuccess(t("created"));
     } else setError(message(data, t("errors.save")));
     setBusy(null);
+  }
+
+  async function uploadBoxImage(kind: "logo" | "cover", file: File) {
+    if (!selectedBox) return;
+    clearMessages();
+    setBusy(`image-${kind}`);
+    try {
+      const optimized = await optimizeBoxImage(file, kind);
+      const form = new FormData();
+      form.set("kind", kind);
+      form.set("file", optimized);
+      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
+        method: "POST",
+        body: form,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(message(data, t("errors.save")));
+      const field = kind === "logo" ? "logoPath" : "coverImagePath";
+      setBoxes((current) =>
+        current.map((box) =>
+          box.id === selectedBox.id ? { ...box, [field]: data.path } : box,
+        ),
+      );
+      setSuccess(t("images.saved"));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("errors.save"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function rotateJoinCode() {
@@ -653,14 +685,18 @@ function BoxForm({
   idPrefix,
   box,
   busy,
+  imageBusy = false,
   onSubmit,
+  onImageUpload,
   timezones,
 }: {
   t: ReturnType<typeof useTranslations>;
   idPrefix: string;
   box?: ManagedBox;
   busy: boolean;
+  imageBusy?: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onImageUpload?: (kind: "logo" | "cover", file: File) => void;
   timezones: string[];
 }) {
   return (
@@ -712,30 +748,41 @@ function BoxForm({
           placeholder={t("fields.locationPlaceholder")}
           className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
         />
-        <label htmlFor={`${idPrefix}-logoUrl`} className="block text-sm font-semibold">
-          {t("fields.logoUrl")}
-        </label>
-        <input
-          id={`${idPrefix}-logoUrl`}
-          name="logoUrl"
-          type="url"
-          maxLength={500}
-          defaultValue={box?.logoUrl ?? ""}
-          placeholder="https://"
-          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
-        />
-        <label htmlFor={`${idPrefix}-coverImageUrl`} className="block text-sm font-semibold">
-          {t("fields.coverImageUrl")}
-        </label>
-        <input
-          id={`${idPrefix}-coverImageUrl`}
-          name="coverImageUrl"
-          type="url"
-          maxLength={500}
-          defaultValue={box?.coverImageUrl ?? ""}
-          placeholder="https://"
-          className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
-        />
+        {box && onImageUpload ? (
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background px-3 text-center transition hover:border-accent/40">
+              <span className="text-sm font-bold">{t("images.logo")}</span>
+              <span className="mt-1 text-xs text-accent">{t("images.change")}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                disabled={imageBusy}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) onImageUpload("logo", file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+            <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background px-3 text-center transition hover:border-accent/40">
+              <span className="text-sm font-bold">{t("images.cover")}</span>
+              <span className="mt-1 text-xs text-accent">{t("images.change")}</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                disabled={imageBusy}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) onImageUpload("cover", file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+            <p className="col-span-2 text-xs leading-5 text-muted">{t("images.help")}</p>
+          </div>
+        ) : null}
         <label
           htmlFor={`${idPrefix}-timezone`}
           className="block text-sm font-semibold"
