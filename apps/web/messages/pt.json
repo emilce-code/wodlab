@@ -1488,7 +1488,7 @@
         "title": "Importar texto do treino",
         "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
         "label": "Texto do treino",
-        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 sets\n5 back squats 80 kg\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 séries\n5 back squats 80 kg\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
         "parse": "Visualizar importação",
         "parsing": "Lendo treino...",
         "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
@@ -1507,9 +1507,14 @@
         "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}",
         "examplesTitle": "Teste um exemplo",
         "examples": {
-          "forTime": "For Time",
+          "forTime": "Por tempo",
           "amrap": "AMRAP",
           "strength": "Força + WOD"
+        },
+        "exampleTexts": {
+          "forTime": "Fran\nPor tempo\n21-15-9\nThruster 43 kg\nPull-up",
+          "amrap": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+          "strength": "Força + WOD\nForça\n5 séries\n5 back squats 80 kg\n\nWOD\nPor tempo\n21-15-9\nWall balls 9/6 kg\nToes-to-bar"
         },
         "understoodTitle": "WODLY entendeu",
         "understoodDescription": "Revise a estrutura detectada antes de continuar.",

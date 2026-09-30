@@ -1511,6 +1511,11 @@
           "amrap": "AMRAP",
           "strength": "Strength + WOD"
         },
+        "exampleTexts": {
+          "forTime": "Fran\nFor time\n21-15-9\nThruster 43 kg\nPull-up",
+          "amrap": "Friday Training\nWarm-up\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - 12 min AMRAP\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+          "strength": "Strength + WOD\nStrength\n5 sets\n5 back squats 80 kg\n\nWOD\nFor time\n21-15-9\nWall balls 9/6 kg\nToes-to-bar"
+        },
         "understoodTitle": "WODLY understood",
         "understoodDescription": "Check the parsed structure before reviewing.",
         "sections": "sections",
