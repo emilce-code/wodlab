@@ -520,8 +520,7 @@ export default function WorkoutForm({
     setName(result.draft.name);
     setDescription(result.draft.description ?? "");
     setTypeKey(result.draft.typeKey);
-    setVariants(
-      importedVariants.map((variant) => ({
+    const nextVariants = importedVariants.map((variant) => ({
         id: crypto.randomUUID(),
         levelKey: variant.levelKey,
         name: variant.name ?? "",
@@ -530,13 +529,23 @@ export default function WorkoutForm({
           ? variant.sections
           : [variant.section]
         ).map(mapImportedSection),
-      })),
+      }));
+    const requiresSectionBuilder = nextVariants.some(
+      (variant) =>
+        variant.sections.length > 1 ||
+        variant.sections.some((section) => section.role !== "WOD"),
     );
+
+    setVariants(nextVariants);
     setError(null);
     setFieldErrors({});
     setCurrentStep("programming");
-    setCreationMode(result.draft.variants.length > 1 ? "levels" : "simple");
-    setAdvancedMode(result.draft.variants.length > 1);
+    setCreationMode(
+      result.draft.variants.length > 1 || requiresSectionBuilder
+        ? "levels"
+        : "simple",
+    );
+    setAdvancedMode(result.draft.variants.length > 1 || requiresSectionBuilder);
   }
 
   function selectCreationMode(mode: CreationMode) {
