@@ -610,7 +610,7 @@ export default function AthleteProfileForm({
       </Card>
 
       {(isDirty || isSubmitting) && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+        <div className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 border-y border-border bg-surface/95 p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.16)] backdrop-blur sm:hidden">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold">{t("unsaved")}</p>
