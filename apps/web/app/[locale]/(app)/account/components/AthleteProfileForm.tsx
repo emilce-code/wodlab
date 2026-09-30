@@ -1,12 +1,11 @@
 "use client";
 
-import { FormEvent, type ReactNode, useMemo, useState } from "react";
+import { FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/i18n/navigation";
 
-import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import type { WeightUnit } from "@/lib/result-types";
@@ -189,6 +188,16 @@ export default function AthleteProfileForm({
     [currentSnapshot, saved],
   );
 
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timeout = window.setTimeout(() => {
+      setFeedback(null);
+    }, feedback.type === "error" ? 7000 : 4500);
+
+    return () => window.clearTimeout(timeout);
+  }, [feedback]);
+
   function markChanged() {
     setFeedback(null);
   }
@@ -318,6 +327,8 @@ export default function AthleteProfileForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {feedback ? <FeedbackToast feedback={feedback} /> : null}
+
       <Card className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <label className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 bg-background text-xl font-black text-accent">
@@ -365,12 +376,6 @@ export default function AthleteProfileForm({
           </div>
         </div>
       </Card>
-
-      {feedback ? (
-        <Alert variant={feedback.type === "error" ? "error" : "success"}>
-          {feedback.message}
-        </Alert>
-      ) : null}
 
       <Card className="p-4 sm:p-5">
         <SectionTitle title={t("basicProfile")} />
@@ -645,6 +650,32 @@ export default function AthleteProfileForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+function FeedbackToast({
+  feedback,
+}: {
+  feedback: { type: "success" | "error"; message: string };
+}) {
+  const isError = feedback.type === "error";
+
+  return (
+    <div
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
+      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[80] mx-auto max-w-md sm:left-auto sm:right-6 sm:top-6 sm:mx-0"
+    >
+      <div
+        className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur ${
+          isError
+            ? "border-red-500/40 bg-red-950/95 text-red-50"
+            : "border-accent/50 bg-accent text-black"
+        }`}
+      >
+        {feedback.message}
+      </div>
+    </div>
   );
 }
 
