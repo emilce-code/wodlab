@@ -2427,8 +2427,10 @@
       "bio": "Descripción de entrenamiento",
       "email": "Correo electrónico",
       "emailDescription": "Tu correo electrónico es administrado por tu proveedor de inicio de sesión.",
+      "basicProfile": "Perfil básico",
       "trainingPreferences": "Preferencias de entrenamiento",
       "trainingPreferencesDescription": "Estos valores se usarán de forma predeterminada al registrar entrenamientos.",
+      "trainingDefaults": "Valores de entrenamiento",
       "weightUnit": "Unidad de peso",
       "kilograms": "Kilogramos (kg)",
       "pounds": "Libras (lb)",
@@ -2437,6 +2439,8 @@
       "prescriptionCategory": "Prescripción predeterminada",
       "noPrescriptionPreference": "Sin prescripción predeterminada",
       "prescriptionDescription": "Se utiliza cuando un entrenamiento tiene prescripciones específicas por categoría.",
+      "morePreferences": "Más preferencias",
+      "morePreferencesDescription": "Objetivos, meta semanal, redondeo de carga y privacidad.",
       "goals": {
         "title": "Objetivos de entrenamiento",
         "description": "Elige todos los que sean importantes para ti ahora.",
@@ -2464,7 +2468,11 @@
         "hiddenDescription": "Tus resultados no aparecen en clasificaciones públicas."
       },
       "preferencesUnavailable": "Algunas preferencias de entrenamiento no están disponibles temporalmente. Aún puedes actualizar los campos de perfil disponibles o intentarlo más tarde.",
+      "unsaved": "Cambios sin guardar",
+      "unsavedHelp": "Guarda para conservar estos cambios.",
+      "cancel": "Cancelar",
       "save": "Guardar cambios",
+      "saveShort": "Guardar",
       "saving": "Guardando...",
       "saved": "Perfil guardado correctamente.",
       "savedState": "Actualizado",
@@ -2477,6 +2485,7 @@
       "photoTitle": "Tu foto de WODLY",
       "photoDescription": "Toca la foto para elegir una imagen. WODLY la recorta y comprime automáticamente.",
       "changePhoto": "Cambiar",
+      "photoSaved": "Foto de perfil actualizada.",
       "uploadingPhoto": "Subiendo…"
     },
     "preferences": {
