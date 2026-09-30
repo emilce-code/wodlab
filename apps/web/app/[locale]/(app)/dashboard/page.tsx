@@ -121,12 +121,13 @@ async function getDashboard(): Promise<DashboardResponse> {
 export default async function DashboardPage({ params }: Props) {
   const { locale } = await params;
 
-  const [t, workoutTypeT, measurementT, dashboard, boxes] = await Promise.all([
+  const [t, workoutTypeT, measurementT, dashboard, boxes, boxT] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("workoutTypes"),
     getTranslations("measurementTypes"),
     getDashboard(),
     authenticatedApiFetchJson<BoxSummary[]>("/boxes"),
+    getTranslations("boxContext"),
   ]);
 
   const { profile, currentMonth, overall, onboarding, recentActivity } =
@@ -218,7 +219,7 @@ export default async function DashboardPage({ params }: Props) {
               </span>
             )}
             <div className="min-w-0 flex-1 pb-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-accent">{activeBox.role === "ATHLETE" ? "Your Box" : "My Box"}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-accent">{boxT("label")}</p>
               <p className="truncate text-lg font-black">{activeBox.name}</p>
               {activeBox.location ? <p className="truncate text-xs text-muted">{activeBox.location}</p> : null}
             </div>
