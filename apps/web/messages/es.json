@@ -291,7 +291,12 @@
       "cover": "Imagen de portada",
       "change": "Elegir imagen",
       "help": "Las imágenes se redimensionan y comprimen a WebP antes de subirlas para mantenerlas rápidas y eficientes.",
-      "saved": "Imagen del Box actualizada."
+      "saved": "Imagen del Box actualizada.",
+      "eyebrow": "Identidad del Box",
+      "title": "Personaliza tu Box",
+      "description": "Tu logo y portada aparecen en WODLY para coaches y atletas.",
+      "changeLogo": "Cambiar logo",
+      "changeCover": "Cambiar portada"
     }
   },
   "boxes": {

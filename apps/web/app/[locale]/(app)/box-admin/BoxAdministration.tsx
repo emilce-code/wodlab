@@ -2,12 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
-import { optimizeBoxImage } from "@/lib/box-images";
+import { boxImageUrl, optimizeBoxImage } from "@/lib/box-images";
 
 type Props = {
   initialBoxes: ManagedBox[];
@@ -377,6 +378,78 @@ export default function BoxAdministration({
 
           {tab === "details" ? (
             <div className="space-y-4">
+              <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
+                    {t("images.eyebrow")}
+                  </p>
+                  <h2 className="mt-1 text-lg font-black">{t("images.title")}</h2>
+                  <p className="mt-1 text-sm leading-5 text-muted">{t("images.description")}</p>
+                </div>
+                <label className="group relative block h-36 cursor-pointer overflow-hidden bg-background sm:h-44">
+                  {boxImageUrl(selectedBox.coverImagePath) ? (
+                    <Image
+                      src={boxImageUrl(selectedBox.coverImagePath)!}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, 768px"
+                      className="object-cover opacity-70 transition group-active:opacity-50"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
+                    {busy === "image-cover" ? t("working") : t("images.changeCover")}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    disabled={busy?.startsWith("image-") ?? false}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadBoxImage("cover", file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+                <div className="relative px-4 pb-4">
+                  <label className="-mt-8 inline-flex cursor-pointer flex-col items-center">
+                    <span className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+                      {boxImageUrl(selectedBox.logoPath) ? (
+                        <Image
+                          src={boxImageUrl(selectedBox.logoPath)!}
+                          alt=""
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        selectedBox.name.slice(0, 1).toUpperCase()
+                      )}
+                    </span>
+                    <span className="mt-2 text-xs font-bold text-accent">
+                      {busy === "image-logo" ? t("working") : t("images.changeLogo")}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void uploadBoxImage("logo", file);
+                        event.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                  <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
+                </div>
+              </section>
+
               <BoxForm
                 t={t}
                 idPrefix="edit"
@@ -685,18 +758,14 @@ function BoxForm({
   idPrefix,
   box,
   busy,
-  imageBusy = false,
   onSubmit,
-  onImageUpload,
   timezones,
 }: {
   t: ReturnType<typeof useTranslations>;
   idPrefix: string;
   box?: ManagedBox;
   busy: boolean;
-  imageBusy?: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onImageUpload?: (kind: "logo" | "cover", file: File) => void;
   timezones: string[];
 }) {
   return (
@@ -748,41 +817,6 @@ function BoxForm({
           placeholder={t("fields.locationPlaceholder")}
           className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
         />
-        {box && onImageUpload ? (
-          <div className="grid grid-cols-2 gap-3">
-            <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background px-3 text-center transition hover:border-accent/40">
-              <span className="text-sm font-bold">{t("images.logo")}</span>
-              <span className="mt-1 text-xs text-accent">{t("images.change")}</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                disabled={imageBusy}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) onImageUpload("logo", file);
-                  event.currentTarget.value = "";
-                }}
-              />
-            </label>
-            <label className="flex min-h-24 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-background px-3 text-center transition hover:border-accent/40">
-              <span className="text-sm font-bold">{t("images.cover")}</span>
-              <span className="mt-1 text-xs text-accent">{t("images.change")}</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                disabled={imageBusy}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) onImageUpload("cover", file);
-                  event.currentTarget.value = "";
-                }}
-              />
-            </label>
-            <p className="col-span-2 text-xs leading-5 text-muted">{t("images.help")}</p>
-          </div>
-        ) : null}
         <label
           htmlFor={`${idPrefix}-timezone`}
           className="block text-sm font-semibold"
