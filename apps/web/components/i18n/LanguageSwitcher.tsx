@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 
@@ -20,25 +20,44 @@ export default function LanguageSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const params = useParams();
+  const [isSavingLocale, setIsSavingLocale] = useState(false);
 
-  function handleChange(nextLocale: string) {
+  async function handleChange(nextLocale: string) {
     if (
       !routing.locales.includes(nextLocale as (typeof routing.locales)[number])
     ) {
       return;
     }
 
-    router.replace(
-      // next-intl requires params when
-      // changing locale on dynamic routes.
-      {
-        pathname,
-        params,
-      } as never,
-      {
-        locale: nextLocale,
-      },
-    );
+    setIsSavingLocale(true);
+
+    try {
+      await fetch("/api/me/preferred-locale", {
+        method: "PATCH",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          preferredLocale: nextLocale,
+        }),
+      });
+    } finally {
+      router.replace(
+        // next-intl requires params when
+        // changing locale on dynamic routes.
+        {
+          pathname,
+          params,
+        } as never,
+        {
+          locale: nextLocale,
+        },
+      );
+
+      setIsSavingLocale(false);
+    }
   }
 
   return (
@@ -50,7 +69,8 @@ export default function LanguageSwitcher() {
       <select
         id={selectId}
         value={locale}
-        onChange={(event) => handleChange(event.target.value)}
+        disabled={isSavingLocale}
+        onChange={(event) => void handleChange(event.target.value)}
         className="min-h-11 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground outline-none transition hover:border-accent/40 focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
       >
         {routing.locales.map((availableLocale) => (
