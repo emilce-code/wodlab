@@ -82,6 +82,91 @@ function TrashIcon() {
   );
 }
 
+function splitDuration(value: string) {
+  const totalSeconds = Number(value);
+
+  if (!value || !Number.isFinite(totalSeconds) || totalSeconds <= 0) {
+    return {
+      minutes: "",
+      seconds: "",
+    };
+  }
+
+  return {
+    minutes: String(Math.floor(totalSeconds / 60)),
+    seconds: String(totalSeconds % 60),
+  };
+}
+
+function durationValue(minutes: string, seconds: string) {
+  if (!minutes && !seconds) return "";
+
+  return String((Number(minutes) || 0) * 60 + (Number(seconds) || 0));
+}
+
+function DurationInput({
+  id,
+  value,
+  onChange,
+  minuteLabel,
+  secondLabel,
+  minutePlaceholder = "0",
+  secondPlaceholder = "30",
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  minuteLabel: string;
+  secondLabel: string;
+  minutePlaceholder?: string;
+  secondPlaceholder?: string;
+}) {
+  const duration = splitDuration(value);
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <div className="relative">
+        <input
+          id={`${id}-minutes`}
+          type="number"
+          min="0"
+          inputMode="numeric"
+          value={duration.minutes}
+          onChange={(event) =>
+            onChange(durationValue(event.target.value, duration.seconds))
+          }
+          placeholder={minutePlaceholder}
+          className="w-full rounded-lg border border-border bg-surface px-3 py-3 pr-12 text-base font-semibold text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted">
+          {minuteLabel}
+        </span>
+      </div>
+
+      <div className="relative">
+        <input
+          id={`${id}-seconds`}
+          type="number"
+          min="0"
+          max="59"
+          inputMode="numeric"
+          value={duration.seconds}
+          onChange={(event) =>
+            onChange(durationValue(duration.minutes, event.target.value))
+          }
+          placeholder={secondPlaceholder}
+          className="w-full rounded-lg border border-border bg-surface px-3 py-3 pr-12 text-base font-semibold text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase text-muted">
+          {secondLabel}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function WorkoutMovementForm({
   movement,
   prescriptionCategories,
@@ -763,29 +848,19 @@ export default function WorkoutMovementForm({
                 {supportsDuration && (
                   <div>
                     <label
-                      htmlFor={`movement-duration-${movement.id}`}
+                      htmlFor={`movement-duration-${movement.id}-minutes`}
                       className="mb-1.5 block text-sm font-medium"
                     >
                       {t("duration")}
                     </label>
 
-                    <div className="relative">
-                      <input
-                        id={`movement-duration-${movement.id}`}
-                        type="number"
-                        min="0"
-                        value={movement.durationSeconds}
-                        onChange={(event) =>
-                          update("durationSeconds", event.target.value)
-                        }
-                        placeholder="30"
-                        className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 pr-16 text-foreground outline-none transition placeholder:text-muted focus:border-accent/60 focus:ring-2 focus:ring-accent/10"
-                      />
-
-                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted">
-                        {t("secondsShort")}
-                      </span>
-                    </div>
+                    <DurationInput
+                      id={`movement-duration-${movement.id}`}
+                      value={movement.durationSeconds}
+                      onChange={(value) => update("durationSeconds", value)}
+                      minuteLabel={t("minutesShort")}
+                      secondLabel={t("secondsShort")}
+                    />
                   </div>
                 )}
               </div>
@@ -824,7 +899,7 @@ export default function WorkoutMovementForm({
                             </> : null}
                             {supportsDistance ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-distance-${movement.id}-${category.key}`}>{t("distance")}</label><input id={`prescription-distance-${movement.id}-${category.key}`} type="number" min="0" value={prescription.distance} onChange={(event) => updatePrescription(category.key,"distance",event.target.value)} placeholder={movement.distance || "500"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
                             {supportsCalories ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-calories-${movement.id}-${category.key}`}>{t("calories")}</label><input id={`prescription-calories-${movement.id}-${category.key}`} type="number" min="0" value={prescription.calories} onChange={(event) => updatePrescription(category.key,"calories",event.target.value)} placeholder={movement.calories || "15"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
-                            {supportsDuration ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-duration-${movement.id}-${category.key}`}>{t("duration")}</label><input id={`prescription-duration-${movement.id}-${category.key}`} type="number" min="0" value={prescription.durationSeconds} onChange={(event) => updatePrescription(category.key,"durationSeconds",event.target.value)} placeholder={movement.durationSeconds || "30"} className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 outline-none focus:border-accent/60" /></div> : null}
+                            {supportsDuration ? <div className="col-span-2 sm:col-span-1"><label className="mb-1.5 block text-sm font-medium" htmlFor={`prescription-duration-${movement.id}-${category.key}-minutes`}>{t("duration")}</label><DurationInput id={`prescription-duration-${movement.id}-${category.key}`} value={prescription.durationSeconds} onChange={(value) => updatePrescription(category.key,"durationSeconds",value)} minuteLabel={t("minutesShort")} secondLabel={t("secondsShort")} minutePlaceholder={splitDuration(movement.durationSeconds).minutes || "0"} secondPlaceholder={splitDuration(movement.durationSeconds).seconds || "30"} /></div> : null}
                           </div>
                         </div>
                       );
