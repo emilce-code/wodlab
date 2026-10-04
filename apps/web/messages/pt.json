@@ -1688,6 +1688,7 @@
         "distance": "Distância",
         "calories": "Calorias",
         "duration": "Duração",
+        "minutesShort": "min",
         "secondsShort": "seg",
         "notes": "Observações do movimento",
         "optional": "(opcional)",
