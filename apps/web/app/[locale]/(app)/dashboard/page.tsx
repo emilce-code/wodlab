@@ -1,12 +1,14 @@
 import { getTranslations } from "next-intl/server";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { boxImageUrl } from "@/lib/box-images";
 
 import Badge from "@/components/ui/Badge";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import { Link } from "@/i18n/navigation";
-import { authenticatedApiFetchJson } from "@/lib/api";
+import { authenticatedApiFetch, authenticatedApiFetchJson } from "@/lib/api";
+import { authenticationCompletionPath } from "@/lib/auth-navigation";
 import { formatShortDate } from "@/lib/date-formatters";
 import { formatDuration, formatWeight } from "@/lib/result-formatters";
 import type { WeightUnit } from "@/lib/result-types";
@@ -115,8 +117,18 @@ type Props = {
   }>;
 };
 
-async function getDashboard(): Promise<DashboardResponse> {
-  return authenticatedApiFetchJson<DashboardResponse>("/users/me/dashboard");
+async function getDashboard(locale: string): Promise<DashboardResponse> {
+  const response = await authenticatedApiFetch("/users/me/dashboard");
+
+  if (!response) {
+    redirect(authenticationCompletionPath(locale, `/${locale}/dashboard`));
+  }
+
+  if (!response.ok) {
+    throw new Error(`API request failed: /users/me/dashboard (${response.status})`);
+  }
+
+  return (await response.json()) as DashboardResponse;
 }
 
 export default async function DashboardPage({ params }: Props) {
@@ -126,7 +138,7 @@ export default async function DashboardPage({ params }: Props) {
     getTranslations("dashboard"),
     getTranslations("workoutTypes"),
     getTranslations("measurementTypes"),
-    getDashboard(),
+    getDashboard(locale),
     authenticatedApiFetchJson<BoxSummary[]>("/boxes"),
     getTranslations("boxContext"),
   ]);
