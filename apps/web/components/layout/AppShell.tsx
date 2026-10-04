@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import MobileNavigation from "./MobileNavigation";
 import Sidebar from "./Sidebar";
+import LocalePreferenceRedirect from "@/components/i18n/LocalePreferenceRedirect";
 import PwaManager from "@/components/pwa/PwaManager";
 import type { CurrentUser } from "@/lib/auth";
 import ActiveBoxSwitcher from "./ActiveBoxSwitcher";
@@ -21,6 +22,7 @@ export default async function AppShell({ children, user, initialBoxes }: Props) 
   return (
     <ActiveBoxProvider initialBoxes={initialBoxes}>
     <div className="min-h-screen bg-background text-foreground">
+      <LocalePreferenceRedirect user={user} />
       <PwaManager />
       <a
         href="#main-content"

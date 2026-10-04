@@ -80,6 +80,7 @@ model User {
   workoutsCreated        Workout[]
   movementsCreated       Movement[]
   role                   UserRole                @default(USER)
+  preferredLocale        String                  @default("es")
   notificationPreference NotificationPreference?
   notificationReceipts   NotificationReceipt[]
   boxesOwned             Box[]                   @relation("BoxOwner")

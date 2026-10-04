@@ -768,7 +768,7 @@
     "complete": {
       "eyebrow": "Quase pronto",
       "title": "Não foi possível concluir seu acesso",
-      "description": "Sua sessão do Auth0 está ativa, mas o WODLY não conseguiu carregar sua conta. Normalmente, esse é um problema temporário e você não precisa criar outra conta.",
+      "description": "Sua sessão está ativa, mas o WODLY não conseguiu carregar sua conta. Normalmente, esse é um problema temporário e você não precisa criar outra conta.",
       "retry": "Tentar novamente",
       "backToLogin": "Voltar ao login",
       "help": "Se o problema continuar, volte para a",
@@ -1688,6 +1688,7 @@
         "distance": "Distância",
         "calories": "Calorias",
         "duration": "Duração",
+        "minutesShort": "min",
         "secondsShort": "seg",
         "notes": "Observações do movimento",
         "optional": "(opcional)",

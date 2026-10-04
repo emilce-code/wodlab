@@ -2,6 +2,7 @@ import { authenticatedApiFetch } from "./api";
 
 import { auth0 } from "./auth0";
 import { redirect, unstable_rethrow } from "next/navigation";
+import { isAppLocale, type AppLocale } from "./locale-preference";
 
 export type UserRole = "USER" | "COACH" | "ADMIN";
 
@@ -17,6 +18,7 @@ export type CurrentUser = {
   id: string;
   email: string;
   role: UserRole;
+  preferredLocale: string;
   permissions: string[];
 
   athleteProfile: {
@@ -75,6 +77,7 @@ export async function requireRole(locale: string, roles: readonly UserRole[]) {
 
 async function provisionCurrentUser(
   session: NonNullable<Awaited<ReturnType<typeof auth0.getSession>>>,
+  preferredLocale?: AppLocale,
 ) {
   const email = session.user.email;
 
@@ -97,6 +100,7 @@ async function provisionCurrentUser(
     body: JSON.stringify({
       email,
       displayName,
+      preferredLocale,
     }),
   });
 }
@@ -110,7 +114,9 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   throw new CurrentUserUnavailableError();
 }
 
-export async function resolveCurrentUser(): Promise<CurrentUserResolution> {
+export async function resolveCurrentUser(
+  preferredLocale?: string,
+): Promise<CurrentUserResolution> {
   try {
     const session = await auth0.getSession();
 
@@ -119,7 +125,12 @@ export async function resolveCurrentUser(): Promise<CurrentUserResolution> {
     let response = await fetchCurrentUser();
 
     if (response?.status === 401) {
-      const provisionResponse = await provisionCurrentUser(session);
+      const provisionResponse = await provisionCurrentUser(
+        session,
+        preferredLocale && isAppLocale(preferredLocale)
+          ? preferredLocale
+          : undefined,
+      );
 
       if (!provisionResponse?.ok) {
         console.error(

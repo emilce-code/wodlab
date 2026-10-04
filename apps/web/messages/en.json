@@ -768,7 +768,7 @@
     "complete": {
       "eyebrow": "Almost ready",
       "title": "We couldn't finish signing you in",
-      "description": "Your Auth0 session is active, but WODLY couldn't load your account. This is usually temporary and does not mean you need to create another account.",
+      "description": "Your session is active, but WODLY couldn't load your account. This is usually temporary and does not mean you need to create another account.",
       "retry": "Try again",
       "backToLogin": "Back to login",
       "help": "If the problem continues, return to the",
@@ -1688,6 +1688,7 @@
         "distance": "Distance",
         "calories": "Calories",
         "duration": "Duration",
+        "minutesShort": "min",
         "secondsShort": "sec",
         "notes": "Movement notes",
         "optional": "(optional)",

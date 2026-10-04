@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class ProvisionAuth0UserDto {
   @IsEmail()
@@ -8,4 +15,8 @@ export class ProvisionAuth0UserDto {
   @IsNotEmpty()
   @MaxLength(100)
   displayName: string;
+
+  @IsOptional()
+  @IsIn(['en', 'es', 'pt'])
+  preferredLocale?: string;
 }

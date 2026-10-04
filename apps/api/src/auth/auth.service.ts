@@ -6,6 +6,7 @@ type ProvisionAuth0UserInput = {
   auth0UserId: string;
   email: string;
   displayName: string;
+  preferredLocale?: string;
 };
 
 @Injectable()
@@ -32,6 +33,8 @@ export class AuthService {
         auth0UserId: input.auth0UserId,
 
         email: input.email,
+
+        preferredLocale: input.preferredLocale ?? 'es',
 
         athleteProfile: {
           create: {

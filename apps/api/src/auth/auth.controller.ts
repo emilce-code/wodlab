@@ -35,6 +35,7 @@ export class AuthController {
       auth0UserId,
       email: dto.email,
       displayName: dto.displayName,
+      preferredLocale: dto.preferredLocale,
     });
   }
 }
