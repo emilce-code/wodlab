@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Patch,
   Post,
   Query,
   Req,
@@ -33,6 +34,11 @@ type AuthenticatedRequest = Request & {
 type ProvisionUserDto = {
   email: string;
   displayName: string;
+  preferredLocale?: string;
+};
+
+type UpdatePreferredLocaleDto = {
+  preferredLocale: string;
 };
 
 @Controller()
@@ -82,6 +88,7 @@ export class UsersController {
       auth0UserId,
       email: body.email,
       displayName: body.displayName,
+      preferredLocale: body.preferredLocale,
     });
   }
 
@@ -134,6 +141,33 @@ export class UsersController {
       id: user.id,
       email: user.email,
       role: user.role,
+      preferredLocale: user.preferredLocale,
+      permissions: permissionsForRole(user.role),
+      athleteProfile: user.athleteProfile,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('users/me/preferred-locale')
+  async updatePreferredLocale(
+    @Req()
+    request: AuthenticatedRequest,
+
+    @Body()
+    body: UpdatePreferredLocaleDto,
+  ) {
+    const user = await this.usersService.updatePreferredLocale(
+      request.user.userId,
+      body.preferredLocale,
+    );
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      preferredLocale: user.preferredLocale,
       permissions: permissionsForRole(user.role),
       athleteProfile: user.athleteProfile,
       createdAt: user.createdAt,
