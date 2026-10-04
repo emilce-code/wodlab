@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import AppStartupScreen from '@/components/layout/AppStartupScreen';
 import { authenticatedApiFetch } from '@/lib/api';
-import { getCurrentUser } from '@/lib/auth';
+import { resolveCurrentUser } from '@/lib/auth';
+import { authenticationCompletionPath } from '@/lib/auth-navigation';
 import type { BoxSummary } from '@/lib/boxes';
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
 async function loadAppBootstrap() {
   const startedAt = performance.now();
   const result = await Promise.all([
-    getCurrentUser(),
+    resolveCurrentUser(),
     authenticatedApiFetch('/boxes'),
   ]);
   const durationMs = Math.round(performance.now() - startedAt);
@@ -43,11 +44,17 @@ export default function AuthenticatedLayout({
 
 async function AuthenticatedApp({ children, params }: Props) {
   const { locale } = await params;
-  const [user, boxesResponse] = await loadAppBootstrap();
+  const [userResolution, boxesResponse] = await loadAppBootstrap();
 
-  if (!user) {
+  if (userResolution.status === 'unauthenticated') {
     redirect(`/${locale}/login`);
   }
+
+  if (userResolution.status === 'unavailable') {
+    redirect(authenticationCompletionPath(locale, `/${locale}/dashboard`));
+  }
+
+  const { user } = userResolution;
 
   const boxes = boxesResponse?.ok
     ? ((await boxesResponse.json()) as BoxSummary[])
