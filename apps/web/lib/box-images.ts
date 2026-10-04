@@ -1,10 +1,14 @@
 const BOX_MEDIA_BUCKET = "box-media";
 
-export function boxImageUrl(path: string | null | undefined) {
+export function boxImageUrl(
+  path: string | null | undefined,
+  version?: string | number | null,
+) {
   if (!path) return null;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!base) return null;
-  return `${base}/storage/v1/object/public/${BOX_MEDIA_BUCKET}/${path}`;
+  const url = `${base}/storage/v1/object/public/${BOX_MEDIA_BUCKET}/${path}`;
+  return version ? `${url}?v=${version}` : url;
 }
 
 export async function optimizeBoxImage(
