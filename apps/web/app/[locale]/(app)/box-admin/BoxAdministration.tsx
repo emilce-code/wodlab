@@ -7,6 +7,7 @@ import Image from "next/image";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+import { useRouter } from "@/i18n/navigation";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
 import { boxImageUrl, optimizeBoxImage } from "@/lib/box-images";
 
@@ -30,6 +31,7 @@ export default function BoxAdministration({
   timezones,
 }: Props) {
   const t = useTranslations("boxAdministration");
+  const router = useRouter();
   const [boxes, setBoxes] = useState(initialBoxes);
   const [boxId, setBoxId] = useState(initialBoxes[0]?.id ?? "");
   const [members, setMembers] = useState<BoxMember[]>([]);
@@ -158,6 +160,7 @@ export default function BoxAdministration({
         ),
       );
       setSuccess(t("images.saved"));
+      router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : t("errors.save"));
     } finally {
@@ -397,7 +400,9 @@ export default function BoxAdministration({
                       unoptimized
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
+                      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+                    </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
@@ -428,7 +433,9 @@ export default function BoxAdministration({
                           unoptimized
                         />
                       ) : (
-                        selectedBox.name.slice(0, 1).toUpperCase()
+                        <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black">
+                          {selectedBox.name.slice(0, 1).toUpperCase()}
+                        </span>
                       )}
                     </span>
                     <span className="mt-2 text-xs font-bold text-accent">
