@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Athlete profile is required" }, { status: profileResponse?.status ?? 503 });
   }
   const profile = (await profileResponse.json()) as { id: string };
-  const path = `profiles/${profile.id}/avatar.webp`;
+  const path = `profiles/${profile.id}/avatar-${Date.now()}.webp`;
   const storageUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${path}`;
 
   const upload = await fetch(storageUrl, {
