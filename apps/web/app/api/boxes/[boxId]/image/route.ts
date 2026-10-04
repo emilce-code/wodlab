@@ -54,7 +54,7 @@ export async function POST(request: NextRequest, context: Context) {
     );
   }
 
-  const path = `boxes/${boxId}/${kind}.webp`;
+  const path = `boxes/${boxId}/${kind}-${Date.now()}.webp`;
   const storageUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${path}`;
   const upload = await fetch(storageUrl, {
     method: "POST",

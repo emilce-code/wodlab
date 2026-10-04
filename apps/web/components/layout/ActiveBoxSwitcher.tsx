@@ -64,7 +64,7 @@ export default function ActiveBoxSwitcher() {
               <Image src={boxImageUrl(activeBox.logoPath)!} alt="" fill sizes="36px" className="object-cover" unoptimized />
             </span>
           ) : (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 font-black text-accent">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_35%),linear-gradient(135deg,rgba(163,255,18,0.3),rgba(163,255,18,0.1))] font-black text-accent">
               {activeBox.name.slice(0, 1).toUpperCase()}
             </span>
           )}
