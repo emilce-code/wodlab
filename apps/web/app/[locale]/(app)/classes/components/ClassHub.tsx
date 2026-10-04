@@ -8,7 +8,7 @@ import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { boxImageUrl } from "@/lib/box-images";
-import type { BoxSummary, ClassSession, WorkoutOption } from "@/lib/boxes";
+import type { ClassSession, WorkoutOption } from "@/lib/boxes";
 
 type View = "all" | "mine";
 
@@ -49,7 +49,7 @@ function initialClassDateTime() {
 export default function ClassHub() {
   const t = useTranslations("boxes");
   const locale = useLocale();
-  const { boxes, activeBox, selectBox } = useActiveBox();
+  const { boxes, activeBox } = useActiveBox();
   const dayScroller = useRef<HTMLDivElement>(null);
   const days = useMemo(() => scheduleDays(), []);
 
@@ -260,7 +260,9 @@ export default function ClassHub() {
             {boxImageUrl(selectedBox.coverImagePath) ? (
               <Image src={boxImageUrl(selectedBox.coverImagePath)!} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
             ) : (
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+              </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
           </div>
@@ -270,7 +272,7 @@ export default function ClassHub() {
                 <Image src={boxImageUrl(selectedBox.logoPath)!} alt="" fill sizes="64px" className="object-cover" unoptimized />
               </span>
             ) : (
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black shadow-lg">
                 {selectedBox.name.slice(0, 1).toUpperCase()}
               </span>
             )}

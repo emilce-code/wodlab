@@ -54,7 +54,7 @@ export async function POST(request: NextRequest, context: Context) {
     );
   }
 
-  const path = `boxes/${boxId}/${kind}.webp`;
+  const path = `boxes/${boxId}/${kind}-${Date.now()}.webp`;
   const storageUrl = `${supabaseUrl}/storage/v1/object/${BUCKET}/${path}`;
   const upload = await fetch(storageUrl, {
     method: "POST",
@@ -88,4 +88,57 @@ export async function POST(request: NextRequest, context: Context) {
   }
 
   return NextResponse.json({ path });
+}
+
+export async function DELETE(request: NextRequest, context: Context) {
+  const { boxId } = await context.params;
+  const body = (await request.json().catch(() => null)) as {
+    kind?: unknown;
+  } | null;
+  const kind = body?.kind;
+
+  if (kind !== "logo" && kind !== "cover") {
+    return NextResponse.json({ message: "Invalid image removal" }, { status: 400 });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const field = kind === "logo" ? "logoPath" : "coverImagePath";
+
+  const currentResponse = await authenticatedApiFetch(`/boxes/${boxId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  });
+
+  if (!currentResponse?.ok) {
+    return NextResponse.json(
+      { message: "Box owner access required" },
+      { status: currentResponse?.status ?? 503 },
+    );
+  }
+
+  const current = (await currentResponse.json().catch(() => null)) as
+    | { logoPath?: string | null; coverImagePath?: string | null }
+    | null;
+  const previousPath = current?.[field] ?? null;
+
+  const save = await authenticatedApiFetch(`/boxes/${boxId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ [field]: null }),
+  });
+
+  if (!save?.ok) {
+    return NextResponse.json({ message: "Unable to remove Box image" }, { status: save?.status ?? 503 });
+  }
+
+  if (previousPath && supabaseUrl && serviceKey) {
+    await fetch(`${supabaseUrl}/storage/v1/object/${BUCKET}/${previousPath}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey },
+    }).catch(() => undefined);
+  }
+
+  return NextResponse.json({ path: null });
 }

@@ -214,10 +214,10 @@ export class BoxesService {
           ? { location: dto.location.trim() || null }
           : {}),
         ...(dto.logoPath !== undefined
-          ? { logoPath: dto.logoPath.trim() || null }
+          ? { logoPath: dto.logoPath?.trim() || null }
           : {}),
         ...(dto.coverImagePath !== undefined
-          ? { coverImagePath: dto.coverImagePath.trim() || null }
+          ? { coverImagePath: dto.coverImagePath?.trim() || null }
           : {}),
       },
     });

@@ -259,6 +259,35 @@ export default function AthleteProfileForm({
     }
   }
 
+  async function removeAvatar() {
+    if (!avatarPath) return;
+    setFeedback(null);
+    setIsUploadingAvatar(true);
+
+    try {
+      const response = await fetch("/api/athlete-profile/image", {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || t("validation.saveError"));
+      }
+
+      setAvatarPath("");
+      setFeedback({ type: "success", message: t("photoRemoved") });
+      router.refresh();
+    } catch (caught) {
+      setFeedback({
+        type: "error",
+        message:
+          caught instanceof Error ? caught.message : t("validation.saveError"),
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback(null);
@@ -331,7 +360,7 @@ export default function AthleteProfileForm({
 
       <Card className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <label className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 bg-background text-xl font-black text-accent">
+          <label className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-accent/40 bg-background text-xl font-black text-accent shadow-sm shadow-accent/10">
             {avatarSrc ? (
               <Image
                 src={avatarSrc}
@@ -342,7 +371,9 @@ export default function AthleteProfileForm({
                 unoptimized
               />
             ) : (
-              initials
+              <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_35%),linear-gradient(135deg,rgba(163,255,18,0.28),rgba(163,255,18,0.08)_45%,rgba(255,255,255,0.04))] text-2xl font-black text-accent">
+                {initials}
+              </span>
             )}
             <span className="absolute inset-x-0 bottom-0 bg-black/75 py-1.5 text-center text-[10px] font-bold text-white">
               {isUploadingAvatar ? t("uploadingPhoto") : t("changePhoto")}
@@ -373,6 +404,16 @@ export default function AthleteProfileForm({
             <p className="mt-3 text-xs leading-5 text-muted">
               {t("photoDescription")}
             </p>
+            {avatarPath ? (
+              <button
+                type="button"
+                disabled={isUploadingAvatar}
+                onClick={() => void removeAvatar()}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-surface-elevated px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50 sm:w-auto"
+              >
+                {isUploadingAvatar ? t("uploadingPhoto") : t("removePhoto")}
+              </button>
+            ) : null}
           </div>
         </div>
       </Card>

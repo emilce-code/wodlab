@@ -7,6 +7,7 @@ import Image from "next/image";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+import { useRouter } from "@/i18n/navigation";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
 import { boxImageUrl, optimizeBoxImage } from "@/lib/box-images";
 
@@ -30,6 +31,7 @@ export default function BoxAdministration({
   timezones,
 }: Props) {
   const t = useTranslations("boxAdministration");
+  const router = useRouter();
   const [boxes, setBoxes] = useState(initialBoxes);
   const [boxId, setBoxId] = useState(initialBoxes[0]?.id ?? "");
   const [members, setMembers] = useState<BoxMember[]>([]);
@@ -158,6 +160,36 @@ export default function BoxAdministration({
         ),
       );
       setSuccess(t("images.saved"));
+      router.refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("errors.save"));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function removeBoxImage(kind: "logo" | "cover") {
+    if (!selectedBox) return;
+    const field = kind === "logo" ? "logoPath" : "coverImagePath";
+    if (!selectedBox[field]) return;
+
+    clearMessages();
+    setBusy(`image-${kind}`);
+    try {
+      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(message(data, t("errors.save")));
+      setBoxes((current) =>
+        current.map((box) =>
+          box.id === selectedBox.id ? { ...box, [field]: null } : box,
+        ),
+      );
+      setSuccess(t("images.removed"));
+      router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : t("errors.save"));
     } finally {
@@ -397,7 +429,9 @@ export default function BoxAdministration({
                       unoptimized
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.16),transparent_55%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
+                      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+                    </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                   <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
@@ -416,6 +450,16 @@ export default function BoxAdministration({
                   />
                 </label>
                 <div className="relative px-4 pb-4">
+                  {selectedBox.coverImagePath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={() => void removeBoxImage("cover")}
+                      className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50"
+                    >
+                      {t("images.removeCover")}
+                    </button>
+                  ) : null}
                   <label className="-mt-8 inline-flex cursor-pointer flex-col items-center">
                     <span className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
                       {boxImageUrl(selectedBox.logoPath) ? (
@@ -428,7 +472,9 @@ export default function BoxAdministration({
                           unoptimized
                         />
                       ) : (
-                        selectedBox.name.slice(0, 1).toUpperCase()
+                        <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black">
+                          {selectedBox.name.slice(0, 1).toUpperCase()}
+                        </span>
                       )}
                     </span>
                     <span className="mt-2 text-xs font-bold text-accent">
@@ -446,6 +492,16 @@ export default function BoxAdministration({
                       }}
                     />
                   </label>
+                  {selectedBox.logoPath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={() => void removeBoxImage("logo")}
+                      className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50 sm:w-auto"
+                    >
+                      {t("images.removeLogo")}
+                    </button>
+                  ) : null}
                   <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
                 </div>
               </section>
