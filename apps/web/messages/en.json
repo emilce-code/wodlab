@@ -292,11 +292,14 @@
       "change": "Choose image",
       "help": "Images are resized and compressed to WebP before upload to keep them fast and storage-efficient.",
       "saved": "Box image updated.",
+      "removed": "Box image removed.",
       "eyebrow": "Box identity",
       "title": "Brand your Box",
       "description": "Your logo and cover appear across WODLY for coaches and athletes.",
       "changeLogo": "Change logo",
-      "changeCover": "Change cover"
+      "changeCover": "Change cover",
+      "removeLogo": "Remove logo",
+      "removeCover": "Remove cover"
     }
   },
   "boxes": {
@@ -2491,6 +2494,8 @@
       "photoDescription": "Tap the photo to choose an image. It will be cropped and compressed automatically.",
       "changePhoto": "Change",
       "photoSaved": "Profile photo updated.",
+      "photoRemoved": "Profile photo removed.",
+      "removePhoto": "Remove photo",
       "uploadingPhoto": "Uploading…"
     },
     "preferences": {
