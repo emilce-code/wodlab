@@ -16,10 +16,10 @@ type Props = {
   }>;
 };
 
-async function loadAppBootstrap() {
+async function loadAppBootstrap(locale: string) {
   const startedAt = performance.now();
   const result = await Promise.all([
-    resolveCurrentUser(),
+    resolveCurrentUser(locale),
     authenticatedApiFetch('/boxes'),
   ]);
   const durationMs = Math.round(performance.now() - startedAt);
@@ -44,7 +44,7 @@ export default function AuthenticatedLayout({
 
 async function AuthenticatedApp({ children, params }: Props) {
   const { locale } = await params;
-  const [userResolution, boxesResponse] = await loadAppBootstrap();
+  const [userResolution, boxesResponse] = await loadAppBootstrap(locale);
 
   if (userResolution.status === 'unauthenticated') {
     redirect(`/${locale}/login`);
