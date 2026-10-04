@@ -259,6 +259,35 @@ export default function AthleteProfileForm({
     }
   }
 
+  async function removeAvatar() {
+    if (!avatarPath) return;
+    setFeedback(null);
+    setIsUploadingAvatar(true);
+
+    try {
+      const response = await fetch("/api/athlete-profile/image", {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || t("validation.saveError"));
+      }
+
+      setAvatarPath("");
+      setFeedback({ type: "success", message: t("photoRemoved") });
+      router.refresh();
+    } catch (caught) {
+      setFeedback({
+        type: "error",
+        message:
+          caught instanceof Error ? caught.message : t("validation.saveError"),
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFeedback(null);
@@ -375,6 +404,16 @@ export default function AthleteProfileForm({
             <p className="mt-3 text-xs leading-5 text-muted">
               {t("photoDescription")}
             </p>
+            {avatarPath ? (
+              <button
+                type="button"
+                disabled={isUploadingAvatar}
+                onClick={() => void removeAvatar()}
+                className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-border px-3 text-xs font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50"
+              >
+                {isUploadingAvatar ? t("uploadingPhoto") : t("removePhoto")}
+              </button>
+            ) : null}
           </div>
         </div>
       </Card>

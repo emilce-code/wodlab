@@ -168,6 +168,35 @@ export default function BoxAdministration({
     }
   }
 
+  async function removeBoxImage(kind: "logo" | "cover") {
+    if (!selectedBox) return;
+    const field = kind === "logo" ? "logoPath" : "coverImagePath";
+    if (!selectedBox[field]) return;
+
+    clearMessages();
+    setBusy(`image-${kind}`);
+    try {
+      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(message(data, t("errors.save")));
+      setBoxes((current) =>
+        current.map((box) =>
+          box.id === selectedBox.id ? { ...box, [field]: null } : box,
+        ),
+      );
+      setSuccess(t("images.removed"));
+      router.refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t("errors.save"));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function rotateJoinCode() {
     if (!selectedBox || !(await confirm({ description: t("joinCode.confirm") })))
       return;
@@ -408,6 +437,20 @@ export default function BoxAdministration({
                   <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
                     {busy === "image-cover" ? t("working") : t("images.changeCover")}
                   </span>
+                  {selectedBox.coverImagePath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        void removeBoxImage("cover");
+                      }}
+                      className="absolute bottom-3 left-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur transition hover:bg-red-500/80 disabled:opacity-50"
+                    >
+                      {t("images.removeCover")}
+                    </button>
+                  ) : null}
                   <input
                     type="file"
                     accept="image/*"
@@ -453,6 +496,16 @@ export default function BoxAdministration({
                       }}
                     />
                   </label>
+                  {selectedBox.logoPath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={() => void removeBoxImage("logo")}
+                      className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-border px-3 text-xs font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50"
+                    >
+                      {t("images.removeLogo")}
+                    </button>
+                  ) : null}
                   <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
                 </div>
               </section>

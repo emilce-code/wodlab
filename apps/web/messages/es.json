@@ -292,11 +292,14 @@
       "change": "Elegir imagen",
       "help": "Las imágenes se redimensionan y comprimen a WebP antes de subirlas para mantenerlas rápidas y eficientes.",
       "saved": "Imagen del Box actualizada.",
+      "removed": "Imagen del Box eliminada.",
       "eyebrow": "Identidad del Box",
       "title": "Personaliza tu Box",
       "description": "Tu logo y portada aparecen en WODLY para coaches y atletas.",
       "changeLogo": "Cambiar logo",
-      "changeCover": "Cambiar portada"
+      "changeCover": "Cambiar portada",
+      "removeLogo": "Eliminar logo",
+      "removeCover": "Eliminar portada"
     }
   },
   "boxes": {
@@ -2491,6 +2494,8 @@
       "photoDescription": "Toca la foto para elegir una imagen. Se recortará y comprimirá automáticamente.",
       "changePhoto": "Cambiar",
       "photoSaved": "Foto de perfil actualizada.",
+      "photoRemoved": "Foto de perfil eliminada.",
+      "removePhoto": "Eliminar foto",
       "uploadingPhoto": "Subiendo…"
     },
     "preferences": {
