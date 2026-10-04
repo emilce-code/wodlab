@@ -1,6 +1,6 @@
 import { Auth0Client } from '@auth0/nextjs-auth0/server';
 
-const SEVEN_DAYS_IN_SECONDS = 60 * 60 * 24 * 7;
+const THIRTY_DAYS_IN_SECONDS = 60 * 60 * 24 * 30;
 
 export const auth0 = new Auth0Client({
   authorizationParameters: {
@@ -9,7 +9,7 @@ export const auth0 = new Auth0Client({
   },
   session: {
     rolling: true,
-    inactivityDuration: SEVEN_DAYS_IN_SECONDS,
-    absoluteDuration: SEVEN_DAYS_IN_SECONDS,
+    inactivityDuration: THIRTY_DAYS_IN_SECONDS,
+    absoluteDuration: THIRTY_DAYS_IN_SECONDS,
   },
 });
