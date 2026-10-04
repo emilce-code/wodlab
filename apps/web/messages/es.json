@@ -768,7 +768,7 @@
     "complete": {
       "eyebrow": "Ya casi está",
       "title": "No pudimos completar el inicio de sesión",
-      "description": "Tu sesión de Auth0 está activa, pero WODLY no pudo cargar tu cuenta. Normalmente es un problema temporal y no necesitas crear otra cuenta.",
+      "description": "Tu sesión está activa, pero WODLY no pudo cargar tu cuenta. Normalmente es un problema temporal y no necesitas crear otra cuenta.",
       "retry": "Intentar de nuevo",
       "backToLogin": "Volver al inicio de sesión",
       "help": "Si el problema continúa, vuelve a la",
