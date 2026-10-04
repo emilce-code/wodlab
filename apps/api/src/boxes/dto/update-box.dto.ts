@@ -25,10 +25,10 @@ export class UpdateBoxDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  logoPath?: string;
+  logoPath?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  coverImagePath?: string;
+  coverImagePath?: string | null;
 }
