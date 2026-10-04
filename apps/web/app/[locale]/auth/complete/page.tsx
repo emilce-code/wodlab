@@ -6,6 +6,7 @@ import ButtonLink from "@/components/ui/ButtonLink";
 import { Link } from "@/i18n/navigation";
 import { resolveCurrentUser } from "@/lib/auth";
 import { safePostLoginPath } from "@/lib/auth-navigation";
+import { isAppLocale, pathWithLocale } from "@/lib/locale-preference";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,9 +20,17 @@ export default async function AuthenticationCompletePage({
   const { locale } = await params;
   const { returnTo: requestedReturnTo } = await searchParams;
   const destination = safePostLoginPath(locale, requestedReturnTo);
-  const resolution = await resolveCurrentUser();
+  const resolution = await resolveCurrentUser(locale);
 
-  if (resolution.status === "authenticated") redirect(destination);
+  if (resolution.status === "authenticated") {
+    const preferredLocale = resolution.user.preferredLocale;
+
+    redirect(
+      isAppLocale(preferredLocale) && preferredLocale !== locale
+        ? pathWithLocale(destination, preferredLocale)
+        : destination,
+    );
+  }
 
   if (resolution.status === "unauthenticated") {
     const loginParams = new URLSearchParams({ returnTo: destination });
