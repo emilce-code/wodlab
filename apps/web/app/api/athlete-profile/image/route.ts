@@ -62,3 +62,36 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ path });
 }
+
+export async function DELETE() {
+  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  const profileResponse = await authenticatedApiFetch("/athlete-profile");
+  if (!profileResponse?.ok) {
+    return NextResponse.json({ message: "Athlete profile is required" }, { status: profileResponse?.status ?? 503 });
+  }
+
+  const profile = (await profileResponse.json()) as {
+    avatarPath?: string | null;
+  };
+
+  const save = await authenticatedApiFetch("/athlete-profile", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ avatarPath: null }),
+  });
+
+  if (!save?.ok) {
+    return NextResponse.json({ message: "Unable to remove profile image" }, { status: save?.status ?? 503 });
+  }
+
+  if (profile.avatarPath && supabaseUrl && serviceKey) {
+    await fetch(`${supabaseUrl}/storage/v1/object/${BUCKET}/${profile.avatarPath}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey },
+    }).catch(() => undefined);
+  }
+
+  return NextResponse.json({ path: null });
+}
