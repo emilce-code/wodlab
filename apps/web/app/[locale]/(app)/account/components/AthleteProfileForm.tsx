@@ -409,7 +409,7 @@ export default function AthleteProfileForm({
                 type="button"
                 disabled={isUploadingAvatar}
                 onClick={() => void removeAvatar()}
-                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50 sm:w-auto"
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-surface-elevated px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50 sm:w-auto"
               >
                 {isUploadingAvatar ? t("uploadingPhoto") : t("removePhoto")}
               </button>
