@@ -32,6 +32,7 @@ model User {
   id              String          @id @default(cuid())
   auth0UserId     String          @unique
   email           String          @unique
+  preferredLocale String          @default("es")
   athleteProfile  AthleteProfile?
   workoutsCreated Workout[]
   createdAt       DateTime        @default(now())
