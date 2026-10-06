@@ -68,7 +68,7 @@ export default function ClassHub() {
 
   const selectedBox = activeBox;
   const role = selectedBox?.role ?? null;
-  const isStaff = role === "OWNER";
+  const isStaff = role === "OWNER" || role === "COACH";
 
   const filteredClasses = useMemo(() => {
     const byDay = classes.filter((session) => dayKey(session.startsAt) === selectedDay);

@@ -451,8 +451,13 @@ export class BoxesService {
       [key: string]: unknown;
     }>;
 
+    const box = await this.prisma.box.findUniqueOrThrow({
+      where: { id: boxId },
+      select: { ownerUserId: true },
+    });
+
     return {
-      role: membership.role.key,
+      role: box.ownerUserId === userId ? 'OWNER' : membership.role.key,
       classes: classes.map((session) => ({
         ...session,
         bookedCount: session.bookings.length,
