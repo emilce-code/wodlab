@@ -3,6 +3,8 @@ const PAGE_CACHE = `${VERSION}-pages`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const DATABASE = "wodly-offline";
 const STORE = "result-queue";
+const DEFAULT_LOCALE = "es";
+const SUPPORTED_LOCALES = new Set(["en", "es", "pt"]);
 const OFFLINE_PAGES = ["/en/offline", "/es/offline", "/pt/offline"];
 const PRECACHE = [
   "/manifest.webmanifest",
@@ -129,6 +131,12 @@ function isResultCreate(request, url) {
   );
 }
 
+function localeFromPath(pathname) {
+  const segment = pathname.split("/")[1];
+
+  return SUPPORTED_LOCALES.has(segment) ? segment : DEFAULT_LOCALE;
+}
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
@@ -163,7 +171,7 @@ self.addEventListener("fetch", (event) => {
         .catch(
           async () =>
             (await caches.match(event.request)) ||
-            caches.match(`/${url.pathname.split("/")[1] || "en"}/offline`),
+            caches.match(`/${localeFromPath(url.pathname)}/offline`),
         ),
     );
     return;
