@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { formatDate } from "@/lib/date-formatters";
 import type {
   NotificationItem,
   NotificationPreferences,
@@ -16,6 +17,7 @@ type Props = { initialData: NotificationResponse | null };
 
 export default function NotificationCenter({ initialData }: Props) {
   const t = useTranslations("notifications");
+  const locale = useLocale();
   const [data, setData] = useState<NotificationResponse | null>(initialData);
   const [error, setError] = useState(!initialData);
   const [saving, setSaving] = useState(false);
@@ -109,9 +111,7 @@ export default function NotificationCenter({ initialData }: Props) {
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{message(item)}</p>
                   <p className="mt-1 text-xs text-muted">
-                    {new Intl.DateTimeFormat(undefined, {
-                      dateStyle: "medium",
-                    }).format(new Date(item.occurredAt))}
+                    {formatDate(item.occurredAt, locale)}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link

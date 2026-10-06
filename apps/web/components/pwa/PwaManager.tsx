@@ -181,10 +181,22 @@ export default function PwaManager() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    void navigator.serviceWorker.register("/sw.js");
+    void navigator.serviceWorker.register("/sw.js").then(async () => {
+      if (!navigator.onLine) return;
+
+      const registration = await navigator.serviceWorker.ready;
+      const worker = registration.active ?? navigator.serviceWorker.controller;
+
+      worker?.postMessage({ type: "FLUSH_QUEUE" });
+    });
 
     const handleOnline = () => {
-      navigator.serviceWorker.controller?.postMessage({ type: "FLUSH_QUEUE" });
+      void navigator.serviceWorker.ready.then((registration) => {
+        const worker =
+          registration.active ?? navigator.serviceWorker.controller;
+
+        worker?.postMessage({ type: "FLUSH_QUEUE" });
+      });
     };
     const handleInstall = (event: Event) => {
       event.preventDefault();

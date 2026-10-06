@@ -52,14 +52,14 @@ describe('AthleteProfilesService', () => {
   it('updates personalization and normalizes optional text', async () => {
     prisma.athleteProfile.findUnique.mockResolvedValue({ id: 'profile-1' });
     await service.updateByUserId('user-1', {
-      avatarUrl: null,
+      avatarPath: null,
       bio: '  Build strength and move well.  ',
       trainingGoals: [AthleteTrainingGoal.STRENGTH],
       weeklyTrainingTarget: 4,
       loadRoundingIncrement: 2.5,
     });
     expect(lastUpdateData).toMatchObject({
-      avatarUrl: null,
+      avatarPath: null,
       bio: 'Build strength and move well.',
       trainingGoals: [AthleteTrainingGoal.STRENGTH],
       weeklyTrainingTarget: 4,

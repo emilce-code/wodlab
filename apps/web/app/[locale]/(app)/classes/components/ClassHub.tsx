@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { boxImageUrl } from "@/lib/box-images";
 import type { ClassSession, WorkoutOption } from "@/lib/boxes";
+import { formatShortDate, formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 
 type View = "all" | "mine";
 
@@ -40,10 +41,20 @@ function localDateTimeValue(date: Date) {
 }
 
 function initialClassDateTime() {
+  return localDateTimeValue(classStartDateForOffset(1));
+}
+
+function classStartDateForOffset(offset: number) {
   const date = new Date();
-  date.setDate(date.getDate() + 1);
+  date.setDate(date.getDate() + offset);
   date.setHours(18, 0, 0, 0);
-  return localDateTimeValue(date);
+
+  if (date.getTime() <= Date.now()) {
+    date.setTime(Date.now() + 60 * 60 * 1000);
+    date.setMinutes(0, 0, 0);
+  }
+
+  return date;
 }
 
 export default function ClassHub() {
@@ -68,7 +79,7 @@ export default function ClassHub() {
 
   const selectedBox = activeBox;
   const role = selectedBox?.role ?? null;
-  const isStaff = role === "OWNER";
+  const isStaff = role === "OWNER" || role === "COACH";
 
   const filteredClasses = useMemo(() => {
     const byDay = classes.filter((session) => dayKey(session.startsAt) === selectedDay);
@@ -298,13 +309,15 @@ export default function ClassHub() {
       ) : null}
 
       {isStaff && !showCreateClass ? <Button type="button" className="w-full" onClick={() => setShowCreateClass(true)}>{t("classForm.open")}</Button> : null}
-      {showCreateClass && isStaff ? <ClassForm t={t} options={options} isSubmitting={creatingClass} onCancel={() => setShowCreateClass(false)} onSubmit={submitClass} /> : null}
+      {showCreateClass && isStaff ? <ClassForm t={t} locale={locale} options={options} isSubmitting={creatingClass} onCancel={() => setShowCreateClass(false)} onSubmit={submitClass} /> : null}
 
       <section aria-busy={loading} className="space-y-4">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-accent">{t("upcoming")}</p>
-            <h2 className="mt-1 text-xl font-bold">{new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric" }).format(selectedDate)}</h2>
+            <h2 className="mt-1 text-xl font-bold">
+              {formatWeekdayDate(selectedDate, locale, false)}
+            </h2>
           </div>
           <span className="shrink-0 text-xs font-semibold text-muted">{t("classCount", { count: filteredClasses.length })}</span>
         </div>
@@ -351,8 +364,9 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
       <div className="p-4">
         <div className="flex gap-4">
           <div className="flex w-14 shrink-0 flex-col items-center rounded-xl bg-surface-elevated px-2 py-2">
-            <span className="text-xl font-black leading-none">{new Intl.DateTimeFormat(locale, { hour: "numeric" }).format(new Date(session.startsAt))}</span>
-            <span className="mt-1 text-[11px] font-bold uppercase text-muted">{new Intl.DateTimeFormat(locale, { minute: "2-digit" }).format(new Date(session.startsAt))}</span>
+            <span className="text-lg font-black leading-none">
+              {formatTime(session.startsAt, locale)}
+            </span>
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
@@ -387,24 +401,19 @@ function ClassSkeleton() {
   return <div className="space-y-3" aria-hidden="true">{[0, 1, 2].map((item) => <div key={item} className="animate-pulse rounded-2xl border border-border bg-surface p-4"><div className="flex gap-4"><div className="h-14 w-14 rounded-xl bg-surface-elevated" /><div className="flex-1 space-y-2"><div className="h-5 w-2/3 rounded bg-surface-elevated" /><div className="h-4 w-1/2 rounded bg-surface-elevated" /><div className="h-4 w-3/4 rounded bg-surface-elevated" /></div></div></div>)}</div>;
 }
 
-function ClassForm({ t, options, isSubmitting, onCancel, onSubmit }: { t: ReturnType<typeof useTranslations>; options: WorkoutOption[]; isSubmitting: boolean; onCancel: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
+function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t: ReturnType<typeof useTranslations>; locale: string; options: WorkoutOption[]; isSubmitting: boolean; onCancel: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
   const [workoutId, setWorkoutId] = useState("");
   const [workoutVariantId, setWorkoutVariantId] = useState("");
   const [startsAt, setStartsAt] = useState(initialClassDateTime);
   const [duration, setDuration] = useState(60);
   const [capacity, setCapacity] = useState(12);
   const variants = options.find((option) => option.id === workoutId)?.variants ?? [];
-
-  function chooseDay(offset: number) {
-    const date = new Date();
-    date.setDate(date.getDate() + offset);
-    date.setHours(18, 0, 0, 0);
-    if (date.getTime() <= Date.now()) {
-      date.setTime(Date.now() + 60 * 60 * 1000);
-      date.setMinutes(0, 0, 0);
-    }
-    setStartsAt(localDateTimeValue(date));
-  }
+  const selectedStart = new Date(startsAt);
+  const selectedStartLabel = Number.isNaN(selectedStart.getTime()) ? null : `${formatWeekdayDate(selectedStart, locale, false)} · ${formatTime(selectedStart, locale)}`;
+  const startShortcuts = [0, 1].map((offset) => {
+    const date = classStartDateForOffset(offset);
+    return { date, offset, value: localDateTimeValue(date) };
+  });
 
   function selectWorkout(nextWorkoutId: string) {
     setWorkoutId(nextWorkoutId);
@@ -430,11 +439,26 @@ function ClassForm({ t, options, isSubmitting, onCancel, onSubmit }: { t: Return
             <label className="text-sm font-semibold sm:col-span-2">{t("classForm.name")}<input name="name" required minLength={2} autoFocus placeholder={t("classForm.namePlaceholder")} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
             <div className="sm:col-span-2">
               <label htmlFor="class-starts-at" className="text-sm font-semibold">{t("classForm.startsAt")}</label>
-              <div className="mt-2 grid grid-cols-2 gap-2 sm:flex">
-                <button type="button" onClick={() => chooseDay(0)} className="min-h-11 rounded-xl border border-border px-3 text-sm font-semibold hover:border-accent/50">{t("classForm.today")}</button>
-                <button type="button" onClick={() => chooseDay(1)} className="min-h-11 rounded-xl border border-border px-3 text-sm font-semibold hover:border-accent/50">{t("classForm.tomorrow")}</button>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {startShortcuts.map(({ date, offset, value }) => {
+                  const active = startsAt === value;
+
+                  return (
+                    <button
+                      key={offset}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setStartsAt(value)}
+                      className={`min-h-14 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition ${active ? "border-accent bg-accent/10 text-accent" : "border-border hover:border-accent/50"}`}
+                    >
+                      <span className="block">{offset === 0 ? t("classForm.today") : t("classForm.tomorrow")}</span>
+                      <span className="mt-0.5 block text-xs font-normal text-muted">{formatShortDate(date, locale)} · {formatTime(date, locale)}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <input id="class-starts-at" name="startsAt" type="datetime-local" required min={localDateTimeValue(new Date())} value={startsAt} onChange={(event) => setStartsAt(event.target.value)} className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
+              {selectedStartLabel ? <p id="class-starts-at-preview" className="mt-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm font-semibold text-accent">{selectedStartLabel}</p> : null}
+              <input id="class-starts-at" name="startsAt" type="datetime-local" required min={localDateTimeValue(new Date())} value={startsAt} onChange={(event) => setStartsAt(event.target.value)} aria-describedby={selectedStartLabel ? "class-starts-at-preview" : undefined} className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
             </div>
             <div>
               <label htmlFor="class-duration" className="text-sm font-semibold">{t("classForm.duration")}</label>

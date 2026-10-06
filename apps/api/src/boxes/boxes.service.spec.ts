@@ -22,7 +22,12 @@ describe('BoxesService', () => {
   };
   const prisma = {
     user: { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
-    box: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
+    box: {
+      findUnique: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     boxMembership: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -60,18 +65,28 @@ describe('BoxesService', () => {
     prisma.boxMembership.findUnique.mockResolvedValue({
       boxId: 'box-1',
       userId: 'user-1',
-      role: 'ATHLETE',
+      status: 'ACTIVE',
+      role: { key: 'ATHLETE' },
     });
+    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
   });
 
   afterEach(() => jest.clearAllMocks());
 
   it('returns the boxes joined by the user', async () => {
     prisma.boxMembership.findMany.mockResolvedValue([
-      { role: 'ATHLETE', box: { id: 'box-1', name: 'Downtown' } },
+      {
+        role: { key: 'ATHLETE' },
+        box: { id: 'box-1', name: 'Downtown', ownerUserId: 'owner-1' },
+      },
     ]);
     await expect(service.findAll('user-1')).resolves.toEqual([
-      { id: 'box-1', name: 'Downtown', role: 'ATHLETE', isActive: true },
+      expect.objectContaining({
+        id: 'box-1',
+        name: 'Downtown',
+        role: 'ATHLETE',
+        isActive: true,
+      }),
     ]);
   });
 
@@ -85,7 +100,13 @@ describe('BoxesService', () => {
         data: expect.objectContaining({
           name: 'Downtown',
           ownerUserId: 'user-1',
-          memberships: { create: { userId: 'user-1', role: 'OWNER' } },
+          memberships: {
+            create: expect.objectContaining({
+              userId: 'user-1',
+              roleId: 'box-membership-role-athlete',
+              status: 'ACTIVE',
+            }),
+          },
         }),
       }),
     );
@@ -104,8 +125,10 @@ describe('BoxesService', () => {
     prisma.boxMembership.findUnique.mockResolvedValue({
       boxId: 'box-1',
       userId: 'user-1',
-      role: 'OWNER',
+      status: 'ACTIVE',
+      role: { key: 'ATHLETE' },
     });
+    prisma.box.findUnique.mockResolvedValue({ ownerUserId: 'user-1' });
     prisma.box.update.mockResolvedValue({ id: 'box-1', name: 'North Box' });
 
     await service.update('user-1', 'box-1', {
@@ -147,6 +170,29 @@ describe('BoxesService', () => {
     });
   });
 
+  it('reports the owner role when the owner views class sessions', async () => {
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'owner-1',
+      status: 'ACTIVE',
+      role: { key: 'ATHLETE' },
+    });
+    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
+    prisma.classSession.findMany.mockResolvedValue([
+      {
+        id: 'class-1',
+        bookings: [],
+      },
+    ]);
+
+    await expect(
+      service.findClasses('owner-1', 'box-1', {}),
+    ).resolves.toMatchObject({
+      role: 'OWNER',
+      classes: [{ id: 'class-1', bookedCount: 0, currentUserBooking: null }],
+    });
+  });
+
   it('does not allow athletes to create classes', async () => {
     await expect(
       service.createClass('user-1', 'box-1', {
@@ -158,12 +204,34 @@ describe('BoxesService', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+  it('allows coaches to create classes', async () => {
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'coach-1',
+      status: 'ACTIVE',
+      role: { key: 'COACH' },
+    });
+    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
+    prisma.classSession.create.mockResolvedValue({ id: 'class-1' });
+
+    await expect(
+      service.createClass('coach-1', 'box-1', {
+        name: 'Evening class',
+        startsAt: '2099-09-15T22:00:00.000Z',
+        durationMinutes: 60,
+        capacity: 12,
+      }),
+    ).resolves.toEqual({ id: 'class-1' });
+  });
+
   it('rejects a variation without a workout', async () => {
     prisma.boxMembership.findUnique.mockResolvedValue({
       boxId: 'box-1',
       userId: 'owner-1',
-      role: 'OWNER',
+      status: 'ACTIVE',
+      role: { key: 'ATHLETE' },
     });
+    prisma.box.findUnique.mockResolvedValue({ ownerUserId: 'owner-1' });
     await expect(
       service.createClass('owner-1', 'box-1', {
         name: 'Morning class',
@@ -226,10 +294,11 @@ describe('BoxesService', () => {
   it('protects the Box owner from member removal', async () => {
     prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
     prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
     prisma.boxMembership.findFirst.mockResolvedValue({
       id: 'member-1',
       userId: 'owner-1',
-      role: 'OWNER',
+      role: { key: 'ATHLETE' },
     });
 
     await expect(
