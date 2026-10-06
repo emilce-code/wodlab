@@ -1,4 +1,4 @@
-const VERSION = "wodly-v2";
+const VERSION = "wodly-v3";
 const PAGE_CACHE = `${VERSION}-pages`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const DATABASE = "wodly-offline";
