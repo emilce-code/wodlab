@@ -2,7 +2,7 @@
   "name": "Wodly",
   "short_name": "Wodly",
   "description": "Plan, track, and improve your CrossFit training.",
-  "start_url": "/en/dashboard",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#090b08",
   "theme_color": "#a3ff00",
@@ -11,12 +11,12 @@
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
-      "url": "/en/dashboard"
+      "url": "/dashboard"
     },
     {
       "name": "Training plan",
       "short_name": "Plan",
-      "url": "/en/training"
+      "url": "/training"
     }
   ],
   "icons": [
