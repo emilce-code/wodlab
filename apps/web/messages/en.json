@@ -411,6 +411,9 @@
       "optionalHelp": "Optional details athletes can review before booking. You can add them later.",
       "optionalBadge": "Optional",
       "noWorkout": "No linked workout",
+      "searchWorkout": "Search workouts",
+      "noWorkoutMatches": "No workouts match your search.",
+      "variantCount": "{count, plural, =0 {No variations} =1 {1 variation} other {# variations}}",
       "noVariation": "No variation",
       "submit": "Publish class",
       "submitting": "Publishing…"
