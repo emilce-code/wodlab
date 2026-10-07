@@ -234,33 +234,39 @@ export default function BoxAdministration({
   async function assignMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedBox) return;
+    const formElement = event.currentTarget;
     clearMessages();
     setBusy("assign-member");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/boxes/${selectedBox.id}/members`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: String(form.get("email")),
-        role: assignRole,
-      }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setMembers((current) => {
-        const assigned = data as BoxMember;
-        const exists = current.some((member) => member.id === assigned.id);
-        return exists
-          ? current.map((member) =>
-              member.id === assigned.id ? assigned : member,
-            )
-          : [assigned, ...current];
+    try {
+      const form = new FormData(formElement);
+      const response = await fetch(`/api/boxes/${selectedBox.id}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: String(form.get("email")),
+          role: assignRole,
+        }),
       });
-      setSuccess(t("members.assigned"));
-      event.currentTarget.reset();
-      setMemberStatus("ACTIVE");
-    } else setError(message(data, t("errors.action")));
-    setBusy(null);
+      const data = await response.json();
+      if (response.ok) {
+        setMembers((current) => {
+          const assigned = data as BoxMember;
+          const exists = current.some((member) => member.id === assigned.id);
+          return exists
+            ? current.map((member) =>
+                member.id === assigned.id ? assigned : member,
+              )
+            : [assigned, ...current];
+        });
+        setSuccess(t("members.assigned"));
+        formElement.reset();
+        setMemberStatus("ACTIVE");
+      } else setError(message(data, t("errors.action")));
+    } catch {
+      setError(t("errors.action"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function changeRole(member: BoxMember, role: BoxMember["role"]) {
