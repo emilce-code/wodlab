@@ -3,10 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { permissionsForRole } from './permissions';
 
+type SupportedLocale = 'en' | 'es' | 'pt';
+
 type ProvisionAuth0UserInput = {
   auth0UserId: string;
   email: string;
   displayName: string;
+  preferredLocale?: SupportedLocale;
 };
 
 @Injectable()
@@ -31,6 +34,8 @@ export class AuthService {
         auth0UserId: input.auth0UserId,
 
         email: input.email,
+
+        preferredLocale: input.preferredLocale ?? 'es',
 
         athleteProfile: {
           create: {
@@ -69,6 +74,7 @@ type CurrentUserRecord = {
   id: string;
   email: string;
   role: 'USER' | 'COACH' | 'ADMIN';
+  preferredLocale: string;
   athleteProfile: unknown;
   boxMemberships: Array<{ role: { key: string } }>;
   createdAt: Date;
@@ -89,6 +95,7 @@ function toCurrentUser(user: CurrentUserRecord) {
     id: user.id,
     email: user.email,
     role: user.role,
+    preferredLocale: user.preferredLocale,
     permissions,
     athleteProfile: user.athleteProfile,
     createdAt: user.createdAt,
