@@ -11,10 +11,11 @@ import Card from "@/components/ui/Card";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import MobileDateField from "@/components/ui/MobileDateField";
+import { Link } from "@/i18n/navigation";
 import { formatCalendarDate, formatTime } from "@/lib/date-formatters";
 import type { ClassSession } from "@/lib/boxes";
 import {
-  calendarDays,
+  fromDateValue,
   monthRange,
   type ScheduledWorkout,
   type ScheduledWorkoutsResponse,
@@ -26,8 +27,18 @@ type PlanItem =
   | { kind: "workout"; date: string; sortValue: string; item: ScheduledWorkout }
   | { kind: "class"; date: string; sortValue: string; item: ClassSession };
 
-function addMonths(date: Date, amount: number) {
-  return new Date(date.getFullYear(), date.getMonth() + amount, 1);
+function addDays(date: Date, amount: number) {
+  const next = new Date(date);
+  next.setDate(date.getDate() + amount);
+  return next;
+}
+
+function weekDaysFor(date: Date) {
+  const start = new Date(date);
+  const day = start.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  start.setDate(start.getDate() + mondayOffset);
+  return Array.from({ length: 7 }, (_, index) => addDays(start, index));
 }
 
 const levelOrder = ["BEGINNER", "INTERMEDIATE", "RX"];
@@ -142,10 +153,16 @@ function ClassSummary({ item, compact = false }: { item: ClassSession; compact?:
         {formatCalendarDate(classDate(item), locale)} · {formatTime(item.startsAt, locale)} · {t("classDuration", { duration: item.durationMinutes })}
       </p>
       {href ? (
-        <ButtonLink href={href} variant="secondary" size="sm" className="mt-3 w-full justify-between sm:w-auto">
-          <span className="min-w-0 truncate">{classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}</span>
-          <span aria-hidden="true">→</span>
-        </ButtonLink>
+        <Link
+          href={href}
+          className="mt-3 flex min-h-12 items-center justify-between gap-3 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm font-semibold text-foreground transition hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <span className="min-w-0">
+            <span className="block text-[11px] font-semibold uppercase tracking-wide text-muted">{t("assignedWorkout")}</span>
+            <span className="block truncate">{classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}</span>
+          </span>
+          <span aria-hidden="true" className="shrink-0 text-accent">→</span>
+        </Link>
       ) : (
         <p className="mt-2 text-sm font-semibold text-blue-300">
           {classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}
@@ -163,6 +180,44 @@ type SessionActionsProps = {
   onUpdated: (item: ScheduledWorkout) => void;
   onRemoved: (id: string) => void;
 };
+
+function PlanItemCard({
+  entry,
+  onUpdated,
+  onRemoved,
+}: {
+  entry: PlanItem;
+  onUpdated: (item: ScheduledWorkout) => void;
+  onRemoved: (id: string) => void;
+}) {
+  const t = useTranslations("training");
+  const locale = useLocale();
+  const timeLabel = entry.kind === "class" ? formatTime(entry.item.startsAt, locale) : t("anytime");
+
+  return (
+    <Card className={`p-4 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
+      <div className="flex gap-3">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-surface-elevated px-2 text-center text-sm font-black">
+          {timeLabel}
+        </div>
+        <div className="min-w-0 flex-1">
+          {entry.kind === "workout" ? (
+            <>
+              <ScheduleSummary item={entry.item} compact />
+              <SessionActions
+                item={entry.item}
+                onUpdated={onUpdated}
+                onRemoved={onRemoved}
+              />
+            </>
+          ) : (
+            <ClassSummary item={entry.item} compact />
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 function AthleteCommentForm({
   item,
@@ -584,11 +639,6 @@ export default function TrainingCalendar() {
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [calendarActionError, setCalendarActionError] = useState<string | null>(
-    null,
-  );
-  const [removingId, setRemovingId] = useState<string | null>(null);
-  const { confirm, dialog } = useConfirmationDialog();
   const { from, to } = monthRange(month);
 
   useEffect(() => {
@@ -655,16 +705,14 @@ export default function TrainingCalendar() {
     }
     return grouped;
   }, [classBookings, schedule]);
-  const days = calendarDays(month);
-  const weekdayNames = Array.from({ length: 7 }, (_, day) =>
-    new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-      new Date(2026, 7, 2 + day),
-    ),
-  );
+  const selectedDateValue = selectedDate ?? today;
+  const selectedDateObject = fromDateValue(selectedDateValue);
+  const weekDays = weekDaysFor(selectedDateObject);
   const monthLabel = new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
-  }).format(month);
+  }).format(selectedDateObject);
+  const selectedItems = itemsByDate.get(selectedDateValue) ?? [];
 
   function upsert(item: ScheduledWorkout) {
     setSchedule((current) => {
@@ -677,6 +725,8 @@ export default function TrainingCalendar() {
 
   function selectDate(value: string) {
     setSelectedDate(value);
+    const nextDate = fromDateValue(value);
+    setMonth(new Date(nextDate.getFullYear(), nextDate.getMonth(), 1));
     setShowScheduleForm(false);
     window.setTimeout(() => {
       selectedDayRef.current?.scrollIntoView({
@@ -692,55 +742,37 @@ export default function TrainingCalendar() {
     selectDate(today);
   }
 
-  async function removeFromCalendar(item: ScheduledWorkout) {
-    if (!(await confirm({ description: t("removeConfirm") }))) {
-      return;
-    }
-
-    setRemovingId(item.id);
-    setCalendarActionError(null);
-
-    try {
-      const response = await fetch(`/api/scheduled-workouts/${item.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        setCalendarActionError(t("removeError"));
-        return;
-      }
-
-      setSchedule((current) => current.filter((entry) => entry.id !== item.id));
-    } catch {
-      setCalendarActionError(t("connectionError"));
-    } finally {
-      setRemovingId(null);
-    }
+  function moveWeek(amount: number) {
+    selectDate(toDateValue(addDays(selectedDateObject, amount * 7)));
   }
 
   return (
     <div className="mt-8">
-      {dialog}
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-2 sm:justify-start">
+        <div className="flex items-center justify-between gap-2">
           <Button
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => setMonth(addMonths(month, -1))}
-            aria-label={t("previousMonth")}
+            onClick={() => moveWeek(-1)}
+            aria-label={t("previousWeek")}
           >
             ←
           </Button>
-          <h2 className="min-w-0 text-center text-lg font-bold capitalize sm:min-w-48">
-            {monthLabel}
-          </h2>
+          <div className="min-w-0 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+              {t("eyebrow")}
+            </p>
+            <h2 className="mt-0.5 truncate text-lg font-bold capitalize">
+              {monthLabel}
+            </h2>
+          </div>
           <Button
             type="button"
             variant="secondary"
             size="sm"
-            onClick={() => setMonth(addMonths(month, 1))}
-            aria-label={t("nextMonth")}
+            onClick={() => moveWeek(1)}
+            aria-label={t("nextWeek")}
           >
             →
           </Button>
@@ -761,11 +793,6 @@ export default function TrainingCalendar() {
           {t("loadError")}
         </Alert>
       ) : null}
-      {calendarActionError ? (
-        <Alert variant="error" className="mt-5">
-          {calendarActionError}
-        </Alert>
-      ) : null}
       {loading ? (
         <div className="mt-5 grid gap-3" aria-label={t("loading")}>
           {[0, 1, 2].map((item) => (
@@ -777,112 +804,46 @@ export default function TrainingCalendar() {
       ) : null}
 
       {!loading && !error ? (
-        <div className="mt-5 overflow-hidden rounded-xl border border-border bg-surface">
-          <div className="grid grid-cols-7 border-b border-border bg-surface-elevated">
-            {weekdayNames.map((name) => (
-              <div
-                key={name}
-                className="px-1 py-3 text-center text-xs font-semibold uppercase text-muted"
-              >
-                {name}
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7">
-            {days.map((date) => {
+        <div className="-mx-4 mt-5 flex snap-x gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {weekDays.map((date) => {
               const value = toDateValue(date);
               const items = itemsByDate.get(value) ?? [];
-              const currentMonth = date.getMonth() === month.getMonth();
+              const classCount = items.filter((item) => item.kind === "class").length;
+              const workoutCount = items.filter((item) => item.kind === "workout").length;
+              const active = value === selectedDateValue;
               return (
-                <div
+                <button
                   key={value}
+                  type="button"
+                  onClick={() => selectDate(value)}
+                  aria-pressed={active}
+                  aria-label={t("selectDate", {
+                    date: formatCalendarDate(value, locale),
+                    count: items.length,
+                  })}
                   className={[
-                    "relative min-h-16 min-w-0 border-b border-r border-border p-1 transition sm:min-h-32 sm:p-2",
-                    currentMonth ? "" : "bg-background/40 text-muted",
-                    value === today ? "ring-2 ring-inset ring-accent" : "",
-                    value === selectedDate ? "bg-accent/10" : "",
+                    "min-w-[4.5rem] snap-center rounded-2xl border px-2 py-2.5 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                    active
+                      ? "border-accent bg-accent text-accent-foreground shadow-sm"
+                      : "border-border bg-surface text-foreground",
+                    value === today && !active ? "ring-1 ring-accent/60" : "",
                   ].join(" ")}
                 >
-                  <button
-                    type="button"
-                    onClick={() => selectDate(value)}
-                    aria-label={t("selectDate", {
-                      date: formatCalendarDate(value, locale),
-                      count: items.length,
-                    })}
-                    className="flex min-h-11 w-full items-start justify-center rounded-lg pt-2 text-center text-sm font-semibold hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:min-h-0 sm:justify-start sm:p-0 sm:text-left"
-                  >
-                    {date.getDate()}
-                  </button>
-                  {items.length > 0 ? (
-                    <span className="pointer-events-none absolute bottom-1 left-1/2 flex min-w-5 -translate-x-1/2 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-black text-accent-foreground sm:hidden">
-                      {items.length}
-                    </span>
-                  ) : null}
-                  <div className="mt-1 hidden space-y-1 sm:block">
-                    {items.slice(0, 2).map((item) => (
-                      <div
-                        key={`${item.kind}-${item.item.id}`}
-                        className={[
-                          "flex min-w-0 items-center rounded",
-                          item.kind === "class"
-                            ? "bg-blue-500/15 text-blue-200"
-                            : item.item.status === "COMPLETED"
-                              ? "bg-accent/10 text-accent"
-                              : "bg-surface-elevated text-foreground",
-                        ].join(" ")}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => selectDate(value)}
-                          title={item.kind === "workout" ? item.item.workout.name : item.item.name}
-                          className="min-h-7 min-w-0 flex-1 truncate px-1 text-left text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent sm:px-1.5 sm:text-xs"
-                        >
-                          {item.kind === "workout" ? item.item.workout.name : item.item.name}
-                        </button>
-                        {item.kind === "workout" && item.item.status === "PLANNED" ? (
-                          <button
-                            type="button"
-                            disabled={removingId === item.item.id}
-                            onClick={() => void removeFromCalendar(item.item)}
-                            aria-label={t("removeWorkout", {
-                              workout: item.item.workout.name,
-                            })}
-                            title={t("removeWorkout", {
-                              workout: item.item.workout.name,
-                            })}
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted transition hover:bg-red-500/10 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-wait disabled:opacity-40"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="1.8"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-3.5 w-3.5"
-                            >
-                              <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" />
-                            </svg>
-                          </button>
-                        ) : null}
-                      </div>
-                    ))}
-                    {items.length > 2 ? (
-                      <button
-                        type="button"
-                        onClick={() => selectDate(value)}
-                        className="block text-[10px] text-muted hover:text-foreground"
-                      >
-                        +{items.length - 2}
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
+                  <span className={`block text-[11px] font-bold uppercase tracking-wide ${active ? "text-accent-foreground/70" : "text-muted"}`}>
+                    {new Intl.DateTimeFormat(locale, { weekday: "short" }).format(date)}
+                  </span>
+                  <span className="mt-0.5 block text-xl font-black leading-none">{date.getDate()}</span>
+                  <span className="mt-2 flex min-h-1.5 justify-center gap-1">
+                    {classCount ? <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-accent-foreground" : "bg-blue-400"}`} /> : null}
+                    {workoutCount ? <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-accent-foreground" : "bg-accent"}`} /> : null}
+                    {!items.length ? <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-accent-foreground/40" : "bg-muted/40"}`} /> : null}
+                  </span>
+                  <span className={`mt-1 block text-[10px] font-semibold ${active ? "text-accent-foreground/70" : items.length ? "text-accent" : "text-muted"}`}>
+                    {items.length ? t("itemCount", { count: items.length }) : "·"}
+                  </span>
+                </button>
               );
             })}
-          </div>
         </div>
       ) : null}
 
@@ -898,29 +859,21 @@ export default function TrainingCalendar() {
               </h2>
             </div>
           </div>
-          {(itemsByDate.get(selectedDate) ?? []).length ? (
-          <div className="mt-4 grid gap-3">
-            {(itemsByDate.get(selectedDate) ?? []).map((entry) => (
-              <Card key={`${entry.kind}-${entry.item.id}`} className={`p-5 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
-                {entry.kind === "workout" ? (
-                  <>
-                    <ScheduleSummary item={entry.item} compact />
-                    <SessionActions
-                      item={entry.item}
-                      onUpdated={upsert}
-                      onRemoved={(id) =>
-                        setSchedule((current) =>
-                          current.filter((entry) => entry.id !== id),
-                        )
-                      }
-                    />
-                  </>
-                ) : (
-                  <ClassSummary item={entry.item} compact />
-                )}
-              </Card>
-            ))}
-          </div>
+          {selectedItems.length ? (
+            <div className="mt-4 grid gap-3">
+              {selectedItems.map((entry) => (
+                <PlanItemCard
+                  key={`${entry.kind}-${entry.item.id}`}
+                  entry={entry}
+                  onUpdated={upsert}
+                  onRemoved={(id) =>
+                    setSchedule((current) =>
+                      current.filter((entry) => entry.id !== id),
+                    )
+                  }
+                />
+              ))}
+            </div>
           ) : (
             <Card className="mt-4 border-dashed p-6 text-center">
               <h3 className="font-bold">{t("emptyDayTitle")}</h3>
