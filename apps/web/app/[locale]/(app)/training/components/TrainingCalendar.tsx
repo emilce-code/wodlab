@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import Alert from "@/components/ui/Alert";
@@ -10,7 +10,6 @@ import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
-import ProgressiveList from "@/components/ui/ProgressiveList";
 import MobileDateField from "@/components/ui/MobileDateField";
 import { formatCalendarDate, formatTime } from "@/lib/date-formatters";
 import type { ClassSession } from "@/lib/boxes";
@@ -23,7 +22,6 @@ import {
   toDateValue,
 } from "@/lib/scheduled-workouts";
 
-type ViewMode = "calendar" | "agenda";
 type PlanItem =
   | { kind: "workout"; date: string; sortValue: string; item: ScheduledWorkout }
   | { kind: "class"; date: string; sortValue: string; item: ClassSession };
@@ -70,7 +68,13 @@ function classWorkoutLabel(item: ClassSession, emptyLabel: string, levelName: (k
   return `${item.workout.name}${item.workoutVariant ? ` · ${levelName(item.workoutVariant.level.key, item.workoutVariant.level.name)}` : ""}`;
 }
 
-function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
+function classWorkoutHref(item: ClassSession) {
+  if (!item.workout) return null;
+  const variation = item.workoutVariant ? `?variation=${encodeURIComponent(item.workoutVariant.level.key)}` : "";
+  return `/workouts/${item.workout.id}${variation}` as const;
+}
+
+function ScheduleSummary({ item, compact = false }: { item: ScheduledWorkout; compact?: boolean }) {
   const t = useTranslations("training");
 
   return (
@@ -84,7 +88,7 @@ function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
           <Badge>{item.prescriptionCategory.name}</Badge>
         ) : null}
       </div>
-      <h3 className="mt-3 break-words text-lg font-bold">
+      <h3 className={`${compact ? "mt-2 text-base" : "mt-3 text-lg"} break-words font-bold`}>
         {item.workout.name}
       </h3>
       <p className="mt-1 text-sm text-muted">
@@ -116,11 +120,12 @@ function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
   );
 }
 
-function ClassSummary({ item }: { item: ClassSession }) {
+function ClassSummary({ item, compact = false }: { item: ClassSession; compact?: boolean }) {
   const t = useTranslations("training");
   const levelT = useTranslations("workoutLevels.names");
   const locale = useLocale();
   const spots = Math.max(0, item.capacity - item.bookedCount);
+  const href = classWorkoutHref(item);
   const levelName = (key: string, fallback: string) => {
     const translationKey = key.toLowerCase();
     return levelT.has(translationKey) ? levelT(translationKey) : fallback;
@@ -132,13 +137,20 @@ function ClassSummary({ item }: { item: ClassSession }) {
         <Badge variant="accent">{t("classBooking")}</Badge>
         <Badge>{t("classSpots", { count: spots })}</Badge>
       </div>
-      <h3 className="mt-3 break-words text-lg font-bold">{item.name}</h3>
+      <h3 className={`${compact ? "mt-2 text-base" : "mt-3 text-lg"} break-words font-bold`}>{item.name}</h3>
       <p className="mt-1 text-sm text-muted">
         {formatCalendarDate(classDate(item), locale)} · {formatTime(item.startsAt, locale)} · {t("classDuration", { duration: item.durationMinutes })}
       </p>
-      <p className="mt-2 text-sm font-semibold text-blue-300">
-        {classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}
-      </p>
+      {href ? (
+        <ButtonLink href={href} variant="secondary" size="sm" className="mt-3 w-full justify-between sm:w-auto">
+          <span className="min-w-0 truncate">{classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}</span>
+          <span aria-hidden="true">→</span>
+        </ButtonLink>
+      ) : (
+        <p className="mt-2 text-sm font-semibold text-blue-300">
+          {classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}
+        </p>
+      )}
       {item.description ? (
         <p className="mt-3 break-words text-sm text-muted">{item.description}</p>
       ) : null}
@@ -558,17 +570,18 @@ export default function TrainingCalendar() {
   const locale = useLocale();
   const { activeBox } = useActiveBox();
   const today = toDateValue(new Date());
+  const selectedDayRef = useRef<HTMLDivElement>(null);
   const [month, setMonth] = useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
-  const [view, setView] = useState<ViewMode>("calendar");
   const [schedule, setSchedule] = useState<ScheduledWorkout[]>([]);
   const [classBookings, setClassBookings] = useState<ClassSession[]>([]);
   const [workouts, setWorkouts] = useState<TrainingCalendarWorkout[]>([]);
   const [preferredLevelKey, setPreferredLevelKey] = useState<string | null>(
     null,
   );
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(today);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [calendarActionError, setCalendarActionError] = useState<string | null>(
@@ -642,10 +655,6 @@ export default function TrainingCalendar() {
     }
     return grouped;
   }, [classBookings, schedule]);
-  const agendaItems = useMemo(
-    () => Array.from(itemsByDate.values()).flat().toSorted((left, right) => left.sortValue.localeCompare(right.sortValue)),
-    [itemsByDate],
-  );
   const days = calendarDays(month);
   const weekdayNames = Array.from({ length: 7 }, (_, day) =>
     new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
@@ -664,6 +673,23 @@ export default function TrainingCalendar() {
         ? current.map((entry) => (entry.id === item.id ? item : entry))
         : [...current, item];
     });
+  }
+
+  function selectDate(value: string) {
+    setSelectedDate(value);
+    setShowScheduleForm(false);
+    window.setTimeout(() => {
+      selectedDayRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 0);
+  }
+
+  function goToToday() {
+    const now = new Date();
+    setMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+    selectDate(today);
   }
 
   async function removeFromCalendar(item: ScheduledWorkout) {
@@ -695,7 +721,7 @@ export default function TrainingCalendar() {
   return (
     <div className="mt-8">
       {dialog}
-      <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
         <div className="flex items-center justify-between gap-2 sm:justify-start">
           <Button
             type="button"
@@ -719,38 +745,15 @@ export default function TrainingCalendar() {
             →
           </Button>
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:flex">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            onClick={() =>
-              setMonth(
-                new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-              )
-            }
-          >
-            {t("today")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={view === "calendar" ? "primary" : "secondary"}
-            onClick={() => setView("calendar")}
-            aria-pressed={view === "calendar"}
-          >
-            {t("calendarView")}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={view === "agenda" ? "primary" : "secondary"}
-            onClick={() => setView("agenda")}
-            aria-pressed={view === "agenda"}
-          >
-            {t("agendaView")}
-          </Button>
-        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={goToToday}
+          className="mt-3 w-full sm:w-auto"
+        >
+          {t("today")} · {formatCalendarDate(today, locale)}
+        </Button>
       </div>
 
       {error ? (
@@ -773,7 +776,7 @@ export default function TrainingCalendar() {
         </div>
       ) : null}
 
-      {!loading && !error && view === "calendar" ? (
+      {!loading && !error ? (
         <div className="mt-5 overflow-hidden rounded-xl border border-border bg-surface">
           <div className="grid grid-cols-7 border-b border-border bg-surface-elevated">
             {weekdayNames.map((name) => (
@@ -802,7 +805,7 @@ export default function TrainingCalendar() {
                 >
                   <button
                     type="button"
-                    onClick={() => setSelectedDate(value)}
+                    onClick={() => selectDate(value)}
                     aria-label={t("selectDate", {
                       date: formatCalendarDate(value, locale),
                       count: items.length,
@@ -831,7 +834,7 @@ export default function TrainingCalendar() {
                       >
                         <button
                           type="button"
-                          onClick={() => setSelectedDate(value)}
+                          onClick={() => selectDate(value)}
                           title={item.kind === "workout" ? item.item.workout.name : item.item.name}
                           className="min-h-7 min-w-0 flex-1 truncate px-1 text-left text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent sm:px-1.5 sm:text-xs"
                         >
@@ -869,7 +872,7 @@ export default function TrainingCalendar() {
                     {items.length > 2 ? (
                       <button
                         type="button"
-                        onClick={() => setSelectedDate(value)}
+                        onClick={() => selectDate(value)}
                         className="block text-[10px] text-muted hover:text-foreground"
                       >
                         +{items.length - 2}
@@ -883,52 +886,8 @@ export default function TrainingCalendar() {
         </div>
       ) : null}
 
-      {!loading && !error && view === "agenda" ? (
-        <div className="mt-5 space-y-4">
-          {agendaItems.length === 0 ? (
-            <Card className="p-8 text-center text-muted">
-              {t("emptyMonth")}
-            </Card>
-          ) : (
-            <ProgressiveList
-              key={month.toISOString()}
-              initialCount={10}
-              increment={10}
-              className="space-y-4"
-            >
-              {agendaItems.map((entry) => (
-                <Card key={`${entry.kind}-${entry.item.id}`} className={`p-5 sm:p-6 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
-                  <p className="mb-4 text-sm font-semibold text-accent">
-                    {formatCalendarDate(
-                      entry.date,
-                      locale,
-                    )}
-                  </p>
-                  {entry.kind === "workout" ? (
-                    <>
-                      <ScheduleSummary item={entry.item} />
-                      <SessionActions
-                        item={entry.item}
-                        onUpdated={upsert}
-                        onRemoved={(id) =>
-                          setSchedule((current) =>
-                            current.filter((entry) => entry.id !== id),
-                          )
-                        }
-                      />
-                    </>
-                  ) : (
-                    <ClassSummary item={entry.item} />
-                  )}
-                </Card>
-              ))}
-            </ProgressiveList>
-          )}
-        </div>
-      ) : null}
-
       {selectedDate ? (
-        <div className="mt-6 scroll-mt-6" id="selected-training-day">
+        <div ref={selectedDayRef} className="mt-6 scroll-mt-24" id="selected-training-day">
           <div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
@@ -939,12 +898,13 @@ export default function TrainingCalendar() {
               </h2>
             </div>
           </div>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          {(itemsByDate.get(selectedDate) ?? []).length ? (
+          <div className="mt-4 grid gap-3">
             {(itemsByDate.get(selectedDate) ?? []).map((entry) => (
               <Card key={`${entry.kind}-${entry.item.id}`} className={`p-5 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
                 {entry.kind === "workout" ? (
                   <>
-                    <ScheduleSummary item={entry.item} />
+                    <ScheduleSummary item={entry.item} compact />
                     <SessionActions
                       item={entry.item}
                       onUpdated={upsert}
@@ -956,22 +916,42 @@ export default function TrainingCalendar() {
                     />
                   </>
                 ) : (
-                  <ClassSummary item={entry.item} />
+                  <ClassSummary item={entry.item} compact />
                 )}
               </Card>
             ))}
           </div>
-          {selectedDate >= today ? (
+          ) : (
+            <Card className="mt-4 border-dashed p-6 text-center">
+              <h3 className="font-bold">{t("emptyDayTitle")}</h3>
+              <p className="mt-1 text-sm text-muted">{t("emptyDayDescription")}</p>
+            </Card>
+          )}
+          {selectedDate >= today && !showScheduleForm ? (
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-4 w-full"
+              onClick={() => setShowScheduleForm(true)}
+            >
+              {t("addWorkoutToDay")}
+            </Button>
+          ) : null}
+          {selectedDate >= today && showScheduleForm ? (
             <ScheduleForm
               date={selectedDate}
               workouts={workouts}
               preferredLevelKey={preferredLevelKey}
-              onSaved={upsert}
-              onClose={() => setSelectedDate(null)}
+              onSaved={(item) => {
+                upsert(item);
+                setShowScheduleForm(false);
+              }}
+              onClose={() => setShowScheduleForm(false)}
             />
-          ) : (
+          ) : null}
+          {selectedDate < today ? (
             <Alert className="mt-5">{t("pastDate")}</Alert>
-          )}
+          ) : null}
         </div>
       ) : null}
     </div>
