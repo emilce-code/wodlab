@@ -358,12 +358,19 @@ export default function ClassHub() {
 }
 
 function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: ClassSession; locale: string; isStaff: boolean; busy: boolean; t: ReturnType<typeof useTranslations>; onAction: (id: string, method: "POST" | "PATCH" | "DELETE", suffix?: string, body?: object) => Promise<void> }) {
+  const levelT = useTranslations("workoutLevels.names");
   const full = session.bookedCount >= session.capacity;
   const booked = Boolean(session.currentUserBooking);
   const attended = session.currentUserBooking?.status === "ATTENDED";
   const spots = Math.max(0, session.capacity - session.bookedCount);
-  const workoutLabel = session.workout ? `${session.workout.name}${session.workoutVariant ? ` · ${session.workoutVariant.level.name}` : ""}` : t("noWorkoutAssigned");
+  const workoutLabel = session.workout ? `${session.workout.name}${session.workoutVariant ? ` · ${localizedLevelName(session.workoutVariant.level.key, session.workoutVariant.level.name, levelT)}` : ""}` : t("noWorkoutAssigned");
   const startsAtLabel = `${formatShortDate(session.startsAt, locale)} · ${formatTime(session.startsAt, locale)}`;
+  const [staffPanel, setStaffPanel] = useState<"manage" | "attendance" | null>(null);
+
+  async function handleDeleteClass() {
+    await onAction(session.id, "DELETE", "");
+    setStaffPanel(null);
+  }
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-surface shadow-sm ${booked ? "border-accent/60 ring-1 ring-accent/20" : "border-border"}`}>
@@ -404,22 +411,46 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
           : <Button type="button" disabled={full || busy} onClick={() => void onAction(session.id, "POST")} className="mt-4 min-h-12 w-full">{full ? t("full") : t("book")}</Button>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <details className="group rounded-xl bg-surface-elevated">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center px-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">{t("manageClass")}</summary>
-              <div className="border-t border-border p-2">
-                <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void onAction(session.id, "DELETE", "")}>{t("deleteClass")}</Button>
-              </div>
-            </details>
-            <details className="group rounded-xl bg-surface-elevated">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center px-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">{t("attendance")}</summary>
-              <div className="space-y-2 border-t border-border p-2">
-                {session.bookings.map((booking) => <div key={booking.id} className="flex items-center justify-between gap-2 rounded-xl bg-background p-2.5"><span className="min-w-0 truncate text-sm">{booking.user.athleteProfile?.displayName ?? booking.user.email}</span><Button type="button" variant="secondary" disabled={busy} onClick={() => void onAction(session.id, "PATCH", "attendance", { userId: booking.userId, status: booking.status === "ATTENDED" ? "BOOKED" : "ATTENDED" })}>{booking.status === "ATTENDED" ? t("undoAttendance") : t("markAttended")}</Button></div>)}
-                {!session.bookings.length ? <p className="py-2 text-sm text-muted">{t("noBookings")}</p> : null}
-              </div>
-            </details>
+            <Button type="button" variant="secondary" className="min-h-11" onClick={() => setStaffPanel("manage")}>{t("manageClass")}</Button>
+            <Button type="button" variant="secondary" className="min-h-11" onClick={() => setStaffPanel("attendance")}>{t("attendance")}</Button>
           </div>
         )}
       </div>
+
+      {staffPanel ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/60 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-12 backdrop-blur-sm sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-labelledby={`class-${session.id}-${staffPanel}-title`}>
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-border p-4">
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{session.name}</p>
+                <h3 id={`class-${session.id}-${staffPanel}-title`} className="mt-1 text-xl font-black">{staffPanel === "manage" ? t("manageClass") : t("attendance")}</h3>
+                <p className="mt-1 text-sm text-muted">{startsAtLabel} · {t("durationValue", { duration: session.durationMinutes })}</p>
+              </div>
+              <Button type="button" variant="ghost" size="icon" aria-label={t("classForm.cancel")} onClick={() => setStaffPanel(null)}>×</Button>
+            </div>
+
+            {staffPanel === "manage" ? (
+              <div className="space-y-3 p-4">
+                <div className="rounded-2xl bg-background/60 p-3">
+                  <p className="text-sm font-semibold">{workoutLabel}</p>
+                  <p className="mt-1 text-xs text-muted">{t("classMeta", { duration: session.durationMinutes, booked: session.bookedCount, capacity: session.capacity })}</p>
+                </div>
+                <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void handleDeleteClass()}>{t("deleteClass")}</Button>
+              </div>
+            ) : (
+              <div className="max-h-[60vh] space-y-2 overflow-y-auto p-4">
+                {session.bookings.map((booking) => (
+                  <div key={booking.id} className="flex items-center justify-between gap-2 rounded-xl bg-background p-2.5">
+                    <span className="min-w-0 truncate text-sm">{booking.user.athleteProfile?.displayName ?? booking.user.email}</span>
+                    <Button type="button" variant="secondary" disabled={busy} onClick={() => void onAction(session.id, "PATCH", "attendance", { userId: booking.userId, status: booking.status === "ATTENDED" ? "BOOKED" : "ATTENDED" })}>{booking.status === "ATTENDED" ? t("undoAttendance") : t("markAttended")}</Button>
+                  </div>
+                ))}
+                {!session.bookings.length ? <p className="rounded-2xl bg-background/60 p-4 text-sm text-muted">{t("noBookings")}</p> : null}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -429,6 +460,7 @@ function ClassSkeleton() {
 }
 
 function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t: ReturnType<typeof useTranslations>; locale: string; options: WorkoutOption[]; isSubmitting: boolean; onCancel: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
+  const levelT = useTranslations("workoutLevels.names");
   const [workoutId, setWorkoutId] = useState("");
   const [workoutVariantId, setWorkoutVariantId] = useState("");
   const [startsAt, setStartsAt] = useState(initialClassDateTime);
@@ -509,15 +541,20 @@ function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="text-sm font-semibold">{t("classForm.workout")}<select name="workoutId" value={workoutId} onChange={(event) => selectWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"><option value="">{t("classForm.noWorkout")}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
-            <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? variant.level.name}</option>)}</select></label>
+            <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}</select></label>
             <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
           </div>
         </section>
       </div>
 
-      <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-surface/95 p-4 backdrop-blur sm:static sm:flex sm:justify-end sm:p-5 lg:bottom-0">
+      <div className="border-t border-border bg-surface p-4 sm:flex sm:justify-end sm:p-5">
         <Button size="lg" isLoading={isSubmitting} className="w-full sm:w-auto">{isSubmitting ? t("classForm.submitting") : t("classForm.submit")}</Button>
       </div>
     </form>
   );
+}
+
+function localizedLevelName(key: string, fallback: string, t: ReturnType<typeof useTranslations>) {
+  const translationKey = key.toLowerCase();
+  return t.has(translationKey) ? t(translationKey) : fallback;
 }

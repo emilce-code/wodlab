@@ -8,10 +8,12 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
 import Card from "@/components/ui/Card";
+import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import ProgressiveList from "@/components/ui/ProgressiveList";
 import MobileDateField from "@/components/ui/MobileDateField";
-import { formatCalendarDate } from "@/lib/date-formatters";
+import { formatCalendarDate, formatTime } from "@/lib/date-formatters";
+import type { ClassSession } from "@/lib/boxes";
 import {
   calendarDays,
   monthRange,
@@ -22,6 +24,9 @@ import {
 } from "@/lib/scheduled-workouts";
 
 type ViewMode = "calendar" | "agenda";
+type PlanItem =
+  | { kind: "workout"; date: string; sortValue: string; item: ScheduledWorkout }
+  | { kind: "class"; date: string; sortValue: string; item: ClassSession };
 
 function addMonths(date: Date, amount: number) {
   return new Date(date.getFullYear(), date.getMonth() + amount, 1);
@@ -54,6 +59,15 @@ function workoutHref(item: ScheduledWorkout) {
   return `/workouts/${item.workout.id}?variation=${encodeURIComponent(
     item.workoutVariant.level.key,
   )}${schedule}#${anchor}` as const;
+}
+
+function classDate(item: ClassSession) {
+  return item.startsAt.slice(0, 10);
+}
+
+function classWorkoutLabel(item: ClassSession, emptyLabel: string, levelName: (key: string, fallback: string) => string) {
+  if (!item.workout) return emptyLabel;
+  return `${item.workout.name}${item.workoutVariant ? ` · ${levelName(item.workoutVariant.level.key, item.workoutVariant.level.name)}` : ""}`;
 }
 
 function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
@@ -97,6 +111,36 @@ function ScheduleSummary({ item }: { item: ScheduledWorkout }) {
       ) : null}
       {item.notes ? (
         <p className="mt-3 break-words text-sm text-muted">{item.notes}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function ClassSummary({ item }: { item: ClassSession }) {
+  const t = useTranslations("training");
+  const levelT = useTranslations("workoutLevels.names");
+  const locale = useLocale();
+  const spots = Math.max(0, item.capacity - item.bookedCount);
+  const levelName = (key: string, fallback: string) => {
+    const translationKey = key.toLowerCase();
+    return levelT.has(translationKey) ? levelT(translationKey) : fallback;
+  };
+
+  return (
+    <div className="min-w-0">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="accent">{t("classBooking")}</Badge>
+        <Badge>{t("classSpots", { count: spots })}</Badge>
+      </div>
+      <h3 className="mt-3 break-words text-lg font-bold">{item.name}</h3>
+      <p className="mt-1 text-sm text-muted">
+        {formatCalendarDate(classDate(item), locale)} · {formatTime(item.startsAt, locale)} · {t("classDuration", { duration: item.durationMinutes })}
+      </p>
+      <p className="mt-2 text-sm font-semibold text-blue-300">
+        {classWorkoutLabel(item, t("classWorkoutOptional"), levelName)}
+      </p>
+      {item.description ? (
+        <p className="mt-3 break-words text-sm text-muted">{item.description}</p>
       ) : null}
     </div>
   );
@@ -512,12 +556,14 @@ function ScheduleForm({
 export default function TrainingCalendar() {
   const t = useTranslations("training");
   const locale = useLocale();
+  const { activeBox } = useActiveBox();
   const today = toDateValue(new Date());
   const [month, setMonth] = useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
   const [view, setView] = useState<ViewMode>("calendar");
   const [schedule, setSchedule] = useState<ScheduledWorkout[]>([]);
+  const [classBookings, setClassBookings] = useState<ClassSession[]>([]);
   const [workouts, setWorkouts] = useState<TrainingCalendarWorkout[]>([]);
   const [preferredLevelKey, setPreferredLevelKey] = useState<string | null>(
     null,
@@ -539,19 +585,30 @@ export default function TrainingCalendar() {
       setError(false);
       try {
         const query = new URLSearchParams({ from, to });
-        const [scheduleResponse, workoutsResponse, profileResponse] =
-          await Promise.all([
-            fetch(`/api/scheduled-workouts?${query}`, {
-              signal: controller.signal,
-            }),
-            fetch("/api/workouts", { signal: controller.signal }),
-            fetch("/api/athlete-profile", { signal: controller.signal }),
-          ]);
-        if (!scheduleResponse.ok || !workoutsResponse.ok || !profileResponse.ok)
+        const classFrom = new Date(`${from}T00:00:00`);
+        const classTo = new Date(`${to}T23:59:59`);
+        const classRequest = activeBox
+          ? fetch(`/api/boxes/${activeBox.id}/classes?from=${classFrom.toISOString()}&to=${classTo.toISOString()}`, { signal: controller.signal })
+          : Promise.resolve(null);
+        const [scheduleResponse, workoutsResponse, profileResponse, classesResponse] = await Promise.all([
+          fetch(`/api/scheduled-workouts?${query}`, {
+            signal: controller.signal,
+          }),
+          fetch("/api/workouts", { signal: controller.signal }),
+          fetch("/api/athlete-profile", { signal: controller.signal }),
+          classRequest,
+        ]);
+        if (!scheduleResponse.ok || !workoutsResponse.ok || !profileResponse.ok || (classesResponse && !classesResponse.ok))
           throw new Error("load");
         const scheduleData =
           (await scheduleResponse.json()) as ScheduledWorkoutsResponse;
         setSchedule(scheduleData.items);
+        if (classesResponse) {
+          const classData = (await classesResponse.json()) as { classes?: ClassSession[] };
+          setClassBookings((classData.classes ?? []).filter((item) => Boolean(item.currentUserBooking)));
+        } else {
+          setClassBookings([]);
+        }
         setWorkouts(
           (await workoutsResponse.json()) as TrainingCalendarWorkout[],
         );
@@ -568,16 +625,27 @@ export default function TrainingCalendar() {
     }
     void load();
     return () => controller.abort();
-  }, [from, to]);
+  }, [activeBox, from, to]);
 
   const itemsByDate = useMemo(() => {
-    const grouped = new Map<string, ScheduledWorkout[]>();
+    const grouped = new Map<string, PlanItem[]>();
     for (const item of schedule) {
       const key = item.scheduledDate.slice(0, 10);
-      grouped.set(key, [...(grouped.get(key) ?? []), item]);
+      grouped.set(key, [...(grouped.get(key) ?? []), { kind: "workout", date: key, sortValue: item.scheduledDate, item }]);
+    }
+    for (const item of classBookings) {
+      const key = classDate(item);
+      grouped.set(key, [...(grouped.get(key) ?? []), { kind: "class", date: key, sortValue: item.startsAt, item }]);
+    }
+    for (const [key, items] of grouped) {
+      grouped.set(key, items.toSorted((left, right) => left.sortValue.localeCompare(right.sortValue)));
     }
     return grouped;
-  }, [schedule]);
+  }, [classBookings, schedule]);
+  const agendaItems = useMemo(
+    () => Array.from(itemsByDate.values()).flat().toSorted((left, right) => left.sortValue.localeCompare(right.sortValue)),
+    [itemsByDate],
+  );
   const days = calendarDays(month);
   const weekdayNames = Array.from({ length: 7 }, (_, day) =>
     new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
@@ -751,32 +819,34 @@ export default function TrainingCalendar() {
                   <div className="mt-1 hidden space-y-1 sm:block">
                     {items.slice(0, 2).map((item) => (
                       <div
-                        key={item.id}
+                        key={`${item.kind}-${item.item.id}`}
                         className={[
                           "flex min-w-0 items-center rounded",
-                          item.status === "COMPLETED"
-                            ? "bg-accent/10 text-accent"
-                            : "bg-surface-elevated text-foreground",
+                          item.kind === "class"
+                            ? "bg-blue-500/15 text-blue-200"
+                            : item.item.status === "COMPLETED"
+                              ? "bg-accent/10 text-accent"
+                              : "bg-surface-elevated text-foreground",
                         ].join(" ")}
                       >
                         <button
                           type="button"
                           onClick={() => setSelectedDate(value)}
-                          title={item.workout.name}
+                          title={item.kind === "workout" ? item.item.workout.name : item.item.name}
                           className="min-h-7 min-w-0 flex-1 truncate px-1 text-left text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent sm:px-1.5 sm:text-xs"
                         >
-                          {item.workout.name}
+                          {item.kind === "workout" ? item.item.workout.name : item.item.name}
                         </button>
-                        {item.status === "PLANNED" ? (
+                        {item.kind === "workout" && item.item.status === "PLANNED" ? (
                           <button
                             type="button"
-                            disabled={removingId === item.id}
-                            onClick={() => void removeFromCalendar(item)}
+                            disabled={removingId === item.item.id}
+                            onClick={() => void removeFromCalendar(item.item)}
                             aria-label={t("removeWorkout", {
-                              workout: item.workout.name,
+                              workout: item.item.workout.name,
                             })}
                             title={t("removeWorkout", {
-                              workout: item.workout.name,
+                              workout: item.item.workout.name,
                             })}
                             className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted transition hover:bg-red-500/10 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-wait disabled:opacity-40"
                           >
@@ -815,7 +885,7 @@ export default function TrainingCalendar() {
 
       {!loading && !error && view === "agenda" ? (
         <div className="mt-5 space-y-4">
-          {schedule.length === 0 ? (
+          {agendaItems.length === 0 ? (
             <Card className="p-8 text-center text-muted">
               {t("emptyMonth")}
             </Card>
@@ -826,24 +896,30 @@ export default function TrainingCalendar() {
               increment={10}
               className="space-y-4"
             >
-              {schedule.map((item) => (
-                <Card key={item.id} className="p-5 sm:p-6">
+              {agendaItems.map((entry) => (
+                <Card key={`${entry.kind}-${entry.item.id}`} className={`p-5 sm:p-6 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
                   <p className="mb-4 text-sm font-semibold text-accent">
                     {formatCalendarDate(
-                      item.scheduledDate.slice(0, 10),
+                      entry.date,
                       locale,
                     )}
                   </p>
-                  <ScheduleSummary item={item} />
-                  <SessionActions
-                    item={item}
-                    onUpdated={upsert}
-                    onRemoved={(id) =>
-                      setSchedule((current) =>
-                        current.filter((entry) => entry.id !== id),
-                      )
-                    }
-                  />
+                  {entry.kind === "workout" ? (
+                    <>
+                      <ScheduleSummary item={entry.item} />
+                      <SessionActions
+                        item={entry.item}
+                        onUpdated={upsert}
+                        onRemoved={(id) =>
+                          setSchedule((current) =>
+                            current.filter((entry) => entry.id !== id),
+                          )
+                        }
+                      />
+                    </>
+                  ) : (
+                    <ClassSummary item={entry.item} />
+                  )}
                 </Card>
               ))}
             </ProgressiveList>
@@ -864,18 +940,24 @@ export default function TrainingCalendar() {
             </div>
           </div>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            {(itemsByDate.get(selectedDate) ?? []).map((item) => (
-              <Card key={item.id} className="p-5">
-                <ScheduleSummary item={item} />
-                <SessionActions
-                  item={item}
-                  onUpdated={upsert}
-                  onRemoved={(id) =>
-                    setSchedule((current) =>
-                      current.filter((entry) => entry.id !== id),
-                    )
-                  }
-                />
+            {(itemsByDate.get(selectedDate) ?? []).map((entry) => (
+              <Card key={`${entry.kind}-${entry.item.id}`} className={`p-5 ${entry.kind === "class" ? "border-blue-500/40" : ""}`}>
+                {entry.kind === "workout" ? (
+                  <>
+                    <ScheduleSummary item={entry.item} />
+                    <SessionActions
+                      item={entry.item}
+                      onUpdated={upsert}
+                      onRemoved={(id) =>
+                        setSchedule((current) =>
+                          current.filter((entry) => entry.id !== id),
+                        )
+                      }
+                    />
+                  </>
+                ) : (
+                  <ClassSummary item={entry.item} />
+                )}
               </Card>
             ))}
           </div>
