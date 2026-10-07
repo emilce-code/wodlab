@@ -44,6 +44,7 @@ export default function BoxAdministration({
   const [memberSearch, setMemberSearch] = useState("");
   const [memberStatus, setMemberStatus] = useState<BoxMember["status"]>("ACTIVE");
   const [selectedMember, setSelectedMember] = useState<BoxMember | null>(null);
+  const [assignRole, setAssignRole] = useState<BoxMember["role"]>("COACH");
   const { confirm, dialog } = useConfirmationDialog();
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
   const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
@@ -230,7 +231,39 @@ export default function BoxAdministration({
     }
   }
 
-  async function changeRole(member: BoxMember, role: "COACH" | "ATHLETE") {
+  async function assignMember(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedBox) return;
+    clearMessages();
+    setBusy("assign-member");
+    const form = new FormData(event.currentTarget);
+    const response = await fetch(`/api/boxes/${selectedBox.id}/members`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: String(form.get("email")),
+        role: assignRole,
+      }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setMembers((current) => {
+        const assigned = data as BoxMember;
+        const exists = current.some((member) => member.id === assigned.id);
+        return exists
+          ? current.map((member) =>
+              member.id === assigned.id ? assigned : member,
+            )
+          : [assigned, ...current];
+      });
+      setSuccess(t("members.assigned"));
+      event.currentTarget.reset();
+      setMemberStatus("ACTIVE");
+    } else setError(message(data, t("errors.action")));
+    setBusy(null);
+  }
+
+  async function changeRole(member: BoxMember, role: BoxMember["role"]) {
     clearMessages();
     setBusy(member.id);
     const response = await fetch(`/api/boxes/${boxId}/members/${member.id}`, {
@@ -455,7 +488,7 @@ export default function BoxAdministration({
                       type="button"
                       disabled={busy?.startsWith("image-") ?? false}
                       onClick={() => void removeBoxImage("cover")}
-                      className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50"
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50"
                     >
                       {t("images.removeCover")}
                     </button>
@@ -497,7 +530,7 @@ export default function BoxAdministration({
                       type="button"
                       disabled={busy?.startsWith("image-") ?? false}
                       onClick={() => void removeBoxImage("logo")}
-                      className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-background px-4 text-sm font-bold text-muted transition hover:border-red-500/40 hover:text-red-400 disabled:opacity-50 sm:w-auto"
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50 sm:w-auto"
                     >
                       {t("images.removeLogo")}
                     </button>
@@ -549,6 +582,50 @@ export default function BoxAdministration({
                   {t("members.description", { count: members.length })}
                 </p>
               </div>
+              <form
+                onSubmit={assignMember}
+                className="mt-4 rounded-2xl border border-border bg-background p-3"
+              >
+                <label htmlFor="assign-member-email" className="text-sm font-bold">
+                  {t("members.assignTitle")}
+                </label>
+                <input
+                  id="assign-member-email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder={t("members.assignEmailPlaceholder")}
+                  className="mt-3 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"
+                />
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {(isApplicationAdmin
+                    ? (["OWNER", "COACH"] as const)
+                    : (["COACH", "ATHLETE"] as const)
+                  ).map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      aria-pressed={assignRole === role}
+                      onClick={() => setAssignRole(role)}
+                      className={`min-h-11 rounded-xl text-sm font-black transition ${
+                        assignRole === role
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-surface text-muted"
+                      }`}
+                    >
+                      {t(`roles.${role.toLowerCase()}`)}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  className="mt-3 w-full"
+                  disabled={busy === "assign-member"}
+                >
+                  {busy === "assign-member"
+                    ? t("working")
+                    : t("members.assign")}
+                </Button>
+              </form>
               <div
                 className="mt-4 grid grid-cols-3 rounded-xl bg-background p-1"
                 role="tablist"
@@ -660,6 +737,7 @@ export default function BoxAdministration({
         <MemberActionSheet
           member={members.find((item) => item.id === selectedMember.id) ?? selectedMember}
           busy={busy === selectedMember.id}
+          canAssignOwner={isApplicationAdmin}
           t={t}
           onClose={() => setSelectedMember(null)}
           onRoleChange={(member, role) => void changeRole(member, role)}
@@ -675,6 +753,7 @@ export default function BoxAdministration({
 function MemberActionSheet({
   member,
   busy,
+  canAssignOwner,
   t,
   onClose,
   onRoleChange,
@@ -682,9 +761,10 @@ function MemberActionSheet({
 }: {
   member: BoxMember;
   busy: boolean;
+  canAssignOwner: boolean;
   t: ReturnType<typeof useTranslations>;
   onClose: () => void;
-  onRoleChange: (member: BoxMember, role: "ATHLETE" | "COACH") => void;
+  onRoleChange: (member: BoxMember, role: BoxMember["role"]) => void;
   onStatusChange: (
     member: BoxMember,
     action: "approve" | "deactivate" | "reactivate",
@@ -743,7 +823,7 @@ function MemberActionSheet({
           </span>
         </div>
 
-        {member.role === "OWNER" ? (
+        {member.role === "OWNER" && !canAssignOwner ? (
           <div className="mt-4 rounded-xl bg-accent/10 px-3 py-3 text-sm font-semibold text-accent">
             {t("roles.owner")}
           </div>
@@ -754,7 +834,10 @@ function MemberActionSheet({
                 {t("members.roleFor", { name })}
               </p>
               <div className="grid grid-cols-2 rounded-xl bg-background p-1">
-                {(["ATHLETE", "COACH"] as const).map((role) => (
+                {(canAssignOwner
+                  ? (["ATHLETE", "COACH", "OWNER"] as const)
+                  : (["ATHLETE", "COACH"] as const)
+                ).map((role) => (
                   <button
                     key={role}
                     type="button"

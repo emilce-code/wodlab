@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -10,7 +6,6 @@ type Auth0UserInput = {
   auth0UserId: string;
   email: string;
   displayName: string;
-  preferredLocale?: string;
 };
 
 type WeightUnit = 'KG' | 'LB' | null;
@@ -18,8 +13,6 @@ type WeightUnit = 'KG' | 'LB' | null;
 type MovementPrState = {
   value: number;
 };
-
-const supportedLocales = new Set(['en', 'es', 'pt']);
 
 const athleteProfileInclude = {
   preferredWorkoutLevel: true,
@@ -39,6 +32,14 @@ export class UsersService {
       include: {
         athleteProfile: {
           include: athleteProfileInclude,
+        },
+        boxMemberships: {
+          where: {
+            status: 'ACTIVE',
+          },
+          include: {
+            role: true,
+          },
         },
       },
     });
@@ -85,35 +86,11 @@ export class UsersService {
 
         email: input.email,
 
-        preferredLocale: input.preferredLocale ?? 'es',
-
         athleteProfile: {
           create: {
             displayName: input.displayName,
           },
         },
-      },
-
-      include: {
-        athleteProfile: {
-          include: athleteProfileInclude,
-        },
-      },
-    });
-  }
-
-  updatePreferredLocale(userId: string, preferredLocale: string) {
-    if (!supportedLocales.has(preferredLocale)) {
-      throw new BadRequestException('Unsupported locale');
-    }
-
-    return this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-
-      data: {
-        preferredLocale,
       },
 
       include: {

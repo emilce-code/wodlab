@@ -522,7 +522,8 @@ export class CoachesService {
     if (
       !membership ||
       membership.status !== 'ACTIVE' ||
-      (roles && !roles.includes(membershipRole as 'OWNER' | 'COACH' | 'ATHLETE'))
+      (roles &&
+        !roles.includes(membershipRole as 'OWNER' | 'COACH' | 'ATHLETE'))
     ) {
       throw new ForbiddenException('Active box membership required');
     }
