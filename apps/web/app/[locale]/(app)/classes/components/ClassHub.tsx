@@ -481,10 +481,13 @@ function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { s
                   </label>
                   <label className="text-sm font-semibold">
                     {t("classForm.workout")}
-                    <select value={manageWorkoutId} onChange={(event) => selectManageWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base">
-                      <option value="">{t("classForm.noWorkout")}</option>
-                      {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-                    </select>
+                    <WorkoutLookup
+                      options={options}
+                      value={manageWorkoutId}
+                      t={t}
+                      surface="background"
+                      onChange={selectManageWorkout}
+                    />
                   </label>
                   <label className="text-sm font-semibold">
                     {t("classForm.variation")}
@@ -604,7 +607,7 @@ function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t
             <span className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[11px] font-bold text-muted">{t("classForm.optionalBadge")}</span>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold">{t("classForm.workout")}<select name="workoutId" value={workoutId} onChange={(event) => selectWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"><option value="">{t("classForm.noWorkout")}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
+            <label className="text-sm font-semibold">{t("classForm.workout")}<WorkoutLookup options={options} value={workoutId} name="workoutId" t={t} onChange={selectWorkout} /></label>
             <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}</select></label>
             <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
           </div>
@@ -615,6 +618,102 @@ function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t
         <Button size="lg" isLoading={isSubmitting} className="w-full sm:w-auto">{isSubmitting ? t("classForm.submitting") : t("classForm.submit")}</Button>
       </div>
     </form>
+  );
+}
+
+function WorkoutLookup({
+  options,
+  value,
+  name,
+  t,
+  surface = "surface",
+  onChange,
+}: {
+  options: WorkoutOption[];
+  value: string;
+  name?: string;
+  t: ReturnType<typeof useTranslations>;
+  surface?: "surface" | "background";
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const selected = options.find((option) => option.id === value) ?? null;
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredOptions = normalizedQuery
+    ? options.filter((option) =>
+        option.name.toLocaleLowerCase().includes(normalizedQuery),
+      )
+    : options;
+  const fieldBackground = surface === "background" ? "bg-background" : "bg-surface";
+
+  function selectWorkout(workoutId: string) {
+    onChange(workoutId);
+    setQuery("");
+    setOpen(false);
+  }
+
+  return (
+    <div className="relative mt-1.5">
+      {name ? <input type="hidden" name={name} value={value} /> : null}
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-border ${fieldBackground} px-4 py-3 text-left text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15`}
+      >
+        <span className={selected ? "min-w-0 truncate" : "min-w-0 truncate text-muted"}>
+          {selected?.name ?? t("classForm.noWorkout")}
+        </span>
+        <span className="shrink-0 text-muted" aria-hidden="true">
+         ⌄
+        </span>
+      </button>
+
+      {open ? (
+        <div className="mt-2 overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl">
+          <div className="border-b border-border p-2">
+            <input
+              type="search"
+              value={query}
+              autoFocus
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t("classForm.searchWorkout")}
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15"
+            />
+          </div>
+          <div className="max-h-64 overflow-y-auto p-2">
+            <button
+              type="button"
+              onClick={() => selectWorkout("")}
+              className={`flex min-h-11 w-full items-center justify-between rounded-xl px-3 text-left text-sm font-semibold ${!value ? "bg-accent/10 text-accent" : "text-muted hover:bg-background"}`}
+            >
+              {t("classForm.noWorkout")}
+            </button>
+            {filteredOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => selectWorkout(option.id)}
+                className={`mt-1 flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold ${option.id === value ? "bg-accent/10 text-accent" : "hover:bg-background"}`}
+              >
+                <span className="min-w-0 truncate">{option.name}</span>
+                <span className="shrink-0 text-xs font-normal text-muted">
+                  {t("classForm.variantCount", {
+                    count: option.variants.length,
+                  })}
+                </span>
+              </button>
+            ))}
+            {!filteredOptions.length ? (
+              <p className="px-3 py-6 text-center text-sm text-muted">
+                {t("classForm.noWorkoutMatches")}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
