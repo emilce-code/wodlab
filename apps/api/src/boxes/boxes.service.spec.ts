@@ -41,6 +41,7 @@ describe('BoxesService', () => {
       findMany: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
     },
     classBooking: { findFirst: jest.fn(), update: jest.fn() },
@@ -241,6 +242,62 @@ describe('BoxesService', () => {
         workoutVariantId: 'variant-1',
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('allows coaches to update workout and notes after athletes booked', async () => {
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'coach-1',
+      status: 'ACTIVE',
+      role: { key: 'COACH' },
+    });
+    prisma.classSession.findFirst.mockResolvedValue({
+      id: 'class-1',
+      workoutId: null,
+      workoutVariantId: null,
+      bookings: [{ id: 'booking-1' }],
+    });
+    prisma.workout.findFirst.mockResolvedValue({ id: 'workout-1' });
+    prisma.classSession.update.mockResolvedValue({ id: 'class-1' });
+
+    await expect(
+      service.updateClass('coach-1', 'box-1', 'class-1', {
+        description: ' Class focus ',
+        workoutId: 'workout-1',
+        workoutVariantId: 'variant-1',
+      }),
+    ).resolves.toEqual({ id: 'class-1' });
+
+    expect(prisma.classSession.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          description: 'Class focus',
+          workoutId: 'workout-1',
+          workoutVariantId: 'variant-1',
+        },
+      }),
+    );
+  });
+
+  it('prevents changing class date and time after athletes booked', async () => {
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      boxId: 'box-1',
+      userId: 'coach-1',
+      status: 'ACTIVE',
+      role: { key: 'COACH' },
+    });
+    prisma.classSession.findFirst.mockResolvedValue({
+      id: 'class-1',
+      workoutId: null,
+      workoutVariantId: null,
+      bookings: [{ id: 'booking-1' }],
+    });
+
+    await expect(
+      service.updateClass('coach-1', 'box-1', 'class-1', {
+        startsAt: '2099-09-15T22:00:00.000Z',
+      }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('prevents bookings when class capacity is reached', async () => {

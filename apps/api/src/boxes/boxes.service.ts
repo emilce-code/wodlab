@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
+import { UpdateClassSessionDto } from './dto/update-class-session.dto';
 import { UpdateBoxDto } from './dto/update-box.dto';
 
 const activeBookingStatuses: Array<'BOOKED' | 'ATTENDED'> = [
@@ -567,6 +568,123 @@ export class BoxesService {
     return {
       deleted: true,
     };
+  }
+
+  async updateClass(
+    userId: string,
+    boxId: string,
+    classId: string,
+    dto: UpdateClassSessionDto,
+  ) {
+    await this.requireStaff(userId, boxId);
+
+    const session = await this.prisma.classSession.findFirst({
+      where: {
+        id: classId,
+        boxId,
+      },
+      include: {
+        bookings: {
+          where: {
+            status: {
+              in: activeBookingStatuses,
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Class not found');
+    }
+
+    const data: {
+      description?: string | null;
+      startsAt?: Date;
+      workoutId?: string | null;
+      workoutVariantId?: string | null;
+    } = {};
+
+    if ('description' in dto) {
+      data.description = dto.description?.trim() || null;
+    }
+
+    if (dto.startsAt) {
+      if (session.bookings.length) {
+        throw new ConflictException(
+          'Class date and time cannot be changed after bookings exist',
+        );
+      }
+
+      const startsAt = new Date(dto.startsAt);
+
+      if (startsAt <= new Date()) {
+        throw new BadRequestException('Class must start in the future');
+      }
+
+      data.startsAt = startsAt;
+    }
+
+    const workoutId =
+      'workoutId' in dto ? dto.workoutId || null : session.workoutId;
+    const workoutVariantId =
+      'workoutVariantId' in dto
+        ? dto.workoutVariantId || null
+        : session.workoutVariantId;
+
+    if (workoutVariantId && !workoutId) {
+      throw new BadRequestException('Workout is required for a variation');
+    }
+
+    if ('workoutId' in dto || 'workoutVariantId' in dto) {
+      if (workoutId) {
+        const workout = await this.prisma.workout.findFirst({
+          where: {
+            id: workoutId,
+            isActive: true,
+            OR: [
+              {
+                scope: 'GLOBAL',
+              },
+              {
+                scope: 'BOX',
+                boxId,
+              },
+            ],
+            ...(workoutVariantId
+              ? {
+                  variants: {
+                    some: {
+                      id: workoutVariantId,
+                    },
+                  },
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!workout) {
+          throw new BadRequestException('Invalid workout selection');
+        }
+      }
+
+      data.workoutId = workoutId;
+      data.workoutVariantId = workoutVariantId;
+    }
+
+    return this.prisma.classSession.update({
+      where: {
+        id: classId,
+      },
+      data,
+      include: classInclude,
+    });
   }
 
   async book(userId: string, boxId: string, classId: string) {

@@ -352,6 +352,8 @@
     "markAttended": "Presente",
     "undoAttendance": "Desfazer",
     "noBookings": "Ainda não há reservas.",
+    "dateLocked": "A data e hora estão bloqueadas porque já há atletas com reserva.",
+    "saveClassChanges": "Salvar alterações",
     "deleteClass": "Excluir aula",
     "join": {
       "title": "Entrar em um box",

@@ -352,6 +352,8 @@
     "markAttended": "Asistió",
     "undoAttendance": "Deshacer",
     "noBookings": "Aún no hay reservas.",
+    "dateLocked": "La fecha y hora están bloqueadas porque ya hay atletas con reserva.",
+    "saveClassChanges": "Guardar cambios",
     "deleteClass": "Eliminar clase",
     "join": {
       "title": "Unirse a un box",
