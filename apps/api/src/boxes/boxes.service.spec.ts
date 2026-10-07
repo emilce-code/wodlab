@@ -21,7 +21,12 @@ describe('BoxesService', () => {
     },
   };
   const prisma = {
-    user: { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
+    user: {
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+    },
     box: {
       findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
@@ -32,9 +37,11 @@ describe('BoxesService', () => {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
+      upsert: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn(),
     },
     workout: { findMany: jest.fn(), findFirst: jest.fn() },
     classSession: {
@@ -102,9 +109,10 @@ describe('BoxesService', () => {
           name: 'Downtown',
           ownerUserId: 'user-1',
           memberships: {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             create: expect.objectContaining({
               userId: 'user-1',
-              roleId: 'box-membership-role-athlete',
+              roleId: 'box-membership-role-owner',
               status: 'ACTIVE',
             }),
           },
@@ -127,9 +135,8 @@ describe('BoxesService', () => {
       boxId: 'box-1',
       userId: 'user-1',
       status: 'ACTIVE',
-      role: { key: 'ATHLETE' },
+      role: { key: 'OWNER' },
     });
-    prisma.box.findUnique.mockResolvedValue({ ownerUserId: 'user-1' });
     prisma.box.update.mockResolvedValue({ id: 'box-1', name: 'North Box' });
 
     await service.update('user-1', 'box-1', {
@@ -176,9 +183,8 @@ describe('BoxesService', () => {
       boxId: 'box-1',
       userId: 'owner-1',
       status: 'ACTIVE',
-      role: { key: 'ATHLETE' },
+      role: { key: 'OWNER' },
     });
-    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
     prisma.classSession.findMany.mockResolvedValue([
       {
         id: 'class-1',
@@ -195,10 +201,11 @@ describe('BoxesService', () => {
   });
 
   it('does not allow athletes to create classes', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
     await expect(
       service.createClass('user-1', 'box-1', {
         name: 'Morning class',
-        startsAt: '2026-09-15T10:00:00.000Z',
+        startsAt: '2099-09-15T10:00:00.000Z',
         durationMinutes: 60,
         capacity: 12,
       }),
@@ -230,13 +237,12 @@ describe('BoxesService', () => {
       boxId: 'box-1',
       userId: 'owner-1',
       status: 'ACTIVE',
-      role: { key: 'ATHLETE' },
+      role: { key: 'OWNER' },
     });
-    prisma.box.findUnique.mockResolvedValue({ ownerUserId: 'owner-1' });
     await expect(
       service.createClass('owner-1', 'box-1', {
         name: 'Morning class',
-        startsAt: '2026-09-15T10:00:00.000Z',
+        startsAt: '2099-09-15T10:00:00.000Z',
         durationMinutes: 60,
         capacity: 12,
         workoutVariantId: 'variant-1',
@@ -351,15 +357,56 @@ describe('BoxesService', () => {
   it('protects the Box owner from member removal', async () => {
     prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
     prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
-    prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
     prisma.boxMembership.findFirst.mockResolvedValue({
       id: 'member-1',
       userId: 'owner-1',
-      role: { key: 'ATHLETE' },
+      roleId: 'box-membership-role-owner',
     });
+    prisma.boxMembership.count.mockResolvedValue(0);
 
     await expect(
       service.removeMember('admin-1', 'box-1', 'member-1'),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('allows an administrator to assign an existing owner', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+    prisma.user.findFirst.mockResolvedValue({ id: 'owner-2' });
+    prisma.boxMembership.upsert.mockResolvedValue({
+      id: 'member-2',
+      userId: 'owner-2',
+      status: 'ACTIVE',
+      role: { key: 'OWNER' },
+      user: {
+        email: 'owner@example.com',
+        athleteProfile: null,
+        coachProfile: null,
+      },
+    });
+
+    await expect(
+      service.assignMember('admin-1', 'box-1', 'owner@example.com', 'OWNER'),
+    ).resolves.toMatchObject({ role: 'OWNER', userId: 'owner-2' });
+    expect(prisma.boxMembership.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        create: expect.objectContaining({
+          boxId: 'box-1',
+          userId: 'owner-2',
+          roleId: 'box-membership-role-owner',
+          status: 'ACTIVE',
+        }),
+      }),
+    );
+  });
+
+  it('prevents box owners from assigning another owner', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+
+    await expect(
+      service.assignMember('owner-1', 'box-1', 'owner@example.com', 'OWNER'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

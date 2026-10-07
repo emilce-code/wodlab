@@ -25,6 +25,7 @@ import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { UpdateClassSessionDto } from './dto/update-class-session.dto';
 import { UpdateBoxDto } from './dto/update-box.dto';
 import { UpdateBoxMemberDto } from './dto/update-box-member.dto';
+import { AssignBoxMemberDto } from './dto/assign-box-member.dto';
 
 type AuthenticatedRequest = Request & { user: AuthenticatedUser };
 
@@ -82,6 +83,20 @@ export class BoxesController {
     return this.boxes.findMembers(request.user.userId, boxId);
   }
 
+  @Post(':boxId/members')
+  assignMember(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Body() dto: AssignBoxMemberDto,
+  ) {
+    return this.boxes.assignMember(
+      request.user.userId,
+      boxId,
+      dto.email,
+      dto.role,
+    );
+  }
+
   @Patch(':boxId/members/:memberId')
   updateMember(
     @Req() request: AuthenticatedRequest,
@@ -98,17 +113,29 @@ export class BoxesController {
   }
 
   @Post(':boxId/members/:memberId/approve')
-  approveMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+  approveMember(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('memberId') memberId: string,
+  ) {
     return this.boxes.approveMember(request.user.userId, boxId, memberId);
   }
 
   @Post(':boxId/members/:memberId/reactivate')
-  reactivateMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+  reactivateMember(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('memberId') memberId: string,
+  ) {
     return this.boxes.reactivateMember(request.user.userId, boxId, memberId);
   }
 
   @Post(':boxId/members/:memberId/deactivate')
-  deactivateMember(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string, @Param('memberId') memberId: string) {
+  deactivateMember(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('memberId') memberId: string,
+  ) {
     return this.boxes.deactivateMember(request.user.userId, boxId, memberId);
   }
 
