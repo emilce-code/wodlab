@@ -299,16 +299,21 @@ export default function ClassHub() {
           </div>
           <div className="flex items-center justify-between border-t border-border px-4 py-3">
             <span className="text-xs text-muted">{t("members", { count: selectedBox._count.memberships })}</span>
-            {role === "OWNER" || role === "COACH" ? (
-              <Link href="/box-admin" className="inline-flex min-h-10 items-center text-sm font-semibold text-accent">
-                {t("openAdministration")} →
-              </Link>
-            ) : null}
+            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
           </div>
         </section>
       ) : null}
 
-      {isStaff && !showCreateClass ? <Button type="button" className="w-full" onClick={() => setShowCreateClass(true)}>{t("classForm.open")}</Button> : null}
+      {isStaff && !showCreateClass ? (
+        <div className="grid grid-cols-2 gap-2">
+          <Button type="button" className="w-full" onClick={() => setShowCreateClass(true)}>{t("classForm.open")}</Button>
+          {role === "OWNER" || role === "COACH" ? (
+            <Link href="/box-admin" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-surface-elevated px-3 text-sm font-semibold text-foreground">
+              {t("joinRequests")}
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
       {showCreateClass && isStaff ? <ClassForm t={t} locale={locale} options={options} isSubmitting={creatingClass} onCancel={() => setShowCreateClass(false)} onSubmit={submitClass} /> : null}
 
       <section aria-busy={loading} className="space-y-4">
@@ -357,25 +362,40 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
   const booked = Boolean(session.currentUserBooking);
   const attended = session.currentUserBooking?.status === "ATTENDED";
   const spots = Math.max(0, session.capacity - session.bookedCount);
+  const workoutLabel = session.workout ? `${session.workout.name}${session.workoutVariant ? ` · ${session.workoutVariant.level.name}` : ""}` : t("noWorkoutAssigned");
+  const startsAtLabel = `${formatShortDate(session.startsAt, locale)} · ${formatTime(session.startsAt, locale)}`;
 
   return (
     <article className={`overflow-hidden rounded-2xl border bg-surface shadow-sm ${booked ? "border-accent/60 ring-1 ring-accent/20" : "border-border"}`}>
       {booked ? <div className="h-1 bg-accent" /> : null}
       <div className="p-4">
-        <div className="flex gap-4">
-          <div className="flex w-14 shrink-0 flex-col items-center rounded-xl bg-surface-elevated px-2 py-2">
-            <span className="text-lg font-black leading-none">
-              {formatTime(session.startsAt, locale)}
-            </span>
+        <div className="flex gap-3">
+          <div className="flex w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-surface-elevated px-2 py-2 text-center">
+            <span className="text-lg font-black leading-none">{formatTime(session.startsAt, locale)}</span>
+            <span className="mt-1 text-[10px] font-bold uppercase text-muted">{formatShortDate(session.startsAt, locale)}</span>
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 text-lg font-bold leading-tight">{session.name}</h3>
               <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${full && !booked ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}>{full && !booked ? t("full") : t("spots", { count: spots })}</span>
             </div>
-            <p className="mt-1 text-sm text-muted">{t("classMeta", { duration: session.durationMinutes, booked: session.bookedCount, capacity: session.capacity })}</p>
-            {session.workout ? <p className="mt-2 text-sm font-semibold">{session.workout.name}{session.workoutVariant ? ` · ${session.workoutVariant.level.name}` : ""}</p> : null}
+            <p className="mt-1 text-sm text-muted">{startsAtLabel}</p>
             {session.description ? <p className="mt-2 line-clamp-2 text-sm text-muted">{session.description}</p> : null}
+          </div>
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-background/60 p-2">
+            <span className="block text-[10px] font-semibold text-muted">{t("durationLabel")}</span>
+            <strong className="mt-0.5 block text-xs">{t("durationValue", { duration: session.durationMinutes })}</strong>
+          </div>
+          <div className="rounded-xl bg-background/60 p-2">
+            <span className="block text-[10px] font-semibold text-muted">{t("workoutLabel")}</span>
+            <strong className="mt-0.5 block truncate text-xs">{workoutLabel}</strong>
+          </div>
+          <div className="rounded-xl bg-background/60 p-2">
+            <span className="block text-[10px] font-semibold text-muted">{isStaff ? t("bookedLabel") : t("statusLabel")}</span>
+            <strong className="mt-0.5 block text-xs">{isStaff ? `${session.bookedCount}/${session.capacity}` : booked ? t("bookedStatus") : t("openStatus")}</strong>
           </div>
         </div>
 
@@ -383,14 +403,21 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
           booked ? <Button type="button" variant="secondary" disabled={busy || attended} onClick={() => void onAction(session.id, "DELETE")} className="mt-4 min-h-12 w-full">{attended ? t("attended") : t("cancelBooking")}</Button>
           : <Button type="button" disabled={full || busy} onClick={() => void onAction(session.id, "POST")} className="mt-4 min-h-12 w-full">{full ? t("full") : t("book")}</Button>
         ) : (
-          <details className="mt-4 border-t border-border pt-2">
-            <summary className="flex min-h-11 cursor-pointer items-center font-semibold">{t("roster", { count: session.bookings.length })}</summary>
-            <div className="space-y-2 pt-1">
-              {session.bookings.map((booking) => <div key={booking.id} className="flex items-center justify-between gap-2 rounded-xl bg-background p-2.5"><span className="min-w-0 truncate text-sm">{booking.user.athleteProfile?.displayName ?? booking.user.email}</span><Button type="button" variant="secondary" disabled={busy} onClick={() => void onAction(session.id, "PATCH", "attendance", { userId: booking.userId, status: booking.status === "ATTENDED" ? "BOOKED" : "ATTENDED" })}>{booking.status === "ATTENDED" ? t("undoAttendance") : t("markAttended")}</Button></div>)}
-              {!session.bookings.length ? <p className="py-2 text-sm text-muted">{t("noBookings")}</p> : null}
-              <Button type="button" variant="danger" className="mt-2 w-full" disabled={busy} onClick={() => void onAction(session.id, "DELETE", "")}>{t("deleteClass")}</Button>
-            </div>
-          </details>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <details className="group rounded-xl bg-surface-elevated">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center px-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">{t("manageClass")}</summary>
+              <div className="border-t border-border p-2">
+                <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void onAction(session.id, "DELETE", "")}>{t("deleteClass")}</Button>
+              </div>
+            </details>
+            <details className="group rounded-xl bg-surface-elevated">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center px-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">{t("attendance")}</summary>
+              <div className="space-y-2 border-t border-border p-2">
+                {session.bookings.map((booking) => <div key={booking.id} className="flex items-center justify-between gap-2 rounded-xl bg-background p-2.5"><span className="min-w-0 truncate text-sm">{booking.user.athleteProfile?.displayName ?? booking.user.email}</span><Button type="button" variant="secondary" disabled={busy} onClick={() => void onAction(session.id, "PATCH", "attendance", { userId: booking.userId, status: booking.status === "ATTENDED" ? "BOOKED" : "ATTENDED" })}>{booking.status === "ATTENDED" ? t("undoAttendance") : t("markAttended")}</Button></div>)}
+                {!session.bookings.length ? <p className="py-2 text-sm text-muted">{t("noBookings")}</p> : null}
+              </div>
+            </details>
+          </div>
         )}
       </div>
     </article>
@@ -472,14 +499,20 @@ function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t
           </div>
         </fieldset>
 
-        <details className="group rounded-2xl border border-border bg-background/50">
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 font-bold [&::-webkit-details-marker]:hidden"><span><span className="block">{t("classForm.optionalTitle")}</span><span className="mt-0.5 block text-xs font-normal text-muted">{t("classForm.optionalHelp")}</span></span><span aria-hidden="true" className="text-xl text-muted transition group-open:rotate-180">⌄</span></summary>
-          <div className="grid gap-4 border-t border-border p-4 sm:grid-cols-2">
+        <section className="rounded-2xl border border-border bg-background/50 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="font-bold">{t("classForm.optionalTitle")}</h3>
+              <p className="mt-0.5 text-xs text-muted">{t("classForm.optionalHelp")}</p>
+            </div>
+            <span className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[11px] font-bold text-muted">{t("classForm.optionalBadge")}</span>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="text-sm font-semibold">{t("classForm.workout")}<select name="workoutId" value={workoutId} onChange={(event) => selectWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"><option value="">{t("classForm.noWorkout")}</option>{options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}</select></label>
             <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? variant.level.name}</option>)}</select></label>
             <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
           </div>
-        </details>
+        </section>
       </div>
 
       <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] border-t border-border bg-surface/95 p-4 backdrop-blur sm:static sm:flex sm:justify-end sm:p-5 lg:bottom-0">
