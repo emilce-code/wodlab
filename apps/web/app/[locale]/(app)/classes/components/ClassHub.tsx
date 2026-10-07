@@ -479,7 +479,7 @@ function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { s
                     {t("classForm.startsAt")}
                     <input type="datetime-local" value={manageStartsAt} required disabled={session.bookedCount > 0} onChange={(event) => setManageStartsAt(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50" />
                   </label>
-                  <label className="text-sm font-semibold">
+                  <label className="min-w-0 text-sm font-semibold">
                     {t("classForm.workout")}
                     <WorkoutLookup
                       options={options}
@@ -489,16 +489,16 @@ function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { s
                       onChange={selectManageWorkout}
                     />
                   </label>
-                  <label className="text-sm font-semibold">
+                  <label className="min-w-0 text-sm font-semibold">
                     {t("classForm.variation")}
-                    <select value={manageVariantId} onChange={(event) => setManageVariantId(event.target.value)} disabled={!manageWorkoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50">
+                    <select value={manageVariantId} onChange={(event) => setManageVariantId(event.target.value)} disabled={!manageWorkoutId} className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50">
                       <option value="">{t("classForm.noVariation")}</option>
                       {manageVariants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}
                     </select>
                   </label>
-                  <label className="text-sm font-semibold">
+                  <label className="min-w-0 text-sm font-semibold">
                     {t("classForm.description")}
-                    <textarea rows={4} value={manageDescription} onChange={(event) => setManageDescription(event.target.value)} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
+                    <textarea rows={4} value={manageDescription} onChange={(event) => setManageDescription(event.target.value)} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full min-w-0 rounded-xl border border-border bg-background px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
                   </label>
                   <Button type="submit" className="w-full" isLoading={busy}>{t("saveClassChanges")}</Button>
                   <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void handleDeleteClass()}>{t("deleteClass")}</Button>
@@ -598,18 +598,18 @@ function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t
           </div>
         </fieldset>
 
-        <section className="rounded-2xl border border-border bg-background/50 p-4">
+        <section className="min-w-0 rounded-2xl border border-border bg-background/50 p-4">
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0">
               <h3 className="font-bold">{t("classForm.optionalTitle")}</h3>
               <p className="mt-0.5 text-xs text-muted">{t("classForm.optionalHelp")}</p>
             </div>
             <span className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[11px] font-bold text-muted">{t("classForm.optionalBadge")}</span>
           </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold">{t("classForm.workout")}<WorkoutLookup options={options} value={workoutId} name="workoutId" t={t} onChange={selectWorkout} /></label>
-            <label className="text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}</select></label>
-            <label className="text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
+          <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
+            <label className="min-w-0 text-sm font-semibold">{t("classForm.workout")}<WorkoutLookup options={options} value={workoutId} name="workoutId" t={t} onChange={selectWorkout} /></label>
+            <label className="min-w-0 text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}</select></label>
+            <label className="min-w-0 text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full min-w-0 rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
           </div>
         </section>
       </div>
@@ -654,13 +654,13 @@ function WorkoutLookup({
   }
 
   return (
-    <div className="relative mt-1.5">
+    <div className="relative mt-1.5 min-w-0">
       {name ? <input type="hidden" name={name} value={value} /> : null}
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-border ${fieldBackground} px-4 py-3 text-left text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15`}
+        className={`flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-xl border border-border ${fieldBackground} px-4 py-3 text-left text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15`}
       >
         <span className={selected ? "min-w-0 truncate" : "min-w-0 truncate text-muted"}>
           {selected?.name ?? t("classForm.noWorkout")}
