@@ -411,6 +411,9 @@
       "optionalHelp": "Información opcional que los atletas pueden revisar antes de reservar. Puedes agregarla después.",
       "optionalBadge": "Opcional",
       "noWorkout": "Sin entrenamiento asociado",
+      "searchWorkout": "Buscar entrenamientos",
+      "noWorkoutMatches": "No hay entrenamientos que coincidan con tu búsqueda.",
+      "variantCount": "{count, plural, =0 {Sin variaciones} =1 {1 variación} other {# variaciones}}",
       "noVariation": "Sin variación",
       "submit": "Publicar clase",
       "submitting": "Publicando…"
