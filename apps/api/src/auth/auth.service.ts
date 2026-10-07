@@ -3,13 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { permissionsForRole } from './permissions';
 
-type SupportedLocale = 'en' | 'es' | 'pt';
-
 type ProvisionAuth0UserInput = {
   auth0UserId: string;
   email: string;
   displayName: string;
-  preferredLocale?: SupportedLocale;
+  preferredLocale?: string;
 };
 
 @Injectable()
@@ -35,7 +33,7 @@ export class AuthService {
 
         email: input.email,
 
-        preferredLocale: input.preferredLocale ?? 'es',
+        preferredLocale: normalizeLocale(input.preferredLocale),
 
         athleteProfile: {
           create: {
@@ -80,6 +78,10 @@ type CurrentUserRecord = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+function normalizeLocale(locale?: string) {
+  return locale === 'en' || locale === 'es' || locale === 'pt' ? locale : 'es';
+}
 
 function toCurrentUser(user: CurrentUserRecord) {
   const permissions = permissionsForRole(user.role);
