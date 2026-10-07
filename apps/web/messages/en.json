@@ -352,6 +352,8 @@
     "markAttended": "Attended",
     "undoAttendance": "Undo",
     "noBookings": "No reservations yet.",
+    "dateLocked": "Date and time are locked because athletes are already booked.",
+    "saveClassChanges": "Save changes",
     "deleteClass": "Delete class",
     "join": {
       "title": "Join a box",

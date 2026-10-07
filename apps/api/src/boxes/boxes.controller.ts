@@ -22,6 +22,7 @@ import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
 import { JoinBoxDto } from './dto/join-box.dto';
 import { SetActiveBoxDto } from './dto/set-active-box.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
+import { UpdateClassSessionDto } from './dto/update-class-session.dto';
 import { UpdateBoxDto } from './dto/update-box.dto';
 import { UpdateBoxMemberDto } from './dto/update-box-member.dto';
 
@@ -149,6 +150,16 @@ export class BoxesController {
     @Body() dto: CreateClassSessionDto,
   ) {
     return this.boxes.createClass(request.user.userId, boxId, dto);
+  }
+
+  @Patch(':boxId/classes/:classId')
+  updateClass(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('classId') classId: string,
+    @Body() dto: UpdateClassSessionDto,
+  ) {
+    return this.boxes.updateClass(request.user.userId, boxId, classId, dto);
   }
 
   @Delete(':boxId/classes/:classId')

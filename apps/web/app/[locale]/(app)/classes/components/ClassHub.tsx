@@ -212,8 +212,12 @@ export default function ClassHub() {
         body: body ? JSON.stringify(body) : undefined,
       });
       const data = await response.json();
-      if (!response.ok) setError(requestMessage(data, t("errors.action")));
-      else await loadClasses(boxId);
+      if (!response.ok) {
+        setError(requestMessage(data, t("errors.action")));
+        return false;
+      }
+      await loadClasses(boxId);
+      return true;
     } finally {
       setBusyId(null);
     }
@@ -351,13 +355,13 @@ export default function ClassHub() {
         {loading ? <ClassSkeleton /> : null}
         {!loading && !filteredClasses.length ? <div className="rounded-2xl border border-dashed border-border bg-surface/40 p-8 text-center"><p className="text-sm font-semibold">{view === "mine" ? t("emptyMine") : t("empty")}</p></div> : null}
 
-        {!loading ? <div className="space-y-3">{filteredClasses.map((session) => <ClassCard key={session.id} session={session} locale={locale} isStaff={isStaff} busy={busyId === session.id} t={t} onAction={classAction} />)}</div> : null}
+        {!loading ? <div className="space-y-3">{filteredClasses.map((session) => <ClassCard key={session.id} session={session} locale={locale} options={options} isStaff={isStaff} busy={busyId === session.id} t={t} onAction={classAction} />)}</div> : null}
       </section>
     </div>
   );
 }
 
-function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: ClassSession; locale: string; isStaff: boolean; busy: boolean; t: ReturnType<typeof useTranslations>; onAction: (id: string, method: "POST" | "PATCH" | "DELETE", suffix?: string, body?: object) => Promise<void> }) {
+function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { session: ClassSession; locale: string; options: WorkoutOption[]; isStaff: boolean; busy: boolean; t: ReturnType<typeof useTranslations>; onAction: (id: string, method: "POST" | "PATCH" | "DELETE", suffix?: string, body?: object) => Promise<boolean> }) {
   const levelT = useTranslations("workoutLevels.names");
   const full = session.bookedCount >= session.capacity;
   const booked = Boolean(session.currentUserBooking);
@@ -366,10 +370,45 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
   const workoutLabel = session.workout ? `${session.workout.name}${session.workoutVariant ? ` · ${localizedLevelName(session.workoutVariant.level.key, session.workoutVariant.level.name, levelT)}` : ""}` : t("noWorkoutAssigned");
   const startsAtLabel = `${formatShortDate(session.startsAt, locale)} · ${formatTime(session.startsAt, locale)}`;
   const [staffPanel, setStaffPanel] = useState<"manage" | "attendance" | null>(null);
+  const [manageStartsAt, setManageStartsAt] = useState(localDateTimeValue(new Date(session.startsAt)));
+  const [manageWorkoutId, setManageWorkoutId] = useState(session.workout?.id ?? "");
+  const [manageVariantId, setManageVariantId] = useState(session.workoutVariant?.id ?? "");
+  const [manageDescription, setManageDescription] = useState(session.description ?? "");
+  const manageVariants = options.find((option) => option.id === manageWorkoutId)?.variants ?? [];
 
   async function handleDeleteClass() {
-    await onAction(session.id, "DELETE", "");
-    setStaffPanel(null);
+    const saved = await onAction(session.id, "DELETE", "");
+    if (saved) setStaffPanel(null);
+  }
+
+  function openManagePanel() {
+    setManageStartsAt(localDateTimeValue(new Date(session.startsAt)));
+    setManageWorkoutId(session.workout?.id ?? "");
+    setManageVariantId(session.workoutVariant?.id ?? "");
+    setManageDescription(session.description ?? "");
+    setStaffPanel("manage");
+  }
+
+  function selectManageWorkout(workoutId: string) {
+    setManageWorkoutId(workoutId);
+    setManageVariantId("");
+  }
+
+  async function saveClassChanges(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const nextStartsAt = session.bookedCount ? undefined : new Date(manageStartsAt);
+
+    if (nextStartsAt && Number.isNaN(nextStartsAt.getTime())) {
+      return;
+    }
+
+    const saved = await onAction(session.id, "PATCH", "", {
+      description: manageDescription.trim() || null,
+      startsAt: nextStartsAt?.toISOString(),
+      workoutId: manageWorkoutId || null,
+      workoutVariantId: manageVariantId || null,
+    });
+    if (saved) setStaffPanel(null);
   }
 
   return (
@@ -411,15 +450,15 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
           : <Button type="button" disabled={full || busy} onClick={() => void onAction(session.id, "POST")} className="mt-4 min-h-12 w-full">{full ? t("full") : t("book")}</Button>
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <Button type="button" variant="secondary" className="min-h-11" onClick={() => setStaffPanel("manage")}>{t("manageClass")}</Button>
+            <Button type="button" variant="secondary" className="min-h-11" onClick={openManagePanel}>{t("manageClass")}</Button>
             <Button type="button" variant="secondary" className="min-h-11" onClick={() => setStaffPanel("attendance")}>{t("attendance")}</Button>
           </div>
         )}
       </div>
 
       {staffPanel ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/60 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-12 backdrop-blur-sm sm:items-center sm:justify-center" role="dialog" aria-modal="true" aria-labelledby={`class-${session.id}-${staffPanel}-title`}>
-          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-end bg-black/60 px-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-12 backdrop-blur-sm sm:items-center sm:justify-center sm:pb-3" role="dialog" aria-modal="true" aria-labelledby={`class-${session.id}-${staffPanel}-title`}>
+          <div className="max-h-[calc(100dvh-7rem)] w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl sm:max-h-[85dvh]">
             <div className="flex items-start justify-between gap-4 border-b border-border p-4">
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{session.name}</p>
@@ -430,15 +469,40 @@ function ClassCard({ session, locale, isStaff, busy, t, onAction }: { session: C
             </div>
 
             {staffPanel === "manage" ? (
-              <div className="space-y-3 p-4">
-                <div className="rounded-2xl bg-background/60 p-3">
-                  <p className="text-sm font-semibold">{workoutLabel}</p>
-                  <p className="mt-1 text-xs text-muted">{t("classMeta", { duration: session.durationMinutes, booked: session.bookedCount, capacity: session.capacity })}</p>
+              <form onSubmit={saveClassChanges} className="max-h-[calc(100dvh-16rem)] overflow-y-auto p-4 sm:max-h-[60dvh]">
+                <div className="space-y-4">
+                  <div className="rounded-2xl bg-background/60 p-3">
+                    <p className="text-sm font-semibold">{t("classMeta", { duration: session.durationMinutes, booked: session.bookedCount, capacity: session.capacity })}</p>
+                    {session.bookedCount ? <p className="mt-1 text-xs text-muted">{t("dateLocked")}</p> : null}
+                  </div>
+                  <label className="text-sm font-semibold">
+                    {t("classForm.startsAt")}
+                    <input type="datetime-local" value={manageStartsAt} required disabled={session.bookedCount > 0} onChange={(event) => setManageStartsAt(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-50" />
+                  </label>
+                  <label className="text-sm font-semibold">
+                    {t("classForm.workout")}
+                    <select value={manageWorkoutId} onChange={(event) => selectManageWorkout(event.target.value)} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base">
+                      <option value="">{t("classForm.noWorkout")}</option>
+                      {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-sm font-semibold">
+                    {t("classForm.variation")}
+                    <select value={manageVariantId} onChange={(event) => setManageVariantId(event.target.value)} disabled={!manageWorkoutId} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base disabled:opacity-50">
+                      <option value="">{t("classForm.noVariation")}</option>
+                      {manageVariants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-sm font-semibold">
+                    {t("classForm.description")}
+                    <textarea rows={4} value={manageDescription} onChange={(event) => setManageDescription(event.target.value)} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
+                  </label>
+                  <Button type="submit" className="w-full" isLoading={busy}>{t("saveClassChanges")}</Button>
+                  <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void handleDeleteClass()}>{t("deleteClass")}</Button>
                 </div>
-                <Button type="button" variant="danger" className="w-full" disabled={busy} onClick={() => void handleDeleteClass()}>{t("deleteClass")}</Button>
-              </div>
+              </form>
             ) : (
-              <div className="max-h-[60vh] space-y-2 overflow-y-auto p-4">
+              <div className="max-h-[calc(100dvh-16rem)] space-y-2 overflow-y-auto p-4 sm:max-h-[60dvh]">
                 {session.bookings.map((booking) => (
                   <div key={booking.id} className="flex items-center justify-between gap-2 rounded-xl bg-background p-2.5">
                     <span className="min-w-0 truncate text-sm">{booking.user.athleteProfile?.displayName ?? booking.user.email}</span>
