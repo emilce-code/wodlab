@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
-import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import { useRouter } from "@/i18n/navigation";
@@ -44,7 +43,7 @@ export default function BoxAdministration({
   const [memberSearch, setMemberSearch] = useState("");
   const [memberStatus, setMemberStatus] = useState<BoxMember["status"]>("ACTIVE");
   const [selectedMember, setSelectedMember] = useState<BoxMember | null>(null);
-  const [assignRole, setAssignRole] = useState<BoxMember["role"]>("COACH");
+  const [assignRole, setAssignRole] = useState<BoxMember["role"]>("ATHLETE");
   const { confirm, dialog } = useConfirmationDialog();
   const selectedBox = boxes.find((box) => box.id === boxId) ?? null;
   const normalizedSearch = memberSearch.trim().toLocaleLowerCase();
@@ -83,6 +82,17 @@ export default function BoxAdministration({
   function clearMessages() {
     setError(null);
     setSuccess(null);
+  }
+
+  function assignmentErrorMessage(response: Response, data: unknown) {
+    const detail = message(data, t("errors.action"));
+    if (
+      response.status === 404 &&
+      detail.toLocaleLowerCase().includes("user not found")
+    ) {
+      return t("members.userNotFound");
+    }
+    return detail;
   }
 
   async function saveBox(event: FormEvent<HTMLFormElement>) {
@@ -261,7 +271,7 @@ export default function BoxAdministration({
         setSuccess(t("members.assigned"));
         formElement.reset();
         setMemberStatus("ACTIVE");
-      } else setError(message(data, t("errors.action")));
+      } else setError(assignmentErrorMessage(response, data));
     } catch {
       setError(t("errors.action"));
     } finally {
@@ -372,8 +382,8 @@ export default function BoxAdministration({
         </div>
       </div>
 
-      {error ? <Alert variant="error">{error}</Alert> : null}
-      {success ? <Alert variant="success">{success}</Alert> : null}
+      {error ? <FeedbackToast type="error" message={error} /> : null}
+      {success ? <FeedbackToast type="success" message={success} /> : null}
 
       {showCreate ? (
         <BoxForm
@@ -603,10 +613,10 @@ export default function BoxAdministration({
                   placeholder={t("members.assignEmailPlaceholder")}
                   className="mt-3 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"
                 />
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-3 grid grid-cols-3 gap-2">
                   {(isApplicationAdmin
-                    ? (["OWNER", "COACH"] as const)
-                    : (["COACH", "ATHLETE"] as const)
+                    ? (["ATHLETE", "COACH", "OWNER"] as const)
+                    : (["ATHLETE", "COACH"] as const)
                   ).map((role) => (
                     <button
                       key={role}
@@ -752,6 +762,34 @@ export default function BoxAdministration({
           }
         />
       ) : null}
+    </div>
+  );
+}
+
+function FeedbackToast({
+  type,
+  message,
+}: {
+  type: "success" | "error";
+  message: string;
+}) {
+  const isError = type === "error";
+
+  return (
+    <div
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
+      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[80] mx-auto max-w-md sm:left-auto sm:right-6 sm:top-6 sm:mx-0"
+    >
+      <div
+        className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur ${
+          isError
+            ? "border-red-500/40 bg-red-950/95 text-red-50"
+            : "border-accent/50 bg-accent text-black"
+        }`}
+      >
+        {message}
+      </div>
     </div>
   );
 }
