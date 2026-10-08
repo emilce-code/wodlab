@@ -136,6 +136,7 @@ type CatalogContext = {
   activeBoxId: string | null;
   activeBoxName: string | null;
   activeBoxRole: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+  memberBoxIds: string[];
 };
 
 @Injectable()
@@ -319,50 +320,24 @@ export class WorkoutsService {
     }
 
     if (!this.canViewWorkout(workout, context)) {
-      const canViewAssignedWorkout =
-        await this.canViewWorkoutAssignedToActiveBoxClass(id, context);
-
-      if (!canViewAssignedWorkout) {
-        const historicalResult = await this.prisma.workoutResult.findFirst({
-          where: {
-            workoutId: id,
-            athleteProfile: {
-              userId: user.userId,
-            },
+      const historicalResult = await this.prisma.workoutResult.findFirst({
+        where: {
+          workoutId: id,
+          athleteProfile: {
+            userId: user.userId,
           },
-          select: {
-            id: true,
-          },
-        });
+        },
+        select: {
+          id: true,
+        },
+      });
 
-        if (!historicalResult) {
-          throw new NotFoundException('Workout not found');
-        }
+      if (!historicalResult) {
+        throw new NotFoundException('Workout not found');
       }
     }
 
     return this.mapWorkout(workout, context);
-  }
-
-  private async canViewWorkoutAssignedToActiveBoxClass(
-    workoutId: string,
-    context: CatalogContext,
-  ) {
-    if (!context.activeBoxId || !context.activeBoxRole) {
-      return false;
-    }
-
-    const classSession = await this.prisma.classSession.findFirst({
-      where: {
-        workoutId,
-        boxId: context.activeBoxId,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    return Boolean(classSession);
   }
 
   async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
@@ -651,6 +626,7 @@ export class WorkoutsService {
           ? 'OWNER'
           : (activeMembership.role.key as 'COACH' | 'ATHLETE')
         : null,
+      memberBoxIds: dbUser.boxMemberships.map((membership) => membership.boxId),
     };
   }
 
@@ -699,10 +675,13 @@ export class WorkoutsService {
         : { id: '__never__' };
 
     const boxVisible: Prisma.WorkoutWhereInput =
-      context.activeBoxId && (!archived || this.canManageActiveBox(context))
+      context.memberBoxIds.length > 0 &&
+      (!archived || this.canManageActiveBox(context))
         ? {
             scope: 'BOX',
-            boxId: context.activeBoxId,
+            boxId: {
+              in: context.memberBoxIds,
+            },
           }
         : { id: '__never__' };
 
@@ -752,8 +731,8 @@ export class WorkoutsService {
 
     if (workout.scope === 'BOX') {
       return (
-        context.activeBoxId === workout.boxId &&
-        context.activeBoxRole !== null &&
+        workout.boxId !== null &&
+        context.memberBoxIds.includes(workout.boxId) &&
         (workout.isActive || this.canManageActiveBox(context))
       );
     }
