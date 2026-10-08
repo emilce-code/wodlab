@@ -30,4 +30,8 @@ export class CreateBoxDto {
   @IsString()
   @MaxLength(500)
   coverImagePath?: string;
+
+  @IsOptional()
+  @IsString()
+  organizationId?: string;
 }
