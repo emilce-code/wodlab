@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 4342)
+Total output lines: 563
+
 import {
   BadRequestException,
   ConflictException,
@@ -38,6 +41,9 @@ describe('BoxesService', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+    },
+    boxOrganizationOwner: {
+      findUnique: jest.fn(),
     },
     boxMembership: {
       findMany: jest.fn(),
@@ -83,6 +89,7 @@ describe('BoxesService', () => {
       role: { key: 'ATHLETE' },
     });
     prisma.box.findUniqueOrThrow.mockResolvedValue({ ownerUserId: 'owner-1' });
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue(null);
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -225,6 +232,28 @@ describe('BoxesService', () => {
     });
   });
 
+  it('allows an organization owner to update a box in the organization', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+    prisma.boxMembership.findUnique.mockResolvedValue(null);
+    prisma.box.findUnique.mockResolvedValue({
+      id: 'box-1',
+      organizationId: 'org-1',
+    });
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue({
+      id: 'org-owner-1',
+    });
+    prisma.box.update.mockResolvedValue({ id: 'box-1', name: 'North Box' });
+
+    await service.update('user-1', 'box-1', {
+      name: ' North Box ',
+    });
+
+    expect(prisma.box.update).toHaveBeenCalledWith({
+      where: { id: 'box-1' },
+      data: { name: 'North Box' },
+    });
+  });
+
   it('allows an administrator to update any existing box', async () => {
     prisma.user.findUnique.mockResolvedValue({ role: 'ADMIN' });
     prisma.box.findUnique.mockResolvedValue({ id: 'box-2' });
@@ -236,6 +265,15 @@ describe('BoxesService', () => {
       where: { id: 'box-2' },
       data: { timezone: 'America/Asuncion' },
     });
+  });
+
+  it('allows a…342 tokens truncated…signMember(
+        'org-owner-user',
+        'box-1',
+        'owner@example.com',
+        'OWNER',
+      ),
+    ).rejects.toThrow('Administrator access required');
   });
 
   it('only activates a box joined by the user', async () => {
