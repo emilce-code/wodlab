@@ -1,4 +1,12 @@
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateBoxDto {
   @IsString()
@@ -23,6 +31,23 @@ export class CreateBoxDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(240)
+  address?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude?: number;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(500)
   logoPath?: string;
 
@@ -30,6 +55,11 @@ export class CreateBoxDto {
   @IsString()
   @MaxLength(500)
   coverImagePath?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  supportContact?: string;
 
   @IsOptional()
   @IsString()

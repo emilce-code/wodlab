@@ -230,8 +230,12 @@ export class BoxesService {
           description: dto.description?.trim() || null,
           timezone: dto.timezone?.trim() || 'UTC',
           location: dto.location?.trim() || null,
+          address: dto.address?.trim() || dto.location?.trim() || null,
+          latitude: dto.latitude ?? null,
+          longitude: dto.longitude ?? null,
           logoPath: dto.logoPath?.trim() || null,
           coverImagePath: dto.coverImagePath?.trim() || null,
+          supportContact: dto.supportContact?.trim() || null,
           organizationId,
           joinCode,
           ownerUserId: userId,
@@ -306,11 +310,21 @@ export class BoxesService {
         ...(dto.location !== undefined
           ? { location: dto.location.trim() || null }
           : {}),
+        ...(dto.address !== undefined
+          ? { address: dto.address?.trim() || null }
+          : dto.location !== undefined
+            ? { address: dto.location.trim() || null }
+            : {}),
+        ...(dto.latitude !== undefined ? { latitude: dto.latitude } : {}),
+        ...(dto.longitude !== undefined ? { longitude: dto.longitude } : {}),
         ...(dto.logoPath !== undefined
           ? { logoPath: dto.logoPath?.trim() || null }
           : {}),
         ...(dto.coverImagePath !== undefined
           ? { coverImagePath: dto.coverImagePath?.trim() || null }
+          : {}),
+        ...(dto.supportContact !== undefined
+          ? { supportContact: dto.supportContact?.trim() || null }
           : {}),
         ...(dto.organizationId !== undefined ? { organizationId } : {}),
       },

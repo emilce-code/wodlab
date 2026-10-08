@@ -117,9 +117,13 @@ model Box {
   name               String
   description        String?
   location           String?
+  address            String?
+  latitude           Float?
+  longitude          Float?
   logoPath           String?
   coverImagePath     String?
   timezone           String                     @default("UTC")
+  supportContact     String?
   joinCode           String                     @unique
   organizationId     String?
   organization       BoxOrganization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
