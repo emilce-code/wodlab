@@ -31,4 +31,8 @@ export class UpdateBoxDto {
   @IsString()
   @MaxLength(500)
   coverImagePath?: string | null;
+
+  @IsOptional()
+  @IsString()
+  organizationId?: string | null;
 }

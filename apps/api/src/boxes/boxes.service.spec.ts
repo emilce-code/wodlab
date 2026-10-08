@@ -33,6 +33,12 @@ describe('BoxesService', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
+    boxOrganization: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
     boxMembership: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -116,6 +122,58 @@ describe('BoxesService', () => {
               status: 'ACTIVE',
             }),
           },
+        }),
+      }),
+    );
+  });
+
+  it('creates a box organization for administrators', async () => {
+    prisma.boxOrganization.create.mockResolvedValue({
+      id: 'org-1',
+      name: 'WODLY Group',
+    });
+
+    await service.createOrganization('user-1', {
+      name: ' WODLY Group ',
+      description: ' Multi location ',
+    });
+
+    expect(prisma.boxOrganization.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: expect.objectContaining({
+          name: 'WODLY Group',
+          description: 'Multi location',
+          owners: {
+            create: { userId: 'user-1' },
+          },
+        }),
+      }),
+    );
+  });
+
+  it('prevents non-administrators from creating a box organization', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+
+    await expect(
+      service.createOrganization('user-1', { name: 'WODLY Group' }),
+    ).rejects.toThrow('Administrator access required');
+  });
+
+  it('associates a new box to an existing organization', async () => {
+    prisma.boxOrganization.findUnique.mockResolvedValue({ id: 'org-1' });
+    transaction.box.create.mockResolvedValue({ id: 'box-1' });
+
+    await service.create('user-1', {
+      name: 'Downtown',
+      organizationId: 'org-1',
+    });
+
+    expect(transaction.box.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: expect.objectContaining({
+          organizationId: 'org-1',
         }),
       }),
     );

@@ -84,6 +84,7 @@ model User {
   notificationPreference NotificationPreference?
   notificationReceipts   NotificationReceipt[]
   boxesOwned             Box[]                   @relation("BoxOwner")
+  boxOrganizationsOwned  BoxOrganizationOwner[]
   boxMemberships         BoxMembership[]
   activeBoxId            String?
   activeBox              Box?                    @relation("ActiveBox", fields: [activeBoxId], references: [id], onDelete: SetNull)
@@ -120,6 +121,8 @@ model Box {
   coverImagePath     String?
   timezone           String                     @default("UTC")
   joinCode           String                     @unique
+  organizationId     String?
+  organization       BoxOrganization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   ownerUserId        String
   owner              User                       @relation("BoxOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
   memberships        BoxMembership[]
@@ -135,6 +138,33 @@ model Box {
   updatedAt          DateTime                   @updatedAt
 
   @@index([ownerUserId])
+  @@index([organizationId])
+}
+
+model BoxOrganization {
+  id          String                 @id @default(cuid())
+  name        String
+  description String?
+  logoPath    String?
+  boxes       Box[]
+  owners      BoxOrganizationOwner[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@index([name])
+}
+
+model BoxOrganizationOwner {
+  id             String          @id @default(cuid())
+  organizationId String
+  organization   BoxOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([userId])
 }
 
 model BoxMembershipRole {

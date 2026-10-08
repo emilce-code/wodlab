@@ -16,6 +16,7 @@ import { AuthenticatedUser, JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { BoxesService } from './boxes.service';
+import { CreateBoxOrganizationDto } from './dto/create-box-organization.dto';
 import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
@@ -23,6 +24,7 @@ import { JoinBoxDto } from './dto/join-box.dto';
 import { SetActiveBoxDto } from './dto/set-active-box.dto';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto';
 import { UpdateClassSessionDto } from './dto/update-class-session.dto';
+import { UpdateBoxOrganizationDto } from './dto/update-box-organization.dto';
 import { UpdateBoxDto } from './dto/update-box.dto';
 import { UpdateBoxMemberDto } from './dto/update-box-member.dto';
 import { AssignBoxMemberDto } from './dto/assign-box-member.dto';
@@ -43,6 +45,35 @@ export class BoxesController {
   @Roles('ADMIN')
   findAllForAdministration() {
     return this.boxes.findAllForAdministration();
+  }
+
+  @Get('organizations')
+  @Roles('ADMIN')
+  findOrganizationsForAdministration() {
+    return this.boxes.findOrganizationsForAdministration();
+  }
+
+  @Post('organizations')
+  @Roles('ADMIN')
+  createOrganization(
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: CreateBoxOrganizationDto,
+  ) {
+    return this.boxes.createOrganization(request.user.userId, dto);
+  }
+
+  @Patch('organizations/:organizationId')
+  @Roles('ADMIN')
+  updateOrganization(
+    @Req() request: AuthenticatedRequest,
+    @Param('organizationId') organizationId: string,
+    @Body() dto: UpdateBoxOrganizationDto,
+  ) {
+    return this.boxes.updateOrganization(
+      request.user.userId,
+      organizationId,
+      dto,
+    );
   }
 
   @Post()

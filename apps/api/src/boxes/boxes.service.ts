@@ -8,10 +8,12 @@ import {
 import { randomBytes } from 'node:crypto';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateBoxOrganizationDto } from './dto/create-box-organization.dto';
 import { CreateBoxDto } from './dto/create-box.dto';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { FindClassSessionsQueryDto } from './dto/find-class-sessions-query.dto';
 import { UpdateClassSessionDto } from './dto/update-class-session.dto';
+import { UpdateBoxOrganizationDto } from './dto/update-box-organization.dto';
 import { UpdateBoxDto } from './dto/update-box.dto';
 
 type BoxMembershipRoleKey = 'OWNER' | 'COACH' | 'ATHLETE';
@@ -113,6 +115,7 @@ export class BoxesService {
   async findAllForAdministration() {
     return this.prisma.box.findMany({
       include: {
+        organization: true,
         _count: {
           select: {
             memberships: { where: { status: 'ACTIVE' } },
@@ -122,6 +125,78 @@ export class BoxesService {
       },
       orderBy: {
         name: 'asc',
+      },
+    });
+  }
+
+  async findOrganizationsForAdministration() {
+    return this.prisma.boxOrganization.findMany({
+      include: {
+        owners: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                athleteProfile: {
+                  select: { displayName: true },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: {
+          select: { boxes: true },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async createOrganization(userId: string, dto: CreateBoxOrganizationDto) {
+    await this.requireAdmin(userId);
+
+    const name = dto.name.trim();
+    if (!name) {
+      throw new BadRequestException('Organization name is required');
+    }
+
+    return this.prisma.boxOrganization.create({
+      data: {
+        name,
+        description: dto.description?.trim() || null,
+        logoPath: dto.logoPath?.trim() || null,
+        owners: {
+          create: { userId },
+        },
+      },
+      include: { owners: true },
+    });
+  }
+
+  async updateOrganization(
+    userId: string,
+    organizationId: string,
+    dto: UpdateBoxOrganizationDto,
+  ) {
+    await this.requireAdmin(userId);
+
+    const name = dto.name?.trim();
+    if (dto.name !== undefined && !name) {
+      throw new BadRequestException('Organization name is required');
+    }
+
+    return this.prisma.boxOrganization.update({
+      where: { id: organizationId },
+      data: {
+        ...(dto.name !== undefined ? { name } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description?.trim() || null }
+          : {}),
+        ...(dto.logoPath !== undefined
+          ? { logoPath: dto.logoPath?.trim() || null }
+          : {}),
       },
     });
   }
@@ -142,6 +217,11 @@ export class BoxesService {
     }
 
     const joinCode = await this.createUniqueJoinCode();
+    const organizationId = dto.organizationId?.trim() || null;
+
+    if (organizationId) {
+      await this.ensureOrganizationExists(organizationId);
+    }
 
     return this.prisma.$transaction(async (transaction) => {
       const box = await transaction.box.create({
@@ -152,6 +232,7 @@ export class BoxesService {
           location: dto.location?.trim() || null,
           logoPath: dto.logoPath?.trim() || null,
           coverImagePath: dto.coverImagePath?.trim() || null,
+          organizationId,
           joinCode,
           ownerUserId: userId,
           memberships: {
@@ -198,9 +279,14 @@ export class BoxesService {
     }
 
     const name = dto.name?.trim();
+    const organizationId = dto.organizationId?.trim() || null;
 
     if (dto.name !== undefined && !name) {
       throw new BadRequestException('Box name is required');
+    }
+
+    if (organizationId) {
+      await this.ensureOrganizationExists(organizationId);
     }
 
     return this.prisma.box.update({
@@ -226,6 +312,7 @@ export class BoxesService {
         ...(dto.coverImagePath !== undefined
           ? { coverImagePath: dto.coverImagePath?.trim() || null }
           : {}),
+        ...(dto.organizationId !== undefined ? { organizationId } : {}),
       },
     });
   }
@@ -1015,6 +1102,28 @@ export class BoxesService {
     }
 
     return this.requireOwner(userId, boxId);
+  }
+
+  private async requireAdmin(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (user?.role !== 'ADMIN') {
+      throw new ForbiddenException('Administrator access required');
+    }
+  }
+
+  private async ensureOrganizationExists(organizationId: string) {
+    const organization = await this.prisma.boxOrganization.findUnique({
+      where: { id: organizationId },
+      select: { id: true },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
   }
 
   private async requireRoleAssignmentAccess(
