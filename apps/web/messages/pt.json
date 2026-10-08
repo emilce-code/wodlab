@@ -335,7 +335,13 @@
       "address": "Endereço",
       "timezone": "Fuso horário",
       "coordinates": "Coordenadas",
-      "noCoordinates": "Coordenadas ainda não adicionadas"
+      "noCoordinates": "Coordenadas ainda não adicionadas",
+      "mapReady": "Use as coordenadas salvas para abrir o Box no seu app de mapas.",
+      "mapNeedsCoordinates": "As rotas usarão o endereço salvo até que coordenadas sejam adicionadas.",
+      "pinReady": "Localização exata",
+      "pinApproximate": "Aproximada",
+      "openGoogleMaps": "Abrir no Google Maps",
+      "openAppleMaps": "Abrir no Apple Maps"
     },
     "support": {
       "title": "Contato de suporte",

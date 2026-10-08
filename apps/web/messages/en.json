@@ -335,7 +335,13 @@
       "address": "Address",
       "timezone": "Time zone",
       "coordinates": "Coordinates",
-      "noCoordinates": "Coordinates not added yet"
+      "noCoordinates": "Coordinates not added yet",
+      "mapReady": "Use the saved coordinates to open the Box in your preferred map app.",
+      "mapNeedsCoordinates": "Directions will use the saved address until coordinates are added.",
+      "pinReady": "Exact location",
+      "pinApproximate": "Approximate",
+      "openGoogleMaps": "Open in Google Maps",
+      "openAppleMaps": "Open in Apple Maps"
     },
     "support": {
       "title": "Support contact",
