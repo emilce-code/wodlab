@@ -3,9 +3,13 @@ export type BoxSummary = {
   name: string;
   description: string | null;
   location: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   logoPath: string | null;
   coverImagePath: string | null;
   timezone: string;
+  supportContact: string | null;
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";
   isActive: boolean;

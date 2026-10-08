@@ -107,12 +107,22 @@ describe('BoxesService', () => {
   it('creates a box and owner membership', async () => {
     prisma.box.findUnique.mockResolvedValue(null);
     transaction.box.create.mockResolvedValue({ id: 'box-1' });
-    await service.create('user-1', { name: 'Downtown' });
+    await service.create('user-1', {
+      name: 'Downtown',
+      location: 'Old location field',
+      latitude: -25.2867,
+      longitude: -57.3333,
+      supportContact: ' WhatsApp +595 981 000000 ',
+    });
     expect(transaction.box.create).toHaveBeenCalledWith(
       expect.objectContaining({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           name: 'Downtown',
+          address: 'Old location field',
+          latitude: -25.2867,
+          longitude: -57.3333,
+          supportContact: 'WhatsApp +595 981 000000',
           ownerUserId: 'user-1',
           memberships: {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -200,6 +210,8 @@ describe('BoxesService', () => {
     await service.update('user-1', 'box-1', {
       name: ' North Box ',
       description: ' Strength and conditioning ',
+      address: ' Av. Siempre Viva 123 ',
+      supportContact: ' soporte@box.test ',
     });
 
     expect(prisma.box.update).toHaveBeenCalledWith({
@@ -207,6 +219,8 @@ describe('BoxesService', () => {
       data: {
         name: 'North Box',
         description: 'Strength and conditioning',
+        address: 'Av. Siempre Viva 123',
+        supportContact: 'soporte@box.test',
       },
     });
   });
