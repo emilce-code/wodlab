@@ -37,6 +37,9 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     workoutResult: {
       findFirst: jest.fn(),
     },
+    classSession: {
+      findFirst: jest.fn(),
+    },
   };
 
   const userContext = ({
@@ -56,7 +59,17 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
         ? [
             {
               boxId: activeBoxId,
-              role: activeBoxRole,
+              box: {
+                ownerUserId:
+                  activeBoxRole === 'OWNER'
+                    ? role === 'ADMIN'
+                      ? 'admin-1'
+                      : 'user-1'
+                    : 'owner-1',
+              },
+              role: {
+                key: activeBoxRole,
+              },
             },
           ]
         : [],
@@ -150,6 +163,7 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     });
 
     prismaMock.workoutResult.findFirst.mockResolvedValue(null);
+    prismaMock.classSession.findFirst.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -437,6 +451,65 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
         scope: 'PERSONAL',
       }),
     );
+
+    await expect(service.findOne('workout-1', user)).rejects.toThrow(
+      new NotFoundException('Workout not found'),
+    );
+  });
+
+  it('allows a box athlete to read a workout assigned to a class in the active Box', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        activeBoxId: 'box-1',
+        activeBoxRole: 'ATHLETE',
+      }),
+    );
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        createdByUserId: 'coach-1',
+        scope: 'PERSONAL',
+      }),
+    );
+
+    prismaMock.classSession.findFirst.mockResolvedValue({
+      id: 'class-1',
+    });
+
+    await expect(service.findOne('workout-1', user)).resolves.toEqual(
+      expect.objectContaining({
+        id: 'workout-1',
+        canEdit: false,
+      }),
+    );
+
+    expect(prismaMock.classSession.findFirst).toHaveBeenCalledWith({
+      where: {
+        workoutId: 'workout-1',
+        boxId: 'box-1',
+      },
+      select: {
+        id: true,
+      },
+    });
+  });
+
+  it('does not expose a workout only assigned to a class outside the active Box', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(
+      userContext({
+        activeBoxId: 'box-1',
+        activeBoxRole: 'ATHLETE',
+      }),
+    );
+
+    prismaMock.workout.findUnique.mockResolvedValue(
+      workoutFixture({
+        createdByUserId: 'coach-1',
+        scope: 'PERSONAL',
+      }),
+    );
+
+    prismaMock.classSession.findFirst.mockResolvedValue(null);
 
     await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
