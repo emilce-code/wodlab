@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 10849)
-Total output lines: 1154
-
 "use client";
 
 import { FormEvent, ReactNode, useEffect, useState } from "react";
@@ -351,7 +348,453 @@ export default function BoxAdministration({
                 leftAt:
                   status === "INACTIVE"
                     ? new Date().toISOString()
-                    : nu…4849 tokens truncated…-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[80] mx-auto max-w-md sm:left-auto sm:right-6 sm:top-6 sm:mx-0"
+                    : null,
+              }
+            : item,
+        ),
+      );
+      setSuccess(t(`members.${action}d`));
+    } else {
+      setError(message(data, t("errors.action")));
+    }
+    setBusy(null);
+  }
+
+  return (
+    <div className="mt-6 space-y-4">
+      {dialog}
+      <div className="sticky top-2 z-20 rounded-2xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur">
+        <label
+          htmlFor="managed-box"
+          className="text-xs font-semibold uppercase tracking-wide text-muted"
+        >
+          {t("selectBox")}
+        </label>
+        <div className="mt-2 flex gap-2">
+          <select
+            id="managed-box"
+            value={boxId}
+            onChange={(event) => {
+              setLoadingMembers(true);
+              setBoxId(event.target.value);
+            }}
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-border bg-surface px-3 text-base"
+          >
+            {boxes.map((box) => (
+              <option key={box.id} value={box.id}>
+                {box.name}
+              </option>
+            ))}
+          </select>
+          {isApplicationAdmin ? (
+            <Button
+              type="button"
+              onClick={() => setShowCreate((value) => !value)}
+            >
+              {showCreate ? t("cancel") : t("create.open")}
+            </Button>
+          ) : null}
+        </div>
+      </div>
+
+      {error ? <FeedbackToast type="error" message={error} /> : null}
+      {success ? <FeedbackToast type="success" message={success} /> : null}
+
+      {showCreate ? (
+        <BoxForm
+          t={t}
+          idPrefix="create"
+          busy={busy === "create"}
+          onSubmit={createBox}
+          timezones={timezones}
+        />
+      ) : null}
+
+      {selectedBox ? (
+        <>
+          <section className="rounded-2xl border border-border bg-surface p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+                  {t("summary.eyebrow")}
+                </p>
+                <h2 className="mt-1 truncate text-xl font-bold">
+                  {selectedBox.name}
+                </h2>
+                {selectedBox.description ? (
+                  <p className="mt-1 line-clamp-2 text-sm text-muted">
+                    {selectedBox.description}
+                  </p>
+                ) : null}
+              </div>
+              <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+                {isApplicationAdmin ? t("summary.admin") : t("summary.owner")}
+              </span>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <SummaryMetric
+                value={selectedBox._count.memberships}
+                label={t("summary.members")}
+              />
+              <SummaryMetric
+                value={selectedBox._count.classes ?? 0}
+                label={t("summary.classes")}
+              />
+              <SummaryMetric
+                value={
+                  selectedBox.timezone
+                    .split("/")
+                    .at(-1)
+                    ?.replaceAll("_", " ") ?? "UTC"
+                }
+                label={t("summary.timezone")}
+                small
+              />
+            </div>
+          </section>
+
+          <div
+            role="tablist"
+            aria-label={t("tabs.label")}
+            className="grid grid-cols-2 rounded-xl bg-surface-elevated p-1"
+          >
+            {(["details", "members"] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                role="tab"
+                aria-selected={tab === item}
+                onClick={() => setTab(item)}
+                className={`min-h-11 rounded-lg px-3 text-sm font-semibold ${tab === item ? "bg-surface text-accent shadow-sm" : "text-muted"}`}
+              >
+                {t(`tabs.${item}`)}
+              </button>
+            ))}
+          </div>
+
+          {tab === "details" ? (
+            <div className="space-y-4">
+              <section className="overflow-hidden rounded-3xl border border-border bg-surface">
+                <div className="px-4 pb-3 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
+                    {t("images.eyebrow")}
+                  </p>
+                  <h2 className="mt-1 text-lg font-black">{t("images.title")}</h2>
+                  <p className="mt-1 text-sm leading-5 text-muted">{t("images.description")}</p>
+                </div>
+                <label className="group relative block h-36 cursor-pointer overflow-hidden bg-background sm:h-44">
+                  {boxImageUrl(selectedBox.coverImagePath) ? (
+                    <Image
+                      src={boxImageUrl(selectedBox.coverImagePath)!}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 100vw, 768px"
+                      className="object-cover opacity-70 transition group-active:opacity-50"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
+                      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
+                    {busy === "image-cover" ? t("working") : t("images.changeCover")}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    disabled={busy?.startsWith("image-") ?? false}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void uploadBoxImage("cover", file);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+                <div className="relative px-4 pb-4">
+                  {selectedBox.coverImagePath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={() => void removeBoxImage("cover")}
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50"
+                    >
+                      {t("images.removeCover")}
+                    </button>
+                  ) : null}
+                  <label className="-mt-8 inline-flex cursor-pointer flex-col items-center">
+                    <span className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
+                      {boxImageUrl(selectedBox.logoPath) ? (
+                        <Image
+                          src={boxImageUrl(selectedBox.logoPath)!}
+                          alt=""
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black">
+                          {selectedBox.name.slice(0, 1).toUpperCase()}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-2 text-xs font-bold text-accent">
+                      {busy === "image-logo" ? t("working") : t("images.changeLogo")}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void uploadBoxImage("logo", file);
+                        event.currentTarget.value = "";
+                      }}
+                    />
+                  </label>
+                  {selectedBox.logoPath ? (
+                    <button
+                      type="button"
+                      disabled={busy?.startsWith("image-") ?? false}
+                      onClick={() => void removeBoxImage("logo")}
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50 sm:w-auto"
+                    >
+                      {t("images.removeLogo")}
+                    </button>
+                  ) : null}
+                  <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
+                </div>
+              </section>
+
+              <BoxForm
+                t={t}
+                idPrefix="edit"
+                box={selectedBox}
+                busy={busy === "box"}
+                onSubmit={saveBox}
+                timezones={timezones}
+              />
+              <section className="rounded-2xl border border-border bg-surface p-4">
+                <h2 className="font-bold">{t("joinCode.title")}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {t("joinCode.description")}
+                </p>
+                <div className="mt-4 rounded-xl bg-background p-4 text-center font-mono text-2xl font-bold tracking-[0.2em] text-accent">
+                  {selectedBox.joinCode}
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void copyJoinCode()}
+                  >
+                    {t("joinCode.copy")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={busy === "join-code"}
+                    onClick={() => void rotateJoinCode()}
+                  >
+                    {busy === "join-code" ? t("working") : t("joinCode.rotate")}
+                  </Button>
+                </div>
+              </section>
+            </div>
+          ) : (
+            <section className="rounded-2xl border border-border bg-surface p-4">
+              <div>
+                <h2 className="font-bold">{t("members.title")}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {t("members.description", { count: members.length })}
+                </p>
+              </div>
+              <form
+                onSubmit={assignMember}
+                className="mt-4 rounded-2xl border border-border bg-background p-3"
+              >
+                <label htmlFor="assign-member-email" className="text-sm font-bold">
+                  {t("members.assignTitle")}
+                </label>
+                <input
+                  id="assign-member-email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder={t("members.assignEmailPlaceholder")}
+                  className="mt-3 min-h-12 w-full rounded-xl border border-border bg-surface px-4 text-base"
+                />
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {(isApplicationAdmin
+                    ? (["ATHLETE", "COACH", "OWNER"] as const)
+                    : (["ATHLETE", "COACH"] as const)
+                  ).map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      aria-pressed={assignRole === role}
+                      onClick={() => setAssignRole(role)}
+                      className={`min-h-11 rounded-xl text-sm font-black transition ${
+                        assignRole === role
+                          ? "bg-accent text-accent-foreground"
+                          : "bg-surface text-muted"
+                      }`}
+                    >
+                      {t(`roles.${role.toLowerCase()}`)}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  className="mt-3 w-full"
+                  disabled={busy === "assign-member"}
+                >
+                  {busy === "assign-member"
+                    ? t("working")
+                    : t("members.assign")}
+                </Button>
+              </form>
+              <div
+                className="mt-4 grid grid-cols-3 rounded-xl bg-background p-1"
+                role="tablist"
+                aria-label={t("members.statusLabel")}
+              >
+                {(["ACTIVE", "PENDING", "INACTIVE"] as const).map((status) => {
+                  const count = members.filter((member) => member.status === status).length;
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      role="tab"
+                      aria-selected={memberStatus === status}
+                      onClick={() => setMemberStatus(status)}
+                      className={`relative min-h-11 rounded-lg px-1 text-xs font-semibold transition sm:text-sm ${
+                        memberStatus === status
+                          ? "bg-surface text-accent shadow-sm"
+                          : "text-muted"
+                      }`}
+                    >
+                      <span>{t(`members.status.${status.toLowerCase()}`)}</span>
+                      <span className="ml-1 tabular-nums">{count}</span>
+                      {status === "PENDING" && count > 0 && memberStatus !== status ? (
+                        <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+              <label htmlFor="member-search" className="sr-only">
+                {t("members.searchLabel")}
+              </label>
+              <input
+                id="member-search"
+                type="search"
+                value={memberSearch}
+                onChange={(event) => setMemberSearch(event.target.value)}
+                placeholder={t("members.searchPlaceholder")}
+                className="mt-4 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base"
+              />
+              {loadingMembers ? (
+                <p className="mt-4 text-sm text-muted">{t("loading")}</p>
+              ) : null}
+              <div className="mt-3 divide-y divide-border">
+                {visibleMembers.map((member) => {
+                  const name =
+                    member.user.athleteProfile?.displayName ??
+                    member.user.coachProfile?.displayName ??
+                    member.user.email;
+                  const initials = name
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0]?.toUpperCase())
+                    .join("");
+                  return (
+                    <article key={member.id} className="flex min-h-[72px] items-center gap-3 py-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">
+                        {initials || "W"}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMember(member)}
+                        className="min-w-0 flex-1 text-left"
+                      >
+                        <p className="truncate text-sm font-semibold">{name}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted">
+                          {t(`roles.${member.role.toLowerCase()}`)}
+                          {member.status === "PENDING" ? ` · ${t("members.status.pending")}` : ""}
+                        </p>
+                      </button>
+                      {member.status === "PENDING" && member.role !== "OWNER" ? (
+                        <Button
+                          type="button"
+                          disabled={busy === member.id}
+                          onClick={() => void changeMembershipStatus(member, "approve")}
+                        >
+                          {t("members.approve")}
+                        </Button>
+                      ) : (
+                        <button
+                          type="button"
+                          aria-label={t("members.roleFor", { name })}
+                          onClick={() => setSelectedMember(member)}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl font-bold text-muted hover:bg-background hover:text-foreground"
+                        >
+                          ···
+                        </button>
+                      )}
+                    </article>
+                  );
+                })}
+                {!loadingMembers && visibleMembers.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-muted">
+                    {t("members.empty")}
+                  </p>
+                ) : null}
+              </div>
+            </section>
+          )}
+        </>
+      ) : (
+        <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
+          {t("empty")}
+        </p>
+      )}
+
+      {selectedMember ? (
+        <MemberActionSheet
+          member={members.find((item) => item.id === selectedMember.id) ?? selectedMember}
+          busy={busy === selectedMember.id}
+          canAssignOwner={isApplicationAdmin}
+          t={t}
+          onClose={() => setSelectedMember(null)}
+          onRoleChange={(member, role) => void changeRole(member, role)}
+          onStatusChange={(member, action) =>
+            void changeMembershipStatus(member, action)
+          }
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function FeedbackToast({
+  type,
+  message,
+}: {
+  type: "success" | "error";
+  message: string;
+}) {
+  const isError = type === "error";
+
+  return (
+    <div
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
+      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[80] mx-auto max-w-md sm:left-auto sm:right-6 sm:top-6 sm:mx-0"
     >
       <div
         className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-2xl backdrop-blur ${

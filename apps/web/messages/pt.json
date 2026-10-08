@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 30110)
-Total output lines: 2673
-
 {
   "common": {
     "workouts": "Treinos",
@@ -313,7 +310,2109 @@ Total output lines: 2673
       "change": "Escolher imagem",
       "help": "As imagens são redimensionadas e comprimidas para WebP antes do envio para manter rapidez e economia de armazenamento.",
       "saved": "Imagem do Box atualizada.",
-      "removed": …24110 tokens truncated…onstruir seu gráfico de progresso.",
+      "removed": "Imagem do Box removida.",
+      "eyebrow": "Identidade do Box",
+      "title": "Personalize seu Box",
+      "description": "Seu logo e capa aparecem no WODLY para coaches e atletas.",
+      "changeLogo": "Alterar logo",
+      "changeCover": "Alterar capa",
+      "removeLogo": "Remover logo",
+      "removeCover": "Remover capa"
+    }
+  },
+  "boxDetails": {
+    "eyebrow": "Detalhes do Box",
+    "title": "Seu Box",
+    "description": "Veja as informações essenciais do Box onde você treina.",
+    "empty": "Ainda não adicionado",
+    "stats": {
+      "members": "Membros",
+      "classes": "Aulas"
+    },
+    "location": {
+      "title": "Localização",
+      "area": "Área",
+      "address": "Endereço",
+      "timezone": "Fuso horário",
+      "coordinates": "Coordenadas",
+      "noCoordinates": "Coordenadas ainda não adicionadas"
+    },
+    "support": {
+      "title": "Contato de suporte",
+      "empty": "Nenhum contato de suporte foi adicionado ainda."
+    },
+    "actions": {
+      "viewClasses": "Ver aulas",
+      "makeActive": "Ativar este Box",
+      "switching": "Mudando...",
+      "manage": "Administrar Box",
+      "backToClasses": "Voltar para aulas"
+    },
+    "missing": {
+      "title": "Box não disponível",
+      "description": "Este Box não está mais conectado à sua conta."
+    }
+  },
+  "boxes": {
+    "eyebrow": "Treinem juntos",
+    "title": "Boxes e aulas",
+    "description": "Entre na sua academia, reserve uma aula ou gerencie as próximas sessões.",
+    "selectBox": "Box atual",
+    "manage": "Boxes",
+    "members": "{count, plural, =1 {1 membro} other {# membros}}",
+    "joinCode": "Código de entrada: {code}",
+    "memberManagement": "Funções da equipe",
+    "memberRole": "Função do membro",
+    "viewBox": "Ver Box",
+    "owner": "Proprietário",
+    "coach": "Coach",
+    "athlete": "Atleta",
+    "upcoming": "Próximas aulas",
+    "loading": "Carregando aulas...",
+    "empty": "Não há aulas programadas para os próximos 30 dias.",
+    "emptyMine": "Você não tem reservas de aulas próximas.",
+    "classCount": "{count, plural, =1 {1 aula} other {# aulas}}",
+    "openAdministration": "Abrir administração do Box",
+    "joinRequests": "Solicitações",
+    "roles": {
+      "owner": "Proprietário",
+      "coach": "Coach",
+      "athlete": "Atleta"
+    },
+    "views": {
+      "label": "Visualizações de aulas",
+      "all": "Todas",
+      "mine": "Minhas reservas"
+    },
+    "classMeta": "{duration} min · {booked}/{capacity} reservas",
+    "durationLabel": "Duração",
+    "durationValue": "{duration} min",
+    "workoutLabel": "Treino",
+    "statusLabel": "Status",
+    "bookedLabel": "Reservas",
+    "bookedStatus": "Reservada",
+    "openStatus": "Disponível",
+    "noWorkoutAssigned": "Opcional",
+    "manageClass": "Gerenciar",
+    "attendance": "Presença",
+    "spots": "{count, plural, =1 {1 vaga} other {# vagas}}",
+    "full": "Lotada",
+    "book": "Reservar vaga",
+    "cancelBooking": "Cancelar reserva",
+    "attended": "Presença registrada",
+    "roster": "Lista ({count})",
+    "markAttended": "Presente",
+    "undoAttendance": "Desfazer",
+    "noBookings": "Ainda não há reservas.",
+    "dateLocked": "A data e hora estão bloqueadas porque já há atletas com reserva.",
+    "saveClassChanges": "Salvar alterações",
+    "deleteClass": "Excluir aula",
+    "join": {
+      "title": "Entrar em um box",
+      "description": "Peça ao coach o código do box.",
+      "code": "Código",
+      "placeholder": "DIGITE O CÓDIGO",
+      "another": "Entrar",
+      "close": "Fechar",
+      "submit": "Entrar",
+      "pending": "Solicitação enviada. O proprietário ou administrador do Box precisa aprovar sua associação."
+    },
+    "create": {
+      "title": "Criar um box",
+      "description": "Crie um espaço para seus atletas e aulas.",
+      "name": "Nome do box",
+      "boxDescription": "Descrição curta (opcional)",
+      "submit": "Criar box"
+    },
+    "edit": {
+      "open": "Editar box",
+      "cancel": "Cancelar edição",
+      "title": "Informações do box",
+      "timezone": "Fuso horário",
+      "submit": "Salvar box",
+      "saving": "Salvando..."
+    },
+    "classForm": {
+      "open": "Agendar aula",
+      "cancel": "Fechar",
+      "eyebrow": "Nova aula",
+      "title": "Agendar uma aula",
+      "help": "Preencha primeiro o essencial. Se precisar, vincule um treino ou adicione observações.",
+      "essentials": "Dados essenciais",
+      "requiredHelp": "Somente estes dados são obrigatórios para publicar a aula.",
+      "name": "Nome da aula",
+      "namePlaceholder": "Ex.: CrossFit da noite",
+      "startsAt": "Data e hora da aula",
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "workout": "Treino",
+      "variation": "Variação do treino",
+      "description": "Notas do coach ou foco (opcional)",
+      "descriptionPlaceholder": "Adicione orientações, o foco da aula ou informações para os atletas",
+      "duration": "Duração em minutos",
+      "minutes": "Escolha uma duração comum ou informe outro valor.",
+      "capacity": "Capacidade",
+      "decreaseCapacity": "Diminuir capacidade",
+      "increaseCapacity": "Aumentar capacidade",
+      "optionalTitle": "Treino e observações",
+      "optionalHelp": "Informações opcionais que os atletas podem consultar antes de reservar. Você pode adicioná-las depois.",
+      "optionalBadge": "Opcional",
+      "noWorkout": "Sem treino vinculado",
+      "searchWorkout": "Buscar treinos",
+      "noWorkoutMatches": "Nenhum treino corresponde à sua busca.",
+      "variantCount": "{count, plural, =0 {Sem variações} =1 {1 variação} other {# variações}}",
+      "noVariation": "Sem variação",
+      "submit": "Publicar aula",
+      "submitting": "Publicando…"
+    },
+    "errors": {
+      "load": "Não foi possível carregar as aulas.",
+      "save": "Não foi possível salvar as alterações.",
+      "action": "Não foi possível atualizar a aula."
+    }
+  },
+  "notifications": {
+    "eyebrow": "Mantenha o ritmo",
+    "title": "Notificações",
+    "description": "Veja lembretes de treino e novidades do coach em um só lugar.",
+    "inbox": "Caixa de entrada",
+    "unread": "{count, plural, =0 {Nenhuma novidade não lida} =1 {1 novidade não lida} other {# novidades não lidas}}",
+    "readAll": "Marcar tudo como lido",
+    "loading": "Carregando notificações...",
+    "error": "Não foi possível atualizar suas notificações. Tente novamente.",
+    "empty": "Está tudo em dia.",
+    "upcomingWorkout": "{workout} está próximo no seu plano de treino.",
+    "overdueWorkout": "{workout} está atrasado no seu plano de treino.",
+    "coachInvitation": "{coach} convidou você para se conectar como seu coach.",
+    "open": "Abrir",
+    "markRead": "Marcar como lido",
+    "dismiss": "Descartar",
+    "preferences": "Preferências de lembretes",
+    "workoutReminders": "Lembretes de treinos",
+    "coachUpdates": "Convites e novidades do coach",
+    "leadDays": "Lembrar antes do treino",
+    "sameDay": "No mesmo dia",
+    "oneDay": "1 dia antes",
+    "days": "{count} dias antes"
+  },
+  "calculators": {
+    "eyebrow": "Ferramentas de treino",
+    "title": "Calculadora de percentuais de peso",
+    "description": "Calcule cargas por percentual, arredonde para seu equipamento e monte a barra.",
+    "referenceWeight": "Peso de referência",
+    "referenceWeightHelp": "Normalmente, sua repetição máxima (1RM).",
+    "inputs": "Dados da calculadora",
+    "mode": "Modo de cálculo",
+    "targetMode": "Calcular alvo",
+    "reverseMode": "Calcular percentual",
+    "targetModeHelp": "Informe seu peso de referência e escolha o percentual que deseja levantar.",
+    "reverseModeHelp": "Informe o peso realizado para saber qual percentual ele representa.",
+    "performedWeight": "Peso realizado",
+    "performedWeightHelp": "A carga que você completou no levantamento.",
+    "calculatedPercentage": "Percentual calculado",
+    "unit": "Unidade de peso",
+    "customPercentage": "Percentual",
+    "percentageHelp": "Escolha um percentual predefinido abaixo ou informe outro.",
+    "presets": "Percentuais predefinidos",
+    "percentage": "Percentual",
+    "calculatedWeight": "Peso calculado",
+    "targetWeight": "Peso alvo",
+    "plateLoading": "Carga da barra",
+    "barWeight": "Peso da barra",
+    "platesPerSide": "Anilhas por lado",
+    "belowBar": "O alvo é menor que o peso da barra selecionada.",
+    "noPlates": "Somente a barra",
+    "remainder": "Restante sem carga: {value} {unit} por lado"
+  },
+  "training": {
+    "eyebrow": "Plano de treino",
+    "title": "Calendário de treino",
+    "description": "Planeje seus treinos, gerencie as próximas sessões e reveja os treinos concluídos.",
+    "previousMonth": "Mês anterior",
+    "nextMonth": "Próximo mês",
+    "previousWeek": "Semana anterior",
+    "nextWeek": "Próxima semana",
+    "today": "Hoje",
+    "calendarView": "Calendário",
+    "agendaView": "Agenda",
+    "loading": "Carregando seu plano de treino...",
+    "loadError": "Não foi possível carregar seu calendário. Tente novamente.",
+    "emptyMonth": "Nenhum treino programado para este mês.",
+    "emptyDayTitle": "Nenhum treino planejado",
+    "emptyDayDescription": "Não há aulas nem treinos programados para este dia.",
+    "addWorkoutToDay": "Adicionar um treino a este dia",
+    "itemCount": "{count, plural, =1 {1 item} other {# itens}}",
+    "selectDate": "Selecionar {date}. {count, plural, =0 {Nenhum treino} =1 {Um treino} other {# treinos}} programados.",
+    "selectedDay": "Dia selecionado",
+    "scheduleEyebrow": "Adicionar ao seu plano",
+    "scheduleFor": "Programar para {date}",
+    "close": "Fechar formulário de programação",
+    "workout": "Treino",
+    "selectWorkout": "Selecione um treino",
+    "variation": "Variação do treino",
+    "notesOptional": "Notas (opcional)",
+    "selectionRequired": "Selecione um treino e uma variação.",
+    "pastDate": "Você pode revisar treinos de datas anteriores, mas novos treinos só podem ser programados para hoje ou uma data futura.",
+    "addToPlan": "Adicionar ao plano",
+    "planned": "Planejado",
+    "assignedBy": "Atribuído por {coach}",
+    "coachFeedback": "Feedback do coach:",
+    "completed": "Concluído",
+    "classBooking": "Aula",
+    "classSpots": "{count, plural, =1 {1 vaga} other {# vagas}}",
+    "classDuration": "{duration} min",
+    "classWorkoutOptional": "Treino ainda não atribuído",
+    "assignedWorkout": "Treino atribuído",
+    "anytime": "Livre",
+    "openWorkout": "Abrir treino",
+    "viewResult": "Ver resultado",
+    "reschedule": "Alterar data",
+    "remove": "Remover",
+    "removeWorkout": "Remover {workout} do plano de treino",
+    "date": "Data do treino",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "duplicateError": "Esta variação já está programada para essa data.",
+    "saveError": "Não foi possível salvar este treino programado.",
+    "removeError": "Não foi possível remover este treino programado.",
+    "connectionError": "Não foi possível conectar ao servidor.",
+    "removeConfirm": "Remover este treino do seu plano?",
+    "yourComment": "Seu comentário:",
+    "addComment": "Adicionar comentário para o coach",
+    "editComment": "Editar comentário",
+    "commentLabel": "Comentário para seu coach",
+    "commentPlaceholder": "Compartilhe contexto sobre a sessão, como você se sentiu ou algo que seu coach deva saber.",
+    "saveComment": "Salvar comentário",
+    "commentError": "Não foi possível salvar seu comentário."
+  },
+  "coachNavigation": {
+    "label": "Seções do espaço do treinador",
+    "overview": "Visão geral",
+    "groups": "Grupos de atletas",
+    "programming": "Programação",
+    "monitoring": "Monitoramento",
+    "analytics": "Análises"
+  },
+  "coach": {
+    "eyebrow": "Coaching",
+    "title": "Espaço do coach",
+    "description": "Conecte-se com atletas, atribua treinos e revise o trabalho concluído.",
+    "loading": "Carregando espaço do coach...",
+    "loadError": "Não foi possível carregar o espaço do coach.",
+    "saveError": "Não foi possível criar seu perfil de coach.",
+    "accessRequiredTitle": "Acesso de coach necessário",
+    "accessRequiredDescription": "Um administrador deve conceder acesso de coach antes que você possa criar um perfil ou gerenciar atletas.",
+    "activateTitle": "Começar como coach",
+    "activateDescription": "Crie seu perfil de coach mantendo sua conta de atleta.",
+    "coachName": "Nome visível do coach",
+    "activate": "Criar perfil de coach",
+    "invitationsTitle": "Convites de coaches",
+    "invitationDescription": "Este coach está solicitando acesso aos seus dados de treino.",
+    "accept": "Aceitar",
+    "decline": "Recusar",
+    "responseError": "Não foi possível atualizar este convite.",
+    "coachesTitle": "Seus coaches",
+    "removeCoach": "Remover coach",
+    "removeAthlete": "Remover atleta",
+    "disconnectConfirm": "Remover esta relação de coaching? As atribuições e resultados históricos continuarão disponíveis.",
+    "disconnectError": "Não foi possível remover esta relação de coaching.",
+    "inviteTitle": "Convidar atleta",
+    "inviteDescription": "O atleta deve ter uma conta WODLY.",
+    "athleteEmail": "E-mail do atleta",
+    "sendInvitation": "Enviar convite",
+    "athleteNotFound": "Nenhum atleta foi encontrado com esse e-mail.",
+    "inviteError": "Não foi possível enviar o convite.",
+    "athletesTitle": "Seus atletas",
+    "athletesEmpty": "Ainda não há atletas conectados.",
+    "openAthlete": "Abrir atleta",
+    "pendingTitle": "Convites pendentes",
+    "groupsTitle": "Grupos de atletas",
+    "groupsDescription": "Organize atletas conectados em grupos de programação reutilizáveis.",
+    "openGroups": "Gerenciar grupos",
+    "programmingTitle": "Modelos de programação",
+    "programmingDescription": "Crie planos semanais reutilizáveis e atribua-os a grupos de atletas.",
+    "openProgramming": "Abrir espaço de programação",
+    "monitoringTitle": "Monitoramento de atletas",
+    "monitoringDescription": "Acompanhe aderência, treinos atrasados, comentários e resultados aguardando feedback.",
+    "openMonitoring": "Abrir painel de monitoramento",
+    "analyticsTitle": "Análises de grupos",
+    "analyticsDescription": "Compare aderência, volume e distribuição da programação entre atletas e grupos.",
+    "openAnalytics": "Abrir painel de análises",
+    "athleteEyebrow": "Coaching do atleta",
+    "athleteTitle": "Visão geral do atleta",
+    "athleteDescription": "Revise treinos, atribua atividades e forneça feedback.",
+    "loadAthleteError": "Não foi possível carregar este atleta.",
+    "assignTitle": "Atribuir treino",
+    "workout": "Treino",
+    "selectWorkout": "Selecione um treino",
+    "variation": "Variação",
+    "selectVariation": "Selecione uma variação",
+    "trainingDate": "Data do treino",
+    "prescription": "Prescrição",
+    "noPrescription": "Sem prescrição",
+    "coachNotes": "Notas do coach (opcional)",
+    "assign": "Atribuir treino",
+    "assignmentError": "Não foi possível atribuir este treino.",
+    "duplicateAssignment": "Esta variação já está programada para essa data.",
+    "assignmentsTitle": "Treinos atribuídos",
+    "athleteSections": "Seções do atleta",
+    "planTab": "Plano",
+    "assignmentsTab": "Atribuições",
+    "resultsTab": "Resultados",
+    "assignmentsEmpty": "Ainda não há treinos atribuídos a este atleta.",
+    "planned": "Planejado",
+    "completed": "Concluído",
+    "feedbackPlaceholder": "Feedback para o atleta",
+    "markReviewed": "Salvar feedback",
+    "reviewError": "Não foi possível salvar o feedback.",
+    "recentResults": "Resultados recentes",
+    "resultsEmpty": "Este atleta ainda não tem resultados registrados.",
+    "connectionError": "Não foi possível conectar ao servidor.",
+    "weeklyPlan": {
+      "title": "Programação semanal",
+      "description": "Planeje o treinamento do atleta uma semana de cada vez.",
+      "previous": "Semana anterior",
+      "today": "Esta semana",
+      "next": "Próxima semana",
+      "copyPrevious": "Copiar semana anterior",
+      "restDay": "Nenhum treino planejado",
+      "planned": "Planejado",
+      "completed": "Concluído",
+      "remove": "Remover",
+      "removeConfirm": "Remover {workout} do plano deste atleta?",
+      "removeError": "Não foi possível remover esta atribuição.",
+      "addTitle": "Adicionar treino para {date}",
+      "selectedDay": "Dia selecionado",
+      "openAssignment": "Adicionar treino",
+      "closeAssignment": "Fechar formulário",
+      "cancel": "Cancelar",
+      "workout": "Treino",
+      "selectWorkout": "Selecione um treino",
+      "variation": "Variação",
+      "selectVariation": "Selecione uma variação",
+      "prescription": "Prescrição",
+      "noPrescription": "Sem prescrição",
+      "notes": "Notas do coach (opcional)",
+      "add": "Adicionar à semana",
+      "saved": "Treino adicionado ao plano semanal.",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "saveError": "Não foi possível adicionar este treino.",
+      "loadError": "Não foi possível carregar o plano semanal.",
+      "connectionError": "Não foi possível conectar ao servidor.",
+      "nothingToCopy": "A semana anterior não tem atribuições do coach para copiar.",
+      "copied": "{count} atribuições foram copiadas da semana anterior.",
+      "copyError": "Não foi possível copiar a semana anterior."
+    }
+  },
+  "coachProgramming": {
+    "eyebrow": "Programação do coach",
+    "title": "Modelos de programação",
+    "description": "Crie programações semanais reutilizáveis e atribua-as aos seus grupos de atletas.",
+    "groupsEyebrow": "Organização do coach",
+    "groupsPageTitle": "Grupos de atletas",
+    "groupsPageDescription": "Organize atletas conectados em grupos para programar com rapidez e consistência.",
+    "loading": "Carregando espaço de programação...",
+    "loadError": "Não foi possível carregar a programação do coach.",
+    "saveError": "Não foi possível salvar esta alteração.",
+    "workspaceSections": "Seções de programação",
+    "groupsTitle": "Grupos de atletas",
+    "createGroup": "Criar um grupo",
+    "groupName": "Nome do grupo",
+    "groupDescription": "Descrição (opcional)",
+    "saveGroup": "Salvar grupo",
+    "groupCreated": "Grupo criado.",
+    "groupDeleted": "Grupo excluído.",
+    "noGroups": "Ainda não há grupos.",
+    "emptyGroup": "Este grupo não tem atletas.",
+    "selectAthlete": "Selecione um atleta",
+    "addMember": "Adicionar atleta",
+    "memberAdded": "Atleta adicionado ao grupo.",
+    "memberRemoved": "Atleta removido do grupo.",
+    "removeMember": "Remover atleta do grupo",
+    "delete": "Excluir",
+    "deleteGroupConfirm": "Excluir {name}? As atribuições existentes permanecerão.",
+    "templatesTitle": "Modelos de programação",
+    "createTemplate": "Criar modelo semanal",
+    "templateHelp": "Crie uma semana reutilizável, um dia de treino por vez. Primeiro escolha o treino e a variação; a prescrição e as observações são opcionais.",
+    "templateName": "Nome do modelo",
+    "templateNamePlaceholder": "Ex.: Preparação para competição",
+    "templateDescription": "Descrição (opcional)",
+    "templateDescriptionPlaceholder": "Para quem é esta semana ou qual é o foco",
+    "noTemplates": "Ainda não há modelos.",
+    "addItem": "Adicionar dia de treino",
+    "removeItem": "Remover item do modelo",
+    "saveTemplate": "Salvar modelo",
+    "templateCreated": "Modelo criado.",
+    "templateDeleted": "Modelo excluído.",
+    "deleteTemplateConfirm": "Excluir o modelo {name}?",
+    "selectWorkout": "Selecione treino",
+    "workout": "Treino",
+    "searchWorkouts": "Buscar treinos por nome…",
+    "noWorkoutMatches": "Nenhum treino corresponde à sua busca.",
+    "workoutResults": "Mostrando {shown} de {total} treinos correspondentes",
+    "selectVariation": "Selecione variação",
+    "variation": "Variação",
+    "day": "Dia",
+    "trainingDay": "Dia de treino {number}",
+    "trainingDayReady": "Treino selecionado",
+    "trainingDayEmpty": "Escolha um treino e uma variação",
+    "optionalAssignmentDetails": "Prescrição e observações do coach (opcional)",
+    "prescriptionCategory": "Categoria de prescrição",
+    "noPrescription": "Sem prescrição",
+    "notes": "Notas do coach",
+    "notesPlaceholder": "Adicione orientações para os atletas",
+    "selectGroup": "Selecione grupo",
+    "selectGroupError": "Selecione um grupo antes de aplicar o modelo.",
+    "apply": "Atribuir modelo ao grupo",
+    "applied": "Foram criadas {created} atribuições; {skipped} existentes foram ignoradas.",
+    "applyError": "Não foi possível aplicar este modelo.",
+    "days": {
+      "0": "Segunda-feira",
+      "1": "Terça-feira",
+      "2": "Quarta-feira",
+      "3": "Quinta-feira",
+      "4": "Sexta-feira",
+      "5": "Sábado",
+      "6": "Domingo"
+    }
+  },
+  "coachMonitoring": {
+    "eyebrow": "Monitoramento do coach",
+    "title": "Visão geral do treino dos atletas",
+    "description": "Monitore treinos atribuídos, comentários e sessões concluídas que precisam de revisão.",
+    "loading": "Carregando atividade dos atletas...",
+    "loadError": "Não foi possível carregar o monitoramento.",
+    "feedbackError": "Não foi possível salvar o feedback.",
+    "empty": "Nenhuma atribuição corresponde a estes filtros.",
+    "from": "De",
+    "to": "Até",
+    "group": "Grupo",
+    "athlete": "Atleta",
+    "status": "Status",
+    "applyFilters": "Aplicar filtros",
+    "filters": "Filtros",
+    "allGroups": "Todos os grupos",
+    "allAthletes": "Todos os atletas",
+    "statusALL": "Todos os status",
+    "statusPLANNED": "Planejados",
+    "statusCOMPLETED": "Concluídos",
+    "statusOVERDUE": "Atrasados",
+    "statusNEEDS_REVIEW": "Precisam de revisão",
+    "total": "Total",
+    "planned": "Planejados",
+    "completed": "Concluídos",
+    "overdue": "Atrasados",
+    "needsReview": "Para revisar",
+    "athleteComment": "Comentário do atleta:",
+    "coachFeedback": "Feedback do coach:",
+    "openAthlete": "Abrir atleta",
+    "feedback": "Feedback para o atleta",
+    "submitFeedback": "Salvar feedback",
+    "addFeedback": "Adicionar feedback",
+    "closeFeedback": "Fechar feedback"
+  },
+  "coachAnalytics": {
+    "eyebrow": "Análises do coach",
+    "title": "Insights de treino do grupo",
+    "description": "Compare aderência, volume e padrões de programação no período selecionado.",
+    "loading": "Calculando análises...",
+    "loadError": "Não foi possível carregar as análises.",
+    "empty": "Nenhum treino atribuído pelo coach foi encontrado neste período.",
+    "from": "De",
+    "to": "Até",
+    "group": "Grupo",
+    "athlete": "Atleta",
+    "allGroups": "Todos os grupos",
+    "allAthletes": "Todos os atletas",
+    "applyFilters": "Aplicar filtros",
+    "filters": "Filtros",
+    "assigned": "Atribuídos",
+    "completed": "Concluídos",
+    "completionRate": "Conclusão",
+    "overdue": "Atrasados",
+    "totalReps": "Repetições registradas",
+    "totalLoad": "Carga registrada",
+    "weeklyTrend": "Aderência semanal",
+    "weekRateLabel": "Semana de {date}: {rate}% concluído",
+    "workoutTypes": "Distribuição por tipo de treino",
+    "movementCategories": "Distribuição por categoria de movimento",
+    "topWorkouts": "Treinos mais atribuídos",
+    "noDistribution": "Nenhum dado de atribuição disponível.",
+    "noMovementData": "Os movimentos aparecem quando os atletas registram resultados detalhados.",
+    "athleteComparison": "Comparação de atletas",
+    "volume": "Volume registrado",
+    "actions": "Ações",
+    "repsShort": "reps",
+    "openAthlete": "Abrir atleta"
+  },
+  "auth": {
+    "complete": {
+      "eyebrow": "Quase pronto",
+      "title": "Não foi possível concluir seu acesso",
+      "description": "Sua sessão do Auth0 está ativa, mas o WODLY não conseguiu carregar sua conta. Normalmente, esse é um problema temporário e você não precisa criar outra conta.",
+      "retry": "Tentar novamente",
+      "backToLogin": "Voltar ao login",
+      "help": "Se o problema continuar, volte para a",
+      "home": "página inicial",
+      "loadingTitle": "Preparando sua conta do WODLY",
+      "loadingDescription": "Estamos conectando sua conta e seus dados de treino com segurança."
+    },
+    "shell": {
+      "eyebrow": "Treine · Registre · Evolua",
+      "titleLine1": "Cada treino",
+      "titleLine2": "conta uma história.",
+      "description": "Crie consistência, acompanhe seu progresso e veja o que seu treino realmente está fazendo por você."
+    },
+    "login": {
+      "eyebrow": "Bem-vindo de volta",
+      "title": "Entre no WODLY",
+      "description": "Continue registrando seus treinos e acompanhando seu progresso.",
+      "email": "E-mail",
+      "emailPlaceholder": "voce@exemplo.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Digite sua senha",
+      "submit": "Entrar",
+      "submitting": "Entrando...",
+      "error": "Não foi possível entrar.",
+      "connectionError": "Não foi possível entrar. Tente novamente.",
+      "noAccount": "Ainda não tem uma conta?",
+      "createAccount": "Criar uma conta"
+    },
+    "register": {
+      "eyebrow": "Junte-se ao WODLY",
+      "title": "Crie sua conta",
+      "description": "Comece a registrar seus treinos e acompanhar seu progresso.",
+      "name": "Nome",
+      "namePlaceholder": "Como devemos chamar você?",
+      "email": "E-mail",
+      "emailPlaceholder": "voce@exemplo.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Crie uma senha",
+      "confirmPassword": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Digite sua senha novamente",
+      "submit": "Criar conta",
+      "submitting": "Criando conta...",
+      "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+      "passwordMismatch": "As senhas não coincidem.",
+      "error": "Não foi possível criar a conta.",
+      "connectionError": "Não foi possível criar a conta. Tente novamente.",
+      "alreadyHaveAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Hoje",
+    "greeting": {
+      "default": "Oi, {name}",
+      "morning": "Bom dia, {name}",
+      "afternoon": "Boa tarde, {name}",
+      "evening": "Boa noite, {name}"
+    },
+    "readyToTrain": "Veja como está seu treino hoje.",
+    "onboarding": {
+      "eyebrow": "Primeiros passos",
+      "title": "Prepare seu espaço de treino",
+      "description": "Alguns passos rápidos tornam suas recomendações e seu progresso mais úteis.",
+      "progress": "{completed}/{total} concluídos",
+      "dismiss": "Ocultar lista de primeiros passos",
+      "items": {
+        "profile": {
+          "title": "Complete seu perfil de atleta",
+          "description": "Adicione seus objetivos e meta semanal de treino."
+        },
+        "preferences": {
+          "title": "Escolha suas preferências",
+          "description": "Selecione seu nível e categoria de prescrição habituais."
+        },
+        "movement": {
+          "title": "Registre um movimento",
+          "description": "Salve um levantamento, habilidade, distância ou tempo."
+        },
+        "workout": {
+          "title": "Registre seu primeiro treino",
+          "description": "Salve o resultado principal de um treino concluído."
+        },
+        "schedule": {
+          "title": "Planeje um treino",
+          "description": "Adicione um treino ao seu calendário."
+        }
+      }
+    },
+    "stats": {
+      "workouts": "Treinos",
+      "movementResults": "Resultados de movimentos",
+      "personalRecords": "PRs",
+      "movementsTracked": "Movimentos acompanhados",
+      "thisMonth": "Este mês",
+      "allTime": "Histórico"
+    },
+    "trainToday": {
+      "eyebrow": "Treine hoje",
+      "title": "O que você vai treinar?",
+      "description": "Registre um treino ou trabalhe um movimento individual. Seus resultados vão direto para o Histórico e o Progresso.",
+      "readyTitle": "Pronta para treinar?",
+      "readyDescription": "Escolha o que deseja registrar. Na próxima tela você poderá selecionar o treino ou movimento e salvar seu resultado.",
+      "browseWorkouts": "Registrar treino",
+      "browseMovements": "Registrar movimento",
+      "quickLinks": "Acessos rápidos",
+      "recentlyTrained": "Treino recente",
+      "continueTraining": "Continuar treinando",
+      "openWorkout": "Abrir treino",
+      "openMovement": "Abrir movimento",
+      "viewHistory": "Ver histórico",
+      "viewProgress": "Ver progresso"
+    },
+    "schedule": {
+      "eyebrow": "Plano de hoje",
+      "title": "Seu treino de hoje",
+      "description": "Comece um treino programado ou escolha o que treinar hoje.",
+      "loading": "Carregando o plano de treino de hoje...",
+      "errorTitle": "Não foi possível carregar o plano de hoje",
+      "errorDescription": "Você ainda pode explorar a biblioteca e registrar seu treino.",
+      "emptyTitle": "Nada programado para hoje",
+      "emptyDescription": "Escolha um treino agora. Na próxima etapa, você poderá adicioná-lo diretamente ao seu plano.",
+      "chooseWorkout": "Escolher treino",
+      "browseWorkouts": "Explorar treinos",
+      "logMovement": "Registrar movimento",
+      "logResult": "Começar e registrar resultado",
+      "assignedBy": "Atribuído por {coach}",
+      "coachFeedback": "Feedback do coach:",
+      "completed": "Concluído",
+      "viewResult": "Ver resultado",
+      "benchmark": "Benchmark"
+    },
+    "upcoming": {
+      "eyebrow": "Em breve",
+      "title": "Próximos treinos",
+      "description": "Seus treinos planejados para os próximos 30 dias.",
+      "scheduleAnother": "Programar outro",
+      "emptyTitle": "Nenhum próximo treino",
+      "emptyDescription": "Programe um treino quando quiser planejar com antecedência.",
+      "openWorkout": "Abrir treino",
+      "reschedule": "Alterar data",
+      "remove": "Remover",
+      "newDate": "Nova data do treino",
+      "saveDate": "Salvar nova data",
+      "saving": "Salvando...",
+      "cancel": "Cancelar",
+      "removeTitle": "Remover do seu plano?",
+      "removeDescription": "Isso remove apenas a sessão programada, não o treino.",
+      "confirmRemove": "Remover do plano",
+      "removing": "Removendo...",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "rescheduleError": "Não foi possível alterar a data do treino.",
+      "removeError": "Não foi possível remover o treino do seu plano.",
+      "connectionError": "Não foi possível atualizar seu plano. Tente novamente."
+    },
+    "activity": {
+      "eyebrow": "Atividade recente",
+      "title": "Treinos recentes",
+      "description": "Seus resultados mais recentes de treinos e movimentos em um só lugar.",
+      "viewAll": "Ver todo o histórico",
+      "emptyTitle": "Nenhum treino registrado ainda",
+      "emptyDescription": "Complete um treino ou registre um resultado de movimento e sua atividade recente aparecerá aqui.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    }
+  },
+  "help": {
+    "eyebrow": "Ajuda e guias",
+    "title": "Aprenda WODLY no seu ritmo",
+    "description": "Descubra como o WODLY se conecta com um exemplo guiado e prático.",
+    "guideMenu": {
+      "title": "Escolha um guia",
+      "description": "Selecione um tema e aprenda com um exemplo interativo.",
+      "guides": {
+        "concepts": {
+          "title": "Como o WODLY funciona",
+          "description": "Entenda movimentos, treinos, seções, variações e prescrições."
+        },
+        "logResults": {
+          "title": "Registrar resultados",
+          "description": "Acompanhe o fluxo completo, da escolha do treino até visualizar seu progresso."
+        },
+        "install": {
+          "title": "Instalar WODLY",
+          "description": "Adicione o WODLY ao seu telefone no iPhone, Android, Xiaomi ou outro navegador móvel."
+        }
+      }
+    },
+    "logResultsGuide": {
+      "eyebrow": "Guia de registro de resultados",
+      "skip": "Pular",
+      "back": "Voltar",
+      "next": "Próximo",
+      "finish": "Escolher um treino",
+      "progressLabel": "Progresso do guia de resultados",
+      "goToStep": "Ir para a etapa {step}",
+      "steps": {
+        "workout": {
+          "title": "Selecione seu treino",
+          "description": "Escolha o treino que você realizou entre as recomendações, seus treinos ou o histórico.",
+          "tip": "Comece selecionando o treino que você realmente fez."
+        },
+        "variation": {
+          "title": "Escolha sua variação",
+          "description": "Selecione o nível seguido no treino, como Rx, Intermediário ou Iniciante.",
+          "tip": "Seu nível salvo é uma opção padrão útil, mas você pode escolher outra variação a cada dia."
+        },
+        "target": {
+          "title": "Revise sua meta",
+          "description": "Confira as seções, os movimentos e as metas prescritas para a variação escolhida.",
+          "tip": "A prescrição é uma referência. Seu resultado deve registrar o que você realmente completou."
+        },
+        "performance": {
+          "title": "Registre o que você fez",
+          "description": "Informe o resultado geral e, se quiser, expanda os movimentos para registrar cargas, repetições ou outros detalhes.",
+          "tip": "Os detalhes por movimento são opcionais. Registre primeiro o resultado principal e adicione apenas o que for útil."
+        },
+        "progress": {
+          "title": "Veja seu progresso",
+          "description": "O resultado salvo é adicionado ao Histórico e contribui para gráficos de progresso e recordes pessoais.",
+          "tip": "Cada resultado conta. Registros consistentes tornam suas tendências mais úteis com o tempo."
+        }
+      },
+      "example": {
+        "forYou": "Para você",
+        "yourWorkouts": "Seus treinos",
+        "history": "Histórico",
+        "today": "Hoje",
+        "workoutName": "Treino de sexta-feira",
+        "workoutMeta": "4 seções · Várias variações",
+        "date": "Sex, 18 set",
+        "upperBody": "Parte superior",
+        "conditioning": "Condicionamento",
+        "olympicLifting": "Levantamento olímpico",
+        "sectionsCount": "4 seções",
+        "twoMovements": "2 movimentos",
+        "men": "Homens",
+        "women": "Mulheres",
+        "yourResult": "Seu resultado",
+        "saved": "Resultado salvo!",
+        "savedDescription": "Ótimo trabalho! Seu resultado foi salvo.",
+        "totalTime": "Tempo total",
+        "movements": "Movimentos",
+        "viewHistory": "Ver no Histórico",
+        "variations": {
+          "rx": {
+            "name": "Rx",
+            "description": "Conforme prescrito"
+          },
+          "intermediate": {
+            "name": "Intermediário",
+            "description": "Um desafio equilibrado"
+          },
+          "beginner": {
+            "name": "Iniciante",
+            "description": "Movimentos adaptados"
+          }
+        },
+        "sections": {
+          "warmup": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "cooldown": "Volta à calma"
+        }
+      }
+    },
+    "visualGuide": {
+      "skip": "Pular",
+      "back": "Voltar",
+      "next": "Próximo",
+      "finish": "Concluir e criar um treino",
+      "progressLabel": "Progresso do guia",
+      "goToStep": "Ir para a etapa {step}",
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimento",
+          "lead": "Vamos começar pela unidade básica",
+          "title": "Movimento",
+          "description": "Um movimento é um exercício individual que você pode adicionar a um treino e acompanhar separadamente ao longo do tempo.",
+          "insight": "Os movimentos são as unidades reutilizáveis de todos os treinos."
+        },
+        "workout": {
+          "shortTitle": "Treino",
+          "lead": "Agora reúna os movimentos",
+          "title": "Treino",
+          "description": "Um treino é a sessão completa. Ele reúne um ou mais movimentos e os organiza em seções.",
+          "insight": "Um treino reúne diferentes movimentos em uma única sessão."
+        },
+        "section": {
+          "shortTitle": "Seção",
+          "lead": "Organize seu treino",
+          "title": "Seção",
+          "description": "As seções dividem o treino em partes como aquecimento, força, WOD e volta à calma.",
+          "insight": "As seções definem a estrutura e a ordem do treino."
+        },
+        "variation": {
+          "shortTitle": "Variação",
+          "lead": "Adicione diferentes níveis",
+          "title": "Variação",
+          "description": "As variações criam versões Rx, Intermediária ou Iniciante das seções, mantendo o objetivo do treino.",
+          "insight": "Variações são versões por nível do mesmo treino, não treinos diferentes."
+        },
+        "prescription": {
+          "shortTitle": "Prescrição",
+          "lead": "Defina as metas específicas",
+          "title": "Prescrição",
+          "description": "Uma prescrição define a meta exata de um movimento. Use-a quando Homens e Mulheres precisarem de pesos, repetições, distâncias ou outros valores diferentes.",
+          "insight": "O movimento permanece igual; a prescrição atribui metas específicas para Homens e Mulheres."
+        }
+      },
+      "examples": {
+        "movement": {
+          "label": "Movimento",
+          "name": "Thruster",
+          "detail": "Um movimento de corpo inteiro que combina um agachamento frontal e um desenvolvimento de ombros.",
+          "tags": {
+            "strength": "Força",
+            "barbell": "Barra",
+            "fullBody": "Corpo inteiro"
+          }
+        },
+        "workout": {
+          "label": "Treino",
+          "name": "Treino de sexta-feira",
+          "detail": "Uma sessão completa criada para desenvolver força e condicionamento.",
+          "movements": {
+            "thruster": "Thruster",
+            "pullUp": "Barra fixa",
+            "run": "Corrida"
+          },
+          "more": "e mais…"
+        },
+        "section": {
+          "workoutName": "Treino de sexta-feira",
+          "sections": {
+            "warmup": "Aquecimento",
+            "strength": "Força",
+            "wod": "WOD",
+            "cooldown": "Volta à calma"
+          }
+        },
+        "variation": {
+          "section": "WOD",
+          "scheme": "21 – 15 – 9",
+          "levels": {
+            "rx": {
+              "name": "Rx",
+              "description": "Para atletas experientes"
+            },
+            "intermediate": {
+              "name": "Intermediário",
+              "description": "Um desafio equilibrado"
+            },
+            "beginner": {
+              "name": "Iniciante",
+              "description": "Movimentos escalados e acessíveis"
+            }
+          }
+        },
+        "prescription": {
+          "title": "Rx · Thruster",
+          "scheme": "21 – 15 – 9",
+          "men": "Homens",
+          "women": "Mulheres",
+          "note": "Mesmo movimento e variação. Metas prescritas diferentes para Homens e Mulheres."
+        }
+      },
+      "bigPicture": {
+        "title": "A visão completa",
+        "description": "Um treino contém variações; cada variação contém seções, as seções contêm movimentos e as prescrições definem metas por categoria.",
+        "interactionHint": "Toque ou clique em qualquer conceito colorido para rever sua definição.",
+        "openDefinition": "Ver definição",
+        "viewDefinition": "Ver a definição de {concept}",
+        "values": {
+          "movement": "Thruster",
+          "workout": "Treino de sexta-feira",
+          "section": "WOD",
+          "variation": "Rx",
+          "prescription": "43 kg / 29 kg"
+        }
+      }
+    },
+    "moreGuidesTitle": "Continue explorando",
+    "moreGuidesDescription": "Abra um tópico quando precisar de uma revisão rápida.",
+    "learning": {
+      "eyebrow": "Guia interativo",
+      "title": "Aprenda os conceitos passo a passo",
+      "description": "Comece com um movimento e veja como ele se torna parte de um treino completo.",
+      "progress": "{current} de {total}",
+      "stepLabel": "Conceito {number}",
+      "graphicTitle": "Veja o treino tomar forma",
+      "tryIt": "Experimente o exemplo",
+      "previous": "Anterior",
+      "next": "Próximo: {concept}",
+      "complete": "Conceitos principais concluídos",
+      "graphic": {
+        "workout": "Treino",
+        "workoutName": "Agache, puxe e reme",
+        "workoutType": "Por tempo",
+        "variation": "Variação",
+        "variationName": "Rx",
+        "section": "Seção",
+        "sectionName": "Força",
+        "movement": "Movimento",
+        "movementName": "Agachamento livre",
+        "measurement": "Peso + repetições",
+        "prescription": "Prescrição",
+        "prescriptionValue": "5 reps a 75% do 1RM · Homens 60 kg · Mulheres 42,5 kg",
+        "legendWorkout": "Treino",
+        "legendVariation": "Variação",
+        "legendSection": "Seção",
+        "legendMovement": "Movimento",
+        "legendPrescription": "Prescrição"
+      },
+      "steps": {
+        "movement": {
+          "shortTitle": "Movimento",
+          "title": "O movimento é a menor unidade",
+          "description": "Um movimento é um exercício, como agachamento livre, remo ou barra fixa. O WODLY guarda sua categoria e como ele pode ser medido para programá-lo ou acompanhá-lo separadamente.",
+          "keyPoint": "Um movimento pode aparecer em vários treinos e manter seu próprio histórico de resultados."
+        },
+        "workout": {
+          "shortTitle": "Treino",
+          "title": "O treino dá um propósito aos movimentos",
+          "description": "Um treino combina um ou mais movimentos em uma sessão com formato e resultado principal. Você pode concluir por tempo, fazer rounds em um AMRAP ou registrar a carga máxima.",
+          "keyPoint": "O resultado resume a sessão; os resultados por movimento adicionam detalhes opcionais."
+        },
+        "variation": {
+          "shortTitle": "Variação",
+          "title": "As variações preservam o objetivo em diferentes níveis",
+          "description": "O mesmo treino pode ter versões Rx, Intermediária e Iniciante. Cada uma ajusta movimentos, repetições ou cargas ao atleta sem perder o estímulo pretendido.",
+          "keyPoint": "Uma variação não é outro treino: é um caminho acessível para o mesmo objetivo."
+        },
+        "section": {
+          "shortTitle": "Seção",
+          "title": "As seções organizam o treino em partes claras",
+          "description": "Uma variação pode conter seções ordenadas como aquecimento, força, habilidade e condicionamento. Cada seção tem sua própria configuração e movimentos.",
+          "keyPoint": "As seções explicam o que fazer, em qual ordem e por que cada parte pertence à sessão."
+        },
+        "prescription": {
+          "shortTitle": "Prescrição",
+          "title": "A prescrição indica o que o atleta deve realizar",
+          "description": "Uma prescrição adiciona a meta ao movimento: repetições, carga, distância, duração, calorias ou percentual de um RM. Uma meta geral pode valer para todos, com valores por categoria quando necessário.",
+          "keyPoint": "O movimento é o exercício; a prescrição é a meta atribuída a ele neste treino."
+        }
+      },
+      "movement": {
+        "tryLabel": "Escolha um exemplo de movimento",
+        "examples": {
+          "backSquat": {
+            "name": "Agachamento livre",
+            "description": "Um agachamento com carga usado para acompanhar o progresso de força.",
+            "category": "Levantamento de peso",
+            "measurement": "Peso + repetições"
+          },
+          "row": {
+            "name": "Remo",
+            "description": "Um movimento monoestrutural medido por distância, calorias ou duração.",
+            "category": "Monoestrutural",
+            "measurement": "Distância · Calorias · Tempo"
+          },
+          "pullUp": {
+            "name": "Barra fixa",
+            "description": "Um movimento ginástico geralmente medido por repetições concluídas.",
+            "category": "Ginástica",
+            "measurement": "Repetições"
+          }
+        }
+      },
+      "workout": {
+        "example": {
+          "type": "Por tempo",
+          "name": "Agache, puxe e reme",
+          "score": "12:48",
+          "movements": {
+            "backSquat": "15 agachamentos livres",
+            "row": "500 m de remo",
+            "pullUp": "15 barras fixas"
+          },
+          "note": "Esses movimentos agora compartilham um objetivo e geram um único resultado."
+        }
+      },
+      "variation": {
+        "tryLabel": "Compare as variações",
+        "exampleTitle": "Variação {level}",
+        "levels": {
+          "rx": {
+            "name": "Rx",
+            "movementOne": "15 agachamentos livres · 60/42,5 kg",
+            "movementTwo": "15 barras fixas",
+            "stimulus": "Maior carga e ginástica avançada para atletas preparados para o treino original."
+          },
+          "beginner": {
+            "name": "Iniciante",
+            "movementOne": "15 goblet squats · carga leve",
+            "movementTwo": "15 remadas nas argolas",
+            "stimulus": "Movimentos mais acessíveis que mantêm o objetivo de agachar e puxar."
+          }
+        }
+      },
+      "section": {
+        "examples": {
+          "strength": {
+            "name": "Força",
+            "content": "Agachamento livre · 5 séries de 5",
+            "purpose": "Desenvolve força primeiro, enquanto o atleta está descansado."
+          },
+          "conditioning": {
+            "name": "Condicionamento",
+            "content": "3 rounds · remo + barra fixa",
+            "purpose": "Depois combina trabalho cíclico e ginástica com intensidade."
+          }
+        }
+      },
+      "prescription": {
+        "genericLabel": "Meta geral do movimento",
+        "genericValue": "5 repetições a 75% do 1RM",
+        "genericHelp": "Esse percentual vale independentemente da categoria de prescrição.",
+        "categoryLabel": "Carga por categoria",
+        "categoryHelp": "A categoria altera a carga atribuída sem criar outra variação.",
+        "tryLabel": "Compare categorias de prescrição",
+        "categories": {
+          "men": {
+            "name": "Homens",
+            "value": "60 kg"
+          },
+          "women": {
+            "name": "Mulheres",
+            "value": "42,5 kg"
+          }
+        }
+      }
+    },
+    "searchLabel": "Buscar nos guias",
+    "searchPlaceholder": "Buscar treinos, resultados, progresso...",
+    "guidesTitle": "Explore o app",
+    "empty": "Ainda não há um guia correspondente a essa busca.",
+    "guides": {
+      "gettingStarted": {
+        "title": "Primeiros passos",
+        "summary": "Configure seu perfil e registre sua primeira sessão",
+        "body": "Complete seus objetivos, meta semanal, nível habitual e categoria de prescrição em Conta. Depois escolha um treino ou movimento e salve seu primeiro resultado. Seu painel, histórico e progresso serão atualizados automaticamente."
+      },
+      "workouts": {
+        "title": "Treinos e variações",
+        "summary": "Entenda níveis, seções e metas por movimento",
+        "body": "Um treino pode ter várias variações para diferentes níveis. Cada variação contém seções e cada seção contém movimentos. Escolha a variação adequada para hoje; sua preferência salva é apenas uma opção padrão útil."
+      },
+      "results": {
+        "title": "Registro de resultados",
+        "summary": "Salve um resultado rapidamente e adicione detalhes opcionais",
+        "body": "O resultado do treino é o único dado de desempenho obrigatório. Expanda Desempenho por movimento para registrar valores específicos, ou Detalhes do resultado para alterar data, hora e observações. Esses dados melhoram os gráficos e o acompanhamento de recordes."
+      },
+      "progress": {
+        "title": "Progresso e recordes pessoais",
+        "summary": "Veja tendências sem trabalho extra",
+        "body": "Cada resultado salvo alimenta Histórico e Progresso. Os recordes comparam medições compatíveis, como o mesmo levantamento e RM, então um registro consistente produz tendências mais úteis."
+      },
+      "training": {
+        "title": "Planejamento e aulas",
+        "summary": "Programe treinos e siga seu plano diário",
+        "body": "Adicione um treino ao Plano para uma data futura ou reserve uma aula do seu box ativo. Treinos programados e atribuídos aparecem no plano diário e podem ser abertos diretamente na hora de treinar."
+      },
+      "coaching": {
+        "title": "Coaches e feedback",
+        "summary": "Trabalhe com um coach sem perder o controle do seu registro",
+        "body": "Coaches conectados podem atribuir treinos e deixar feedback. Você continua registrando seus próprios resultados e comentários. As ferramentas de coach aparecem apenas para contas com acesso."
+      }
+    },
+    "concepts": {
+      "title": "Conceitos principais",
+      "description": "Estes quatro elementos explicam a maior parte do WODLY.",
+      "workout": {
+        "term": "Treino",
+        "definition": "A sessão completa que você cria, programa ou registra."
+      },
+      "variation": {
+        "term": "Variação",
+        "definition": "Uma versão por nível, como Rx ou Iniciante."
+      },
+      "section": {
+        "term": "Seção",
+        "definition": "Uma parte distinta, como força ou condicionamento."
+      },
+      "movement": {
+        "term": "Movimento",
+        "definition": "Um exercício que você pode programar e acompanhar separadamente."
+      }
+    }
+  },
+  "workouts": {
+    "library": {
+      "eyebrow": "Biblioteca",
+      "title": "Treinos",
+      "description": "Encontre seu próximo desafio ou crie seu próprio treino.",
+      "createWorkout": "Criar treino",
+      "viewLabel": "Visualização da biblioteca de treinos",
+      "active": "Ativos",
+      "archived": "Arquivados",
+      "searchLabel": "Buscar treinos ou movimentos",
+      "searchPlaceholder": "Buscar treinos ou movimentos...",
+      "all": "Todos",
+      "benchmark": "Benchmark",
+      "workoutCount": "{count, plural, =0 {0 treinos} =1 {1 treino} other {# treinos}}",
+      "loading": "Carregando treinos...",
+      "loadError": "Não foi possível carregar os treinos. Tente novamente.",
+      "emptyTitle": "Nenhum treino encontrado",
+      "emptyDescription": "Tente alterar a busca ou os filtros.",
+      "archivedEmptyTitle": "Nenhum treino arquivado",
+      "archivedEmptyDescription": "Os treinos que você desativar aparecerão aqui.",
+      "moreMovements": "+{count} a mais",
+      "viewWorkout": "Ver treino"
+    },
+    "lifecycle": {
+      "delete": "Excluir",
+      "deactivate": "Desativar",
+      "reactivate": "Reativar",
+      "cancel": "Cancelar",
+      "deleteConfirmTitle": "Excluir este treino?",
+      "deleteConfirmDescription": "Este treino não possui resultados e será excluído permanentemente. Esta ação não pode ser desfeita.",
+      "deactivateConfirmTitle": "Desativar este treino?",
+      "deactivateConfirmDescription": "Ele será ocultado da biblioteca ativa e ficará somente para leitura. O histórico existente será preservado.",
+      "reactivateConfirmTitle": "Reativar este treino?",
+      "reactivateConfirmDescription": "Ele retornará à biblioteca ativa e os atletas poderão registrar resultados novamente.",
+      "deleteSubmitting": "Excluindo...",
+      "deactivateSubmitting": "Desativando...",
+      "reactivateSubmitting": "Reativando...",
+      "actionError": "Não foi possível atualizar o treino.",
+      "connectionError": "Não foi possível atualizar o treino. Tente novamente."
+    },
+    "schedule": {
+      "title": "Programar treino",
+      "collapsedDescription": "Adicione a variação {variation} ao seu plano de treino.",
+      "eyebrow": "Planeje seu treino",
+      "selectedVariation": "Variação selecionada: {variation}",
+      "date": "Data do treino",
+      "today": "Usar hoje",
+      "prescription": "Prescrição",
+      "noPrescription": "Sem prescrição específica",
+      "notes": "Notas de planejamento",
+      "notesPlaceholder": "Meta de ritmo, foco, lembrete...",
+      "optional": "(opcional)",
+      "save": "Adicionar ao plano",
+      "scheduled": "Adicionado ao plano",
+      "saving": "Programando...",
+      "cancel": "Cancelar",
+      "dateRequired": "Selecione uma data de treino.",
+      "saveError": "Não foi possível programar este treino.",
+      "connectionError": "Não foi possível programar este treino. Tente novamente.",
+      "duplicateError": "Esta variação já está programada para essa data.",
+      "successTitle": "Treino programado",
+      "successDescription": "O treino foi adicionado ao seu plano.",
+      "backToDashboard": "Voltar ao início"
+    },
+    "create": {
+      "backToLibrary": "Biblioteca de treinos",
+      "backToWorkout": "Voltar ao treino",
+      "title": "Criar treino",
+      "description": "Monte um treino adicionando seções e movimentos.",
+      "editEyebrow": "Gerenciamento de treino",
+      "editTitle": "Editar treino",
+      "editDescription": "Atualize a estrutura, as variações e as prescrições.",
+      "optional": "(opcional)",
+      "publishToBox": "Publicar para membros do box",
+      "publishToBoxHelp": "Os membros de {box} podem ver este treino. Somente usuários com permissão podem editá-lo.",
+      "draft": {
+        "title": "Continuar seu rascunho?",
+        "description": "Salvamos neste dispositivo o treino que você estava criando.",
+        "restore": "Restaurar rascunho",
+        "discard": "Descartar"
+      },
+      "start": {
+        "eyebrow": "Início",
+        "title": "Escolha a forma mais fácil de começar",
+        "description": "Escolha o caminho que combina com a forma como você já tem o treino.",
+        "modes": {
+          "simple": {
+            "title": "Treino simples",
+            "description": "Um nível e uma parte do treino."
+          },
+          "levels": {
+            "title": "Treino com níveis",
+            "description": "RX, Intermediário, Iniciante ou níveis personalizados."
+          },
+          "import": {
+            "title": "Importar de texto",
+            "description": "Cole o treino e revise a estrutura."
+          }
+        },
+        "importTitle": "Já tem o treino escrito?",
+        "importDescription": "Cole um treino com níveis e prescrições específicas por categoria para criar um rascunho editável."
+      },
+      "scoreTypes": {
+        "time": "Tempo",
+        "roundsReps": "Rondas + reps",
+        "load": "Carga",
+        "reps": "Reps"
+      },
+      "mode": {
+        "simpleTitle": "Configuração simples",
+        "simpleDescription": "Comece com um nível e uma seção. Você pode adicionar programação avançada quando precisar.",
+        "advancedTitle": "Programação avançada",
+        "advancedDescription": "Crie vários níveis, seções, observações e prescrições específicas por categoria.",
+        "useSimple": "Usar configuração simples",
+        "useAdvanced": "Mostrar opções avançadas"
+      },
+      "concepts": {
+        "title": "Como a programação é organizada",
+        "description": "Um guia rápido de variações, seções e movimentos.",
+        "variation": {
+          "title": "Variação",
+          "description": "Uma versão para um nível, como Rx, Intermediário ou Iniciante."
+        },
+        "section": {
+          "title": "Seção",
+          "description": "Uma parte do treino, como força, aquecimento ou metcon."
+        },
+        "movement": {
+          "title": "Movimento",
+          "description": "Um exercício dentro de uma seção, com repetições, carga, distância ou tempo opcionais."
+        }
+      },
+      "importer": {
+        "title": "Importar texto do treino",
+        "description": "Cole um treino com níveis e prescrições por categoria para criar um rascunho editável.",
+        "label": "Texto do treino",
+        "placeholder": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nForça\n5 séries\n5 back squats 80 kg\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+        "parse": "Visualizar importação",
+        "parsing": "Lendo treino...",
+        "parseError": "Não foi possível ler o treino. Verifique o texto e tente novamente.",
+        "matched": "{count, plural, =1 {1 movimento encontrado} other {# movimentos encontrados}}",
+        "needsReview": "{count, plural, =1 {1 movimento para revisar} other {# movimentos para revisar}}",
+        "detectedType": "Formato detectado: {type}",
+        "apply": "Usar este rascunho",
+        "applyHint": "Você pode corrigir todos os campos no editor antes de revisar e salvar.",
+        "issues": {
+          "AMBIGUOUS_MOVEMENT": "Linha {line}: escolha o movimento correto",
+          "UNKNOWN_MOVEMENT": "Linha {line}: movimento não reconhecido",
+          "MULTIPLE_LOADS": "Linha {line}: revise manualmente as cargas múltiplas"
+        },
+        "formatHint": "Use um cabeçalho de nível (RX, Intermediário ou Iniciante). Escreva Homens ou Mulheres antes dos movimentos específicos.",
+        "variantsDetected": "{count, plural, =1 {1 variação detectada} other {# variações detectadas}}",
+        "prescriptionsDetected": "{count, plural, =1 {1 prescrição por categoria} other {# prescrições por categoria}}",
+        "examplesTitle": "Teste um exemplo",
+        "examples": {
+          "forTime": "Por tempo",
+          "amrap": "AMRAP",
+          "strength": "Força + WOD"
+        },
+        "exampleTexts": {
+          "forTime": "Fran\nPor tempo\n21-15-9\nThruster 43 kg\nPull-up",
+          "amrap": "Treino de sexta\nAquecimento\n3 rounds\n10 air squats\n10 kip swings\n\nWOD - AMRAP 12 min\n8 DB snatches 22.5/15 kg\n10 box jumps\n200 m run",
+          "strength": "Força + WOD\nForça\n5 séries\n5 back squats 80 kg\n\nWOD\nPor tempo\n21-15-9\nWall balls 9/6 kg\nToes-to-bar"
+        },
+        "understoodTitle": "WODLY entendeu",
+        "understoodDescription": "Revise a estrutura detectada antes de continuar.",
+        "sections": "seções",
+        "movements": "movimentos",
+        "matchedShort": "encontrados",
+        "reviewShort": "para revisar",
+        "sectionFallback": "Seção",
+        "detected": "Detectado",
+        "editText": "Editar texto",
+        "reviewItems": "{count, plural, =1 {Revisar 1 item} other {Revisar # itens}}",
+        "continueToBuilder": "Continuar para o editor",
+        "reviewTitle": "Revisar importação",
+        "reviewDescription": "Corrija apenas o que o WODLY não conseguiu confirmar. O resto está bom.",
+        "needsReviewBadge": "Revisar",
+        "matchedBadge": "Encontrado",
+        "suggestedMatches": "Sugestões",
+        "manualReviewHint": "Nenhuma correspondência confiável foi encontrada. Continue para o editor e escolha o movimento lá.",
+        "allConfirmed": "Todos os itens importados estão confirmados.",
+        "backToPreview": "Voltar à prévia"
+      },
+      "steps": {
+        "ariaLabel": "Progresso de criação do treino",
+        "start": {
+          "title": "Início",
+          "description": "Escolha como começar"
+        },
+        "details": {
+          "title": "Detalhes",
+          "description": "Nome e tipo"
+        },
+        "programming": {
+          "title": "Programação",
+          "description": "Variações e movimentos"
+        },
+        "review": {
+          "title": "Revisão",
+          "description": "Revisar e criar"
+        },
+        "back": "Voltar",
+        "continue": "Continuar"
+      },
+      "review": {
+        "eyebrow": "Revisão final",
+        "title": "Revise seu treino",
+        "description": "Confirme a estrutura antes de criar o treino.",
+        "workout": "Treino",
+        "variants": "Variações",
+        "sections": "Seções",
+        "movements": "Movimentos",
+        "sectionCount": "{count, plural, =1 {1 seção} other {# seções}}",
+        "section": "Seção {number}",
+        "countSummary": "{variants} níveis · {sections} partes · {movements} movimentos",
+        "untitled": "Treino sem título",
+        "edit": "Editar programação",
+        "editDetails": "Editar detalhes",
+        "noPrescription": "Sem prescrição geral",
+        "categoryOverrides": "Valores por categoria",
+        "readyTitle": "Pronto para criar",
+        "readyDescription": "Todas as seções estão configuradas corretamente."
+      },
+      "details": {
+        "eyebrow": "Treino",
+        "title": "Detalhes do treino",
+        "description": "Defina o treino geral antes de adicionar suas seções.",
+        "name": "Nome do treino",
+        "namePlaceholder": "Exemplo: Fran",
+        "workoutDescription": "Descrição",
+        "descriptionPlaceholder": "Descreva o treino...",
+        "type": "Tipo de treino",
+        "selectType": "Selecione o tipo de treino",
+        "scoreHint": "Os atletas registrarão o resultado como: {score}.",
+        "optionalTitle": "Detalhes opcionais",
+        "optionalSummary": "Descrição e benchmark",
+        "benchmark": "Treino benchmark",
+        "benchmarkDescription": "Marque este treino como benchmark para acompanhar suas tentativas ao longo do tempo."
+      },
+      "sections": {
+        "eyebrow": "Estrutura",
+        "title": "Seções do treino",
+        "description": "Adicione os blocos que compõem este treino.",
+        "add": "Adicionar seção"
+      },
+      "reviewBeforeSaving": "Revise as seções e os movimentos antes de salvar.",
+      "create": "Criar treino",
+      "creating": "Criando treino...",
+      "saveChanges": "Salvar alterações",
+      "saving": "Salvando alterações...",
+      "validation": {
+        "nameRequired": "O nome do treino é obrigatório.",
+        "typeRequired": "O tipo de treino é obrigatório.",
+        "sectionRequired": "Adicione pelo menos uma seção.",
+        "sectionTypeRequired": "Seção {section}: selecione um tipo de seção.",
+        "movementRequired": "Seção {section}: adicione pelo menos um movimento.",
+        "movementSelectionRequired": "Seção {section}, movimento {movement}: selecione um movimento.",
+        "importRequired": "Cole e use um rascunho do treino antes de continuar.",
+        "invalidRepScheme": "Seção {section}: o esquema de repetições deve conter números positivos separados por hífens, por exemplo 21-15-9.",
+        "createError": "Não foi possível criar o treino."
+      },
+      "sectionBuilder": {
+        "section": "Seção {number}",
+        "sectionLabel": "Parte",
+        "configureSection": "Configurar seção",
+        "workoutType": "Tipo de treino",
+        "editMovement": "Editar movimento",
+        "saveMovement": "Salvar movimento",
+        "reorderMovement": "Reordenar movimento",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "summary": "{movements} movimentos",
+        "unselectedMovement": "Movimento não selecionado",
+        "tapToEdit": "Toque para editar",
+        "reps": "reps",
+        "remove": "Remover",
+        "sectionType": "Tipo de seção",
+        "selectSectionType": "Selecione o tipo de seção",
+        "sets": "Séries",
+        "rounds": "Rounds",
+        "duration": "Duração",
+        "minutes": "minutos",
+        "rest": "Descanso",
+        "seconds": "segundos",
+        "repScheme": "Esquema de repetições",
+        "repSchemeHelp": "Digite as repetições separadas por hífens, por exemplo 21-15-9.",
+        "repPresets": "Esquemas de repetições comuns",
+        "movements": "Movimentos",
+        "movementsDescription": "Adicione os movimentos incluídos nesta seção.",
+        "addMovement": "Adicionar movimento",
+        "addAnotherMovement": "Adicionar outro movimento",
+        "noMovements": "Ainda não há movimentos",
+        "noMovementsDescription": "Adicione o primeiro movimento desta seção.",
+        "movementNumber": "Movimento {number}",
+        "notes": "Observações",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Adicione instruções ou observações para esta seção...",
+        "optionalDetails": "Observações opcionais da seção",
+        "saveChanges": "Salvar alterações",
+        "sectionRole": "Tipo de seção",
+        "roles": {
+          "warm_up": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "accessory": "Acessórios",
+          "cooldown": "Volta à calma",
+          "custom": "Personalizado"
+        },
+        "workoutFormat": "Formato do treino"
+      },
+      "movementBuilder": {
+        "movement": "Movimento",
+        "change": "Alterar",
+        "remove": "Remover",
+        "searchLabel": "Buscar movimentos",
+        "searchPlaceholder": "Buscar movimentos...",
+        "searching": "Buscando...",
+        "searchError": "Não foi possível buscar os movimentos.",
+        "noResults": "Nenhum movimento encontrado.",
+        "prescription": "Prescrição",
+        "addPrescription": "Adicionar detalhes da prescrição",
+        "optionalPrescriptionDescription": "Repetições, cargas, distâncias, metas e observações são opcionais.",
+        "reps": "Repetições",
+        "weight": "Peso",
+        "percentageOfRm": "% do RM",
+        "referenceRm": "RM de referência",
+        "unit": "Unidade",
+        "selectUnit": "Selecione uma unidade",
+        "useSharedUnit": "Usar unidade geral ({unit})",
+        "distance": "Distância",
+        "calories": "Calorias",
+        "duration": "Duração",
+        "minutesShort": "min",
+        "secondsShort": "seg",
+        "notes": "Observações do movimento",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Adaptação, ritmo alvo, dica técnica...",
+        "sharedPrescriptionDescription": "Estes valores se aplicam a todos, a menos que uma categoria tenha um valor específico.",
+        "sharedPercentageDescription": "Use esta porcentagem quando ela se aplicar a todos. Porcentagens por categoria podem substituí-la.",
+        "categoryPrescriptions": "Prescrições por categoria",
+        "categoryPrescriptionsDescription": "Adicione valores específicos apenas quando a prescrição variar por categoria.",
+        "removeCategoryPrescription": "Remover",
+        "categoryFallbackHint": "Deixe um campo vazio para usar o valor compartilhado.",
+        "categoryNotesPlaceholder": "Notas opcionais para esta categoria",
+        "prescriptionAudience": "Prescrição",
+        "prescriptionAudienceDescription": "Escolha se o objetivo é igual para todos ou muda entre mulheres e homens.",
+        "sameForEveryone": "Igual para todos",
+        "differentByCategory": "Mulheres / Homens",
+        "sameForEveryoneDescription": "Use uma única prescrição para todos. Desative para configurar Mulheres e Homens separadamente.",
+        "womenMenPrescription": "Prescrição Mulheres / Homens",
+        "women": "Mulheres",
+        "men": "Homens"
+      },
+      "variants": {
+        "eyebrow": "Variações do treino",
+        "title": "Variações",
+        "description": "Defina o treino para cada nível de experiência.",
+        "add": "Adicionar variação",
+        "variant": "Variação {number}",
+        "variantLabel": "Variação",
+        "configure": "Configurar variação",
+        "expand": "Expandir",
+        "collapse": "Recolher",
+        "summary": "{sections} seções · {movements} movimentos",
+        "remove": "Remover",
+        "level": "Nível de experiência",
+        "selectLevel": "Selecione um nível",
+        "singleLevelHint": "Escolha um único nível para este treino.",
+        "singleBuilderTitle": "Monte seu treino",
+        "singleBuilderDescription": "Escolha o nível de experiência, o tipo de treino e adicione os movimentos.",
+        "name": "Nome da variação",
+        "namePlaceholder": "Nome personalizado opcional",
+        "notes": "Notas",
+        "notesPlaceholder": "Descreva como esta variação é diferente",
+        "optional": "Opcional",
+        "optionalDetails": "Nome e observações opcionais da variação",
+        "sections": "Seções do treino",
+        "sectionsDescription": "Configure as seções desta variação.",
+        "addSection": "Adicionar seção",
+        "validation": {
+          "variantRequired": "É necessária pelo menos uma variação do treino.",
+          "levelRequired": "Selecione um nível para a variação {variant}.",
+          "duplicateLevel": "Cada variação deve usar um nível diferente."
+        },
+        "chooseSectionType": "Que tipo de seção é esta?",
+        "reorderSection": "Reordenar seção",
+        "sectionRoles": {
+          "warm_up": "Aquecimento",
+          "strength": "Força",
+          "wod": "WOD",
+          "accessory": "Acessórios",
+          "cooldown": "Volta à calma",
+          "custom": "Personalizado"
+        },
+        "editSection": "Editar seção",
+        "saveSection": "Salvar alterações",
+        "noMovementsYet": "Nenhum movimento ainda"
+      },
+      "levelsBuilder": {
+        "title": "Níveis do treino",
+        "description": "Escolha um nível para configurar. Cada nível pode ter suas próprias seções, movimentos e objetivos.",
+        "emptyTitle": "{level} ainda não está configurado",
+        "emptyDescription": "Copie um nível configurado e ajuste-o, ou crie este nível do zero.",
+        "copyFrom": "Copiar de {level}"
+      }
+    },
+    "detail": {
+      "tabs": {
+        "ariaLabel": "Seções do treino",
+        "overview": "Resumo",
+        "log": "Registrar",
+        "progress": "Progresso",
+        "more": "Mais",
+        "moreHint": "Planeje este treino, revise a estratégia de ritmo ou compare os resultados do ranking."
+      },
+      "backToWorkouts": "Treinos",
+      "editWorkout": "Editar treino",
+      "benchmark": "Benchmark",
+      "inactiveTitle": "Este treino está inativo",
+      "inactiveDescription": "Ele está disponível apenas como histórico. Novos resultados e alterações nos resultados existentes estão desativados.",
+      "variationSelectorLabel": "Variações do treino",
+      "variationSelectorTitle": "Escolha uma variação",
+      "scaled": "Adaptado",
+      "section": "Seção {number}",
+      "roundCount": "{count, plural, =1 {1 round} other {# rounds}}",
+      "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+      "rest": "Descanso",
+      "ofRepMax": "de {reps}RM",
+      "percentageTargetFromRm": "com base no seu {reps}RM de {rm} {unit}",
+      "percentageTargetMissingRm": "Registre um {reps}RM exato de {movement} para calcular seu alvo.",
+      "percentageResult": "Meta de {percentage}%: {load} {unit}",
+      "leaderboard": {
+        "eyebrow": "Comunidade",
+        "title": "Ranking do treino",
+        "description": "Melhor resultado por atleta para esta variação.",
+        "yourRank": "Sua posição",
+        "periodLabel": "Período do ranking",
+        "periods": {
+          "30D": "30 dias",
+          "90D": "90 dias",
+          "ALL": "Todo o período"
+        },
+        "loading": "Carregando ranking…",
+        "error": "O ranking está temporariamente indisponível.",
+        "empty": "Ainda não há resultados classificados neste período.",
+        "optInTitle": "Sua participação está desativada",
+        "optInDescription": "Ative no seu perfil para aparecer e ver sua posição.",
+        "managePrivacy": "Gerenciar privacidade",
+        "you": "Você",
+        "roundsReps": "{rounds} + {reps}",
+        "reps": "{count} reps"
+      },
+      "performance": {
+        "eyebrow": "Seu desempenho",
+        "title": "Acompanhe seu progresso",
+        "resultCount": "{count, plural, =1 {1 resultado registrado} other {# resultados registrados}}",
+        "personalBest": "Melhor marca pessoal",
+        "lastResult": "Último resultado",
+        "noResults": "Ainda não há resultados registrados.",
+        "startWorkout": "Começar treino",
+        "liveTrackingLater": "O acompanhamento de treino ao vivo estará disponível mais adiante."
+      },
+      "history": {
+        "eyebrow": "Histórico",
+        "title": "Resultados anteriores",
+        "emptyTitle": "Ainda não há resultados",
+        "edit": "Editar",
+        "emptyDescription": "Suas tentativas anteriores e melhores marcas aparecerão aqui quando você começar a registrar resultados.",
+        "delete": "Excluir",
+        "deleteConfirmTitle": "Excluir este resultado do treino?",
+        "deleteConfirmDescription": "Os resultados de movimentos gerados por este treino também serão excluídos. Esta ação não pode ser desfeita.",
+        "confirmDelete": "Excluir resultado",
+        "cancelDelete": "Cancelar",
+        "deleting": "Excluindo...",
+        "deleteError": "Não foi possível excluir o resultado do treino.",
+        "deleteConnectionError": "Não foi possível excluir o resultado do treino. Tente novamente."
+      }
+    },
+    "logResult": {
+      "eyebrow": "Registrar resultado",
+      "description": "Registre seu desempenho neste treino.",
+      "quickLogTitle": "Registro rápido",
+      "quickLogDescription": "Informe seu resultado e salve. O desempenho por movimento, a data e as observações são opcionais.",
+      "guideToggleTitle": "Precisa de ajuda para registrar?",
+      "guideToggleDescription": "Abra uma guia rápida somente se quiser orientação.",
+      "firstUse": {
+        "eyebrow": "Primeiro resultado",
+        "title": "Registrar leva só um momento",
+        "description": "Comece pelo resultado do treino. Adicione apenas os detalhes extras que forem úteis.",
+        "steps": {
+          "score": {
+            "title": "Informe o resultado principal",
+            "description": "Este é o único dado necessário para salvar o resultado."
+          },
+          "movements": {
+            "title": "Adicione detalhes por movimento se quiser",
+            "description": "Expanda cada movimento para registrar repetições, carga, distância ou tempo."
+          },
+          "details": {
+            "title": "Revise e salve",
+            "description": "Data, hora e observações são opcionais e ficam recolhidas."
+          }
+        },
+        "action": "Entendi — registrar resultado",
+        "dismiss": "Fechar guia de registro"
+      },
+      "score": "Resultado do treino",
+      "scoreHelp": {
+        "time": "Informe quanto tempo você levou para terminar.",
+        "roundsReps": "Informe os rounds concluídos e as repetições extras do round incompleto.",
+        "reps": "Informe o total de repetições concluídas.",
+        "load": "Informe sua maior carga concluída e confirme a unidade.",
+        "default": "Informe o resultado principal deste treino."
+      },
+      "movementDetails": "Desempenho por movimento",
+      "movementDetailsDescription": "{count, plural, =1 {Adicione detalhes opcionais para 1 movimento} other {Adicione detalhes opcionais para # movimentos}}",
+      "movementDetailsProgress": "{logged} de {total} movimentos registrados.",
+      "movementDetailsTargets": "{count, plural, =1 {1 meta disponível} other {# metas disponíveis}}. Adicione detalhes só se forem úteis.",
+      "detailsAdded": "Detalhes adicionados",
+      "percentageTarget": "{percentage}% do seu {reps}RM",
+      "percentageSource": "Com base na sua melhor marca de {load} {unit}",
+      "percentageMissingRm": "Registre um {reps}RM exato de {movement} para calcular esta carga.",
+      "useTarget": "Usar objetivo",
+      "resultDetails": "Detalhes do resultado",
+      "resultDetailsSummary": "{date} às {time}",
+      "today": "Hoje",
+      "now": "Agora",
+      "saved": "Resultado do treino salvo com sucesso.",
+      "queuedOffline": "Resultado salvo neste dispositivo. Ele será sincronizado automaticamente quando você estiver online.",
+      "minutes": "Minutos",
+      "seconds": "Segundos",
+      "rounds": "Rounds",
+      "extraReps": "Repetições extras",
+      "reps": "Repetições",
+      "load": "Carga",
+      "unit": "Unidade",
+      "performedAt": "Realizado em",
+      "date": "Data",
+      "time": "Hora",
+      "selectDate": "Selecionar data",
+      "selectTime": "Selecionar hora",
+      "chooseDate": "Escolher data",
+      "chooseTime": "Escolher hora",
+      "performedAtHelp": "A data e a hora atuais são preenchidas automaticamente. Altere apenas ao registrar um treino anterior.",
+      "rxDescription": "Concluído conforme prescrito.",
+      "notes": "Observações",
+      "optional": "(opcional)",
+      "notesPlaceholder": "Como foi? Adaptação, ritmo ou qualquer detalhe que queira lembrar...",
+      "save": "Salvar resultado",
+      "saving": "Salvando resultado...",
+      "workoutLevel": "Nível do treino",
+      "selectWorkoutLevel": "Selecione um nível",
+      "prescriptionCategory": "Prescrição",
+      "noPrescriptionCategory": "Sem prescrição específica",
+      "editEyebrow": "Editar resultado",
+      "editTitle": "Atualizar resultado do treino",
+      "editDescription": "Corrija seu resultado, nível, desempenho dos movimentos, data ou observações.",
+      "update": "Atualizar resultado",
+      "updating": "Atualizando...",
+      "cancel": "Cancelar",
+      "validation": {
+        "timeRequired": "Informe o tempo do treino.",
+        "invalidSeconds": "Os segundos devem estar entre 0 e 59.",
+        "roundsOrRepsRequired": "Informe rounds ou repetições.",
+        "repsRequired": "Informe a quantidade de repetições.",
+        "loadRequired": "Informe a carga.",
+        "performedAtRequired": "Selecione quando o treino foi realizado.",
+        "saveError": "Não foi possível salvar o resultado.",
+        "connectionError": "Não foi possível salvar o resultado. Tente novamente.",
+        "variantRequired": "Selecione o nível do treino que você realizou."
+      }
+    }
+  },
+  "workoutTypes": {
+    "for_time": "Por tempo",
+    "amrap": "AMRAP",
+    "emom": "EMOM",
+    "strength": "Força",
+    "interval": "Intervalos",
+    "max_reps": "Máximo de repetições",
+    "custom": "Personalizado",
+    "descriptions": {
+      "for_time": "Complete o trabalho prescrito o mais rápido possível.",
+      "amrap": "Complete o maior número possível de rounds ou repetições dentro do tempo estabelecido.",
+      "emom": "Realize o trabalho prescrito no início de cada minuto.",
+      "strength": "Trabalho de força organizado em séries e repetições.",
+      "interval": "Alterne períodos cronometrados de trabalho e descanso.",
+      "max_reps": "Complete o maior número possível de repetições.",
+      "custom": "Use uma estrutura flexível para treinos que não se encaixam nos formatos padrão."
+    }
+  },
+  "resultTypes": {
+    "time": "Tempo",
+    "rounds_reps": "Rounds + Repetições",
+    "reps": "Repetições",
+    "load": "Carga"
+  },
+  "history": {
+    "eyebrow": "Histórico",
+    "title": "Seu histórico de treinos",
+    "description": "Veja seus treinos e resultados de movimentos em uma única linha do tempo.",
+    "benchmark": "Benchmark",
+    "scaled": "Adaptado",
+    "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+    "activity": {
+      "label": "Atividade",
+      "all": "Todas as atividades",
+      "workouts": "Treinos",
+      "movements": "Movimentos"
+    },
+    "labels": {
+      "workout": "Treino",
+      "movement": "Movimento",
+      "movementResults": "Resultados de movimentos",
+      "standaloneResult": "Resultado individual",
+      "benchmark": "Benchmark"
+    },
+    "dates": {
+      "today": "Hoje",
+      "yesterday": "Ontem"
+    },
+    "empty": {
+      "title": "Ainda não há histórico de treino",
+      "description": "Seus treinos e resultados de movimentos aparecerão aqui.",
+      "browseWorkouts": "Ver treinos"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome do treino ou movimento...",
+      "workoutType": "Tipo de treino",
+      "allWorkoutTypes": "Todos os tipos",
+      "resultType": "Tipo de resultado",
+      "allResultTypes": "Todos os resultados",
+      "prescription": "Prescrição",
+      "rxAndScaled": "Rx + Adaptado",
+      "rxOnly": "Somente Rx",
+      "scaledOnly": "Somente adaptado",
+      "showing": "Mostrando {filtered} de {total} registros",
+      "clear": "Limpar filtros",
+      "workoutLevel": "Nível do treino",
+      "allWorkoutLevels": "Todos os níveis"
+    },
+    "noMatches": {
+      "title": "Nenhum resultado encontrado",
+      "description": "Tente alterar ou limpar os filtros."
+    }
+  },
+  "progress": {
+    "tabs": {
+      "ariaLabel": "Seções de progresso",
+      "overview": "Resumo",
+      "trainingLoad": "Carga",
+      "results": "Resultados"
+    },
+    "eyebrow": "Progresso",
+    "title": "Veja como você está evoluindo",
+    "description": "Acompanhe suas melhores marcas, tentativas repetidas e tendências de desempenho nos seus treinos.",
+    "load": {
+      "eyebrow": "Carga e recuperação",
+      "title": "Prontidão para treinar",
+      "description": "Compare sua carga recente com a base de quatro semanas e identifique quando priorizar a recuperação.",
+      "workloadRatio": "Relação carga aguda/base",
+      "acuteLoad": "Carga de 7 dias",
+      "baseline": "Base semanal",
+      "sessions": "Sessões",
+      "restDays": "Dias de descanso",
+      "ratioHelp": "Estimativa baseada em sessões registradas e volume de peso. É uma orientação de treino, não aconselhamento médico.",
+      "trend": "Tendência de carga de oito semanas",
+      "trendHelp": "A altura mostra a carga semanal estimada; o número indica as sessões.",
+      "trendLabel": "Carga semanal estimada durante oito semanas",
+      "volume": "{value} kg de volume nesta semana",
+      "consecutive": "{count, plural, =1 {1 dia consecutivo de treino} other {# dias consecutivos de treino}}. Considere como você se sente antes de aumentar a intensidade.",
+      "loading": "Carregando prontidão de treino",
+      "error": "Não foi possível calcular sua carga de treino.",
+      "retry": "Tentar novamente",
+      "status": {
+        "DETRAINING": "Abaixo da base",
+        "BALANCED": "Equilibrada",
+        "ELEVATED": "Elevada",
+        "HIGH": "Alta",
+        "NO_BASELINE": "Criando base"
+      },
+      "recommendation": {
+        "BUILD": "Você pode aumentar gradualmente se estiver recuperado.",
+        "MAINTAIN": "Sua carga recente está próxima da base estabelecida.",
+        "RECOVER": "Priorize a recuperação ou reduza a intensidade antes da próxima sessão difícil.",
+        "ESTABLISH_BASELINE": "Continue registrando sessões para estabelecer uma base confiável de quatro semanas."
+      }
+    },
+    "insights": {
+      "eyebrow": "Análises do atleta",
+      "title": "Seu treino em um relance",
+      "description": "Entenda sua consistência, a direção do desempenho e o equilíbrio do treino no período selecionado.",
+      "periodLabel": "Período da análise",
+      "periods": {
+        "30D": "30 dias",
+        "90D": "90 dias",
+        "6M": "6 meses",
+        "1Y": "1 ano",
+        "ALL": "Todo o período"
+      },
+      "comparison": {
+        "allTime": "Total de todo o período",
+        "noChange": "Sem mudanças em relação ao período anterior",
+        "more": "+{value} em relação ao período anterior",
+        "less": "-{value} em relação ao período anterior"
+      },
+      "metrics": {
+        "sessions": "Sessões de treino",
+        "activeDays": "Dias ativos",
+        "weeklyAverage": "Média semanal",
+        "personalRecords": "Recordes pessoais"
+      },
+      "streaks": {
+        "current": "Sequência atual",
+        "longest": "Maior sequência do período",
+        "days": "{count, plural, =1 {1 dia} other {# dias}}"
+      },
+      "performance": {
+        "title": "Direção do desempenho",
+        "description": "Tendências com pelo menos duas tentativas neste período.",
+        "improving": "{count} melhorando",
+        "stable": "{count} estáveis",
+        "declining": "{count} em queda",
+        "attempts": "{count, plural, =1 {1 tentativa} other {# tentativas}}",
+        "change": "{value}% de melhora",
+        "scoreImproved": "Pontuação melhorada",
+        "notEnoughData": "Registre outra tentativa do mesmo treino ou movimento para liberar tendências."
+      },
+      "directions": {
+        "IMPROVING": "Melhorando",
+        "STABLE": "Estável",
+        "DECLINING": "Em queda"
+      },
+      "balance": {
+        "workoutTypes": "Tipos de treino",
+        "movementCategories": "Categorias de movimentos",
+        "levels": "Níveis de treino",
+        "prescriptions": "Categorias de prescrição",
+        "empty": "Nenhuma atividade nesta categoria no período selecionado.",
+        "opportunities": "Oportunidades de equilíbrio",
+        "opportunitiesDescription": "Áreas que representam menos de 10% do seu treino registrado neste período."
+      },
+      "empty": {
+        "title": "Ainda não há análises para este período",
+        "description": "Escolha um período maior ou registre um resultado para começar a gerar análises."
+      },
+      "error": {
+        "title": "As análises estão temporariamente indisponíveis",
+        "description": "Seus dados de progresso existentes continuam disponíveis abaixo.",
+        "retry": "Tentar novamente"
+      }
+    },
+    "partial": {
+      "workouts": "O progresso de treinos está temporariamente indisponível. Seu progresso de movimentos ainda é exibido abaixo.",
+      "movements": "O progresso de movimentos está temporariamente indisponível. Seu progresso de treinos ainda é exibido abaixo."
+    },
+    "benchmark": "Benchmark",
+    "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+    "attemptCount": "{count, plural, =1 {1 tentativa} other {# tentativas}}",
+    "firstResult": "Primeiro resultado",
+    "personalBest": "Melhor marca pessoal",
+    "latest": "Mais recente",
+    "empty": {
+      "title": "Ainda não há dados de progresso",
+      "description": "Registre resultados de treinos ou movimentos e o WODLY começará a acompanhar seu progresso.",
+      "browseWorkouts": "Ver treinos",
+      "browseMovements": "Ver movimentos"
+    },
+    "summary": {
+      "resultsLogged": "Resultados registrados",
+      "workoutResults": "Resultados de treinos",
+      "workoutsTracked": "Treinos acompanhados",
+      "movementResults": "Resultados de movimentos",
+      "movementsTracked": "Movimentos acompanhados",
+      "personalRecords": "PRs de movimentos",
+      "rxRate": "Taxa Rx",
+      "rxBreakdown": "{rx} Rx · {scaled} Escalado",
+      "benchmarksTracked": "Benchmarks acompanhados",
+      "rxResults": "resultados RX",
+      "levelBreakdown": "Resultados por nível"
+    },
+    "movements": {
+      "eyebrow": "Progresso de movimentos",
+      "title": "Seu progresso por movimento",
+      "description": "Acompanhe recordes pessoais e tendências de desempenho em cada movimento.",
+      "emptyTitle": "Ainda não há progresso de movimentos",
+      "emptyDescription": "Registre um resultado de movimento para começar a acompanhar seus recordes e tendências.",
+      "browse": "Ver movimentos"
+    },
+    "movementChart": {
+      "ariaLabel": "Tendência de desempenho do movimento",
+      "notEnoughData": "Ainda não há dados suficientes para o gráfico.",
+      "logAnotherResult": "Registre outro resultado para ver sua evolução.",
+      "lowerIsBetter": "Um valor menor é melhor.",
+      "higherIsBetter": "Um valor maior é melhor.",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}"
+    },
+    "workouts": {
+      "eyebrow": "Progresso por treino",
+      "title": "Seus treinos acompanhados",
+      "description": "Compare seu primeiro resultado com sua melhor marca pessoal e veja como seu desempenho muda ao longo do tempo."
+    },
+    "improvement": {
+      "label": "Evolução",
+      "faster": "{value} mais rápido",
+      "slower": "{value} mais lento",
+      "noChange": "Sem alteração",
+      "noImprovement": "Sem evolução",
+      "repsGain": "+{count, plural, =1 {1 repetição} other {# repetições}}",
+      "repsLoss": "-{count, plural, =1 {1 repetição} other {# repetições}}",
+      "roundsGain": "+{count, plural, =1 {1 round} other {# rounds}}"
+    },
+    "trend": {
+      "title": "Tendência de desempenho",
+      "description": "Resultados em ordem cronológica."
+    },
+    "chart": {
+      "ariaLabel": "Tendência de desempenho do treino",
+      "notEnoughData": "Não há dados suficientes para exibir um gráfico.",
+      "logAnotherResult": "Registre outro resultado para ver sua tendência.",
+      "lowerIsBetter": "Menor é melhor.",
+      "higherIsBetter": "Maior é melhor.",
+      "noAttempts": "Nenhuma tentativa disponível.",
+      "scaled": "Adaptado",
+      "repsValue": "{count, plural, =1 {1 repetição} other {# repetições}}",
+      "roundsRepsExplanation": "As tentativas são exibidas exatamente como rounds + repetições extras, sem convertê-las em uma pontuação numérica artificial."
+    }
+  },
+  "movements": {
+    "eyebrow": "Referência",
+    "title": "Movimentos",
+    "description": "Explore a biblioteca de movimentos usada para criar seus treinos.",
+    "searchLabel": "Buscar movimentos ou aliases",
+    "searchPlaceholder": "Buscar movimentos ou aliases...",
+    "searching": "Buscando...",
+    "searchError": "Não foi possível buscar os movimentos.",
+    "movementCount": "{count, plural, =0 {0 movimentos} =1 {1 movimento} other {# movimentos}}",
+    "emptyTitle": "Nenhum movimento encontrado",
+    "emptyDescription": "Tente buscar pelo nome do movimento ou alias.",
+    "foundational": "Fundamental",
+    "management": {
+      "createTitle": "Adicionar movimento",
+      "createDescription": "Adicione um movimento à sua biblioteca pessoal.",
+      "editTitle": "Editar movimento",
+      "editDescription": "Atualize as instruções, o vídeo e as opções de acompanhamento.",
+      "essentialsTitle": "Dados essenciais",
+      "essentialsDescription": "Comece com os três dados necessários para salvar este movimento.",
+      "name": "Nome do movimento",
+      "namePlaceholder": "Por exemplo, agachamento frontal",
+      "category": "Categoria",
+      "categoryHelp": {
+        "weightlifting": "Movimentos com carga externa, como barra, halter, kettlebell ou outros objetos.",
+        "gymnastics": "Movimentos com o peso corporal que desenvolvem controle, força, equilíbrio ou coordenação.",
+        "monostructural": "Movimentos cardiovasculares cíclicos, como correr, remar, pedalar, nadar ou esquiar.",
+        "other": "Escolha a categoria que melhor representa o estímulo principal do movimento."
+      },
+      "measurementTypes": "Resultados registrados",
+      "measurementTypesHelp": "Escolha como o progresso será registrado. Você pode selecionar mais de uma opção.",
+      "optionalTitle": "Adicionar detalhes opcionais",
+      "optionalDescription": "Apelidos, instruções, vídeo e status de movimento fundamental",
+      "publishToBox": "Publicar para membros do box",
+      "publishToBoxHelp": "Os membros de {box} podem ver este movimento. Somente usuários com permissão podem editá-lo.",
+      "aliases": "Aliases",
+      "aliasesPlaceholder": "HSPU, flexão de parada de mãos",
+      "aliasesHelp": "Separe os nomes alternativos com vírgulas para encontrar o movimento mais facilmente.",
+      "description": "Como executar",
+      "descriptionPlaceholder": "Descreva a preparação, execução e os pontos importantes da técnica...",
+      "videoUrl": "URL do vídeo instrutivo",
+      "foundational": "Movimento fundamental",
+      "foundationalHelp": "Selecione quando for uma habilidade base sobre a qual outros movimentos ou progressões são construídos.",
+      "required": "Informe um nome, uma categoria e pelo menos um resultado registrado.",
+      "create": "Criar movimento",
+      "saveChanges": "Salvar alterações",
+      "cancel": "Cancelar",
+      "saveError": "Não foi possível salvar o movimento.",
+      "delete": "Excluir movimento",
+      "deleteConfirm": "Excluir este movimento permanentemente? Esta ação não pode ser desfeita.",
+      "deleteError": "Não foi possível excluir o movimento."
+    },
+    "detail": {
+      "tabs": {
+        "ariaLabel": "Seções do movimento",
+        "overview": "Resumo",
+        "log": "Registrar",
+        "progress": "Progresso",
+        "history": "Histórico"
+      },
+      "backToMovements": "Movimentos",
+      "foundational": "Fundamental",
+      "alsoKnownAs": "Também conhecido como",
+      "instructions": "Como executar",
+      "watchVideo": "Assistir ao vídeo instrutivo",
+      "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+      "personalRecords": {
+        "eyebrow": "Recordes pessoais",
+        "title": "Suas melhores marcas",
+        "description": "Os recordes pessoais são calculados a partir dos resultados registrados para este movimento.",
+        "emptyTitle": "Ainda não há recordes pessoais",
+        "emptyDescription": "Registre seu primeiro resultado e o WODLY começará a acompanhar seus recordes pessoais."
+      },
+      "history": {
+        "eyebrow": "Histórico",
+        "title": "Resultados recentes",
+        "resultCount": "{count, plural, =1 {1 resultado} other {# resultados}}",
+        "emptyTitle": "Ainda não há resultados",
+        "emptyDescription": "O histórico deste movimento aparecerá aqui depois que você registrar seu primeiro resultado.",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "deleteConfirmTitle": "Excluir este resultado?",
+        "deleteConfirmDescription": "Esta ação não pode ser desfeita.",
+        "confirmDelete": "Excluir resultado",
+        "cancelDelete": "Cancelar",
+        "deleting": "Excluindo...",
+        "deleteError": "Não foi possível excluir o resultado.",
+        "deleteConnectionError": "Não foi possível excluir o resultado. Tente novamente."
+      },
+      "logResult": {
+        "eyebrow": "Registrar resultado",
+        "title": "Registre uma marca",
+        "description": "Adicione um resultado para este movimento e mantenha seus recordes pessoais atualizados.",
+        "editEyebrow": "Editar resultado",
+        "editTitle": "Atualizar resultado do movimento",
+        "editDescription": "Corrija a medição, resultado, data ou observações deste registro.",
+        "measurementType": "Tipo de resultado",
+        "score": "Resultado do desempenho",
+        "reps": "Repetições",
+        "load": "Carga",
+        "weightUnit": "Unidade de peso",
+        "distance": "Distância",
+        "distanceMeters": "Distância (m)",
+        "minutes": "Minutos",
+        "seconds": "Segundos",
+        "calories": "Calorias",
+        "performedAt": "Realizado em",
+        "date": "Data",
+        "time": "Hora",
+        "today": "Hoje",
+        "now": "Agora",
+        "resultDetails": "Detalhes do resultado",
+        "resultDetailsSummary": "{date} às {time}",
+        "performedAtHelp": "A data e a hora atuais são preenchidas automaticamente. Altere apenas ao registrar um resultado anterior.",
+        "notes": "Notas",
+        "optional": "(opcional)",
+        "notesPlaceholder": "Notas de técnica, condições, como se sentiu...",
+        "save": "Salvar resultado",
+        "saving": "Salvando resultado...",
+        "saved": "Resultado salvo com sucesso.",
+        "queuedOffline": "Resultado salvo neste dispositivo. Ele será sincronizado automaticamente quando você estiver online.",
+        "update": "Atualizar resultado",
+        "updating": "Atualizando...",
+        "cancel": "Cancelar",
+        "validation": {
+          "measurementRequired": "Selecione um tipo de resultado.",
+          "repsRequired": "Informe o número de repetições.",
+          "loadRequired": "Informe a carga.",
+          "distanceRequired": "Informe a distância.",
+          "durationRequired": "Informe uma duração.",
+          "invalidSeconds": "Os segundos devem estar entre 0 e 59.",
+          "caloriesRequired": "Informe as calorias.",
+          "performedAtRequired": "Selecione quando o resultado foi realizado.",
+          "saveError": "Não foi possível salvar o resultado.",
+          "connectionError": "Não foi possível salvar o resultado. Tente novamente."
+        }
+      },
+      "progress": {
+        "eyebrow": "Progresso",
+        "title": "Desempenho ao longo do tempo",
+        "description": "Veja como seu desempenho neste movimento muda ao longo dos resultados registrados.",
+        "measurementType": "Métrica",
+        "repScheme": "Esquema de repetições",
+        "repsValue": "{count, plural, =1 {1 rep} other {# reps}}",
+        "emptyTitle": "Ainda não há dados de progresso",
+        "emptyDescription": "Registre resultados para este movimento e comece a construir seu gráfico de progresso.",
         "noData": "Não há resultados para esta métrica",
         "noDataDescription": "Registre outro resultado com esta métrica para começar a acompanhar seu progresso.",
         "logAnotherResult": "Registre outro resultado para começar a visualizar sua evolução.",

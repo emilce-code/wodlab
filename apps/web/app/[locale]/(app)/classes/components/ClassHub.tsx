@@ -301,9 +301,14 @@ export default function ClassHub() {
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3">
             <span className="text-xs text-muted">{t("members", { count: selectedBox._count.memberships })}</span>
-            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase text-accent">{t(`roles.${role?.toLowerCase() ?? "athlete"}`)}</span>
+            <Link
+              href={`/boxes/${selectedBox.id}`}
+              className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-full bg-accent/10 px-3 text-xs font-bold text-accent"
+            >
+              {t("viewBox")}
+            </Link>
           </div>
         </section>
       ) : null}
