@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 8048)
-Total output lines: 1278
-
 import {
   BadRequestException,
   ConflictException,
@@ -308,7 +305,632 @@ export class BoxesService {
             ? { address: dto.location.trim() || null }
             : {}),
         ...(dto.latitude !== undefined ? { latitude: dto.latitude } : {}),
-        ...(dto.longitude !== undefined ? { longitude:…4048 tokens truncated…wait this.requireMember(userId, boxId);
+        ...(dto.longitude !== undefined ? { longitude: dto.longitude } : {}),
+        ...(dto.logoPath !== undefined
+          ? { logoPath: dto.logoPath?.trim() || null }
+          : {}),
+        ...(dto.coverImagePath !== undefined
+          ? { coverImagePath: dto.coverImagePath?.trim() || null }
+          : {}),
+        ...(dto.supportContact !== undefined
+          ? { supportContact: dto.supportContact?.trim() || null }
+          : {}),
+        ...(dto.organizationId !== undefined ? { organizationId } : {}),
+      },
+    });
+  }
+
+  async join(userId: string, joinCode: string) {
+    const box = await this.prisma.box.findUnique({
+      where: { joinCode: joinCode.trim().toUpperCase() },
+    });
+    if (!box) throw new NotFoundException('Box not found');
+
+    const existing = await this.prisma.boxMembership.findUnique({
+      where: { boxId_userId: { boxId: box.id, userId } },
+    });
+
+    if (existing?.status === 'ACTIVE') {
+      throw new ConflictException('You already belong to this box');
+    }
+    if (existing?.status === 'PENDING') {
+      throw new ConflictException('Your request to join this box is pending');
+    }
+
+    const membership = existing
+      ? await this.prisma.boxMembership.update({
+          where: { id: existing.id },
+          data: { status: 'PENDING', leftAt: null },
+        })
+      : await this.prisma.boxMembership.create({
+          data: {
+            boxId: box.id,
+            userId,
+            roleId: 'box-membership-role-athlete',
+            status: 'PENDING',
+          },
+        });
+
+    return { box, membershipId: membership.id, status: membership.status };
+  }
+
+  async setActiveBox(userId: string, boxId: string) {
+    const membership = await this.requireMember(userId, boxId);
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { activeBoxId: boxId },
+    });
+
+    return {
+      boxId,
+      role: membership.role.key,
+      active: true,
+    };
+  }
+
+  async options(userId: string, boxId: string) {
+    await this.requireStaff(userId, boxId);
+
+    return this.prisma.workout.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          {
+            scope: 'GLOBAL',
+          },
+          {
+            scope: 'BOX',
+            boxId,
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        scope: true,
+        boxId: true,
+        sourceWorkoutId: true,
+        variants: {
+          select: {
+            id: true,
+            name: true,
+            level: {
+              select: {
+                key: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        {
+          scope: 'asc',
+        },
+        {
+          name: 'asc',
+        },
+      ],
+    });
+  }
+
+  async findMembers(userId: string, boxId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const memberships = await this.prisma.boxMembership.findMany({
+      where: { boxId },
+      select: {
+        id: true,
+        userId: true,
+        status: true,
+        joinedAt: true,
+        leftAt: true,
+        createdAt: true,
+        role: { select: { key: true } },
+        user: {
+          select: {
+            email: true,
+            athleteProfile: { select: { displayName: true } },
+            coachProfile: { select: { displayName: true } },
+          },
+        },
+      },
+      orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
+    });
+    return memberships.map((membership) => ({
+      ...membership,
+      role: membership.role.key,
+    }));
+  }
+
+  async assignMember(
+    userId: string,
+    boxId: string,
+    email: string,
+    role: BoxMembershipRoleKey,
+  ) {
+    await this.requireRoleAssignmentAccess(userId, boxId, role);
+
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email.trim(), mode: 'insensitive' } },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const membership = await this.prisma.boxMembership.upsert({
+      where: { boxId_userId: { boxId, userId: user.id } },
+      create: {
+        boxId,
+        userId: user.id,
+        roleId: boxMembershipRoleId(role),
+        status: 'ACTIVE',
+        joinedAt: new Date(),
+      },
+      update: {
+        role: { connect: { key: role } },
+        status: 'ACTIVE',
+        joinedAt: new Date(),
+        leftAt: null,
+      },
+      include: {
+        role: { select: { key: true } },
+        user: {
+          select: {
+            email: true,
+            athleteProfile: { select: { displayName: true } },
+            coachProfile: { select: { displayName: true } },
+          },
+        },
+      },
+    });
+
+    return {
+      ...membership,
+      role: membership.role.key,
+    };
+  }
+
+  async updateMember(
+    userId: string,
+    boxId: string,
+    memberId: string,
+    role: BoxMembershipRoleKey,
+  ) {
+    await this.requireRoleAssignmentAccess(userId, boxId, role);
+    const membership = await this.prisma.boxMembership.findFirst({
+      where: { id: memberId, boxId },
+    });
+    if (!membership) throw new NotFoundException('Box member not found');
+    if (membership.roleId === 'box-membership-role-owner' && role !== 'OWNER') {
+      await this.ensureAnotherActiveOwner(boxId, membership.id);
+    }
+    return this.prisma.boxMembership.update({
+      where: { id: memberId },
+      data: { role: { connect: { key: role } } },
+      include: { role: true },
+    });
+  }
+
+  async approveMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const membership = await this.prisma.boxMembership.findFirst({
+      where: { id: memberId, boxId, status: 'PENDING' },
+    });
+    if (!membership)
+      throw new NotFoundException('Pending membership not found');
+    return this.prisma.boxMembership.update({
+      where: { id: memberId },
+      data: { status: 'ACTIVE', joinedAt: new Date(), leftAt: null },
+    });
+  }
+
+  async deactivateMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const membership = await this.prisma.boxMembership.findFirst({
+      where: { id: memberId, boxId },
+    });
+    if (!membership) throw new NotFoundException('Box member not found');
+    if (membership.roleId === 'box-membership-role-owner') {
+      await this.ensureAnotherActiveOwner(boxId, membership.id);
+    }
+    await this.prisma.$transaction([
+      this.prisma.boxMembership.update({
+        where: { id: memberId },
+        data: { status: 'INACTIVE', leftAt: new Date() },
+      }),
+      this.prisma.user.updateMany({
+        where: { id: membership.userId, activeBoxId: boxId },
+        data: { activeBoxId: null },
+      }),
+    ]);
+    return { id: memberId, status: 'INACTIVE' };
+  }
+
+  async reactivateMember(userId: string, boxId: string, memberId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+    const membership = await this.prisma.boxMembership.findFirst({
+      where: { id: memberId, boxId, status: 'INACTIVE' },
+    });
+    if (!membership)
+      throw new NotFoundException('Inactive membership not found');
+    return this.prisma.boxMembership.update({
+      where: { id: memberId },
+      data: { status: 'ACTIVE', joinedAt: new Date(), leftAt: null },
+    });
+  }
+
+  async removeMember(userId: string, boxId: string, memberId: string) {
+    return this.deactivateMember(userId, boxId, memberId);
+  }
+
+  async leave(userId: string, boxId: string) {
+    const membership = await this.requireMember(userId, boxId);
+    if (membership.role.key === 'OWNER') {
+      await this.ensureAnotherActiveOwner(boxId, membership.id);
+    }
+    await this.prisma.$transaction([
+      this.prisma.boxMembership.update({
+        where: { id: membership.id },
+        data: { status: 'INACTIVE', leftAt: new Date() },
+      }),
+      this.prisma.user.updateMany({
+        where: { id: userId, activeBoxId: boxId },
+        data: { activeBoxId: null },
+      }),
+    ]);
+    return { id: membership.id, status: 'INACTIVE' };
+  }
+
+  async rotateJoinCode(userId: string, boxId: string) {
+    await this.requireOwnerOrAdmin(userId, boxId);
+
+    const joinCode = await this.createUniqueJoinCode();
+
+    return this.prisma.box.update({
+      where: { id: boxId },
+      data: { joinCode },
+      select: {
+        id: true,
+        joinCode: true,
+      },
+    });
+  }
+
+  async findClasses(
+    userId: string,
+    boxId: string,
+    query: FindClassSessionsQueryDto,
+  ) {
+    const membership = await this.getMemberOrAdmin(userId, boxId);
+    const from = query.from ? new Date(query.from) : new Date();
+    const to = query.to
+      ? new Date(query.to)
+      : new Date(from.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    if (from > to) {
+      throw new BadRequestException('Invalid date range');
+    }
+
+    const classes = (await this.prisma.classSession.findMany({
+      where: {
+        boxId,
+        startsAt: {
+          gte: from,
+          lte: to,
+        },
+      },
+      include: classInclude,
+      orderBy: {
+        startsAt: 'asc',
+      },
+    })) as unknown as Array<{
+      bookings: Array<{ userId: string }>;
+      [key: string]: unknown;
+    }>;
+
+    return {
+      role: membership?.role.key ?? 'OWNER',
+      classes: classes.map((session) => ({
+        ...session,
+        bookedCount: session.bookings.length,
+        currentUserBooking:
+          session.bookings.find((booking) => booking.userId === userId) ?? null,
+      })),
+    };
+  }
+
+  async createClass(userId: string, boxId: string, dto: CreateClassSessionDto) {
+    await this.requireStaff(userId, boxId);
+
+    const startsAt = new Date(dto.startsAt);
+
+    if (startsAt <= new Date()) {
+      throw new BadRequestException('Class must start in the future');
+    }
+
+    if (dto.workoutVariantId && !dto.workoutId) {
+      throw new BadRequestException('Workout is required for a variation');
+    }
+
+    if (dto.workoutId) {
+      const workout = await this.prisma.workout.findFirst({
+        where: {
+          id: dto.workoutId,
+          isActive: true,
+          OR: [
+            {
+              scope: 'GLOBAL',
+            },
+            {
+              scope: 'BOX',
+              boxId,
+            },
+          ],
+          ...(dto.workoutVariantId
+            ? {
+                variants: {
+                  some: {
+                    id: dto.workoutVariantId,
+                  },
+                },
+              }
+            : {}),
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!workout) {
+        throw new BadRequestException('Invalid workout selection');
+      }
+    }
+
+    return this.prisma.classSession.create({
+      data: {
+        boxId,
+        name: dto.name.trim(),
+        description: dto.description?.trim() || null,
+        startsAt,
+        durationMinutes: dto.durationMinutes,
+        capacity: dto.capacity,
+        workoutId: dto.workoutId || null,
+        workoutVariantId: dto.workoutVariantId || null,
+        createdByUserId: userId,
+      },
+      include: classInclude,
+    });
+  }
+
+  async deleteClass(userId: string, boxId: string, classId: string) {
+    await this.requireStaff(userId, boxId);
+
+    const session = await this.prisma.classSession.findFirst({
+      where: {
+        id: classId,
+        boxId,
+      },
+      include: {
+        bookings: {
+          where: {
+            status: 'ATTENDED',
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Class not found');
+    }
+
+    if (session.bookings.length) {
+      throw new ConflictException('Classes with attendance cannot be deleted');
+    }
+
+    await this.prisma.classSession.delete({
+      where: {
+        id: classId,
+      },
+    });
+
+    return {
+      deleted: true,
+    };
+  }
+
+  async updateClass(
+    userId: string,
+    boxId: string,
+    classId: string,
+    dto: UpdateClassSessionDto,
+  ) {
+    await this.requireStaff(userId, boxId);
+
+    const session = await this.prisma.classSession.findFirst({
+      where: {
+        id: classId,
+        boxId,
+      },
+      include: {
+        bookings: {
+          where: {
+            status: {
+              in: activeBookingStatuses,
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Class not found');
+    }
+
+    const data: {
+      description?: string | null;
+      startsAt?: Date;
+      workoutId?: string | null;
+      workoutVariantId?: string | null;
+    } = {};
+
+    if ('description' in dto) {
+      data.description = dto.description?.trim() || null;
+    }
+
+    if (dto.startsAt) {
+      if (session.bookings.length) {
+        throw new ConflictException(
+          'Class date and time cannot be changed after bookings exist',
+        );
+      }
+
+      const startsAt = new Date(dto.startsAt);
+
+      if (startsAt <= new Date()) {
+        throw new BadRequestException('Class must start in the future');
+      }
+
+      data.startsAt = startsAt;
+    }
+
+    const workoutId =
+      'workoutId' in dto ? dto.workoutId || null : session.workoutId;
+    const workoutVariantId =
+      'workoutVariantId' in dto
+        ? dto.workoutVariantId || null
+        : session.workoutVariantId;
+
+    if (workoutVariantId && !workoutId) {
+      throw new BadRequestException('Workout is required for a variation');
+    }
+
+    if ('workoutId' in dto || 'workoutVariantId' in dto) {
+      if (workoutId) {
+        const workout = await this.prisma.workout.findFirst({
+          where: {
+            id: workoutId,
+            isActive: true,
+            OR: [
+              {
+                scope: 'GLOBAL',
+              },
+              {
+                scope: 'BOX',
+                boxId,
+              },
+            ],
+            ...(workoutVariantId
+              ? {
+                  variants: {
+                    some: {
+                      id: workoutVariantId,
+                    },
+                  },
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!workout) {
+          throw new BadRequestException('Invalid workout selection');
+        }
+      }
+
+      data.workoutId = workoutId;
+      data.workoutVariantId = workoutVariantId;
+    }
+
+    return this.prisma.classSession.update({
+      where: {
+        id: classId,
+      },
+      data,
+      include: classInclude,
+    });
+  }
+
+  async book(userId: string, boxId: string, classId: string) {
+    await this.requireMember(userId, boxId);
+
+    return this.prisma.$transaction(
+      async (transaction) => {
+        const session = await transaction.classSession.findFirst({
+          where: {
+            id: classId,
+            boxId,
+          },
+        });
+
+        if (!session) {
+          throw new NotFoundException('Class not found');
+        }
+
+        if (session.startsAt <= new Date()) {
+          throw new BadRequestException('This class has already started');
+        }
+
+        const count = await transaction.classBooking.count({
+          where: {
+            classId,
+            status: {
+              in: ['BOOKED', 'ATTENDED'],
+            },
+          },
+        });
+
+        const existing = await transaction.classBooking.findUnique({
+          where: {
+            classId_userId: {
+              classId,
+              userId,
+            },
+          },
+        });
+
+        if (existing?.status === 'BOOKED' || existing?.status === 'ATTENDED') {
+          throw new ConflictException('You are already booked');
+        }
+
+        if (count >= session.capacity) {
+          throw new ConflictException('Class is full');
+        }
+
+        return transaction.classBooking.upsert({
+          where: {
+            classId_userId: {
+              classId,
+              userId,
+            },
+          },
+          create: {
+            classId,
+            userId,
+          },
+          update: {
+            status: 'BOOKED',
+          },
+        });
+      },
+      {
+        isolationLevel: 'Serializable',
+      },
+    );
+  }
+
+  async cancelBooking(userId: string, boxId: string, classId: string) {
+    await this.requireMember(userId, boxId);
 
     const booking = await this.prisma.classBooking.findFirst({
       where: {
