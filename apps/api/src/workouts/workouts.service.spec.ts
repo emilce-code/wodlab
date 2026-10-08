@@ -37,42 +37,49 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     workoutResult: {
       findFirst: jest.fn(),
     },
-    classSession: {
-      findFirst: jest.fn(),
-    },
   };
 
   const userContext = ({
     role = 'USER',
     activeBoxId = null,
     activeBoxRole = null,
+    memberships,
   }: {
     role?: 'USER' | 'COACH' | 'ADMIN';
     activeBoxId?: string | null;
     activeBoxRole?: 'OWNER' | 'COACH' | 'ATHLETE' | null;
+    memberships?: Array<{
+      boxId: string;
+      role: 'OWNER' | 'COACH' | 'ATHLETE';
+    }>;
   } = {}) => ({
     id: role === 'ADMIN' ? 'admin-1' : 'user-1',
     role,
     activeBoxId,
-    boxMemberships:
-      activeBoxId && activeBoxRole
+    boxMemberships: (
+      memberships ??
+      (activeBoxId && activeBoxRole
         ? [
             {
               boxId: activeBoxId,
-              box: {
-                ownerUserId:
-                  activeBoxRole === 'OWNER'
-                    ? role === 'ADMIN'
-                      ? 'admin-1'
-                      : 'user-1'
-                    : 'owner-1',
-              },
-              role: {
-                key: activeBoxRole,
-              },
+              role: activeBoxRole,
             },
           ]
-        : [],
+        : [])
+    ).map((membership) => ({
+      boxId: membership.boxId,
+      box: {
+        ownerUserId:
+          membership.role === 'OWNER'
+            ? role === 'ADMIN'
+              ? 'admin-1'
+              : 'user-1'
+            : 'owner-1',
+      },
+      role: {
+        key: membership.role,
+      },
+    })),
   });
 
   const workoutFixture = ({
@@ -163,7 +170,6 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     });
 
     prismaMock.workoutResult.findFirst.mockResolvedValue(null);
-    prismaMock.classSession.findFirst.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -221,7 +227,9 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
           AND: expect.arrayContaining([
             {
               scope: 'BOX',
-              boxId: 'box-1',
+              boxId: {
+                in: ['box-1'],
+              },
             },
             {
               isActive: true,
@@ -457,44 +465,36 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
     );
   });
 
-  it('allows a box athlete to read a workout assigned to a class in the active Box', async () => {
+  it('allows a box athlete to read a workout from any assigned Box', async () => {
     prismaMock.user.findUnique.mockResolvedValue(
       userContext({
-        activeBoxId: 'box-1',
-        activeBoxRole: 'ATHLETE',
+        activeBoxId: null,
+        memberships: [{ boxId: 'box-1', role: 'ATHLETE' }],
       }),
     );
 
     prismaMock.workout.findUnique.mockResolvedValue(
       workoutFixture({
         createdByUserId: 'coach-1',
-        scope: 'PERSONAL',
+        scope: 'BOX',
+        boxId: 'box-1',
+        box: {
+          id: 'box-1',
+          name: 'Wodlab CrossFit',
+        },
       }),
     );
-
-    prismaMock.classSession.findFirst.mockResolvedValue({
-      id: 'class-1',
-    });
 
     await expect(service.findOne('workout-1', user)).resolves.toEqual(
       expect.objectContaining({
         id: 'workout-1',
+        scope: 'BOX',
         canEdit: false,
       }),
     );
-
-    expect(prismaMock.classSession.findFirst).toHaveBeenCalledWith({
-      where: {
-        workoutId: 'workout-1',
-        boxId: 'box-1',
-      },
-      select: {
-        id: true,
-      },
-    });
   });
 
-  it('does not expose a workout only assigned to a class outside the active Box', async () => {
+  it('does not expose another user PERSONAL workout even when the user belongs to a Box', async () => {
     prismaMock.user.findUnique.mockResolvedValue(
       userContext({
         activeBoxId: 'box-1',
@@ -508,8 +508,6 @@ describe('WorkoutsService lifecycle and catalog scope', () => {
         scope: 'PERSONAL',
       }),
     );
-
-    prismaMock.classSession.findFirst.mockResolvedValue(null);
 
     await expect(service.findOne('workout-1', user)).rejects.toThrow(
       new NotFoundException('Workout not found'),
