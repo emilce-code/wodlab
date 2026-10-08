@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import { authenticatedApiFetch } from "@/lib/api";
+import { getCurrentUser } from "@/lib/auth";
 
 import WorkoutForm from "./components/WorkoutForm";
 
@@ -58,11 +59,12 @@ async function getPrescriptionCategories(): Promise<PrescriptionCategory[]> {
 export default async function NewWorkoutPage() {
   const t = await getTranslations("workouts.create");
 
-  const [workoutTypes, workoutLevels, prescriptionCategories] =
+  const [workoutTypes, workoutLevels, prescriptionCategories, currentUser] =
     await Promise.all([
       getWorkoutTypes(),
       getWorkoutLevels(),
       getPrescriptionCategories(),
+      getCurrentUser(),
     ]);
 
   return (
@@ -90,6 +92,7 @@ export default async function NewWorkoutPage() {
             workoutTypes={workoutTypes}
             workoutLevels={workoutLevels}
             prescriptionCategories={prescriptionCategories}
+            appRole={currentUser?.role}
           />
         </div>
       </div>

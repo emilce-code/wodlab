@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { useRouter } from "@/i18n/navigation";
 import Button from "@/components/ui/Button";
+import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 
 import type { PrescriptionCategory, WorkoutLevel, WorkoutType } from "../page";
 
@@ -22,6 +23,7 @@ type Props = {
   workoutLevels: WorkoutLevel[];
   prescriptionCategories: PrescriptionCategory[];
   initialWorkout?: EditableWorkout;
+  appRole?: "USER" | "COACH" | "ADMIN";
 };
 
 export type EditableWorkout = {
@@ -154,6 +156,7 @@ type WorkoutDraft = {
   description: string;
   typeKey: string;
   isBenchmark: boolean;
+  published?: boolean;
   variants: WorkoutVariantFormState[];
 };
 
@@ -248,6 +251,7 @@ export default function WorkoutForm({
   workoutLevels,
   prescriptionCategories,
   initialWorkout,
+  appRole = "USER",
 }: Props) {
   const t = useTranslations("workouts.create");
 
@@ -255,6 +259,7 @@ export default function WorkoutForm({
   const levelT = useTranslations("workoutLevels");
 
   const router = useRouter();
+  const { activeBox } = useActiveBox();
 
   const storedDraft = useSyncExternalStore(
     subscribeToDraft,
@@ -284,6 +289,13 @@ export default function WorkoutForm({
   const [typeKey, setTypeKey] = useState(initialWorkout?.type.key ?? "");
 
   const isBenchmark = initialWorkout?.isBenchmark ?? false;
+  const canPublishToBox =
+    !initialWorkout &&
+    (activeBox?.role === "OWNER" ||
+      activeBox?.role === "COACH" ||
+      appRole === "ADMIN" ||
+      appRole === "COACH");
+  const [published, setPublished] = useState(canPublishToBox);
 
   const [variants, setVariants] = useState<WorkoutVariantFormState[]>(() => {
     if (initialWorkout) {
@@ -313,6 +325,7 @@ export default function WorkoutForm({
       Boolean(description.trim()) ||
       Boolean(typeKey) ||
       isBenchmark ||
+      (canPublishToBox && !published) ||
       variants.length > 1 ||
       variants.some(
         (variant) =>
@@ -344,6 +357,7 @@ export default function WorkoutForm({
         description,
         typeKey,
         isBenchmark,
+        published,
         variants,
       });
     }, 400);
@@ -356,8 +370,10 @@ export default function WorkoutForm({
     isSubmitting,
     isEditing,
     name,
+    published,
     typeKey,
     variants,
+    canPublishToBox,
   ]);
 
   useEffect(() => {
@@ -390,6 +406,7 @@ export default function WorkoutForm({
       setName(draft.name);
       setDescription(draft.description);
       setTypeKey(draft.typeKey);
+      setPublished(draft.published ?? canPublishToBox);
       setVariants(draft.variants);
       setCurrentStep("start");
       setError(null);
@@ -806,6 +823,7 @@ export default function WorkoutForm({
           ? variants.flatMap((variant) => variant.sections).find((section) => section.role === "WOD" && section.typeKey)?.typeKey ?? variants.flatMap((variant) => variant.sections).find((section) => section.typeKey)?.typeKey ?? typeKey
           : typeKey,
         isBenchmark: isEditing ? isBenchmark : false,
+        published: canPublishToBox ? published : undefined,
 
         variants: variants.map((variant) => ({
           levelKey: variant.levelKey,
@@ -1328,6 +1346,25 @@ export default function WorkoutForm({
             </div>
           </div>
         </section>
+      ) : null}
+
+      {canPublishToBox ? (
+        <label className="flex items-start gap-3 rounded-xl border border-border bg-background p-4 shadow-sm">
+          <input
+            type="checkbox"
+            checked={published}
+            onChange={(event) => setPublished(event.target.checked)}
+            className="mt-1 h-5 w-5 rounded border-border text-accent focus:ring-accent/30"
+          />
+          <span>
+            <span className="block text-sm font-bold">
+              {t("publishToBox")}
+            </span>
+            <span className="mt-1 block text-sm leading-6 text-muted">
+              {t("publishToBoxHelp", { box: activeBox?.name ?? "Box" })}
+            </span>
+          </span>
+        </label>
       ) : null}
 
       <div className="rounded-xl border border-border bg-background p-4 shadow-sm">

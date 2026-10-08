@@ -44,6 +44,10 @@ export class CreateMovementDto {
   isFoundational?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
+  @IsOptional()
   @Transform(trim)
   @IsString()
   @MaxLength(4000)

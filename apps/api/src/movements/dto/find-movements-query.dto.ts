@@ -19,6 +19,6 @@ export class FindMovementsQueryDto extends PaginationQueryDto {
   foundational?: string;
 
   @IsOptional()
-  @IsIn(['all', 'mine', 'global', 'box', 'personal'])
-  scope?: 'all' | 'mine' | 'global' | 'box' | 'personal';
+  @IsIn(['all', 'mine', 'published', 'global', 'box', 'personal'])
+  scope?: 'all' | 'mine' | 'published' | 'global' | 'box' | 'personal';
 }

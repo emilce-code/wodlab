@@ -17,12 +17,14 @@ type Props = {
   initialMovements: PaginatedResponse<Movement>;
   categories: { key: string; name: string }[];
   measurementTypes: { key: string; name: string }[];
+  appRole?: "USER" | "COACH" | "ADMIN";
 };
 
 export default function MovementLibrary({
   initialMovements,
   categories,
   measurementTypes,
+  appRole = "USER",
 }: Props) {
   const t = useTranslations("movements");
   const paginationT = useTranslations("pagination");
@@ -124,6 +126,7 @@ export default function MovementLibrary({
       <MovementEditor
         categories={categories}
         measurementTypes={measurementTypes}
+        appRole={appRole}
       />
 
       <div className="sticky top-0 z-10 -mx-4 mt-8 border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0">
@@ -142,7 +145,7 @@ export default function MovementLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "mine"] as LibraryScopeFilter[]).map((value) => (
+          {(["all", "mine", "published"] as LibraryScopeFilter[]).map((value) => (
             <button
               key={value}
               type="button"

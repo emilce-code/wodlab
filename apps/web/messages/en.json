@@ -1464,6 +1464,8 @@
       "editTitle": "Edit workout",
       "editDescription": "Update the workout structure, variations, and prescriptions.",
       "optional": "(optional)",
+      "publishToBox": "Publish to box members",
+      "publishToBoxHelp": "Members of {box} can view this workout. Only users with permission can edit it.",
       "draft": {
         "title": "Continue your workout draft?",
         "description": "We saved the workout you were creating on this device.",
@@ -2251,6 +2253,8 @@
       "measurementTypesHelp": "Choose how athletes will record progress. You can select more than one.",
       "optionalTitle": "Add optional details",
       "optionalDescription": "Aliases, instructions, video, and foundational status",
+      "publishToBox": "Publish to box members",
+      "publishToBoxHelp": "Members of {box} can view this movement. Only users with permission can edit it.",
       "aliases": "Aliases",
       "aliasesPlaceholder": "HSPU, handstand push-up",
       "aliasesHelp": "Separate alternate names with commas to make the movement easier to find.",

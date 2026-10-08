@@ -437,7 +437,16 @@ function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { s
           </div>
           <div className="rounded-xl bg-background/60 p-2">
             <span className="block text-[10px] font-semibold text-muted">{t("workoutLabel")}</span>
-            <strong className="mt-0.5 block truncate text-xs">{workoutLabel}</strong>
+            {session.workout ? (
+              <Link
+                href={`/workouts/${session.workout.id}`}
+                className="mt-1 inline-flex max-w-full items-center rounded-full bg-accent/10 px-2 py-1 text-xs font-bold text-accent transition hover:bg-accent/15"
+              >
+                <span className="truncate">{workoutLabel}</span>
+              </Link>
+            ) : (
+              <strong className="mt-0.5 block truncate text-xs">{workoutLabel}</strong>
+            )}
           </div>
           <div className="rounded-xl bg-background/60 p-2">
             <span className="block text-[10px] font-semibold text-muted">{isStaff ? t("bookedLabel") : t("statusLabel")}</span>
