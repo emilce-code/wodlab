@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Alert from "@/components/ui/Alert";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 
 import type { Movement } from "./MovementCard";
 
@@ -16,6 +17,7 @@ type Props = {
   categories: Option[];
   measurementTypes: Option[];
   movement?: Movement;
+  appRole?: "USER" | "COACH" | "ADMIN";
 };
 
 function responseMessage(data: unknown, fallback: string) {
@@ -31,12 +33,20 @@ export default function MovementEditor({
   categories,
   measurementTypes,
   movement,
+  appRole = "USER",
 }: Props) {
   const t = useTranslations("movements.management");
   const locale = useLocale();
   const categoryT = useTranslations("movementCategories");
   const measurementT = useTranslations("measurementTypes");
   const router = useRouter();
+  const { activeBox } = useActiveBox();
+  const canPublishToBox =
+    !movement &&
+    (activeBox?.role === "OWNER" ||
+      activeBox?.role === "COACH" ||
+      appRole === "ADMIN" ||
+      appRole === "COACH");
   const [open, setOpen] = useState(false);
   const [optionalOpen, setOptionalOpen] = useState(
     () =>
@@ -61,6 +71,7 @@ export default function MovementEditor({
   const [isFoundational, setIsFoundational] = useState(
     movement?.isFoundational ?? false,
   );
+  const [published, setPublished] = useState(canPublishToBox);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -115,6 +126,7 @@ export default function MovementEditor({
             description: description.trim(),
             videoUrl: videoUrl.trim(),
             isFoundational,
+            published: canPublishToBox ? published : undefined,
           }),
         },
       );
@@ -326,6 +338,24 @@ export default function MovementEditor({
               </div>
             ) : null}
           </section>
+          {canPublishToBox ? (
+            <label className="flex items-start gap-3 rounded-xl border border-border bg-background/60 p-4">
+              <input
+                type="checkbox"
+                checked={published}
+                onChange={(event) => setPublished(event.target.checked)}
+                className="mt-1 h-5 w-5 rounded border-border text-accent focus:ring-accent/30"
+              />
+              <span>
+                <span className="block text-sm font-bold">
+                  {t("publishToBox")}
+                </span>
+                <span className="mt-1 block text-sm leading-6 text-muted">
+                  {t("publishToBoxHelp", { box: activeBox?.name ?? "Box" })}
+                </span>
+              </span>
+            </label>
+          ) : null}
           {error ? <Alert variant="error">{error}</Alert> : null}
           <div className="-mx-2 flex flex-col gap-2 rounded-2xl border border-border bg-surface px-3 py-3 sm:mx-0 sm:flex-row sm:justify-end sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
             <Button

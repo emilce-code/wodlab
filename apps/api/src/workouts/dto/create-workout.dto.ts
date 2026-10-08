@@ -26,6 +26,10 @@ export class CreateWorkoutDto {
   @IsBoolean()
   isBenchmark?: boolean;
 
+  @IsOptional()
+  @IsBoolean()
+  published?: boolean;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateWorkoutVariantDto)

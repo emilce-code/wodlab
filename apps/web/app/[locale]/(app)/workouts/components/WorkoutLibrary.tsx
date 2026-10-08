@@ -215,7 +215,7 @@ export default function WorkoutLibrary({
         </div>
 
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["all", "mine"] as LibraryFilter[]).map((value) => (
+          {(["all", "mine", "published"] as LibraryFilter[]).map((value) => (
             <FilterButton
               key={value}
               active={filter === value}
@@ -314,7 +314,8 @@ function createQuery(
   const query = new URLSearchParams({
     page: String(page),
     pageSize: String(pageSize),
-    scope: filter === "mine" ? "mine" : "all",
+    scope:
+      filter === "published" ? "published" : filter === "mine" ? "mine" : "all",
   });
 
   if (view === "ARCHIVED") {

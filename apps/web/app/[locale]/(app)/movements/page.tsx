@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 
 import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetchJson } from "@/lib/api";
+import { getCurrentUser } from "@/lib/auth";
 import type { PaginatedResponse } from "@/lib/pagination";
 
 import MovementLibrary from "./components/MovementLibrary";
@@ -30,10 +31,11 @@ export default async function MovementsPage() {
     getLocale(),
   ]);
 
-  const [movements, categories, measurementTypes] = await Promise.all([
+  const [movements, categories, measurementTypes, currentUser] = await Promise.all([
     getMovements(locale),
     getOptions("/movements/categories"),
     getOptions("/movements/measurement-types"),
+    getCurrentUser(),
   ]);
 
   return (
@@ -48,6 +50,7 @@ export default async function MovementsPage() {
         initialMovements={movements}
         categories={categories}
         measurementTypes={measurementTypes}
+        appRole={currentUser?.role}
       />
     </div>
   );

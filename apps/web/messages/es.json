@@ -1464,6 +1464,8 @@
       "editTitle": "Editar entrenamiento",
       "editDescription": "Actualiza la estructura, las variaciones y las prescripciones.",
       "optional": "(opcional)",
+      "publishToBox": "Publicar para miembros del box",
+      "publishToBoxHelp": "Los miembros de {box} pueden ver este entrenamiento. Solo usuarios con permisos pueden editarlo.",
       "draft": {
         "title": "¿Continuar tu borrador?",
         "description": "Guardamos en este dispositivo el entrenamiento que estabas creando.",
@@ -2251,6 +2253,8 @@
       "measurementTypesHelp": "Elige cómo se registrará el progreso. Puedes seleccionar más de una opción.",
       "optionalTitle": "Agregar detalles opcionales",
       "optionalDescription": "Alias, instrucciones, video y estado de movimiento fundamental",
+      "publishToBox": "Publicar para miembros del box",
+      "publishToBoxHelp": "Los miembros de {box} pueden ver este movimiento. Solo usuarios con permisos pueden editarlo.",
       "aliases": "Alias",
       "aliasesPlaceholder": "HSPU, flexión de pino",
       "aliasesHelp": "Separa los nombres alternativos con comas para encontrar el movimiento más fácilmente.",

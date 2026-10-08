@@ -341,7 +341,7 @@ export class WorkoutsService {
 
   async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
     const context = await this.getCatalogContext(user);
-    const target = this.resolveCreationScope(context);
+    const target = this.resolveCreationScope(context, dto.published ?? true);
 
     const workout = await this.prisma.$transaction(async (tx) => {
       await this.validateWorkoutDefinition(tx, dto);
@@ -628,10 +628,20 @@ export class WorkoutsService {
     };
   }
 
-  private resolveCreationScope(context: CatalogContext): {
+  private resolveCreationScope(
+    context: CatalogContext,
+    published = true,
+  ): {
     scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
     boxId: string | null;
   } {
+    if (!published) {
+      return {
+        scope: 'PERSONAL',
+        boxId: null,
+      };
+    }
+
     if (context.activeBoxId && this.canManageActiveBox(context)) {
       return {
         scope: 'BOX',
@@ -655,7 +665,7 @@ export class WorkoutsService {
   private collectionVisibilityWhere(
     context: CatalogContext,
     archived: boolean,
-    scope: 'all' | 'mine' | 'global' | 'box' | 'personal',
+    scope: 'all' | 'mine' | 'published' | 'global' | 'box' | 'personal',
   ): Prisma.WorkoutWhereInput {
     const globalVisible: Prisma.WorkoutWhereInput =
       !archived || context.appRole === 'ADMIN'
@@ -694,7 +704,7 @@ export class WorkoutsService {
       return globalVisible;
     }
 
-    if (scope === 'box') {
+    if (scope === 'box' || scope === 'published') {
       return boxVisible;
     }
 

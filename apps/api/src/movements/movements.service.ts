@@ -268,7 +268,7 @@ export class MovementsService {
     acceptLanguage?: string,
   ) {
     const context = await this.getCatalogContext(user);
-    const target = this.resolveCreationScope(context);
+    const target = this.resolveCreationScope(context, dto.published ?? true);
     const references = await this.resolveMovementReferences(dto);
     const aliases = this.normalizeAliases(dto.aliases);
     const locale = resolveMovementLocale(acceptLanguage);
@@ -1117,10 +1117,20 @@ export class MovementsService {
     );
   }
 
-  private resolveCreationScope(context: MovementCatalogContext): {
+  private resolveCreationScope(
+    context: MovementCatalogContext,
+    published = true,
+  ): {
     scope: 'GLOBAL' | 'BOX' | 'PERSONAL';
     boxId: string | null;
   } {
+    if (!published) {
+      return {
+        scope: 'PERSONAL',
+        boxId: null,
+      };
+    }
+
     if (context.activeBoxId && this.canManageActiveBox(context)) {
       return {
         scope: 'BOX',
@@ -1143,7 +1153,7 @@ export class MovementsService {
 
   private movementVisibilityWhere(
     context: MovementCatalogContext,
-    scope: 'all' | 'mine' | 'global' | 'box' | 'personal',
+    scope: 'all' | 'mine' | 'published' | 'global' | 'box' | 'personal',
   ): Prisma.MovementWhereInput {
     const globalVisible: Prisma.MovementWhereInput = {
       scope: 'GLOBAL',
@@ -1177,7 +1187,7 @@ export class MovementsService {
     }
 
     if (scope === 'global') return globalVisible;
-    if (scope === 'box') return boxVisible;
+    if (scope === 'box' || scope === 'published') return boxVisible;
     if (scope === 'personal') return personalVisible;
 
     return allVisible;

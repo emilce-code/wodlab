@@ -1,17 +1,20 @@
-export type LibraryScopeFilter = "all" | "mine";
+export type LibraryScopeFilter = "all" | "mine" | "published";
 
 const libraryScopeLabels = {
   en: {
     all: "All",
     mine: "Mine",
+    published: "Published",
   },
   es: {
     all: "Todos",
     mine: "Míos",
+    published: "Publicados",
   },
   pt: {
     all: "Todos",
     mine: "Meus",
+    published: "Publicados",
   },
 } as const;
 
