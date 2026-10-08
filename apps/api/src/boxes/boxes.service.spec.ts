@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 4342)
-Total output lines: 563
-
 import {
   BadRequestException,
   ConflictException,
@@ -267,7 +264,51 @@ describe('BoxesService', () => {
     });
   });
 
-  it('allows a…342 tokens truncated…signMember(
+  it('allows an organization owner to assign coaches to boxes in the organization', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+    prisma.box.findUnique.mockResolvedValue({
+      id: 'box-1',
+      organizationId: 'org-1',
+    });
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue({
+      id: 'org-owner-1',
+    });
+    prisma.user.findFirst.mockResolvedValue({ id: 'coach-1' });
+    prisma.boxMembership.upsert.mockResolvedValue({
+      id: 'membership-1',
+      role: { key: 'COACH' },
+      user: { email: 'coach@example.com' },
+    });
+
+    await service.assignMember(
+      'org-owner-user',
+      'box-1',
+      'coach@example.com',
+      'COACH',
+    );
+
+    expect(prisma.boxMembership.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        create: expect.objectContaining({
+          roleId: 'box-membership-role-coach',
+        }),
+      }),
+    );
+  });
+
+  it('prevents organization owners from assigning box owners', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'COACH' });
+    prisma.box.findUnique.mockResolvedValue({
+      id: 'box-1',
+      organizationId: 'org-1',
+    });
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue({
+      id: 'org-owner-1',
+    });
+
+    await expect(
+      service.assignMember(
         'org-owner-user',
         'box-1',
         'owner@example.com',
