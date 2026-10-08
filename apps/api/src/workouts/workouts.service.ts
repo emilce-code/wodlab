@@ -319,24 +319,50 @@ export class WorkoutsService {
     }
 
     if (!this.canViewWorkout(workout, context)) {
-      const historicalResult = await this.prisma.workoutResult.findFirst({
-        where: {
-          workoutId: id,
-          athleteProfile: {
-            userId: user.userId,
-          },
-        },
-        select: {
-          id: true,
-        },
-      });
+      const canViewAssignedWorkout =
+        await this.canViewWorkoutAssignedToActiveBoxClass(id, context);
 
-      if (!historicalResult) {
-        throw new NotFoundException('Workout not found');
+      if (!canViewAssignedWorkout) {
+        const historicalResult = await this.prisma.workoutResult.findFirst({
+          where: {
+            workoutId: id,
+            athleteProfile: {
+              userId: user.userId,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!historicalResult) {
+          throw new NotFoundException('Workout not found');
+        }
       }
     }
 
     return this.mapWorkout(workout, context);
+  }
+
+  private async canViewWorkoutAssignedToActiveBoxClass(
+    workoutId: string,
+    context: CatalogContext,
+  ) {
+    if (!context.activeBoxId || !context.activeBoxRole) {
+      return false;
+    }
+
+    const classSession = await this.prisma.classSession.findFirst({
+      where: {
+        workoutId,
+        boxId: context.activeBoxId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Boolean(classSession);
   }
 
   async create(user: AuthenticatedUser, dto: CreateWorkoutDto) {
