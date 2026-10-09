@@ -2811,6 +2811,10 @@
     "actionError": "The booking could not be updated. Please try again.",
     "stale": "Availability has changed. Please check the latest class status.",
     "refreshError": "Booking updated, but availability could not be refreshed. Please reload.",
-    "back": "Back to classes"
+    "back": "Back to classes",
+    "spotsLabel": "{count, plural, one {spot left} other {spots left}}",
+    "previousDates": "Previous dates",
+    "nextDates": "Next dates",
+    "about": "About this class"
   }
 }
