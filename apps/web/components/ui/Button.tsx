@@ -1,66 +1,74 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+"use client";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  type ButtonHTMLAttributes,
+  type ReactNode,
+} from "react";
+import {
+  getButtonClassName,
+  type ButtonVariant,
+  type ButtonSize,
+} from "./button-styles";
+export {
+  getButtonClassName,
+  type ButtonVariant,
+  type ButtonSize,
+} from "./button-styles";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-
-export type ButtonSize = "sm" | "md" | "lg" | "icon";
-
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
   isLoading?: boolean;
 };
 
-const baseClassName = [
-  "inline-flex items-center justify-center gap-2 rounded-lg",
-  "select-none text-sm font-semibold transition-colors",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-  "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  "disabled:cursor-not-allowed disabled:opacity-50",
-].join(" ");
-
-const variants: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent text-accent-foreground hover:bg-accent-strong disabled:hover:bg-accent",
-  secondary:
-    "border border-border bg-surface text-foreground hover:bg-surface-elevated",
-  ghost: "text-muted hover:bg-surface-elevated hover:text-foreground",
-  danger:
-    "border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/15",
-};
-
-const sizes: Record<ButtonSize, string> = {
-  sm: "min-h-11 px-3 py-2",
-  md: "min-h-11 px-4 py-2.5",
-  lg: "min-h-12 px-5 py-3",
-  icon: "h-11 w-11 shrink-0 p-0",
-};
-
-export function getButtonClassName({
-  variant = "primary",
-  size = "md",
-  className = "",
-}: {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-} = {}) {
-  return [baseClassName, variants[variant], sizes[size], className].join(" ");
-}
-
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
-  children,
-  variant = "primary",
-  size = "md",
-  isLoading = false,
-  disabled,
-  className = "",
-  ...props
-}, ref) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    children,
+    variant = "primary",
+    size = "md",
+    isLoading = false,
+    disabled,
+    className = "",
+    ...props
+  },
+  ref,
+) {
+  const element = useRef<HTMLButtonElement>(null);
+  const idleWidth = useRef<number | null>(null);
+  useImperativeHandle(ref, () => element.current!, []);
+  useLayoutEffect(() => {
+    const button = element.current;
+    if (!button) return;
+    if (!isLoading) {
+      idleWidth.current = button.getBoundingClientRect().width;
+      return;
+    }
+    const original = button.style.width;
+    if (idleWidth.current !== null)
+      button.style.width = `${idleWidth.current}px`;
+    function resize() {
+      if (!button) return;
+      button.style.width = original;
+      button.style.width = `${button.getBoundingClientRect().width}px`;
+    }
+    window.addEventListener("resize", resize);
+    return () => {
+      button.style.width = original;
+      window.removeEventListener("resize", resize);
+    };
+  }, [isLoading, children]);
   return (
     <button
-      ref={ref}
-      className={getButtonClassName({ variant, size, className })}
+      ref={element}
+      className={getButtonClassName({
+        variant,
+        size,
+        className: `relative ${className}`,
+      })}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       {...props}
@@ -68,11 +76,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
       {isLoading && (
         <span
           aria-hidden="true"
-          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent"
+          className="absolute h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
         />
       )}
 
-      {children}
+      <span
+        className={`inline-flex items-center justify-center gap-2 ${isLoading ? "opacity-0" : ""}`}
+      >
+        {children}
+      </span>
     </button>
   );
 });
