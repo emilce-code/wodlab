@@ -116,7 +116,7 @@ export default function ClassDetails({
   return (
     <article
       aria-labelledby={`class-title-${session.id}`}
-      className={`grid min-w-0 gap-4 ${page ? "pb-28 lg:pb-6" : "xl:grid-cols-2"}`}
+      className={`grid min-w-0 gap-4 ${page ? (canBook ? "pb-28 lg:pb-6" : "pb-4") : "xl:grid-cols-2"}`}
     >
       <header
         className={`space-y-3 ${!page ? "xl:col-start-1 xl:row-start-1 xl:row-span-2" : ""}`}

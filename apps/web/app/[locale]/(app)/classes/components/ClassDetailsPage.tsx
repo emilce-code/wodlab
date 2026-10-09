@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { classApiPath } from "@/lib/class-schedule";
 import type { ClassSession, ManagedBox } from "@/lib/boxes";
 import ClassDetails from "./ClassDetails";
+import StaffClassActions from "./StaffClassActions";
 import BoxDetailsIcon from "@/components/ui/BoxDetailsIcon";
 export default function ClassDetailsPage({
   boxId,
@@ -106,6 +107,9 @@ export default function ClassDetailsPage({
           page
           canBook={session.role === "ATHLETE"}
         />
+      ) : null}
+      {session && (session.role === "OWNER" || session.role === "COACH") ? (
+        <StaffClassActions boxId={boxId} classId={classId} day={day} />
       ) : null}
     </div>
   );

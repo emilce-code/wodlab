@@ -754,6 +754,7 @@ export class BoxesService {
       classes: classes.map((session) => ({
         ...session,
         bookedCount: session.bookings.length,
+        bookings: membership?.role.key === 'ATHLETE' ? [] : session.bookings,
         currentUserBooking:
           session.bookings.find((booking) => booking.userId === userId) ?? null,
       })),

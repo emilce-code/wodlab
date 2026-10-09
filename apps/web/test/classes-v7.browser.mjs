@@ -566,7 +566,7 @@ try {
     });
     await navigate(page);
     await page
-      .getByRole("heading", { name: "Boxes and classes", exact: true })
+      .getByRole("heading", { name: "Classes", exact: true, level: 1 })
       .waitFor();
     const staffT = JSON.parse(
       await readFile(web + "/messages/en.json", "utf8"),
