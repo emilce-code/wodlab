@@ -30,7 +30,11 @@
       "tomorrow": "Mañana",
       "nextWeek": "+1 semana"
     },
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "feedback": "Notificaciones",
+    "unsavedTitle": "Cambios sin guardar",
+    "stay": "Quedarme",
+    "discard": "Descartar"
   },
   "pwa": {
     "offline": "Estás sin conexión. Puedes guardar resultados en cola desde un entrenamiento abierto.",

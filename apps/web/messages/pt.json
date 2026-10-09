@@ -30,7 +30,11 @@
       "tomorrow": "Amanhã",
       "nextWeek": "+1 semana"
     },
-    "close": "Fechar"
+    "close": "Fechar",
+    "feedback": "Notificações",
+    "unsavedTitle": "Alterações não salvas",
+    "stay": "Ficar",
+    "discard": "Descartar"
   },
   "pwa": {
     "offline": "Você está offline. Ainda é possível colocar resultados na fila a partir de um treino aberto.",

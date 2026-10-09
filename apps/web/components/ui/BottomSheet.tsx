@@ -16,12 +16,16 @@ export default function BottomSheet({
   children,
   desktopPanel = false,
   initialFocusRef,
+  role = "dialog",
+  descriptionId,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
   desktopPanel?: boolean;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  role?: "dialog" | "alertdialog";
+  descriptionId?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -41,6 +45,7 @@ export default function BottomSheet({
   }, [initialFocusRef]);
   return (
     <dialog
+      role={role}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();
@@ -50,7 +55,7 @@ export default function BottomSheet({
         if (event.key !== "Tab") return;
         const controls = Array.from(
           dialog.current?.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), input:not([disabled]), [tabindex="0"]',
+            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]',
           ) ?? [],
         );
         const first = controls[0];
@@ -73,6 +78,7 @@ export default function BottomSheet({
       }}
       ref={dialog}
       aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       aria-modal="true"
       onCancel={(event) => {
         event.preventDefault();

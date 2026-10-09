@@ -30,7 +30,11 @@
       "tomorrow": "Tomorrow",
       "nextWeek": "+1 week"
     },
-    "close": "Close"
+    "close": "Close",
+    "feedback": "Notifications",
+    "unsavedTitle": "Unsaved changes",
+    "stay": "Stay",
+    "discard": "Discard"
   },
   "pwa": {
     "offline": "You're offline. Results can still be queued from an opened workout.",
