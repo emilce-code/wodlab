@@ -65,21 +65,24 @@ export default function BottomSheet({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border bg-surface p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md"
+      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border/60 bg-surface p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md"
     >
       <div
         aria-hidden="true"
         className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted/40"
       />
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 id={titleId} className="text-base font-semibold">
+        <h2
+          id={titleId}
+          className="min-w-0 break-words text-base font-semibold tracking-tight"
+        >
           {title}
         </h2>
         <button
           type="button"
           onClick={onClose}
           aria-label={t("close")}
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-muted"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-muted transition-colors duration-200 hover:bg-surface-elevated hover:text-foreground active:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent motion-reduce:transition-none"
         >
           <BoxDetailsIcon name="close" />
         </button>
