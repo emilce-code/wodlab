@@ -108,7 +108,9 @@ export default function AthleteClasses({
     <div className="space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold tracking-tight">{t("title")}</h1>
+          <h1 className="text-xl font-extrabold tracking-tight">
+            {t("title")}
+          </h1>
           <Link
             href={`/boxes/${box.id}`}
             className="mt-1 inline-block text-xs text-muted hover:text-foreground"
@@ -181,7 +183,7 @@ export default function AthleteClasses({
                     { timeZone: "UTC" },
                   )}
                   onClick={() => selectDay(value, index)}
-                  className="flex min-h-14 min-w-10 w-[calc((100%_-_1.5rem)/7)] max-w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg focus-visible:outline-2 focus-visible:outline-accent"
+                  className="flex min-h-14 min-w-10 w-[calc((100%_-_1.5rem)/7)] max-w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-xl transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <span className="text-xs text-muted">
                     {new Intl.DateTimeFormat(locale, {
@@ -190,7 +192,7 @@ export default function AthleteClasses({
                     }).format(new Date(`${value}T12:00:00Z`))}
                   </span>
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold ${value === day ? "bg-accent text-accent-foreground" : "text-foreground"}`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold tabular-nums ${value === day ? "bg-accent text-accent-foreground" : "text-foreground"}`}
                   >
                     {Number(value.slice(-2))}
                   </span>
@@ -198,7 +200,10 @@ export default function AthleteClasses({
               ))}
             </div>
           </div>
-          <div aria-label={t("filter")} className="grid grid-cols-2 gap-2">
+          <div
+            aria-label={t("filter")}
+            className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-surface p-1"
+          >
             {[false, true].map((value) => (
               <button
                 key={String(value)}
@@ -208,7 +213,7 @@ export default function AthleteClasses({
                   setMine(value);
                   setSelectedId(null);
                 }}
-                className={`min-h-11 rounded-lg border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-accent ${mine === value ? "border-accent bg-accent text-accent-foreground" : "border-border bg-surface/40 text-muted"}`}
+                className={`min-h-11 rounded-lg border px-2 text-sm font-semibold transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-accent ${mine === value ? "border-accent bg-accent text-accent-foreground" : "border-transparent text-muted hover:bg-surface-elevated hover:text-foreground"}`}
               >
                 {t(value ? "mine" : "all")}
               </button>
@@ -271,7 +276,7 @@ export default function AthleteClasses({
                         setSelectedId(session.id);
                       }
                     }}
-                    className={`grid min-h-20 grid-cols-[2.5rem_minmax(0,1fr)_auto_0.75rem] items-center gap-2 rounded-lg border px-3 py-3 transition-colors hover:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none ${selectedId === session.id ? "border-accent/60 bg-accent/5" : "border-border/60 bg-surface/40"}`}
+                    className={`grid min-h-20 grid-cols-[2.5rem_minmax(0,1fr)_auto_0.75rem] items-center gap-2 rounded-xl border px-3 py-3 transition-colors hover:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none ${selectedId === session.id ? "border-accent/60 bg-accent/5 shadow-[inset_3px_0_0_var(--color-accent)]" : "border-border bg-surface"}`}
                   >
                     <ClassIcon
                       full={
@@ -283,11 +288,11 @@ export default function AthleteClasses({
                       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                         <time
                           dateTime={session.startsAt}
-                          className="shrink-0 text-xs font-semibold tabular-nums"
+                          className="shrink-0 text-sm font-bold tracking-tight tabular-nums"
                         >
                           {formatTime(session.startsAt, locale, { timeZone })}
                         </time>
-                        <h3 className="min-w-0 break-words text-sm font-semibold">
+                        <h3 className="min-w-0 break-words text-sm font-bold">
                           {session.name}
                         </h3>
                       </div>
@@ -309,7 +314,7 @@ export default function AthleteClasses({
                     >
                       {remainingSpots(session) ? (
                         <>
-                          <strong className="block text-base font-bold text-accent">
+                          <strong className="block text-xl leading-6 font-extrabold tracking-tight text-accent tabular-nums">
                             {remainingSpots(session)}
                           </strong>
                           <span className="block text-xs leading-4 text-muted">

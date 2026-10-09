@@ -10,7 +10,7 @@ export default function ClassIcon({
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center rounded-full border ${large ? "h-14 w-14" : "h-10 w-10"} ${full ? "border-red-500/25 bg-red-500/5 text-red-400" : "border-accent/25 bg-accent/10 text-accent"}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl border ${large ? "h-14 w-14" : "h-10 w-10"} ${full ? "border-red-500/25 bg-red-500/5 text-red-400" : "border-accent/30 bg-accent/10 text-accent"}`}
     >
       <NavigationIcon
         name="workouts"

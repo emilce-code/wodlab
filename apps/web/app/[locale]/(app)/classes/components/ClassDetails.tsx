@@ -126,7 +126,7 @@ export default function ClassDetails({
           <div className="min-w-0 space-y-1">
             <h1
               id={`class-title-${session.id}`}
-              className="break-words text-xl font-bold tracking-tight"
+              className="break-words text-xl font-extrabold tracking-tight"
             >
               {session.name}
             </h1>
@@ -150,7 +150,7 @@ export default function ClassDetails({
         </div>
       </header>
       <div
-        className={`flex min-w-0 flex-wrap items-center gap-2 rounded-lg border p-3 ${!spots && !booked ? "border-red-500/25 bg-red-500/5" : "border-border bg-surface/40"} ${!page ? "xl:col-start-2 xl:row-start-2 xl:justify-end xl:border-0 xl:bg-transparent xl:p-0" : ""}`}
+        className={`flex min-w-0 flex-wrap items-center gap-2 rounded-xl border p-3 ${!spots && !booked ? "border-red-500/25 bg-red-500/5" : "border-border bg-surface"} ${!page ? "xl:col-start-2 xl:row-start-2 xl:justify-end xl:border-0 xl:bg-transparent xl:p-0" : ""}`}
         aria-label={spots ? t("spots", { count: spots }) : t("full")}
       >
         <NavigationIcon
@@ -160,7 +160,7 @@ export default function ClassDetails({
         {spots ? (
           <>
             <strong
-              className={`text-2xl font-bold text-accent ${!page ? "xl:text-lg" : ""}`}
+              className={`text-2xl font-extrabold tracking-tight text-accent tabular-nums ${!page ? "xl:text-lg" : ""}`}
             >
               {spots}
             </strong>
@@ -210,7 +210,7 @@ export default function ClassDetails({
         </div>
       ) : null}
       <section
-        className={`min-w-0 space-y-2 ${session.workout ? "rounded-lg border border-border bg-surface/40 p-3" : "border-t border-border pt-3"} ${!page ? `xl:col-span-2 xl:rounded-none xl:border-x-0 xl:border-b-0 xl:bg-transparent xl:px-0 ${hasDetails || session.description ? "xl:row-start-4" : "xl:row-start-3"}` : ""}`}
+        className={`min-w-0 space-y-2 ${session.workout ? "rounded-xl border border-border bg-surface p-3" : "border-t border-border pt-3"} ${!page ? `xl:col-span-2 xl:rounded-none xl:border-x-0 xl:border-b-0 xl:bg-transparent xl:px-0 ${hasDetails || session.description ? "xl:row-start-4" : "xl:row-start-3"}` : ""}`}
         aria-label={t("workout")}
       >
         <h2 className={session.workout ? "text-sm font-semibold" : "sr-only"}>
@@ -224,10 +224,10 @@ export default function ClassDetails({
           >
             <NavigationIcon
               name="workouts"
-              className="h-5 w-5 shrink-0 text-muted"
+              className="h-8 w-8 shrink-0 rounded-lg border border-accent/20 bg-accent/10 p-1.5 text-accent"
             />
             <div className="min-w-0 flex-1 space-y-1">
-              <p className="break-words text-sm font-medium group-hover:text-accent">
+              <p className="break-words text-base font-bold tracking-tight group-hover:text-accent">
                 {session.workout.name}
               </p>
               {workoutMetadata ? (
@@ -287,7 +287,7 @@ export default function ClassDetails({
             isLoading={busy}
             disabled={disabled}
             onClick={() => void book()}
-            className="w-full rounded-lg lg:w-auto"
+            className="w-full rounded-xl font-bold lg:w-auto"
           >
             {booked && !busy && !attended ? (
               <BoxDetailsIcon name="trash" className="h-4 w-4" />
