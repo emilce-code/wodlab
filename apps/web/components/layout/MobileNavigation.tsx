@@ -106,6 +106,8 @@ export default function MobileNavigation({ user }: Props) {
     );
   }
 
+  if (/^\/boxes\/[^/]+(?:\/edit)?$/.test(pathname)) return null;
+
   return (
     <>
       {openSheet ? (

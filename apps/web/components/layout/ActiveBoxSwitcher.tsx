@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
 import Image from "next/image";
 import { boxImageUrl } from "@/lib/box-images";
 
@@ -9,6 +10,7 @@ import { useActiveBox } from "./ActiveBoxContext";
 
 export default function ActiveBoxSwitcher() {
   const t = useTranslations("boxContext");
+  const pathname = usePathname();
   const { boxes, activeBox, saving, error, selectBox, clearError } = useActiveBox();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -34,7 +36,11 @@ export default function ActiveBoxSwitcher() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
-  if (!activeBox || boxes.length < 2) return null;
+  if (
+    /^\/boxes\/[^/]+(?:\/edit)?$/.test(pathname) ||
+    !activeBox ||
+    boxes.length < 2
+  ) return null;
 
   function close(restoreFocus = false) {
     setOpen(false);

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import BoxDetailsIcon from "./BoxDetailsIcon";
 
 export default function BottomSheet({
   title,
@@ -56,6 +57,7 @@ export default function BottomSheet({
       }}
       ref={dialog}
       aria-labelledby={titleId}
+      aria-modal="true"
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -63,18 +65,23 @@ export default function BottomSheet({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md"
+      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border bg-surface p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md"
     >
+      <div
+        aria-hidden="true"
+        className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted/40"
+      />
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 id={titleId} className="text-lg font-bold">
+        <h2 id={titleId} className="text-base font-semibold">
           {title}
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="min-h-11 rounded-xl px-3 text-sm text-accent"
+          aria-label={t("close")}
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-muted"
         >
-          {t("close")}
+          <BoxDetailsIcon name="close" />
         </button>
       </div>
       {children}

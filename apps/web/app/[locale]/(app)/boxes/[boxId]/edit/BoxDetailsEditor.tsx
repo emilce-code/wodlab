@@ -3,10 +3,16 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import BoxLogo from "@/components/ui/BoxLogo";
+import BoxLocationMap from "@/components/ui/BoxLocationMap";
+import BoxDetailsIcon from "@/components/ui/BoxDetailsIcon";
 import { useRouter } from "@/i18n/navigation";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { optimizeBoxImage } from "@/lib/box-images";
-import { contactChannels, contactHref } from "@/lib/box-details";
+import {
+  boxDestination,
+  contactChannels,
+  contactHref,
+} from "@/lib/box-details";
 import type { ManagedBox } from "@/lib/boxes";
 
 function initialValues(box: ManagedBox) {
@@ -48,6 +54,13 @@ export default function BoxDetailsEditor({
     text: string;
   } | null>(null);
   const form = useRef<HTMLFormElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const location = boxDestination({
+    latitude: values.latitude.trim() ? Number(values.latitude) : null,
+    longitude: values.longitude.trim() ? Number(values.longitude) : null,
+    address: values.address,
+    location: values.location,
+  });
   const dirty = JSON.stringify(values) !== JSON.stringify(baseline);
   useEffect(() => {
     if (!dirty && !busy) return;
@@ -223,16 +236,16 @@ export default function BoxDetailsEditor({
       "aria-describedby": errors[name] ? `error-${name}` : undefined,
       maxLength: options.maxLength,
       className:
-        "mt-2 min-h-12 w-full rounded-xl border border-border bg-surface px-3 py-3 text-base",
+        "mt-1 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base",
     };
     return (
       <div key={name}>
-        <label htmlFor={props.id} className="text-sm font-semibold">
+        <label htmlFor={props.id} className="text-sm text-muted">
           {t(`fields.${name}`)}
           {name === "name" ? " *" : ""}
         </label>
         {options.multiline ? (
-          <textarea {...props} rows={3} />
+          <textarea {...props} rows={name === "address" ? 2 : 3} />
         ) : (
           <input
             {...props}
@@ -254,74 +267,142 @@ export default function BoxDetailsEditor({
     );
   }
   return (
-    <div className="mx-auto max-w-xl py-6">
-      <header className="mb-8">
-        <button
-          type="button"
-          disabled={busy !== null}
-          className="min-h-11 text-sm font-bold text-accent"
-          onClick={() => {
-            if (!dirty || window.confirm(t("unsaved")))
-              router.push(`/boxes/${box.id}`);
-          }}
-        >
-          ← {t("cancel")}
-        </button>
-        <h1 className="mt-2 text-2xl font-black">{t("edit")}</h1>
+    <div className="mx-auto max-w-xl pb-6">
+      <header className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border bg-background/95 px-4 py-2 backdrop-blur">
+        <div className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2">
+          <button
+            type="button"
+            aria-label={t("cancel")}
+            disabled={busy !== null}
+            className="flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-accent"
+            onClick={() => {
+              if (!dirty || window.confirm(t("unsaved")))
+                router.push(`/boxes/${box.id}`);
+            }}
+          >
+            <BoxDetailsIcon name="back" />
+          </button>
+          <h1 className="text-center text-sm font-semibold">{t("edit")}</h1>
+          <Button
+            type="submit"
+            form="box-details-form"
+            aria-label={busy === "save" ? t("working") : t("save")}
+            aria-busy={busy === "save"}
+            disabled={busy !== null || !dirty}
+            className="px-3"
+          >
+            {busy === "save" ? t("working") : t("saveShort")}
+          </Button>
+        </div>
+        {feedback ? (
+          <p
+            role={feedback.error ? "alert" : "status"}
+            className={`mt-2 text-sm ${feedback.error ? "text-red-300" : "text-accent"}`}
+          >
+            {feedback.text}
+          </p>
+        ) : null}
       </header>
-      <form ref={form} noValidate onSubmit={save} className="space-y-8">
-        <section aria-labelledby="logo-title" className="space-y-4">
-          <h2 id="logo-title" className="font-bold">
+      <form
+        id="box-details-form"
+        ref={form}
+        noValidate
+        onSubmit={save}
+        className="space-y-5"
+      >
+        <section aria-labelledby="logo-title" className="space-y-3">
+          <h2 id="logo-title" className="text-sm font-semibold">
             {t("logo")}
           </h2>
-          <BoxLogo name={values.name || box.name} path={box.logoPath} />
-          <label
-            htmlFor="box-logo"
-            className="block text-sm font-semibold text-accent"
-          >
-            {t(box.logoPath ? "changeLogo" : "uploadLogo")}
-          </label>
-          <input
-            id="box-logo"
-            type="file"
-            accept="image/*"
-            disabled={busy !== null}
-            className="min-h-11 w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-surface-elevated file:px-3 file:py-3 file:text-accent"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void logo(file);
-              event.currentTarget.value = "";
-            }}
-          />
-          {box.logoPath ? (
+          <div className="flex items-center gap-3">
+            <BoxLogo
+              name={values.name || box.name}
+              path={box.logoPath}
+              size="small"
+            />
+            <input
+              ref={fileInput}
+              id="box-logo"
+              type="file"
+              accept="image/*"
+              aria-label={t(box.logoPath ? "changeLogo" : "uploadLogo")}
+              disabled={busy !== null}
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void logo(file);
+                event.currentTarget.value = "";
+              }}
+            />
             <Button
               type="button"
               variant="secondary"
               disabled={busy !== null}
-              onClick={() => void logo(null)}
+              className="flex-1"
+              onClick={() => fileInput.current?.click()}
             >
-              {t("removeLogo")}
+              {t(box.logoPath ? "changeLogo" : "uploadLogo")}
             </Button>
+            {box.logoPath ? (
+              <Button
+                type="button"
+                variant="secondary"
+                aria-label={t("removeLogo")}
+                disabled={busy !== null}
+                className="shrink-0 px-3 text-red-400"
+                onClick={() => void logo(null)}
+              >
+                <BoxDetailsIcon name="trash" />
+              </Button>
+            ) : null}
+          </div>
+          {busy === "logo" ? (
+            <p role="status" className="text-sm">
+              {t("working")}
+            </p>
           ) : null}
-          {busy === "logo" ? <p role="status">{t("working")}</p> : null}
           <p className="text-xs text-muted">{t("logoImmediate")}</p>
         </section>
-        <section aria-labelledby="basic-title" className="space-y-4">
-          <h2 id="basic-title" className="font-bold">
+        <section aria-labelledby="basic-title" className="space-y-3">
+          <h2 id="basic-title" className="text-sm font-semibold">
             {t("basic")}
           </h2>
           {field("name", { maxLength: 80 })}
-          {field("description", { maxLength: 500, multiline: true })}
           {box.organization ? (
-            <p className="text-sm text-muted">
-              {t("organization")}: {box.organization.name}
-            </p>
+            <div className="space-y-1">
+              <p className="text-sm text-muted">{t("organization")}</p>
+              <p className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+                {box.organization.name}
+              </p>
+              <p className="flex items-start gap-2 text-xs text-muted">
+                <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
+                {t("organizationReadOnly")}
+              </p>
+            </div>
           ) : null}
+          {field("description", { maxLength: 500, multiline: true })}
         </section>
-        <section aria-labelledby="location-title" className="space-y-4">
-          <h2 id="location-title" className="font-bold">
+        <section aria-labelledby="location-title" className="space-y-3">
+          <h2 id="location-title" className="text-sm font-semibold">
             {t("locationTitle")}
           </h2>
+          {location.coordinates ? (
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <BoxLocationMap
+                name={values.name || box.name}
+                destination={location.destination!}
+                thumbnail
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy !== null}
+                onClick={() => document.getElementById("box-address")?.focus()}
+              >
+                {t("changeLocation")}
+              </Button>
+            </div>
+          ) : null}
           {field("location", { maxLength: 120 })}
           {field("address", { maxLength: 240, multiline: true })}
           <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
@@ -330,8 +411,8 @@ export default function BoxDetailsEditor({
           </div>
           {field("timezone", { maxLength: 80 })}
         </section>
-        <section aria-labelledby="contact-title" className="space-y-4">
-          <h2 id="contact-title" className="font-bold">
+        <section aria-labelledby="contact-title" className="space-y-3">
+          <h2 id="contact-title" className="text-sm font-semibold">
             {t("contactTitle")}
           </h2>
           <p className="text-sm text-muted">{t("contactHelp")}</p>
@@ -357,23 +438,6 @@ export default function BoxDetailsEditor({
             </div>
           ) : null}
         </section>
-        <footer className="sticky bottom-0 z-20 border-t border-border bg-background/95 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-          {feedback ? (
-            <p
-              role={feedback.error ? "alert" : "status"}
-              className={`mb-3 text-sm ${feedback.error ? "text-red-300" : "text-accent"}`}
-            >
-              {feedback.text}
-            </p>
-          ) : null}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={busy !== null || !dirty}
-          >
-            {busy === "save" ? t("working") : t("save")}
-          </Button>
-        </footer>
       </form>
     </div>
   );

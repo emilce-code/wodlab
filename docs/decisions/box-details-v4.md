@@ -14,11 +14,11 @@ Organization reassignment is reserved for ADMIN; it is absent from the ordinary 
 
 ## Web behavior
 
-Athlete profiles, class headers, and dashboard box cards use a logo with a failed-image fallback, without banners. Profile shortcuts choose the first two available channels in WhatsApp, phone, email, Instagram, website order. The Contact options sheet exposes all channels and remaining legacy instructions. Recognizable legacy lines become actions without duplicating structured values; legacy text is not rewritten in storage or translated.
+Athlete profiles, class headers, and dashboard box cards use a logo with a failed-image fallback, without banners. Profile shortcuts choose the first two available channels in WhatsApp, phone, email, Instagram, website order. The Contact options sheet exposes all channels and remaining legacy instructions; its trigger is hidden for one or two actions unless remaining legacy instructions require it. Recognizable legacy lines become actions without duplicating structured values; legacy text is not rewritten in storage or translated.
 
 Directions use valid coordinates first, then address or area. Missing destinations hide the action. A real compact embedded map appears only for valid coordinates; directions remain available independently of map loading. Both sheets use native modal dialogs, keyboard focus cycling/restoration, Escape dismissal, and safe-area spacing.
 
-The dedicated `/boxes/:boxId/edit` page contains Logo, Basic information, Location, Contact, and sticky Save. Member/join-code operations remain in Box Administration. Logo changes persist immediately and are labeled accordingly. Profile changes remain local until Save succeeds. Failed saves preserve values, duplicate submissions are blocked, and unsaved changes trigger link/cancel and document-unload warnings. Browser history traversal also warns where the Navigation API supports canceling traversal. Older browsers retain link/cancel/unload protection but may not allow interception of every SPA history traversal.
+The dedicated `/boxes/:boxId/edit` page contains Logo, Basic information, Location, Contact, and a sticky top-header Save action. Member/join-code operations remain in Box Administration. Logo changes persist immediately and are labeled accordingly. Profile changes remain local until Save succeeds. Failed saves preserve values, duplicate submissions are blocked, and unsaved changes trigger link/cancel and document-unload warnings. Browser history traversal also warns where the Navigation API supports canceling traversal. Older browsers retain link/cancel/unload protection but may not allow interception of every SPA history traversal.
 
 All new UI strings are localized in English, Spanish, and Brazilian Portuguese. No application dependency was added.
 
@@ -45,3 +45,7 @@ node apps/web/test/box-details.browser.mjs
 ```
 
 These checks cover en/es/pt at 320px, sheet focus/dismissal, safe contact actions, missing fields, address fallback, blocked maps, failed logos, classes navigation, editor validation, failed saves, unsaved changes, duplicate saves, and logo optimization/upload/removal. Live Auth0 login, live Supabase storage, and Google map content are not validated by the mocked component suite.
+
+## Visual fidelity review
+
+See [visual QA results](../design/box-details-v4/visual-qa-results.md) for reference comparison, real Next.js screenshots at five viewports, fixture boundaries and remaining limitations. `apps/web/test/box-details.visual.mjs` reproduces these captures using external Playwright tooling without changing production authentication or adding dependencies.

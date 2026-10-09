@@ -5,20 +5,24 @@ import { boxImageUrl } from "@/lib/box-images";
 export default function BoxLogo({
   name,
   path,
+  size = "default",
 }: {
   name: string;
   path?: string | null;
+  size?: "default" | "small";
 }) {
   const src = boxImageUrl(path);
   const [failed, setFailed] = useState<string | null>(null);
   return (
-    <span className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-surface-elevated text-3xl font-black text-accent">
+    <span
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-accent bg-background text-3xl font-black text-accent ${size === "small" ? "h-16 w-16" : "h-20 w-20"}`}
+    >
       {src && failed !== src ? (
         <Image
           src={src}
           alt=""
           fill
-          sizes="80px"
+          sizes={size === "small" ? "64px" : "80px"}
           unoptimized
           className="object-cover"
           onError={() => setFailed(src)}

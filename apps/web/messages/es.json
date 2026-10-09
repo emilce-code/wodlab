@@ -2714,7 +2714,7 @@
   },
   "boxDetailsV4": {
     "contactTitle": "Contacto",
-    "contactOptions": "Opciones de contacto",
+    "contactOptions": "Otras opciones de contacto",
     "locationTitle": "Ubicación",
     "mapUnavailable": "Mapa no disponible. Puedes obtener indicaciones abajo.",
     "mapTitle": "Mapa de {name}",
@@ -2765,6 +2765,17 @@
       "email": "Correo electrónico",
       "instagram": "Instagram",
       "website": "Sitio web"
-    }
+    },
+    "title": "Detalles del box",
+    "back": "Volver a clases",
+    "contactSheetTitle": "Opciones de contacto",
+    "openMaps": "Abrir en mapas",
+    "openGoogle": "Abrir en Google Maps",
+    "openApple": "Abrir en Apple Maps",
+    "saveShort": "Guardar",
+    "organizationReadOnly": "Solo los administradores pueden cambiar la organización.",
+    "changeLocation": "Cambiar",
+    "call": "Llamar",
+    "dismissMaps": "Cancelar"
   }
 }

@@ -270,6 +270,27 @@ try {
     await addressPage.close();
     report("Address fallback, owner edit link, failed logo fallback");
   }
+  for (const count of [1, 2]) {
+    const channels = {
+      whatsapp: "+595981123456",
+      phone: count === 2 ? "+5511987654321" : null,
+      email: null,
+      instagram: null,
+      website: null,
+      supportContact: null,
+    };
+    const { page, t } = await pageFor("en", { ...fixture, ...channels });
+    assert.equal(
+      await page.getByRole("button", { name: t.contactOptions }).count(),
+      0,
+    );
+    assert.equal(
+      await page.locator('section[aria-label="Contact"] a').count(),
+      count,
+    );
+    await page.close();
+    report(`${count} contact methods: no redundant options sheet`);
+  }
   for (const locale of ["en", "es", "pt"]) {
     const { page, errors, t } = await pageFor(
       locale,
@@ -318,9 +339,7 @@ try {
       warned = true;
       await dialog.dismiss();
     });
-    await page
-      .getByRole("button", { name: `← ${t.cancel}`, exact: true })
-      .click();
+    await page.getByRole("button", { name: t.cancel, exact: true }).click();
     assert.equal(warned, true);
     assert.equal(await page.evaluate(() => window.__navigation), undefined);
     fail = false;
@@ -378,13 +397,11 @@ try {
         }),
       });
     });
-    await page
-      .locator("#box-logo")
-      .setInputFiles({
-        name: "broken.png",
-        mimeType: "image/png",
-        buffer: Buffer.from("invalid image"),
-      });
+    await page.locator("#box-logo").setInputFiles({
+      name: "broken.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("invalid image"),
+    });
     await page.getByText(t.logoError, { exact: true }).waitFor();
     assert.equal(uploads, 0, "Malformed image never uploaded");
     const png = Buffer.from(
