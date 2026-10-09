@@ -95,7 +95,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
   const notify = useCallback((message: ToastMessage) => {
     const id = ++sequence.current;
-    setEntries((old) => [...old.slice(-2), { ...message, id }]);
+    setEntries((old) => [
+      ...old
+        .filter(
+          (entry) =>
+            message.action ||
+            entry.action ||
+            entry.message !== message.message ||
+            (entry.variant ?? "success") !== (message.variant ?? "success"),
+        )
+        .slice(-2),
+      { ...message, id },
+    ]);
     return id;
   }, []);
   return (
