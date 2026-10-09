@@ -123,6 +123,11 @@ model Box {
   logoPath           String?
   coverImagePath     String?
   timezone           String                     @default("UTC")
+  whatsapp           String?
+  phone              String?
+  email              String?
+  instagram          String?
+  website            String?
   supportContact     String?
   joinCode           String                     @unique
   organizationId     String?

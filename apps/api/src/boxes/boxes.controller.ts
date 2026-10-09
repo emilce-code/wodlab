@@ -41,6 +41,11 @@ export class BoxesController {
     return this.boxes.findAll(request.user.userId);
   }
 
+  @Get('managed')
+  managed(@Req() request: AuthenticatedRequest) {
+    return this.boxes.managed(request.user.userId);
+  }
+
   @Get('administration')
   @Roles('ADMIN')
   findAllForAdministration() {
@@ -93,6 +98,11 @@ export class BoxesController {
     @Body() dto: SetActiveBoxDto,
   ) {
     return this.boxes.setActiveBox(request.user.userId, dto.boxId);
+  }
+
+  @Get(':boxId')
+  details(@Req() request: AuthenticatedRequest, @Param('boxId') boxId: string) {
+    return this.boxes.details(request.user.userId, boxId);
   }
 
   @Patch(':boxId')

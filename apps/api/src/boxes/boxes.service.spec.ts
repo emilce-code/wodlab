@@ -28,6 +28,7 @@ describe('BoxesService', () => {
       updateMany: jest.fn(),
     },
     box: {
+      findMany: jest.fn(),
       findUnique: jest.fn(),
       findUniqueOrThrow: jest.fn(),
       create: jest.fn(),
@@ -106,6 +107,158 @@ describe('BoxesService', () => {
         isActive: true,
       }),
     ]);
+  });
+
+  it.each(['COACH', 'ATHLETE'])(
+    'rejects profile mutations from a %s member',
+    async (role) => {
+      prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+      prisma.boxMembership.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        role: { key: role },
+      });
+      prisma.box.findUnique.mockResolvedValue({
+        id: 'box-1',
+        organizationId: null,
+      });
+      await expect(
+        service.update('user-1', 'box-1', {
+          logoPath: 'logo.webp',
+          whatsapp: '+595981123456',
+        }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.box.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it('rejects access to another organization and box', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+    prisma.boxMembership.findUnique.mockResolvedValue(null);
+    prisma.box.findUnique.mockResolvedValue({
+      id: 'other-box',
+      organizationId: 'other-org',
+    });
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue(null);
+    await expect(
+      service.update('owner-1', 'other-box', { name: 'Changed' }),
+    ).rejects.toThrow(ForbiddenException);
+    await expect(service.details('owner-1', 'other-box')).rejects.toThrow(
+      ForbiddenException,
+    );
+    expect(prisma.box.update).not.toHaveBeenCalled();
+  });
+
+  it('prevents an ordinary owner from reassigning its organization', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+    prisma.boxMembership.findUnique.mockResolvedValue({
+      status: 'ACTIVE',
+      role: { key: 'OWNER' },
+    });
+    await expect(
+      service.update('owner-1', 'box-1', { organizationId: 'other-org' }),
+    ).rejects.toThrow(ForbiddenException);
+    expect(prisma.box.update).not.toHaveBeenCalled();
+  });
+
+  it('persists structured contacts without erasing legacy data or other optional fields', async () => {
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+    await service.update('admin-1', 'box-1', {
+      whatsapp: '+595981123456',
+      phone: null,
+      email: 'hello@example.com',
+      instagram: '@box',
+      website: 'https://example.com',
+    });
+    expect(prisma.box.update).toHaveBeenCalledWith({
+      where: { id: 'box-1' },
+      data: {
+        whatsapp: '+595981123456',
+        phone: null,
+        email: 'hello@example.com',
+        instagram: '@box',
+        website: 'https://example.com',
+      },
+    });
+  });
+
+  it.each(['OWNER', 'COACH', 'ATHLETE'])(
+    'returns scoped edit capability for %s',
+    async (role) => {
+      prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+      prisma.box.findUnique.mockResolvedValue({
+        id: 'box-1',
+        organizationId: null,
+        supportContact: 'Legacy',
+        whatsapp: '+595981123456',
+      });
+      prisma.boxMembership.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        role: { key: role },
+      });
+      await expect(service.details('user-1', 'box-1')).resolves.toMatchObject({
+        canEditDetails: role === 'OWNER',
+        supportContact: 'Legacy',
+        whatsapp: '+595981123456',
+      });
+    },
+  );
+
+  it('allows an organization owner to read and edit without a box membership', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+    prisma.box.findUnique.mockResolvedValue({
+      id: 'box-1',
+      organizationId: 'org-1',
+    });
+    prisma.boxMembership.findUnique.mockResolvedValue(null);
+    prisma.boxOrganizationOwner.findUnique.mockResolvedValue({
+      id: 'ownership-1',
+    });
+    await expect(service.details('owner-1', 'box-1')).resolves.toMatchObject({
+      canEditDetails: true,
+    });
+  });
+
+  it('rejects an incomplete coordinate pair but permits clearing both', async () => {
+    prisma.box.findUnique.mockResolvedValue({ id: 'box-1' });
+    prisma.box.findUniqueOrThrow.mockResolvedValue({
+      latitude: null,
+      longitude: null,
+    });
+    await expect(
+      service.update('admin-1', 'box-1', { latitude: 0 }),
+    ).rejects.toThrow(BadRequestException);
+    await service.update('admin-1', 'box-1', {
+      latitude: null,
+      longitude: null,
+    });
+    expect(prisma.box.update).toHaveBeenCalledWith({
+      where: { id: 'box-1' },
+      data: { latitude: null, longitude: null },
+    });
+  });
+
+  it('limits managed box discovery to active box owners and organization owners', async () => {
+    prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+    prisma.box.findMany.mockResolvedValue([]);
+    await service.managed('owner-1');
+    expect(prisma.box.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          OR: [
+            {
+              memberships: {
+                some: {
+                  userId: 'owner-1',
+                  status: 'ACTIVE',
+                  role: { key: 'OWNER' },
+                },
+              },
+            },
+            { organization: { owners: { some: { userId: 'owner-1' } } } },
+          ],
+        },
+      }),
+    );
   });
 
   it('creates a box and owner membership', async () => {

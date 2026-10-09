@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import { authenticatedApiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
-import type { BoxSummary, ManagedBox } from "@/lib/boxes";
+import type { ManagedBox } from "@/lib/boxes";
 import BoxAdministration from "./BoxAdministration";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -18,15 +18,8 @@ export default async function BoxAdministrationPage({ params }: Props) {
   if (!user) redirect(`/${locale}/login`);
 
   const isAdmin = user.role === "ADMIN";
-  const response = await authenticatedApiFetch(
-    isAdmin ? "/boxes/administration" : "/boxes",
-  );
-  const allBoxes = response?.ok
-    ? ((await response.json()) as ManagedBox[])
-    : [];
-  const boxes = isAdmin
-    ? allBoxes
-    : (allBoxes as BoxSummary[]).filter((box) => box.role === "OWNER");
+  const response = await authenticatedApiFetch('/boxes/managed');
+  const boxes = response?.ok ? ((await response.json()) as ManagedBox[]) : [];
 
   if (!isAdmin && boxes.length === 0) redirect(`/${locale}/classes`);
 

@@ -29,7 +29,8 @@
       "today": "Hoje",
       "tomorrow": "Amanhã",
       "nextWeek": "+1 semana"
-    }
+    },
+    "close": "Fechar"
   },
   "pwa": {
     "offline": "Você está offline. Ainda é possível colocar resultados na fila a partir de um treino aberto.",
@@ -318,7 +319,8 @@
       "changeCover": "Alterar capa",
       "removeLogo": "Remover logo",
       "removeCover": "Remover capa"
-    }
+    },
+    "editDetails": "Editar detalhes do box"
   },
   "boxDetails": {
     "eyebrow": "Detalhes do Box",
@@ -2709,5 +2711,60 @@
     "benchmark": "Benchmark",
     "showMore": "Mostrar mais {count}",
     "showLess": "Mostrar menos"
+  },
+  "boxDetailsV4": {
+    "contactTitle": "Contato",
+    "contactOptions": "Opções de contato",
+    "locationTitle": "Localização",
+    "mapUnavailable": "Mapa indisponível. Você ainda pode obter rotas abaixo.",
+    "mapTitle": "Mapa de {name}",
+    "directions": "Como chegar",
+    "working": "Salvando…",
+    "classes": "Ver aulas",
+    "navigationError": "Não foi possível selecionar este box. Tente novamente.",
+    "edit": "Editar detalhes do box",
+    "loadError": "Não foi possível carregar este box ou você não tem acesso.",
+    "unsaved": "Você tem alterações não salvas. Sair sem salvar?",
+    "invalidName": "Digite um nome entre 2 e 80 caracteres.",
+    "invalidContact": "Digite um contato válido: telefone internacional, e-mail, usuário do Instagram ou site HTTP(S).",
+    "invalidCoordinates": "Digite uma latitude (−90 a 90) ou longitude (−180 a 180) válida.",
+    "coordinatePair": "Informe as duas coordenadas ou deixe ambas vazias.",
+    "invalidTimezone": "Digite um fuso horário válido, como America/Sao_Paulo.",
+    "saveError": "Não foi possível salvar. Suas alterações foram mantidas; tente novamente.",
+    "saved": "Detalhes do box salvos.",
+    "logoError": "Não foi possível atualizar o logo. Tente novamente.",
+    "logoSaved": "Logo atualizado.",
+    "cancel": "Voltar / Cancelar",
+    "logo": "Logo",
+    "changeLogo": "Alterar logo",
+    "uploadLogo": "Enviar logo",
+    "removeLogo": "Remover logo",
+    "logoImmediate": "As alterações do logo são salvas imediatamente.",
+    "basic": "Informações básicas",
+    "organization": "Organização",
+    "contactHelp": "Todos os contatos são opcionais. Use telefones internacionais (por exemplo +5511987654321), um usuário ou URL do Instagram e a URL completa do site.",
+    "legacyContact": "Informações de contato existentes",
+    "save": "Salvar alterações",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "instagram": "Instagram",
+      "website": "Site"
+    },
+    "fields": {
+      "name": "Nome do box",
+      "description": "Descrição",
+      "location": "Cidade / região",
+      "address": "Endereço",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "timezone": "Fuso horário",
+      "whatsapp": "WhatsApp",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "instagram": "Instagram",
+      "website": "Site"
+    }
   }
 }

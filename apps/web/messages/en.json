@@ -29,7 +29,8 @@
       "today": "Today",
       "tomorrow": "Tomorrow",
       "nextWeek": "+1 week"
-    }
+    },
+    "close": "Close"
   },
   "pwa": {
     "offline": "You're offline. Results can still be queued from an opened workout.",
@@ -318,7 +319,8 @@
       "changeCover": "Change cover",
       "removeLogo": "Remove logo",
       "removeCover": "Remove cover"
-    }
+    },
+    "editDetails": "Edit Box Details"
   },
   "boxDetails": {
     "eyebrow": "Box details",
@@ -2709,5 +2711,60 @@
     "benchmark": "Benchmark",
     "showMore": "Show {count} more",
     "showLess": "Show less"
+  },
+  "boxDetailsV4": {
+    "contactTitle": "Contact",
+    "contactOptions": "Contact options",
+    "locationTitle": "Location",
+    "mapUnavailable": "Map unavailable. You can still get directions below.",
+    "mapTitle": "Map of {name}",
+    "directions": "Get directions",
+    "working": "Saving…",
+    "classes": "View classes",
+    "navigationError": "Unable to select this box. Please try again.",
+    "edit": "Edit Box Details",
+    "loadError": "Unable to load this box, or you do not have access.",
+    "unsaved": "You have unsaved changes. Leave without saving?",
+    "invalidName": "Enter a box name between 2 and 80 characters.",
+    "invalidContact": "Enter a valid contact. Use an international phone number, email, Instagram handle or HTTP(S) website.",
+    "invalidCoordinates": "Enter a valid latitude (−90 to 90) or longitude (−180 to 180).",
+    "coordinatePair": "Provide both coordinates, or leave both empty.",
+    "invalidTimezone": "Enter a valid timezone, such as America/Asuncion.",
+    "saveError": "Unable to save. Your changes are preserved; please try again.",
+    "saved": "Box details saved.",
+    "logoError": "Unable to update the logo. Please try again.",
+    "logoSaved": "Logo updated.",
+    "cancel": "Back / Cancel",
+    "logo": "Logo",
+    "changeLogo": "Change logo",
+    "uploadLogo": "Upload logo",
+    "removeLogo": "Remove logo",
+    "logoImmediate": "Logo changes are saved immediately.",
+    "basic": "Basic information",
+    "organization": "Organization",
+    "contactHelp": "All contact fields are optional. Use international phone numbers (for example +595981123456), an Instagram handle or URL, and a full website URL.",
+    "legacyContact": "Existing contact information",
+    "save": "Save changes",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "phone": "Phone",
+      "email": "Email",
+      "instagram": "Instagram",
+      "website": "Website"
+    },
+    "fields": {
+      "name": "Box name",
+      "description": "Description",
+      "location": "City / area",
+      "address": "Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "timezone": "Timezone",
+      "whatsapp": "WhatsApp",
+      "phone": "Phone",
+      "email": "Email",
+      "instagram": "Instagram",
+      "website": "Website"
+    }
   }
 }

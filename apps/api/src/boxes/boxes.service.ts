@@ -112,6 +112,66 @@ export class BoxesService {
     }));
   }
 
+  async details(userId: string, boxId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    const box = await this.prisma.box.findUnique({
+      where: { id: boxId },
+      include: { organization: true },
+    });
+    if (!box) throw new NotFoundException('Box not found');
+    const membership = await this.prisma.boxMembership.findUnique({
+      where: { boxId_userId: { boxId, userId } },
+      include: { role: true },
+    });
+    const organizationOwner = box.organizationId
+      ? await this.getOrganizationOwnerForBox(userId, boxId)
+      : null;
+    const canEditDetails =
+      user.role === 'ADMIN' ||
+      Boolean(organizationOwner) ||
+      (membership?.status === 'ACTIVE' && membership.role.key === 'OWNER');
+    if (!canEditDetails && membership?.status !== 'ACTIVE')
+      throw new ForbiddenException('Box member access required');
+    return { ...box, canEditDetails };
+  }
+
+  async managed(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return this.prisma.box.findMany({
+      where:
+        user.role === 'ADMIN'
+          ? {}
+          : {
+              OR: [
+                {
+                  memberships: {
+                    some: { userId, status: 'ACTIVE', role: { key: 'OWNER' } },
+                  },
+                },
+                { organization: { owners: { some: { userId } } } },
+              ],
+            },
+      include: {
+        organization: true,
+        _count: {
+          select: {
+            memberships: { where: { status: 'ACTIVE' } },
+            classes: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async findAllForAdministration() {
     return this.prisma.box.findMany({
       include: {
@@ -217,6 +277,10 @@ export class BoxesService {
     }
 
     const joinCode = await this.createUniqueJoinCode();
+    if ((dto.latitude === undefined) !== (dto.longitude === undefined))
+      throw new BadRequestException(
+        'Provide both coordinates or leave both empty',
+      );
     const organizationId = dto.organizationId?.trim() || null;
 
     if (organizationId) {
@@ -235,6 +299,11 @@ export class BoxesService {
           longitude: dto.longitude ?? null,
           logoPath: dto.logoPath?.trim() || null,
           coverImagePath: dto.coverImagePath?.trim() || null,
+          whatsapp: dto.whatsapp?.trim() || null,
+          phone: dto.phone?.trim() || null,
+          email: dto.email?.trim() || null,
+          instagram: dto.instagram?.trim() || null,
+          website: dto.website?.trim() || null,
           supportContact: dto.supportContact?.trim() || null,
           organizationId,
           joinCode,
@@ -271,6 +340,18 @@ export class BoxesService {
 
     await this.requireBoxManagementAccess(userId, boxId, user.role);
 
+    for (const field of ['logoPath', 'coverImagePath'] as const) {
+      const imagePath = dto[field]?.trim();
+      const prefix = `boxes/${boxId}/`;
+      if (
+        imagePath &&
+        (!imagePath.startsWith(prefix) ||
+          !/^[A-Za-z0-9_-]+\.webp$/.test(imagePath.slice(prefix.length)))
+      ) {
+        throw new BadRequestException('Image path must belong to this box');
+      }
+    }
+
     const name = dto.name?.trim();
     const organizationId = dto.organizationId?.trim() || null;
 
@@ -278,8 +359,28 @@ export class BoxesService {
       throw new BadRequestException('Box name is required');
     }
 
+    if (dto.organizationId !== undefined && user.role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Administrator access required for organization reassignment',
+      );
+    }
     if (organizationId) {
       await this.ensureOrganizationExists(organizationId);
+    }
+
+    if (dto.latitude !== undefined || dto.longitude !== undefined) {
+      const current = await this.prisma.box.findUniqueOrThrow({
+        where: { id: boxId },
+        select: { latitude: true, longitude: true },
+      });
+      const latitude =
+        dto.latitude === undefined ? current.latitude : dto.latitude;
+      const longitude =
+        dto.longitude === undefined ? current.longitude : dto.longitude;
+      if ((latitude === null) !== (longitude === null))
+        throw new BadRequestException(
+          'Provide both coordinates or leave both empty',
+        );
     }
 
     return this.prisma.box.update({
@@ -311,6 +412,21 @@ export class BoxesService {
           : {}),
         ...(dto.coverImagePath !== undefined
           ? { coverImagePath: dto.coverImagePath?.trim() || null }
+          : {}),
+        ...(dto.whatsapp !== undefined
+          ? { whatsapp: dto.whatsapp?.trim() || null }
+          : {}),
+        ...(dto.phone !== undefined
+          ? { phone: dto.phone?.trim() || null }
+          : {}),
+        ...(dto.email !== undefined
+          ? { email: dto.email?.trim() || null }
+          : {}),
+        ...(dto.instagram !== undefined
+          ? { instagram: dto.instagram?.trim() || null }
+          : {}),
+        ...(dto.website !== undefined
+          ? { website: dto.website?.trim() || null }
           : {}),
         ...(dto.supportContact !== undefined
           ? { supportContact: dto.supportContact?.trim() || null }

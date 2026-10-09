@@ -135,7 +135,10 @@ export class UsersController {
       (membership) => membership.role.key === 'OWNER',
     );
 
-    if (ownsABox && !permissions.includes('box:manage')) {
+    if (
+      (ownsABox || user.boxOrganizationsOwned?.length) &&
+      !permissions.includes('box:manage')
+    ) {
       permissions.push('box:manage');
     }
 
