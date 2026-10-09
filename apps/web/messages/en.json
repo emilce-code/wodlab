@@ -2714,7 +2714,7 @@
   },
   "boxDetailsV4": {
     "contactTitle": "Contact",
-    "contactOptions": "Contact options",
+    "contactOptions": "Other contact options",
     "locationTitle": "Location",
     "mapUnavailable": "Map unavailable. You can still get directions below.",
     "mapTitle": "Map of {name}",
@@ -2765,6 +2765,17 @@
       "email": "Email",
       "instagram": "Instagram",
       "website": "Website"
-    }
+    },
+    "title": "Box Details",
+    "back": "Back to classes",
+    "contactSheetTitle": "Contact options",
+    "openMaps": "Open in maps",
+    "openGoogle": "Open in Google Maps",
+    "openApple": "Open in Apple Maps",
+    "saveShort": "Save",
+    "organizationReadOnly": "Organization can only be changed by admins.",
+    "changeLocation": "Change",
+    "call": "Call",
+    "dismissMaps": "Cancel"
   }
 }
