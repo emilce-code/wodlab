@@ -8,6 +8,8 @@ import {
   type RefObject,
 } from "react";
 import { useTranslations } from "next-intl";
+import FormField from "@/components/ui/FormField";
+import { TextInput, Select, Textarea } from "@/components/ui/FormControls";
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import { classApiPath } from "@/lib/class-schedule";
@@ -266,8 +268,6 @@ export default function ClassEditor({
       if (!controller.signal.aborted) setPending(false);
     }
   }
-  const inputStyle =
-    "min-h-12 w-full rounded-xl border border-border bg-surface px-3 outline-none focus:border-accent disabled:cursor-not-allowed disabled:opacity-50";
   return (
     <section className="min-w-0 space-y-4">
       <h2 className="text-lg font-bold">{t("edit")}</h2>
@@ -287,7 +287,7 @@ export default function ClassEditor({
           <div className="grid min-w-0 gap-4 lg:grid-cols-2">
             <label className="min-w-0 text-sm font-semibold">
               {t("date")}
-              <input
+              <TextInput
                 type="date"
                 value={locked ? draft(session).date : values.date}
                 required
@@ -300,19 +300,19 @@ export default function ClassEditor({
                       ? "class-field-error"
                       : undefined
                 }
-                className={`mt-2 ${inputStyle}`}
+                className="mt-2"
               />
             </label>
             <label className="min-w-0 text-sm font-semibold">
               {t("time")}
-              <input
+              <TextInput
                 type="time"
                 value={locked ? draft(session).time : values.time}
                 required
                 disabled={locked}
                 onChange={(event) => update("time", event.target.value)}
                 aria-describedby={locked ? "class-date-locked" : undefined}
-                className={`mt-2 ${inputStyle}`}
+                className="mt-2"
               />
             </label>
           </div>
@@ -352,11 +352,11 @@ export default function ClassEditor({
           {selected && variants.length ? (
             <label className="block text-sm font-semibold">
               {t("variation")}
-              <select
+              <Select
                 aria-label={t("variation")}
                 value={values.variantId}
                 onChange={(event) => update("variantId", event.target.value)}
-                className={`mt-2 ${inputStyle}`}
+                className="mt-2"
               >
                 <option value="">{t("noVariation")}</option>
                 {variants.map((variant) => (
@@ -367,23 +367,30 @@ export default function ClassEditor({
                         : variant.level.name)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
           ) : null}
-          <label className="block text-sm font-semibold">
-            {t("description")}
-            <textarea
-              value={values.description}
-              aria-label={t("description")}
-              maxLength={500}
-              rows={4}
-              onChange={(event) => update("description", event.target.value)}
-              className={`mt-2 py-3 ${inputStyle}`}
-            />
-            <span className="mt-1 block text-right text-xs font-normal text-muted">
-              {values.description.length}/500
-            </span>
-          </label>
+          <FormField label={t("description")}>
+            {(control) => (
+              <Textarea
+                {...control}
+                value={values.description}
+                aria-label={t("description")}
+                aria-invalid={fieldError === t("descriptionError") || undefined}
+                aria-describedby={
+                  fieldError === t("descriptionError")
+                    ? "class-field-error"
+                    : undefined
+                }
+                maxLength={500}
+                rows={4}
+                onChange={(event) => update("description", event.target.value)}
+              />
+            )}
+          </FormField>
+          <span className="block text-right text-xs text-muted">
+            {values.description.length}/500
+          </span>
         </fieldset>
         {error || success ? (
           <p
@@ -398,7 +405,7 @@ export default function ClassEditor({
           data-class-action
           className={
             page
-              ? "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-background px-4 pt-3 pb-4 lg:static lg:px-0"
+              ? "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-background px-4 pt-3 pb-6 lg:static lg:px-0"
               : "border-t border-border pt-4"
           }
         >
