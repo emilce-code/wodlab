@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import StickyActions from "@/components/layout/StickyActions";
 import Button from "@/components/ui/Button";
 import { Link } from "@/i18n/navigation";
 import { formatTime, formatWeekdayDate } from "@/lib/date-formatters";
@@ -113,10 +114,11 @@ export default function ClassDetails({
   ]
     .filter(Boolean)
     .join(" · ");
+  const ActionContainer = page ? StickyActions : "footer";
   return (
     <article
       aria-labelledby={`class-title-${session.id}`}
-      className={`grid min-w-0 gap-4 ${page ? (canBook ? "pb-28 lg:pb-6" : "pb-4") : "xl:grid-cols-2"}`}
+      className={`grid min-w-0 gap-4 ${page ? "pb-4" : "xl:grid-cols-2"}`}
     >
       <header
         className={`space-y-3 ${!page ? "xl:col-start-1 xl:row-start-1 xl:row-span-2" : ""}`}
@@ -259,11 +261,11 @@ export default function ClassDetails({
         </section>
       ) : null}
       {canBook ? (
-        <footer
+        <ActionContainer
           data-class-action
           className={
             page
-              ? "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-background px-4 pt-3 pb-4 lg:static lg:border-t-0 lg:px-0"
+              ? "lg:border-t-0"
               : "sticky bottom-4 space-y-2 border-t border-border bg-background py-4 xl:static xl:col-start-2 xl:row-start-1 xl:flex xl:flex-col xl:items-end xl:space-y-0 xl:self-start xl:border-t-0 xl:bg-transparent xl:p-0"
           }
         >
@@ -304,7 +306,7 @@ export default function ClassDetails({
                       ? t("full")
                       : t("book")}
           </Button>
-        </footer>
+        </ActionContainer>
       ) : null}
     </article>
   );
