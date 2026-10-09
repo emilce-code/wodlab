@@ -395,7 +395,7 @@ function ScheduleForm({ box }: { box: BoxSummary }) {
         ) : null}
         <footer
           data-schedule-action
-          className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-background px-4 pb-4 pt-3 lg:static lg:flex lg:justify-end lg:px-0"
+          className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 border-t border-border bg-background px-4 pb-6 pt-3 lg:static lg:flex lg:justify-end lg:px-0"
         >
           <Button
             type="submit"

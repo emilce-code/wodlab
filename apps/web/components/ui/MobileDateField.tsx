@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef } from "react";
+import { TextInput } from "./FormControls";
 import { useTranslations } from "next-intl";
 
 type Props = {
@@ -58,7 +59,7 @@ export default function MobileDateField({
         </label>
       ) : null}
       <div className="relative">
-        <input
+        <TextInput
           ref={inputRef}
           id={inputId}
           name={name}
@@ -69,7 +70,7 @@ export default function MobileDateField({
           max={max}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-12 w-full min-w-0 appearance-none rounded-xl border border-border bg-background px-4 py-3 pr-12 text-base text-foreground outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-60"
+          className="appearance-none pr-12"
         />
         <button
           type="button"
