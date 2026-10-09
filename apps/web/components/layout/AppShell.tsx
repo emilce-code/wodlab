@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/components/ui/Toast";
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import MobileNavigation from "./MobileNavigation";
@@ -16,34 +17,40 @@ type Props = {
   initialBoxes: BoxSummary[];
 };
 
-export default async function AppShell({ children, user, initialBoxes }: Props) {
+export default async function AppShell({
+  children,
+  user,
+  initialBoxes,
+}: Props) {
   const t = await getTranslations("navigation");
 
   return (
     <ActiveBoxProvider initialBoxes={initialBoxes}>
-    <div className="min-h-screen bg-background text-foreground">
-      <LocalePreferenceRedirect user={user} />
-      <PwaManager />
-      <a
-        href="#main-content"
-        className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-xl transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-foreground"
-      >
-        {t("skipToContent")}
-      </a>
+      <ToastProvider>
+        <div className="min-h-screen bg-background text-foreground">
+          <LocalePreferenceRedirect user={user} />
+          <PwaManager />
+          <a
+            href="#main-content"
+            className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground shadow-xl transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-foreground"
+          >
+            {t("skipToContent")}
+          </a>
 
-      <div className="flex min-h-screen">
-        <Sidebar user={user} />
+          <div className="flex min-h-screen">
+            <Sidebar user={user} />
 
-        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
-          <ActiveBoxSwitcher />
-          <div className="mx-auto max-w-7xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-10 lg:py-8 lg:pb-8">
-            {children}
+            <main id="main-content" tabIndex={-1} className="min-w-0 flex-1">
+              <ActiveBoxSwitcher />
+              <div className="mx-auto max-w-7xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-10 lg:py-8 lg:pb-8">
+                {children}
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
 
-      <MobileNavigation user={user} />
-    </div>
+          <MobileNavigation user={user} />
+        </div>
+      </ToastProvider>
     </ActiveBoxProvider>
   );
 }

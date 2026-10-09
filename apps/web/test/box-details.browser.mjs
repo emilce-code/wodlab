@@ -29,13 +29,14 @@ const messages = Object.fromEntries(
 );
 const mocks = {
   "next-intl": `export function useTranslations(namespace) { return (key, params = {}) => { let value = namespace.split('.').reduce((v,k) => v[k], window.__messages); for (const k of key.split('.')) value = value[k]; if (typeof value !== 'string') throw Error('Missing translation: '+namespace+'.'+key); return value.replace(/\\{(\\w+)\\}/g, (_,k) => params[k] ?? '{'+k+'}'); }; }`,
+  "next/navigation": `export function useRouter() {return {push: url => {window.__navigation = url;}};}`,
   "next/image": `import React from 'react'; export default function Image({fill,sizes,unoptimized,...props}) {return <img {...props} style={{width:'100%',height:'100%',objectFit:'cover'}}/>;}`,
   "@/i18n/navigation": `import React from 'react'; export function Link(props) {return <a {...props}/>;} export function useRouter() {return {push: url => {window.__navigation = url;},refresh: () => {}};}`,
   "@/components/layout/ActiveBoxContext": `export function useActiveBox() {return {boxes:[window.__box],saving:false,selectBox: async id => {window.__selectedBox = id; return true;},replaceBoxes: () => {}};}`,
 };
 await esbuild.build({
   stdin: {
-    contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import View from ${JSON.stringify(path.join(web, "app/[locale]/(app)/boxes/[boxId]/components/BoxDetailsView.tsx"))}; import Editor from ${JSON.stringify(path.join(web, "app/[locale]/(app)/boxes/[boxId]/edit/BoxDetailsEditor.tsx"))}; createRoot(document.getElementById('root')).render(location.pathname === '/edit' ? <Editor initialBox={window.__box}/> : <View box={window.__box}/>);`,
+    contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import {ToastProvider} from ${JSON.stringify(path.join(web, "components/ui/Toast.tsx"))}; import View from ${JSON.stringify(path.join(web, "app/[locale]/(app)/boxes/[boxId]/components/BoxDetailsView.tsx"))}; import Editor from ${JSON.stringify(path.join(web, "app/[locale]/(app)/boxes/[boxId]/edit/BoxDetailsEditor.tsx"))}; createRoot(document.getElementById('root')).render(<ToastProvider>{location.pathname === '/edit' ? <Editor initialBox={window.__box}/> : <View box={window.__box}/>}</ToastProvider>);`,
     resolveDir: web,
     loader: "tsx",
   },
@@ -54,7 +55,7 @@ await esbuild.build({
         build.onResolve(
           {
             filter:
-              /^(next-intl|next\/image|@\/i18n\/navigation|@\/components\/layout\/ActiveBoxContext)$/,
+              /^(next-intl|next\/image|next\/navigation|@\/i18n\/navigation|@\/components\/layout\/ActiveBoxContext)$/,
           },
           (args) => ({ path: args.path, namespace: "mock" }),
         );
@@ -378,13 +379,18 @@ try {
       .getByText(t.saveError, { exact: true })
       .waitFor();
     assert.equal(await page.locator("#box-name").inputValue(), "Updated Box");
-    let warned = false;
-    page.once("dialog", async (dialog) => {
-      warned = true;
-      await dialog.dismiss();
-    });
     await page.getByRole("button", { name: t.cancel, exact: true }).click();
-    assert.equal(warned, true);
+    const confirmation = page.getByRole("alertdialog");
+    await confirmation.waitFor();
+    const stay = confirmation.getByRole("button", {
+      name: messages[locale].common.stay,
+      exact: true,
+    });
+    assert.equal(
+      await stay.evaluate((button) => button === document.activeElement),
+      true,
+    );
+    await stay.click();
     assert.equal(await page.evaluate(() => window.__navigation), undefined);
     fail = false;
     const beforeSave = attempts;

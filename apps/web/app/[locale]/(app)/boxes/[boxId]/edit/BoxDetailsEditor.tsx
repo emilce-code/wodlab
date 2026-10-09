@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import useUnsavedChanges from "@/components/ui/useUnsavedChanges";
+import { useToast } from "@/components/ui/Toast";
 import Button from "@/components/ui/Button";
 import BoxLogo from "@/components/ui/BoxLogo";
 import BoxLocationMap from "@/components/ui/BoxLocationMap";
@@ -62,40 +64,12 @@ export default function BoxDetailsEditor({
     location: values.location,
   });
   const dirty = JSON.stringify(values) !== JSON.stringify(baseline);
-  useEffect(() => {
-    if (!dirty && !busy) return;
-    const warning = t("unsaved");
-    function unload(event: BeforeUnloadEvent) {
-      event.preventDefault();
-      event.returnValue = "";
-    }
-    function navigate(event: MouseEvent) {
-      const link = (event.target as HTMLElement).closest("a[href]");
-      if (link && !window.confirm(warning)) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-    const navigation = (window as unknown as { navigation?: EventTarget })
-      .navigation;
-    function traverse(event: Event) {
-      if (
-        (event as Event & { navigationType?: string }).navigationType ===
-          "traverse" &&
-        event.cancelable &&
-        !window.confirm(warning)
-      )
-        event.preventDefault();
-    }
-    navigation?.addEventListener("navigate", traverse);
-    window.addEventListener("beforeunload", unload);
-    document.addEventListener("click", navigate, true);
-    return () => {
-      navigation?.removeEventListener("navigate", traverse);
-      window.removeEventListener("beforeunload", unload);
-      document.removeEventListener("click", navigate, true);
-    };
-  }, [dirty, busy, t]);
+  const { confirmDiscard, dialog } = useUnsavedChanges({
+    dirty,
+    pending: busy !== null,
+    message: t("unsaved"),
+  });
+  const { notify } = useToast();
 
   function update(field: keyof Values, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -179,7 +153,8 @@ export default function BoxDetailsEditor({
       setValues(initialValues(saved));
       setBaseline(initialValues(saved));
       sync(saved);
-      setFeedback({ error: false, text: t("saved") });
+      setFeedback(null);
+      notify({ message: t("saved"), variant: "success" });
     } catch {
       setFeedback({ error: true, text: t("saveError") });
     } finally {
@@ -212,7 +187,8 @@ export default function BoxDetailsEditor({
       const data = await response.json();
       if (!response.ok) throw new Error(t("logoError"));
       sync({ ...box, logoPath: data.path });
-      setFeedback({ error: false, text: t("logoSaved") });
+      setFeedback(null);
+      notify({ message: t("logoSaved"), variant: "success" });
     } catch {
       setFeedback({ error: true, text: t("logoError") });
     } finally {
@@ -275,9 +251,8 @@ export default function BoxDetailsEditor({
             aria-label={t("cancel")}
             disabled={busy !== null}
             className="flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground active:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none"
-            onClick={() => {
-              if (!dirty || window.confirm(t("unsaved")))
-                router.push(`/boxes/${box.id}`);
+            onClick={async () => {
+              if (await confirmDiscard()) router.push(`/boxes/${box.id}`);
             }}
           >
             <BoxDetailsIcon name="back" />
@@ -468,6 +443,7 @@ export default function BoxDetailsEditor({
           ) : null}
         </section>
       </form>
+      {dialog}
     </div>
   );
 }
