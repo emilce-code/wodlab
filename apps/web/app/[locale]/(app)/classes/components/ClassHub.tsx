@@ -6,6 +6,8 @@ import { useLocale, useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
+import AthleteClasses from "./AthleteClasses";
+import PageHeader from "@/components/layout/PageHeader";
 import BoxLogo from "@/components/ui/BoxLogo";
 import type { ClassSession, WorkoutOption } from "@/lib/boxes";
 import { formatShortDate, formatTime, formatWeekdayDate } from "@/lib/date-formatters";
@@ -56,7 +58,7 @@ function classStartDateForOffset(offset: number) {
   return date;
 }
 
-export default function ClassHub() {
+export default function ClassHub({ initialDay, initialView }: { initialDay?: string; initialView?: string }) {
   const t = useTranslations("boxes");
   const locale = useLocale();
   const { boxes, activeBox } = useActiveBox();
@@ -114,7 +116,7 @@ export default function ClassHub() {
   }
 
   useEffect(() => {
-    if (!boxId) return;
+    if (!boxId || !isStaff) return;
     const controller = new AbortController();
     const from = new Date();
     from.setHours(0, 0, 0, 0);
@@ -135,7 +137,7 @@ export default function ClassHub() {
         setLoading(false);
       });
     return () => controller.abort();
-  }, [boxId, t]);
+  }, [boxId, isStaff, t]);
 
   useEffect(() => {
     if (!boxId || !isStaff) return;
@@ -228,8 +230,10 @@ export default function ClassHub() {
   }
 
   return (
+    <div className={isStaff || !selectedBox ? "mx-auto max-w-4xl" : ""}>
+      {isStaff || !selectedBox ? <PageHeader eyebrow={t("eyebrow")} title={t("title")} description={t("description")} /> : null}
     <div className="mt-6 space-y-4 pb-4">
-      {boxes.length ? <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button> : null}
+      {boxes.length && (isStaff || !selectedBox) ? <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button> : null}
 
       {showJoin ? (
         <form onSubmit={submitBox} className="rounded-3xl border border-border bg-surface p-5 text-center shadow-sm">
@@ -268,6 +272,9 @@ export default function ClassHub() {
 
       {error ? <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">{error}</p> : null}
 
+      {selectedBox && !isStaff ? (
+        <AthleteClasses key={selectedBox.id} box={selectedBox} initialDay={initialDay} initialView={initialView} joinAction={<Button type="button" variant="ghost" className="shrink-0" onClick={() => setShowJoin((value) => !value)}>{showJoin ? t("join.close") : t("join.another")}</Button>} />
+      ) : <>
       {selectedBox ? (
         <section className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
           <div className="flex items-center gap-3 p-4">
@@ -343,6 +350,8 @@ export default function ClassHub() {
 
         {!loading ? <div className="space-y-3">{filteredClasses.map((session) => <ClassCard key={session.id} session={session} locale={locale} options={options} isStaff={isStaff} busy={busyId === session.id} t={t} onAction={classAction} />)}</div> : null}
       </section>
+      </>}
+    </div>
     </div>
   );
 }
