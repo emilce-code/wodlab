@@ -2768,7 +2768,7 @@
     },
     "title": "Box Details",
     "back": "Back to classes",
-    "contactSheetTitle": "Contact options",
+    "contactSheetTitle": "Contact {name}",
     "openMaps": "Open in maps",
     "openGoogle": "Open in Google Maps",
     "openApple": "Open in Apple Maps",

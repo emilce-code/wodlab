@@ -7,6 +7,7 @@ import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 const { chromium } = await import(
   process.env.WODLY_PLAYWRIGHT_MODULE || "playwright-core"
@@ -22,9 +23,7 @@ const phase = process.argv[2] || "after";
 if (!/^[a-zA-Z0-9_-]+$/.test(phase))
   throw Error("Use a simple evidence directory name");
 const root = path.resolve(
-  web,
-  "../../docs/design/box-details-v4/evidence",
-  phase,
+  process.env.WODLY_VISUAL_OUTPUT || path.join(tmpdir(), `wodly-box-details-${phase}`),
 );
 await mkdir(root, { recursive: true });
 const secret = randomBytes(32).toString("hex");
