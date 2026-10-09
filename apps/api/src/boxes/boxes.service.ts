@@ -34,6 +34,8 @@ const classInclude = {
       name: true,
       scope: true,
       boxId: true,
+      description: true,
+      type: { select: { key: true, name: true } },
     },
   },
   workoutVariant: {
@@ -755,6 +757,28 @@ export class BoxesService {
         currentUserBooking:
           session.bookings.find((booking) => booking.userId === userId) ?? null,
       })),
+    };
+  }
+
+  async findClass(userId: string, boxId: string, classId: string) {
+    const membership = await this.getMemberOrAdmin(userId, boxId);
+    const session = await this.prisma.classSession.findFirst({
+      where: { id: classId, boxId },
+      include: classInclude,
+    });
+    if (!session) throw new NotFoundException('Class not found');
+    const ownBooking = session.bookings.find(
+      (booking) => booking.userId === userId,
+    );
+    return {
+      ...session,
+      role: membership?.role.key ?? 'OWNER',
+      bookedCount: session.bookings.length,
+      currentUserBooking: ownBooking
+        ? { id: ownBooking.id, status: ownBooking.status }
+        : null,
+      // Athlete details expose availability and their own reservation, never a roster.
+      bookings: membership?.role.key === 'ATHLETE' ? [] : session.bookings,
     };
   }
 

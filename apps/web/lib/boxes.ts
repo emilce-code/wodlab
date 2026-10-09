@@ -36,7 +36,14 @@ export type ClassSession = {
   durationMinutes: number;
   capacity: number;
   bookedCount: number;
-  workout: { id: string; name: string } | null;
+  role?: "OWNER" | "COACH" | "ATHLETE";
+  coach?: { displayName: string } | null;
+  workout: {
+    id: string;
+    name: string;
+    description?: string | null;
+    type?: { key: string; name: string };
+  } | null;
   workoutVariant: {
     id: string;
     name: string | null;

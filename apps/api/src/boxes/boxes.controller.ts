@@ -211,6 +211,15 @@ export class BoxesController {
     return this.boxes.findClasses(request.user.userId, boxId, query);
   }
 
+  @Get(':boxId/classes/:classId')
+  findClass(
+    @Req() request: AuthenticatedRequest,
+    @Param('boxId') boxId: string,
+    @Param('classId') classId: string,
+  ) {
+    return this.boxes.findClass(request.user.userId, boxId, classId);
+  }
+
   @Post(':boxId/classes')
   createClass(
     @Req() request: AuthenticatedRequest,

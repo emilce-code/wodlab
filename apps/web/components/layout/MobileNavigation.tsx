@@ -46,6 +46,7 @@ export default function MobileNavigation({ user }: Props) {
       ),
     }))
     .filter((group) => group.items.length > 0);
+  const classesActive = isNavigationItemActive(pathname, "/classes");
   const moreSectionActive = visibleGroups.some((group) =>
     group.items.some((item) => isNavigationItemActive(pathname, item.href)),
   ) || pathname.startsWith("/account");
@@ -240,12 +241,13 @@ export default function MobileNavigation({ user }: Props) {
             onClick={() => toggleSheet("more")}
             aria-expanded={openSheet === "more"}
             aria-controls="mobile-more-menu"
+            aria-current={classesActive ? "page" : undefined}
             className={`flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-1 text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
               openSheet === "more" || moreSectionActive ? "text-accent" : "text-muted"
             }`}
           >
-            <NavigationIcon name="more" className="h-5 w-5" />
-            <span className="max-w-full truncate">{t("more")}</span>
+            <NavigationIcon name={classesActive ? "boxes" : "more"} className="h-5 w-5" />
+            <span className="max-w-full truncate">{t(classesActive ? "boxes" : "more")}</span>
           </button>
         </div>
       </nav>

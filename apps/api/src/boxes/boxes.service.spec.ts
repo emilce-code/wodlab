@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
@@ -92,6 +93,71 @@ describe('BoxesService', () => {
 
   afterEach(() => jest.clearAllMocks());
 
+  describe('class details', () => {
+    const bookings = [
+      { id: 'mine', userId: 'user-1', status: 'BOOKED' },
+      { id: 'other', userId: 'user-2', status: 'ATTENDED' },
+    ];
+    beforeEach(() => {
+      prisma.user.findUnique.mockResolvedValue({ role: 'USER' });
+      prisma.classSession.findFirst.mockResolvedValue({
+        id: 'class-1',
+        boxId: 'box-1',
+        capacity: 10,
+        bookings,
+      });
+    });
+    it('returns athlete availability and own booking without exposing the roster', async () => {
+      await expect(
+        service.findClass('user-1', 'box-1', 'class-1'),
+      ).resolves.toMatchObject({
+        role: 'ATHLETE',
+        bookedCount: 2,
+        currentUserBooking: { id: 'mine', status: 'BOOKED' },
+        bookings: [],
+      });
+      expect(prisma.classSession.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'class-1', boxId: 'box-1' } }),
+      );
+    });
+    it('preserves staff roster access', async () => {
+      prisma.boxMembership.findUnique.mockResolvedValue({
+        status: 'ACTIVE',
+        role: { key: 'COACH' },
+      });
+      await expect(
+        service.findClass('user-1', 'box-1', 'class-1'),
+      ).resolves.toMatchObject({ role: 'COACH', bookings });
+    });
+    it('rejects inactive members before reading the class', async () => {
+      prisma.boxMembership.findUnique.mockResolvedValue({
+        status: 'PENDING',
+        role: { key: 'ATHLETE' },
+      });
+      await expect(
+        service.findClass('user-1', 'box-1', 'class-1'),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+      expect(prisma.classSession.findFirst).not.toHaveBeenCalled();
+    });
+    it('rejects missing membership', async () => {
+      prisma.boxMembership.findUnique.mockResolvedValue(null);
+      await expect(
+        service.findClass('user-1', 'box-1', 'class-1'),
+      ).rejects.toBeInstanceOf(ForbiddenException);
+    });
+    it('cannot read a class from another box through an authorized box', async () => {
+      prisma.classSession.findFirst.mockResolvedValue(null);
+      await expect(
+        service.findClass('user-1', 'box-1', 'foreign-class'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.classSession.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'foreign-class', boxId: 'box-1' },
+        }),
+      );
+    });
+  });
+
   it('returns the boxes joined by the user', async () => {
     prisma.boxMembership.findMany.mockResolvedValue([
       {
@@ -144,6 +210,7 @@ describe('BoxesService', () => {
     ).rejects.toThrow(ForbiddenException);
     await expect(service.details('owner-1', 'other-box')).rejects.toThrow(
       ForbiddenException,
+      NotFoundException,
     );
     expect(prisma.box.update).not.toHaveBeenCalled();
   });
