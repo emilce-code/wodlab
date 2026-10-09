@@ -219,3 +219,19 @@ Update documentation when:
 Prefer documenting important architectural decisions under:
 
 docs/decisions/
+
+## Approved UI design-to-code workflow
+
+For changes to user-facing screens, follow the approved feature design contract in `docs/design/<feature>/spec.md` and the reusable QA checklist in `docs/design/visual-qa.md`.
+
+- Approval is explicit and applies only to the approved feature/design version. Do not infer approval from discussions or draft mockups.
+- GitHub issues define feature behavior and permissions; approved design specifications define screen layout, hierarchy, interactions and states. When they conflict, halt the affected decision and report it rather than inventing behavior.
+- Inspect the actual approved reference images when they are available in the repository. A generated collage, placeholder, or schematic is not a pixel-accurate design token source; written approved scope controls if an illustration contains extras.
+- Start from existing WODLY components and `apps/web/app/globals.css`; use dark theme, existing accent/tokens and en/es/pt. Do not add an unrelated visual redesign.
+- Implement mobile first. Validate at 375x812, 390x844 and 430x932 CSS pixels; check tablet 768x1024 and desktop 1280x800.
+- Run the application and capture actual browser screenshots for baseline and relevant interactive states (e.g. bottom sheets, form invalid/saving/success). Compare layout, information order, spacing, component sizes and readability with the approved references.
+- Report visual differences and fix significant discrepancies before declaring visual work ready. Never claim screenshot parity if you could not render and inspect the page. Do not pretend that documentation-only wireframes are approved pixel-perfect references.
+- Confirm permissions on both UI and API for editing, and test missing/legacy data, loading, error and localized states.
+- UI pull requests should include screenshot evidence or an explicit note that visual verification was blocked, plus a checklist and remaining deviations. Do not merge automatically.
+
+A feature-specific design document may be approved independently from engineering implementation. Do not treat design approval as permission to implement or ship code unless the request explicitly authorizes it.
