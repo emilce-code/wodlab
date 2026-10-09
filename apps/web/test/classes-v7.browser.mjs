@@ -127,7 +127,7 @@ const api = http.createServer(async (req, res) => {
     });
   if (url.pathname === "/boxes") return send([{ ...fixture, role }]);
   if (url.pathname === "/boxes/visual-box/options")
-    return send({ workouts: [] });
+    return send([]);
   if (url.pathname === "/boxes/active") return send({ id: fixture.id });
   if (url.pathname === "/boxes/managed")
     return send(role !== "ATHLETE" ? [fixture] : []);
@@ -572,7 +572,7 @@ try {
       await readFile(web + "/messages/en.json", "utf8"),
     ).boxes;
     await page
-      .getByRole("button", { name: staffT.classForm.open, exact: true })
+      .getByRole("link", { name: staffT.classForm.open, exact: true })
       .click();
     await page.locator("form").waitFor();
     assert(

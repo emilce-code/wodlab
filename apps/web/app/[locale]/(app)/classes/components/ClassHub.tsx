@@ -41,23 +41,6 @@ function localDateTimeValue(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
-function initialClassDateTime() {
-  return localDateTimeValue(classStartDateForOffset(1));
-}
-
-function classStartDateForOffset(offset: number) {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  date.setHours(18, 0, 0, 0);
-
-  if (date.getTime() <= Date.now()) {
-    date.setTime(Date.now() + 60 * 60 * 1000);
-    date.setMinutes(0, 0, 0);
-  }
-
-  return date;
-}
-
 export default function ClassHub({ initialDay, initialView }: { initialDay?: string; initialView?: string }) {
   const t = useTranslations("boxes");
   const locale = useLocale();
@@ -73,8 +56,6 @@ export default function ClassHub({ initialDay, initialView }: { initialDay?: str
   const [error, setError] = useState<string | null>(null);
   const [joinRequestSent, setJoinRequestSent] = useState(false);
   const [showJoin, setShowJoin] = useState(boxes.length === 0);
-  const [showCreateClass, setShowCreateClass] = useState(false);
-  const [creatingClass, setCreatingClass] = useState(false);
   const [view, setView] = useState<View>("all");
   const [selectedDay, setSelectedDay] = useState(dayKey(new Date()));
 
@@ -166,41 +147,6 @@ export default function ClassHub({ initialDay, initialView }: { initialDay?: str
     }
     setJoinRequestSent(data.status === "PENDING");
     setShowJoin(false);
-  }
-
-  async function submitClass(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setCreatingClass(true);
-    const form = new FormData(event.currentTarget);
-    const workoutId = String(form.get("workoutId") || "");
-    const workoutVariantId = String(form.get("workoutVariantId") || "");
-    const startsAt = new Date(String(form.get("startsAt")));
-    try {
-      const response = await fetch(`/api/boxes/${boxId}/classes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: String(form.get("name")),
-          description: String(form.get("description")) || undefined,
-          startsAt: startsAt.toISOString(),
-          durationMinutes: Number(form.get("durationMinutes")),
-          capacity: Number(form.get("capacity")),
-          workoutId: workoutId || undefined,
-          workoutVariantId: workoutVariantId || undefined,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(requestMessage(data, t("errors.save")));
-        return;
-      }
-      setSelectedDay(dayKey(startsAt));
-      setShowCreateClass(false);
-      await loadClasses(boxId);
-    } finally {
-      setCreatingClass(false);
-    }
   }
 
   async function classAction(classId: string, method: "POST" | "PATCH" | "DELETE", suffix = "book", body?: object) {
@@ -301,9 +247,9 @@ export default function ClassHub({ initialDay, initialView }: { initialDay?: str
         </section>
       ) : null}
 
-      {isStaff && !showCreateClass ? (
+      {isStaff ? (
         <div className="grid grid-cols-2 gap-2">
-          <Button type="button" className="w-full" onClick={() => setShowCreateClass(true)}>{t("classForm.open")}</Button>
+          <Link href="/classes/schedule" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-accent">{t("classForm.open")}</Link>
           {role === "OWNER" || role === "COACH" ? (
             <Link href="/box-admin" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-surface-elevated px-3 text-sm font-semibold text-foreground">
               {t("joinRequests")}
@@ -311,7 +257,6 @@ export default function ClassHub({ initialDay, initialView }: { initialDay?: str
           ) : null}
         </div>
       ) : null}
-      {showCreateClass && isStaff ? <ClassForm t={t} locale={locale} options={options} isSubmitting={creatingClass} onCancel={() => setShowCreateClass(false)} onSubmit={submitClass} /> : null}
 
       <section aria-busy={loading} className="space-y-4">
         <div className="flex items-end justify-between gap-3">
@@ -528,101 +473,6 @@ function ClassCard({ session, locale, options, isStaff, busy, t, onAction }: { s
 
 function ClassSkeleton() {
   return <div className="space-y-3" aria-hidden="true">{[0, 1, 2].map((item) => <div key={item} className="animate-pulse rounded-2xl border border-border bg-surface p-4"><div className="flex gap-4"><div className="h-14 w-14 rounded-xl bg-surface-elevated" /><div className="flex-1 space-y-2"><div className="h-5 w-2/3 rounded bg-surface-elevated" /><div className="h-4 w-1/2 rounded bg-surface-elevated" /><div className="h-4 w-3/4 rounded bg-surface-elevated" /></div></div></div>)}</div>;
-}
-
-function ClassForm({ t, locale, options, isSubmitting, onCancel, onSubmit }: { t: ReturnType<typeof useTranslations>; locale: string; options: WorkoutOption[]; isSubmitting: boolean; onCancel: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void }) {
-  const levelT = useTranslations("workoutLevels.names");
-  const [workoutId, setWorkoutId] = useState("");
-  const [workoutVariantId, setWorkoutVariantId] = useState("");
-  const [startsAt, setStartsAt] = useState(initialClassDateTime);
-  const [duration, setDuration] = useState(60);
-  const [capacity, setCapacity] = useState(12);
-  const variants = options.find((option) => option.id === workoutId)?.variants ?? [];
-  const selectedStart = new Date(startsAt);
-  const selectedStartLabel = Number.isNaN(selectedStart.getTime()) ? null : `${formatWeekdayDate(selectedStart, locale, false)} · ${formatTime(selectedStart, locale)}`;
-  const startShortcuts = [0, 1].map((offset) => {
-    const date = classStartDateForOffset(offset);
-    return { date, offset, value: localDateTimeValue(date) };
-  });
-
-  function selectWorkout(nextWorkoutId: string) {
-    setWorkoutId(nextWorkoutId);
-    setWorkoutVariantId("");
-  }
-
-  return (
-    <form onSubmit={onSubmit} className="overflow-hidden rounded-2xl border border-accent/30 bg-surface shadow-sm">
-      <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{t("classForm.eyebrow")}</p>
-          <h2 className="mt-1 text-xl font-black">{t("classForm.title")}</h2>
-          <p className="mt-1 text-sm leading-5 text-muted">{t("classForm.help")}</p>
-        </div>
-        <Button type="button" variant="ghost" size="icon" aria-label={t("classForm.cancel")} onClick={onCancel}>×</Button>
-      </div>
-
-      <div className="space-y-5 p-4 sm:p-5">
-        <fieldset>
-          <legend className="text-sm font-black">{t("classForm.essentials")}</legend>
-          <p className="mt-1 text-xs text-muted">{t("classForm.requiredHelp")}</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <label className="text-sm font-semibold sm:col-span-2">{t("classForm.name")}<input name="name" required minLength={2} autoFocus placeholder={t("classForm.namePlaceholder")} className="mt-1.5 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-base outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
-            <div className="sm:col-span-2">
-              <label htmlFor="class-starts-at" className="text-sm font-semibold">{t("classForm.startsAt")}</label>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {startShortcuts.map(({ date, offset, value }) => {
-                  const active = startsAt === value;
-
-                  return (
-                    <button
-                      key={offset}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setStartsAt(value)}
-                      className={`min-h-14 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition ${active ? "border-accent bg-accent/10 text-accent" : "border-border hover:border-accent/50"}`}
-                    >
-                      <span className="block">{offset === 0 ? t("classForm.today") : t("classForm.tomorrow")}</span>
-                      <span className="mt-0.5 block text-xs font-normal text-muted">{formatShortDate(date, locale)} · {formatTime(date, locale)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              {selectedStartLabel ? <p id="class-starts-at-preview" className="mt-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm font-semibold text-accent">{selectedStartLabel}</p> : null}
-              <input id="class-starts-at" name="startsAt" type="datetime-local" required min={localDateTimeValue(new Date())} value={startsAt} onChange={(event) => setStartsAt(event.target.value)} aria-describedby={selectedStartLabel ? "class-starts-at-preview" : undefined} className="mt-2 min-h-12 w-full min-w-0 rounded-xl border border-border bg-background px-4 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
-            </div>
-            <div>
-              <label htmlFor="class-duration" className="text-sm font-semibold">{t("classForm.duration")}</label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {[45, 60, 90].map((value) => <button key={value} type="button" aria-pressed={duration === value} onClick={() => setDuration(value)} className={`min-h-11 rounded-xl border text-sm font-bold ${duration === value ? "border-accent bg-accent/10 text-accent" : "border-border"}`}>{value}</button>)}
-              </div>
-              <input id="class-duration" name="durationMinutes" type="number" inputMode="numeric" min={15} max={240} value={duration} onChange={(event) => setDuration(Number(event.target.value))} className="mt-2 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-center text-base font-bold outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" />
-              <p className="mt-1.5 text-xs text-muted">{t("classForm.minutes")}</p>
-            </div>
-            <label className="text-sm font-semibold">{t("classForm.capacity")}<span className="mt-2 flex min-h-12 items-center overflow-hidden rounded-xl border border-border bg-background"><button type="button" aria-label={t("classForm.decreaseCapacity")} onClick={() => setCapacity((value) => Math.max(1, value - 1))} className="h-12 w-12 shrink-0 text-xl text-muted hover:bg-surface-elevated">−</button><input name="capacity" type="number" inputMode="numeric" min={1} max={200} value={capacity} onChange={(event) => setCapacity(Number(event.target.value))} className="h-12 min-w-0 flex-1 bg-transparent text-center text-base font-bold outline-none" /><button type="button" aria-label={t("classForm.increaseCapacity")} onClick={() => setCapacity((value) => Math.min(200, value + 1))} className="h-12 w-12 shrink-0 text-xl text-muted hover:bg-surface-elevated">+</button></span></label>
-          </div>
-        </fieldset>
-
-        <section className="min-w-0 rounded-2xl border border-border bg-background/50 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h3 className="font-bold">{t("classForm.optionalTitle")}</h3>
-              <p className="mt-0.5 text-xs text-muted">{t("classForm.optionalHelp")}</p>
-            </div>
-            <span className="shrink-0 rounded-full border border-border px-2.5 py-1 text-[11px] font-bold text-muted">{t("classForm.optionalBadge")}</span>
-          </div>
-          <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2">
-            <label className="min-w-0 text-sm font-semibold">{t("classForm.workout")}<WorkoutLookup options={options} value={workoutId} name="workoutId" t={t} onChange={selectWorkout} /></label>
-            <label className="min-w-0 text-sm font-semibold">{t("classForm.variation")}<select name="workoutVariantId" value={workoutVariantId} onChange={(event) => setWorkoutVariantId(event.target.value)} disabled={!workoutId} className="mt-1.5 min-h-12 w-full min-w-0 rounded-xl border border-border bg-surface px-4 text-base disabled:opacity-50"><option value="">{t("classForm.noVariation")}</option>{variants.map((variant) => <option key={variant.id} value={variant.id}>{variant.name ?? localizedLevelName(variant.level.key, variant.level.name, levelT)}</option>)}</select></label>
-            <label className="min-w-0 text-sm font-semibold sm:col-span-2">{t("classForm.description")}<textarea name="description" rows={3} placeholder={t("classForm.descriptionPlaceholder")} className="mt-1.5 w-full min-w-0 rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/15" /></label>
-          </div>
-        </section>
-      </div>
-
-      <div className="border-t border-border bg-surface p-4 sm:flex sm:justify-end sm:p-5">
-        <Button size="lg" isLoading={isSubmitting} className="w-full sm:w-auto">{isSubmitting ? t("classForm.submitting") : t("classForm.submit")}</Button>
-      </div>
-    </form>
-  );
 }
 
 function WorkoutLookup({
