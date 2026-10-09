@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 
 type Props = {
-  eyebrow: ReactNode;
+  eyebrow?: ReactNode;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
   className?: string;
+  compact?: boolean;
 };
 
 export default function PageHeader({
@@ -14,20 +15,25 @@ export default function PageHeader({
   description,
   action,
   className = "",
+  compact = false,
 }: Props) {
   return (
     <header
       className={[
-        "flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between",
+        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
         className,
       ].join(" ")}
     >
       <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-          {eyebrow}
-        </p>
+        {eyebrow ? (
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+            {eyebrow}
+          </p>
+        ) : null}
 
-        <h1 className="mt-2 break-words text-3xl font-black tracking-tight sm:text-4xl">
+        <h1
+          className={`${eyebrow ? "mt-2" : ""} break-words font-black tracking-tight ${compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"}`}
+        >
           {title}
         </h1>
 
