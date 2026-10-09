@@ -236,7 +236,7 @@ export default function BoxDetailsEditor({
       "aria-describedby": errors[name] ? `error-${name}` : undefined,
       maxLength: options.maxLength,
       className:
-        "mt-1 min-h-11 w-full rounded-lg border border-border bg-surface px-3 py-2 text-base",
+        "mt-1 min-h-11 w-full rounded-xl border border-border/60 bg-surface px-3 py-2 text-base transition-colors duration-200 hover:border-muted/60 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-400 motion-reduce:transition-none",
     };
     return (
       <div key={name}>
@@ -274,7 +274,7 @@ export default function BoxDetailsEditor({
             type="button"
             aria-label={t("cancel")}
             disabled={busy !== null}
-            className="flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-accent"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground active:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none"
             onClick={() => {
               if (!dirty || window.confirm(t("unsaved")))
                 router.push(`/boxes/${box.id}`);
@@ -289,7 +289,7 @@ export default function BoxDetailsEditor({
             aria-label={busy === "save" ? t("working") : t("save")}
             aria-busy={busy === "save"}
             disabled={busy !== null || !dirty}
-            className="px-3"
+            className="rounded-xl px-3 duration-200 active:bg-accent-strong motion-reduce:transition-none"
           >
             {busy === "save" ? t("working") : t("saveShort")}
           </Button>
@@ -311,7 +311,7 @@ export default function BoxDetailsEditor({
         className="space-y-5"
       >
         <section aria-labelledby="logo-title" className="space-y-3">
-          <h2 id="logo-title" className="text-sm font-semibold">
+          <h2 id="logo-title" className="text-sm font-semibold tracking-tight">
             {t("logo")}
           </h2>
           <div className="flex items-center gap-3">
@@ -337,7 +337,7 @@ export default function BoxDetailsEditor({
               type="button"
               variant="secondary"
               disabled={busy !== null}
-              className="flex-1"
+              className="flex-1 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
               onClick={() => fileInput.current?.click()}
             >
               {t(box.logoPath ? "changeLogo" : "uploadLogo")}
@@ -348,7 +348,7 @@ export default function BoxDetailsEditor({
                 variant="secondary"
                 aria-label={t("removeLogo")}
                 disabled={busy !== null}
-                className="shrink-0 px-3 text-red-400"
+                className="shrink-0 rounded-xl border-border/60 px-3 text-red-400 duration-200 hover:bg-red-500/10 active:bg-red-500/10 motion-reduce:transition-none"
                 onClick={() => void logo(null)}
               >
                 <BoxDetailsIcon name="trash" />
@@ -363,14 +363,14 @@ export default function BoxDetailsEditor({
           <p className="text-xs text-muted">{t("logoImmediate")}</p>
         </section>
         <section aria-labelledby="basic-title" className="space-y-3">
-          <h2 id="basic-title" className="text-sm font-semibold">
+          <h2 id="basic-title" className="text-sm font-semibold tracking-tight">
             {t("basic")}
           </h2>
           {field("name", { maxLength: 80 })}
           {box.organization ? (
             <div className="space-y-1">
               <p className="text-sm text-muted">{t("organization")}</p>
-              <p className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
+              <p className="rounded-xl border border-border/60 bg-surface px-3 py-2 text-sm">
                 {box.organization.name}
               </p>
               <p className="flex items-start gap-2 text-xs text-muted">
@@ -382,7 +382,7 @@ export default function BoxDetailsEditor({
           {field("description", { maxLength: 500, multiline: true })}
         </section>
         <section aria-labelledby="location-title" className="space-y-3">
-          <h2 id="location-title" className="text-sm font-semibold">
+          <h2 id="location-title" className="text-sm font-semibold tracking-tight">
             {t("locationTitle")}
           </h2>
           {location.coordinates ? (
@@ -395,6 +395,7 @@ export default function BoxDetailsEditor({
               <Button
                 type="button"
                 variant="secondary"
+                className="rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
                 disabled={busy !== null}
                 onClick={() => document.getElementById("box-address")?.focus()}
               >
@@ -411,7 +412,7 @@ export default function BoxDetailsEditor({
           {field("timezone", { maxLength: 80 })}
         </section>
         <section aria-labelledby="contact-title" className="space-y-3">
-          <h2 id="contact-title" className="text-sm font-semibold">
+          <h2 id="contact-title" className="text-sm font-semibold tracking-tight">
             {t("contactTitle")}
           </h2>
           <p className="text-sm text-muted">{t("contactHelp")}</p>

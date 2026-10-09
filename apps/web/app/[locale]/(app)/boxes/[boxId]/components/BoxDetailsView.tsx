@@ -21,7 +21,8 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
   const { actions, notes } = contactActions(box);
   const showContactOptions = actions.length > 2 || Boolean(notes);
   const rowClass =
-    "flex min-h-12 items-center gap-3 rounded-xl border border-border bg-surface px-3 py-3 text-sm text-foreground";
+    "flex min-h-12 items-center gap-3 rounded-xl border border-border/60 bg-surface px-3 py-3 text-sm text-foreground";
+  const interactiveRowClass = `${rowClass} transition-colors duration-200 hover:bg-surface-elevated active:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none`;
   return (
     <div className="space-y-4 pb-4">
       <nav
@@ -31,7 +32,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
         <Link
           href="/classes"
           aria-label={t("back")}
-          className="flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-accent"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground active:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none"
         >
           <BoxDetailsIcon name="back" />
         </Link>
@@ -39,7 +40,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
       </nav>
       <header className="flex flex-col items-center gap-2 text-center">
         <BoxLogo name={box.name} path={box.logoPath} />
-        <h1 className="max-w-full break-words text-xl font-bold leading-7">
+        <h1 className="max-w-full break-words text-xl font-bold leading-7 tracking-tight">
           {box.name}
         </h1>
         {box.organization?.name ? (
@@ -75,7 +76,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
                   href={action.href}
                   target={action.href.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
-                  className={`${rowClass.replace("border-border", "border-accent")} justify-center`}
+                  className={`${interactiveRowClass.replace("border-border/60", "border-accent")} justify-center`}
                 >
                   <BoxDetailsIcon
                     name={action.channel}
@@ -94,7 +95,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
             <button
               type="button"
               onClick={() => setSheet("contact")}
-              className={`${rowClass} w-full text-left`}
+              className={`${interactiveRowClass} w-full text-left`}
             >
               <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
               <span className="flex-1">{t("contactOptions")}</span>
@@ -129,7 +130,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
           ) : null}
           <Button
             type="button"
-            className="w-full"
+            className="w-full rounded-xl duration-200 active:bg-accent-strong motion-reduce:transition-none"
             onClick={() => setSheet("maps")}
           >
             <BoxDetailsIcon name="directions" />
@@ -141,7 +142,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
         type="button"
         variant="secondary"
         disabled={saving}
-        className="w-full justify-start gap-3 rounded-xl"
+        className="w-full justify-start gap-3 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
         onClick={async () => {
           if (await selectBox(box.id)) router.push("/classes");
           else setNavigationError(true);
@@ -161,7 +162,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
       {box.canEditDetails ? (
         <Link
           href={`/boxes/${box.id}/edit`}
-          className={`${rowClass} justify-center text-accent`}
+          className={`${interactiveRowClass} justify-center text-accent`}
         >
           {t("edit")}
         </Link>
@@ -178,14 +179,14 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
                 href={action.href}
                 target={action.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className={`${rowClass} bg-surface-elevated/70`}
+                className={interactiveRowClass}
               >
                 <BoxDetailsIcon
                   name={action.channel}
                   className="h-7 w-7 shrink-0 text-accent"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-xs">
+                  <span className="block text-xs font-medium">
                     {t(`channels.${action.channel}`)}
                   </span>
                   <span className="mt-1 block break-words text-xs text-muted">
@@ -207,7 +208,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
           <Button
             type="button"
             variant="secondary"
-            className="mt-4 w-full"
+            className="mt-4 w-full rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
             onClick={() => setSheet(null)}
           >
             {t("dismissMaps")}
@@ -239,7 +240,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
                 href={location.google}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${rowClass} bg-surface-elevated/70`}
+                className={interactiveRowClass}
               >
                 <BoxDetailsIcon
                   name="location"
@@ -262,7 +263,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
                 href={location.apple}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${rowClass} bg-surface-elevated/70`}
+                className={interactiveRowClass}
               >
                 <BoxDetailsIcon
                   name="directions"
@@ -284,7 +285,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
           <Button
             type="button"
             variant="secondary"
-            className="mt-4 w-full"
+            className="mt-4 w-full rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
             onClick={() => setSheet(null)}
           >
             {t("dismissMaps")}
