@@ -20,6 +20,8 @@ import {
 import { formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 import type { BoxSummary, ClassSession } from "@/lib/boxes";
 import ClassDetails from "./ClassDetails";
+import ClassIcon from "./ClassIcon";
+import BoxDetailsIcon from "@/components/ui/BoxDetailsIcon";
 
 export default function AthleteClasses({
   box,
@@ -106,57 +108,97 @@ export default function AthleteClasses({
     <div className="space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <h1 className="text-xl font-bold tracking-tight">{t("title")}</h1>
           <Link
             href={`/boxes/${box.id}`}
-            className="mt-1 inline-block text-sm text-muted hover:text-foreground"
+            className="mt-1 inline-block text-xs text-muted hover:text-foreground"
           >
             {box.name}
+            {box.location ? ` · ${box.location}` : ""}
           </Link>
         </div>
         {joinAction}
       </header>
-      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:gap-6">
         <section
           className="min-w-0 space-y-4"
           aria-label={t("schedule")}
           aria-busy={loading}
         >
-          <div
-            ref={scroller}
-            className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:thin]"
-            aria-label={t("dates")}
-          >
-            {days.map((value, index) => (
-              <button
-                key={value}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <Button
                 type="button"
-                aria-pressed={value === day}
-                aria-label={formatWeekdayDate(
-                  `${value}T12:00:00Z`,
-                  locale,
-                  false,
-                  { timeZone: "UTC" },
-                )}
-                onClick={() => selectDay(value, index)}
-                className={`min-h-14 w-14 shrink-0 rounded-xl border px-2 py-2 text-sm focus-visible:outline-2 focus-visible:outline-accent ${value === day ? "border-accent bg-accent text-accent-foreground" : "border-border bg-surface text-muted"}`}
+                variant="ghost"
+                size="icon"
+                aria-label={t("previousDates")}
+                disabled={day === days[0]}
+                onClick={() => {
+                  const index = Math.max(0, days.indexOf(day) - 7);
+                  selectDay(days[index], index);
+                }}
               >
-                <span className="block text-xs">
-                  {new Intl.DateTimeFormat(locale, {
-                    weekday: "short",
-                    timeZone: "UTC",
-                  }).format(new Date(`${value}T12:00:00Z`))}
-                </span>
-                <span className="block text-base font-semibold">
-                  {Number(value.slice(-2))}
-                </span>
-              </button>
-            ))}
+                <BoxDetailsIcon name="chevron" className="h-4 w-4 rotate-180" />
+              </Button>
+              <p className="text-sm font-medium">
+                {new Intl.DateTimeFormat(locale, {
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "UTC",
+                }).format(new Date(`${day}T12:00:00Z`))}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label={t("nextDates")}
+                disabled={day === days.at(-1)}
+                onClick={() => {
+                  const index = Math.min(
+                    days.length - 1,
+                    days.indexOf(day) + 7,
+                  );
+                  selectDay(days[index], index);
+                }}
+              >
+                <BoxDetailsIcon name="chevron" className="h-4 w-4" />
+              </Button>
+            </div>
+            <div
+              ref={scroller}
+              className="flex gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label={t("dates")}
+            >
+              {days.map((value, index) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={value === day}
+                  aria-label={formatWeekdayDate(
+                    `${value}T12:00:00Z`,
+                    locale,
+                    false,
+                    { timeZone: "UTC" },
+                  )}
+                  onClick={() => selectDay(value, index)}
+                  className="flex min-h-14 min-w-10 w-[calc((100%_-_1.5rem)/7)] max-w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-lg focus-visible:outline-2 focus-visible:outline-accent"
+                >
+                  <span className="text-xs text-muted">
+                    {new Intl.DateTimeFormat(locale, {
+                      weekday: "short",
+                      timeZone: "UTC",
+                    }).format(new Date(`${value}T12:00:00Z`))}
+                  </span>
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold ${value === day ? "bg-accent text-accent-foreground" : "text-foreground"}`}
+                  >
+                    {Number(value.slice(-2))}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-          <div
-            aria-label={t("filter")}
-            className="grid grid-cols-2 gap-1 rounded-xl bg-surface p-1"
-          >
+          <div aria-label={t("filter")} className="grid grid-cols-2 gap-2">
             {[false, true].map((value) => (
               <button
                 key={String(value)}
@@ -166,13 +208,13 @@ export default function AthleteClasses({
                   setMine(value);
                   setSelectedId(null);
                 }}
-                className={`min-h-11 rounded-lg px-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-accent ${mine === value ? "bg-surface-elevated text-accent" : "text-muted"}`}
+                className={`min-h-11 rounded-lg border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-accent ${mine === value ? "border-accent bg-accent text-accent-foreground" : "border-border bg-surface/40 text-muted"}`}
               >
                 {t(value ? "mine" : "all")}
               </button>
             ))}
           </div>
-          <h2 className="text-sm font-semibold">
+          <h2 className="sr-only">
             {formatWeekdayDate(`${day}T12:00:00Z`, locale, false, {
               timeZone: "UTC",
             })}
@@ -229,40 +271,63 @@ export default function AthleteClasses({
                         setSelectedId(session.id);
                       }
                     }}
-                    className={`flex min-h-24 gap-3 rounded-xl border px-3 py-3 transition-colors hover:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none ${selectedId === session.id ? "border-accent/50 bg-accent/5" : "border-border/60 bg-surface"}`}
+                    className={`grid min-h-20 grid-cols-[2.5rem_minmax(0,1fr)_auto_0.75rem] items-center gap-2 rounded-lg border px-3 py-3 transition-colors hover:bg-surface-elevated focus-visible:outline-2 focus-visible:outline-accent motion-reduce:transition-none ${selectedId === session.id ? "border-accent/60 bg-accent/5" : "border-border/60 bg-surface/40"}`}
                   >
-                    <time
-                      dateTime={session.startsAt}
-                      className="w-16 shrink-0 text-sm font-semibold"
-                    >
-                      {formatTime(session.startsAt, locale, { timeZone })}
-                    </time>
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <h3 className="break-words text-sm font-semibold">
-                        {session.name}
-                      </h3>
-                      <p className="break-words text-xs text-muted">
+                    <ClassIcon
+                      full={
+                        remainingSpots(session) === 0 &&
+                        !session.currentUserBooking
+                      }
+                    />
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <time
+                          dateTime={session.startsAt}
+                          className="shrink-0 text-xs font-semibold tabular-nums"
+                        >
+                          {formatTime(session.startsAt, locale, { timeZone })}
+                        </time>
+                        <h3 className="min-w-0 break-words text-sm font-semibold">
+                          {session.name}
+                        </h3>
+                      </div>
+                      <p className="break-words text-xs leading-5 text-muted">
                         {t("duration", { count: session.durationMinutes })} ·{" "}
                         {box.name}
-                        {box.location ? ` · ${box.location}` : ""}
                       </p>
-                      <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                        <span
-                          className={
-                            remainingSpots(session)
-                              ? "text-foreground"
-                              : "text-muted"
-                          }
-                        >
-                          {remainingSpots(session)
-                            ? t("spots", { count: remainingSpots(session) })
-                            : t("full")}
-                        </span>
-                        {session.currentUserBooking ? (
-                          <span className="text-muted">{t("booked")}</span>
-                        ) : null}
-                      </p>
+                      {session.currentUserBooking ? (
+                        <p className="text-xs text-muted">{t("booked")}</p>
+                      ) : null}
                     </div>
+                    <div
+                      className="w-14 shrink-0 text-center"
+                      aria-label={
+                        remainingSpots(session)
+                          ? t("spots", { count: remainingSpots(session) })
+                          : t("full")
+                      }
+                    >
+                      {remainingSpots(session) ? (
+                        <>
+                          <strong className="block text-base font-bold text-accent">
+                            {remainingSpots(session)}
+                          </strong>
+                          <span className="block text-xs leading-4 text-muted">
+                            {t("spotsLabel", {
+                              count: remainingSpots(session),
+                            })}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs font-semibold text-red-400">
+                          {t("full")}
+                        </span>
+                      )}
+                    </div>
+                    <BoxDetailsIcon
+                      name="chevron"
+                      className="h-3 w-3 text-muted"
+                    />
                   </Link>
                 </li>
               ))}
@@ -270,7 +335,7 @@ export default function AthleteClasses({
           ) : null}
         </section>
         <section
-          className="hidden min-w-0 border-l border-border pl-6 lg:block"
+          className="hidden min-w-0 border-l border-border pl-4 lg:block xl:pl-6"
           aria-label={t("details")}
         >
           {selected ? (

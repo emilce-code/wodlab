@@ -2,6 +2,7 @@
 // and a local HTTP API/storage fixture. Never changes production auth code, never
 // calls live Auth0/Supabase, and never stores real credentials in artifacts.
 // Run: WODLY_PLAYWRIGHT_MODULE=<external package entry> node test/classes-v7.browser.mjs
+// Optional numeric viewport argument runs the responsive checks at that width only.
 // Optional WODLY_CAPTURE=1 stores internal review images in the system temp directory.
 import http from "node:http";
 import { randomBytes } from "node:crypto";
@@ -71,6 +72,7 @@ const sample = (id, name, hour, extra = {}) => ({
 const initial = [
   sample("strength", "Strength & Conditioning", "18", {
     description: "Build strength and move well.",
+    coach: { displayName: "Test Coach" },
     workout: {
       id: "workout-1",
       name: "Fran",
@@ -296,6 +298,16 @@ try {
       (await bottom.isVisible()) === width < 1024,
       `Mobile navigation ${label}`,
     );
+    if (width >= 1024)
+      assert(
+        await page
+          .getByRole("navigation", {
+            name: "Application navigation",
+            exact: true,
+          })
+          .isVisible(),
+        "Desktop sidebar missing",
+      );
     if (width < 1024) {
       assert(
         (await bottom
@@ -316,7 +328,11 @@ try {
         fullPage: false,
       });
   }
-  for (const width of [375, 390, 430, 768, 1024, 1440]) {
+  const widths = [375, 390, 430, 768, 1024, 1440];
+  const requestedWidth = process.argv[2] ? Number(process.argv[2]) : null;
+  if (requestedWidth !== null && !widths.includes(requestedWidth))
+    throw Error("Use a supported viewport width");
+  for (const width of requestedWidth !== null ? [requestedWidth] : widths) {
     sessions = structuredClone(initial);
     mutations = 0;
     failure = 0;
@@ -344,6 +360,21 @@ try {
     if (width >= 1024)
       await page.getByText(t.selectClass, { exact: true }).waitFor();
     await layout(page, width, `${width}-initial-schedule`);
+    const activeDate = await page
+      .locator(`[aria-label="${t.dates}"] [aria-pressed=true]`)
+      .getAttribute("aria-label");
+    await page.getByRole("button", { name: t.nextDates, exact: true }).click();
+    await page.getByText(t.empty, { exact: true }).waitFor();
+    await page
+      .getByRole("button", { name: t.previousDates, exact: true })
+      .click();
+    await row.waitFor();
+    assert(
+      (await page
+        .locator(`[aria-label="${t.dates}"] [aria-pressed=true]`)
+        .getAttribute("aria-label")) === activeDate,
+      "Date paging lost selection",
+    );
     const scheduleUrl = page.url();
     if (width === 1024) {
       await row.focus();
@@ -367,6 +398,10 @@ try {
         .count()) === 1,
       "Existing workout link missing",
     );
+    await page
+      .getByRole("heading", { name: t.coach, exact: true, level: 2 })
+      .waitFor();
+    await page.getByText("Test Coach", { exact: true }).waitFor();
     await layout(page, width, `${width}-details`);
     delay = 700;
     await page.getByRole("button", { name: t.book, exact: true }).click();
@@ -377,6 +412,7 @@ try {
     assert(mutations === 1, "Duplicate booking");
     delay = 0;
     await page.getByText(t.reserved, { exact: true }).waitFor();
+    await layout(page, width, `${width}-booked`);
     failure = 500;
     await page.getByRole("button", { name: t.cancel, exact: true }).click();
     await page.getByText(t.actionError, { exact: true }).waitFor();
@@ -414,6 +450,19 @@ try {
     }
     await page.getByRole("link", { name: /Full Class/ }).click();
     await page.getByText(t.noWorkout, { exact: true }).waitFor();
+    assert(
+      (await page
+        .getByRole("heading", { name: t.coach, exact: true, level: 2 })
+        .count()) === 0,
+      "Missing coach was invented",
+    );
+    assert(
+      (await page
+        .getByRole("heading", { name: t.about, exact: true, level: 2 })
+        .count()) === 0,
+      "Empty description was displayed",
+    );
+    await layout(page, width, `${width}-full-no-workout`);
     assert(
       await page
         .getByRole("button", { name: t.full, exact: true })

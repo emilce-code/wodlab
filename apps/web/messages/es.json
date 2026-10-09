@@ -2811,6 +2811,10 @@
     "actionError": "No se pudo actualizar la reserva. Inténtalo de nuevo.",
     "stale": "La disponibilidad cambió. Revisa el estado actualizado de la clase.",
     "refreshError": "Reserva actualizada, pero no se pudo actualizar la disponibilidad. Recarga la página.",
-    "back": "Volver a clases"
+    "back": "Volver a clases",
+    "spotsLabel": "{count, plural, one {lugar libre} other {lugares libres}}",
+    "previousDates": "Fechas anteriores",
+    "nextDates": "Fechas siguientes",
+    "about": "Acerca de esta clase"
   }
 }

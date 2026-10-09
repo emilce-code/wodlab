@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { classApiPath } from "@/lib/class-schedule";
 import type { ClassSession, ManagedBox } from "@/lib/boxes";
 import ClassDetails from "./ClassDetails";
+import BoxDetailsIcon from "@/components/ui/BoxDetailsIcon";
 export default function ClassDetailsPage({
   boxId,
   classId,
@@ -64,12 +65,16 @@ export default function ClassDetailsPage({
   if (view === "mine") query.set("view", view);
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <Link
-        href={`/classes${query.size ? `?${query}` : ""}`}
-        className="inline-flex min-h-11 items-center text-sm text-muted focus-visible:outline-accent"
-      >
-        ← {t("back")}
-      </Link>
+      <header className="flex items-center gap-2">
+        <Link
+          aria-label={t("back")}
+          href={`/classes${query.size ? `?${query}` : ""}`}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted focus-visible:outline-accent"
+        >
+          <BoxDetailsIcon name="back" />
+        </Link>
+        <p className="text-sm font-semibold">{t("details")}</p>
+      </header>
       {loading ? <p role="status">{t("loading")}</p> : null}
       {error ? (
         <div role="alert">
