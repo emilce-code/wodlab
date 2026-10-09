@@ -30,6 +30,7 @@ export class UsersService {
       },
 
       include: {
+        boxOrganizationsOwned: { select: { id: true } },
         athleteProfile: {
           include: athleteProfileInclude,
         },

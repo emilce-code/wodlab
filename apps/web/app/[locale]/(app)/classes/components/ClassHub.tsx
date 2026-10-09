@@ -6,8 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import Button from "@/components/ui/Button";
 import { useActiveBox } from "@/components/layout/ActiveBoxContext";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
-import { boxImageUrl } from "@/lib/box-images";
+import BoxLogo from "@/components/ui/BoxLogo";
 import type { ClassSession, WorkoutOption } from "@/lib/boxes";
 import { formatShortDate, formatTime, formatWeekdayDate } from "@/lib/date-formatters";
 
@@ -271,26 +270,8 @@ export default function ClassHub() {
 
       {selectedBox ? (
         <section className="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
-          <div className="relative h-28 bg-gradient-to-br from-surface-elevated to-background sm:h-36">
-            {boxImageUrl(selectedBox.coverImagePath) ? (
-              <Image src={boxImageUrl(selectedBox.coverImagePath)!} alt="" fill sizes="(max-width: 640px) 100vw, 768px" className="object-cover opacity-70" unoptimized />
-            ) : (
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
-          </div>
-          <div className="-mt-7 relative flex items-end gap-3 px-4 pb-4">
-            {boxImageUrl(selectedBox.logoPath) ? (
-              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-surface bg-background shadow-lg">
-                <Image src={boxImageUrl(selectedBox.logoPath)!} alt="" fill sizes="64px" className="object-cover" unoptimized />
-              </span>
-            ) : (
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-surface bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black shadow-lg">
-                {selectedBox.name.slice(0, 1).toUpperCase()}
-              </span>
-            )}
+          <div className="flex items-center gap-3 p-4">
+            <BoxLogo name={selectedBox.name} path={selectedBox.logoPath} />
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex items-center gap-2">
                 <h2 className="truncate text-xl font-black">{selectedBox.name}</h2>

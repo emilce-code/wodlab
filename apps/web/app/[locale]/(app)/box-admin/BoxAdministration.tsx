@@ -2,13 +2,11 @@
 
 import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
+import { Link } from "@/i18n/navigation";
 
 import Button from "@/components/ui/Button";
 import { useConfirmationDialog } from "@/components/ui/ConfirmationDialog";
-import { useRouter } from "@/i18n/navigation";
 import type { BoxMember, ManagedBox } from "@/lib/boxes";
-import { boxImageUrl, optimizeBoxImage } from "@/lib/box-images";
 
 type Props = {
   initialBoxes: ManagedBox[];
@@ -37,7 +35,6 @@ export default function BoxAdministration({
   timezones,
 }: Props) {
   const t = useTranslations("boxAdministration");
-  const router = useRouter();
   const [boxes, setBoxes] = useState(initialBoxes);
   const [boxId, setBoxId] = useState(initialBoxes[0]?.id ?? "");
   const [members, setMembers] = useState<BoxMember[]>([]);
@@ -102,38 +99,6 @@ export default function BoxAdministration({
     return detail;
   }
 
-  async function saveBox(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selectedBox) return;
-    clearMessages();
-    setBusy("box");
-    const form = new FormData(event.currentTarget);
-    const response = await fetch(`/api/boxes/${selectedBox.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: String(form.get("name")),
-        description: String(form.get("description")),
-        timezone: String(form.get("timezone")),
-        location: String(form.get("location") || ""),
-        address: String(form.get("address") || ""),
-        latitude: optionalNumber(form.get("latitude")),
-        longitude: optionalNumber(form.get("longitude")),
-        supportContact: String(form.get("supportContact") || ""),
-      }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === selectedBox.id ? { ...box, ...data } : box,
-        ),
-      );
-      setSuccess(t("saved"));
-    } else setError(message(data, t("errors.save")));
-    setBusy(null);
-  }
-
   async function createBox(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     clearMessages();
@@ -162,65 +127,6 @@ export default function BoxAdministration({
       setSuccess(t("created"));
     } else setError(message(data, t("errors.save")));
     setBusy(null);
-  }
-
-  async function uploadBoxImage(kind: "logo" | "cover", file: File) {
-    if (!selectedBox) return;
-    clearMessages();
-    setBusy(`image-${kind}`);
-    try {
-      const optimized = await optimizeBoxImage(file, kind);
-      const form = new FormData();
-      form.set("kind", kind);
-      form.set("file", optimized);
-      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
-        method: "POST",
-        body: form,
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(message(data, t("errors.save")));
-      const field = kind === "logo" ? "logoPath" : "coverImagePath";
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === selectedBox.id ? { ...box, [field]: data.path } : box,
-        ),
-      );
-      setSuccess(t("images.saved"));
-      router.refresh();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("errors.save"));
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function removeBoxImage(kind: "logo" | "cover") {
-    if (!selectedBox) return;
-    const field = kind === "logo" ? "logoPath" : "coverImagePath";
-    if (!selectedBox[field]) return;
-
-    clearMessages();
-    setBusy(`image-${kind}`);
-    try {
-      const response = await fetch(`/api/boxes/${selectedBox.id}/image`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(message(data, t("errors.save")));
-      setBoxes((current) =>
-        current.map((box) =>
-          box.id === selectedBox.id ? { ...box, [field]: null } : box,
-        ),
-      );
-      setSuccess(t("images.removed"));
-      router.refresh();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("errors.save"));
-    } finally {
-      setBusy(null);
-    }
   }
 
   async function rotateJoinCode() {
@@ -474,110 +380,7 @@ export default function BoxAdministration({
 
           {tab === "details" ? (
             <div className="space-y-4">
-              <section className="overflow-hidden rounded-3xl border border-border bg-surface">
-                <div className="px-4 pb-3 pt-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">
-                    {t("images.eyebrow")}
-                  </p>
-                  <h2 className="mt-1 text-lg font-black">{t("images.title")}</h2>
-                  <p className="mt-1 text-sm leading-5 text-muted">{t("images.description")}</p>
-                </div>
-                <label className="group relative block h-36 cursor-pointer overflow-hidden bg-background sm:h-44">
-                  {boxImageUrl(selectedBox.coverImagePath) ? (
-                    <Image
-                      src={boxImageUrl(selectedBox.coverImagePath)!}
-                      alt=""
-                      fill
-                      sizes="(max-width: 640px) 100vw, 768px"
-                      className="object-cover opacity-70 transition group-active:opacity-50"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(163,255,18,0.24),transparent_45%),linear-gradient(135deg,rgba(163,255,18,0.12),rgba(255,255,255,0.03)_38%,rgba(0,0,0,0)_70%)]">
-                      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-40" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-2 text-xs font-bold text-white backdrop-blur">
-                    {busy === "image-cover" ? t("working") : t("images.changeCover")}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    disabled={busy?.startsWith("image-") ?? false}
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) void uploadBoxImage("cover", file);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                </label>
-                <div className="relative px-4 pb-4">
-                  {selectedBox.coverImagePath ? (
-                    <button
-                      type="button"
-                      disabled={busy?.startsWith("image-") ?? false}
-                      onClick={() => void removeBoxImage("cover")}
-                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50"
-                    >
-                      {t("images.removeCover")}
-                    </button>
-                  ) : null}
-                  <label className="-mt-8 inline-flex cursor-pointer flex-col items-center">
-                    <span className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-surface bg-accent text-2xl font-black text-accent-foreground shadow-lg">
-                      {boxImageUrl(selectedBox.logoPath) ? (
-                        <Image
-                          src={boxImageUrl(selectedBox.logoPath)!}
-                          alt=""
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_35%),linear-gradient(135deg,#a3ff12,#6bd600)] text-2xl font-black text-black">
-                          {selectedBox.name.slice(0, 1).toUpperCase()}
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-2 text-xs font-bold text-accent">
-                      {busy === "image-logo" ? t("working") : t("images.changeLogo")}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      disabled={busy?.startsWith("image-") ?? false}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) void uploadBoxImage("logo", file);
-                        event.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                  {selectedBox.logoPath ? (
-                    <button
-                      type="button"
-                      disabled={busy?.startsWith("image-") ?? false}
-                      onClick={() => void removeBoxImage("logo")}
-                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 px-4 text-sm font-black text-red-300 transition hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50 sm:w-auto"
-                    >
-                      {t("images.removeLogo")}
-                    </button>
-                  ) : null}
-                  <p className="mt-3 text-xs leading-5 text-muted">{t("images.help")}</p>
-                </div>
-              </section>
-
-              <BoxForm
-                t={t}
-                idPrefix="edit"
-                box={selectedBox}
-                busy={busy === "box"}
-                onSubmit={saveBox}
-                timezones={timezones}
-              />
+              <Link href={`/boxes/${selectedBox.id}/edit`} className="flex min-h-12 items-center justify-center rounded-xl bg-accent px-4 text-sm font-bold text-accent-foreground">{t('editDetails')}</Link>
               <section className="rounded-2xl border border-border bg-surface p-4">
                 <h2 className="font-bold">{t("joinCode.title")}</h2>
                 <p className="mt-1 text-sm text-muted">

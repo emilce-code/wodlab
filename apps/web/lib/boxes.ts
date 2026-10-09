@@ -9,6 +9,13 @@ export type BoxSummary = {
   logoPath: string | null;
   coverImagePath: string | null;
   timezone: string;
+  whatsapp?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  instagram?: string | null;
+  website?: string | null;
+  organization?: { id: string; name: string } | null;
+  canEditDetails?: boolean;
   supportContact: string | null;
   joinCode: string;
   role: "OWNER" | "COACH" | "ATHLETE";

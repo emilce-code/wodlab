@@ -55,6 +55,7 @@ const athleteProfileInclude = {
 } as const;
 
 const currentUserInclude = {
+  boxOrganizationsOwned: { select: { id: true } },
   athleteProfile: {
     include: athleteProfileInclude,
   },
@@ -75,6 +76,7 @@ type CurrentUserRecord = {
   preferredLocale: string;
   athleteProfile: unknown;
   boxMemberships: Array<{ role: { key: string } }>;
+  boxOrganizationsOwned?: Array<{ id: string }>;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -89,7 +91,10 @@ function toCurrentUser(user: CurrentUserRecord) {
     (membership) => membership.role.key === 'OWNER',
   );
 
-  if (ownsABox && !permissions.includes('box:manage')) {
+  if (
+    (ownsABox || user.boxOrganizationsOwned?.length) &&
+    !permissions.includes('box:manage')
+  ) {
     permissions.push('box:manage');
   }
 

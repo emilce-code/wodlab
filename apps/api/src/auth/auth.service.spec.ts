@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 describe('AuthService', () => {
   let service: AuthService;
+  const prisma = { user: { findUnique: jest.fn(), create: jest.fn() } };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -11,12 +12,30 @@ describe('AuthService', () => {
         AuthService,
         {
           provide: PrismaService,
-          useValue: {},
+          useValue: prisma,
         },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+  });
+
+  it('exposes box management navigation for organization owners without box memberships', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'owner-1',
+      email: 'owner@example.com',
+      role: 'USER',
+      preferredLocale: 'en',
+      athleteProfile: null,
+      boxMemberships: [],
+      boxOrganizationsOwned: [{ id: 'ownership-1' }],
+    });
+    const user = await service.provisionAuth0User({
+      auth0UserId: 'auth0|owner',
+      email: 'owner@example.com',
+      displayName: 'Owner',
+    });
+    expect(user.permissions).toContain('box:manage');
   });
 
   it('should be defined', () => {
