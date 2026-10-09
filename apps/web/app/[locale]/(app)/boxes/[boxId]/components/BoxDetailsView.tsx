@@ -37,21 +37,23 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
         </Link>
         <p className="text-center text-sm font-semibold">{t("title")}</p>
       </nav>
-      <header className="space-y-2">
+      <header className="flex flex-col items-center gap-2 text-center">
         <BoxLogo name={box.name} path={box.logoPath} />
-        <h1 className="break-words text-xl font-bold leading-7">{box.name}</h1>
+        <h1 className="max-w-full break-words text-xl font-bold leading-7">
+          {box.name}
+        </h1>
         {box.organization?.name ? (
-          <p className="text-sm font-medium text-accent">
+          <p className="max-w-full break-words text-sm font-medium text-muted">
             {box.organization.name}
           </p>
         ) : null}
         {box.location ? (
-          <p className="flex items-start gap-2 text-sm text-muted">
+          <p className="flex max-w-full items-start justify-center gap-2 text-sm text-muted">
             <BoxDetailsIcon
               name="location"
               className="mt-0.5 h-4 w-4 shrink-0 text-accent"
             />
-            {box.location}
+            <span className="min-w-0 break-words">{box.location}</span>
           </p>
         ) : null}
       </header>
@@ -66,14 +68,14 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
             <div
               className={`grid gap-3 ${actions.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
             >
-              {actions.slice(0, 2).map((action, index) => (
+              {actions.slice(0, 2).map((action) => (
                 <a
                   key={action.channel + action.href}
                   aria-label={t(`channels.${action.channel}`)}
                   href={action.href}
                   target={action.href.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
-                  className={`${rowClass.replace("border-border", index === 0 ? "border-accent" : "border-border")} justify-center`}
+                  className={`${rowClass.replace("border-border", "border-accent")} justify-center`}
                 >
                   <BoxDetailsIcon
                     name={action.channel}
@@ -166,7 +168,7 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
       ) : null}
       {sheet === "contact" ? (
         <BottomSheet
-          title={t("contactSheetTitle")}
+          title={t("contactSheetTitle", { name: box.name })}
           onClose={() => setSheet(null)}
         >
           <div className="space-y-2">
@@ -202,10 +204,26 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
               </p>
             ) : null}
           </div>
+          <Button
+            type="button"
+            variant="secondary"
+            className="mt-4 w-full"
+            onClick={() => setSheet(null)}
+          >
+            {t("dismissMaps")}
+          </Button>
         </BottomSheet>
       ) : null}
       {sheet === "maps" ? (
-        <BottomSheet title={t("openMaps")} onClose={() => setSheet(null)}>
+        <BottomSheet title={t("directions")} onClose={() => setSheet(null)}>
+          {location.coordinates ? (
+            <div className="mb-3">
+              <BoxLocationMap
+                name={box.name}
+                destination={location.destination!}
+              />
+            </div>
+          ) : null}
           <p className={`${rowClass} mb-3`}>
             <BoxDetailsIcon
               name="location"

@@ -318,7 +318,6 @@ export default function BoxDetailsEditor({
             <BoxLogo
               name={values.name || box.name}
               path={box.logoPath}
-              size="small"
             />
             <input
               ref={fileInput}

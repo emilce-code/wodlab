@@ -57,7 +57,9 @@ const paths: Record<Name, React.ReactNode> = {
   ),
   website: (
     <>
-      <path d="m10 14 4-4m-5 8-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m3-3 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" />
+      <circle cx="12" cy="12" r="9" />
+      <ellipse cx="12" cy="12" rx="4" ry="9" />
+      <path d="M3 12h18m-16-5h14M5 17h14" />
     </>
   ),
   info: (

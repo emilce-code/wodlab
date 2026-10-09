@@ -175,6 +175,20 @@ try {
       "No horizontal overflow",
     );
     await page.getByRole("button", { name: t.contactOptions }).click();
+    assert.equal(
+      await page.getByRole("heading", {
+        name: t.contactSheetTitle.replace("{name}", fixture.name),
+        exact: true,
+      }).count(),
+      1,
+    );
+    await page.getByRole("button", { name: t.dismissMaps, exact: true }).click();
+    assert.equal(await page.locator("dialog[open]").count(), 0);
+    assert.ok(
+      await page.getByRole("button", { name: t.contactOptions })
+        .evaluate((element) => element === document.activeElement),
+    );
+    await page.getByRole("button", { name: t.contactOptions }).click();
     assert.equal(await page.locator("dialog a").count(), 5);
     assert.equal(
       await page.locator("dialog").getByText("Ask for Ana").count(),
