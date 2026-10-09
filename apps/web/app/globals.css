@@ -11,6 +11,15 @@
   --accent: #a3ff12;
   --accent-strong: #7dc10a;
   --accent-foreground: #09090b;
+  --danger: #f87171;
+  --danger-strong: #b91c1c;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --success: var(--accent);
+  --radius-control: 0.75rem;
+  --radius-card: 0.75rem;
+  --control-height: 3rem;
+  --mobile-nav-height: 4rem;
 }
 
 @theme inline {
@@ -25,6 +34,13 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --radius-control: 0.75rem;
+  --radius-card: 0.75rem;
 }
 
 body {

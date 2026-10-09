@@ -229,9 +229,9 @@ For changes to user-facing screens, follow the approved feature design contract 
 - Inspect the actual approved reference images when they are available in the repository. A generated collage, placeholder, or schematic is not a pixel-accurate design token source; written approved scope controls if an illustration contains extras.
 - Start from existing WODLY components and `apps/web/app/globals.css`; use dark theme, existing accent/tokens and en/es/pt. Do not add an unrelated visual redesign.
 - Implement mobile first. Validate at 375x812, 390x844 and 430x932 CSS pixels; check tablet 768x1024 and desktop 1280x800.
-- Run the application and capture actual browser screenshots for baseline and relevant interactive states (e.g. bottom sheets, form invalid/saving/success). Compare layout, information order, spacing, component sizes and readability with the approved references.
+- Run the application and internally verify baseline and relevant interactive states (e.g. bottom sheets, form invalid/saving/success). Compare layout, information order, spacing, component sizes and readability with approved references when available. Do not create or commit screenshots, recordings, mockups or visual QA artifacts.
 - Report visual differences and fix significant discrepancies before declaring visual work ready. Never claim screenshot parity if you could not render and inspect the page. Do not pretend that documentation-only wireframes are approved pixel-perfect references.
 - Confirm permissions on both UI and API for editing, and test missing/legacy data, loading, error and localized states.
-- UI pull requests should include screenshot evidence or an explicit note that visual verification was blocked, plus a checklist and remaining deviations. Do not merge automatically.
+- Per approved Global Design System v1 (#298), UI pull requests deliver only a concise implementation summary, test/build results, PR link and significant blockers. No screenshot evidence or visual reports. Do not merge automatically.
 
 A feature-specific design document may be approved independently from engineering implementation. Do not treat design approval as permission to implement or ship code unless the request explicitly authorizes it.

@@ -1,10 +1,11 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant =
+  "primary" | "secondary" | "tertiary" | "ghost" | "danger" | "danger-solid";
 
 export type ButtonSize = "sm" | "md" | "lg" | "icon";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -12,8 +13,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const baseClassName = [
-  "inline-flex items-center justify-center gap-2 rounded-lg",
-  "select-none text-sm font-semibold transition-colors",
+  "inline-flex items-center justify-center gap-2 rounded-xl",
+  "select-none text-sm font-semibold transition-colors motion-reduce:transition-none active:translate-y-px",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
   "focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "disabled:cursor-not-allowed disabled:opacity-50",
@@ -25,15 +26,17 @@ const variants: Record<ButtonVariant, string> = {
   secondary:
     "border border-border bg-surface text-foreground hover:bg-surface-elevated",
   ghost: "text-muted hover:bg-surface-elevated hover:text-foreground",
+  tertiary: "text-muted hover:bg-surface-elevated hover:text-foreground",
   danger:
-    "border border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/15",
+    "border border-danger/40 bg-transparent text-danger hover:bg-danger/10",
+  "danger-solid": "bg-danger-strong text-white hover:bg-danger-strong/90",
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "min-h-11 px-3 py-2",
-  md: "min-h-11 px-4 py-2.5",
-  lg: "min-h-12 px-5 py-3",
-  icon: "h-11 w-11 shrink-0 p-0",
+  sm: "min-h-11 px-3 py-2 sm:min-h-10",
+  md: "min-h-12 px-4 py-3",
+  lg: "min-h-14 px-5 py-4",
+  icon: "relative h-11 w-11 shrink-0 p-0",
 };
 
 export function getButtonClassName({
@@ -48,19 +51,26 @@ export function getButtonClassName({
   return [baseClassName, variants[variant], sizes[size], className].join(" ");
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
-  children,
-  variant = "primary",
-  size = "md",
-  isLoading = false,
-  disabled,
-  className = "",
-  ...props
-}, ref) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    children,
+    variant = "primary",
+    size = "md",
+    isLoading = false,
+    disabled,
+    className = "",
+    ...props
+  },
+  ref,
+) {
   return (
     <button
       ref={ref}
-      className={getButtonClassName({ variant, size, className })}
+      className={getButtonClassName({
+        variant,
+        size,
+        className: `relative ${className}`,
+      })}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
       {...props}
@@ -68,11 +78,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
       {isLoading && (
         <span
           aria-hidden="true"
-          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent"
+          className="absolute h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
         />
       )}
 
-      {children}
+      <span
+        className={`inline-flex items-center justify-center gap-2 ${isLoading ? "opacity-0" : ""}`}
+      >
+        {children}
+      </span>
     </button>
   );
 });
