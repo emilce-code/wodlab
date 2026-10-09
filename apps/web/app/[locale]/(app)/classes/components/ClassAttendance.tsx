@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Alert from "@/components/ui/Alert";
+import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import type { ClassSession } from "@/lib/boxes";
 import { classApiPath } from "@/lib/class-schedule";
@@ -117,16 +119,17 @@ export default function ClassAttendance({
                 <p className="break-words text-sm font-semibold">
                   {name(booking)}
                 </p>
-                <p
-                  className={`mt-1 inline-flex rounded-md px-2 py-0.5 text-xs ${booking.status === "ATTENDED" ? "bg-accent/10 text-accent" : "bg-surface-elevated text-muted"}`}
+                <Badge
+                  variant={booking.status === "ATTENDED" ? "accent" : "default"}
+                  className="mt-1"
                 >
                   {t(booking.status === "ATTENDED" ? "attended" : "booked")}
-                </p>
+                </Badge>
               </div>
               <Button
                 type="button"
                 variant="secondary"
-                className="shrink-0 border-accent/30 px-3 text-accent hover:bg-accent/10"
+                className="shrink-0 px-3"
                 aria-label={`${t(booking.status === "ATTENDED" ? "undo" : "markAttended")}: ${name(booking)}`}
                 isLoading={pending.has(booking.id)}
                 onClick={() => void toggle(booking)}
@@ -135,9 +138,9 @@ export default function ClassAttendance({
               </Button>
             </div>
             {errors[booking.id] ? (
-              <p role="alert" className="mt-2 text-xs text-red-400">
+              <Alert variant="error" className="mt-2 text-xs">
                 {errors[booking.id]}
-              </p>
+              </Alert>
             ) : null}
           </li>
         ))}

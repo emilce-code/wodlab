@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import BottomSheet from "@/components/ui/BottomSheet";
-import Button from "@/components/ui/Button";
+import Button, { getButtonClassName } from "@/components/ui/Button";
 import BoxDetailsIcon from "@/components/ui/BoxDetailsIcon";
 import NavigationIcon from "@/components/layout/NavigationIcon";
 import type { WorkoutOption } from "@/lib/boxes";
@@ -63,7 +63,10 @@ export default function ScheduleWorkoutPicker({
           setQuery("");
           setOpen(true);
         }}
-        className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-border bg-surface px-3 py-3 text-left focus-visible:outline-2 focus-visible:outline-accent disabled:opacity-50"
+        className={getButtonClassName({
+          variant: "secondary",
+          className: "w-full gap-3 px-3 text-left",
+        })}
       >
         <NavigationIcon
           name="workouts"
