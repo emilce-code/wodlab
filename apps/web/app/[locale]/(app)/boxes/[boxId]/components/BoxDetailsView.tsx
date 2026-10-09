@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import Button from "@/components/ui/Button";
+import Button, { getButtonClassName } from "@/components/ui/Button";
 import BottomSheet from "@/components/ui/BottomSheet";
 import BoxLogo from "@/components/ui/BoxLogo";
 import BoxLocationMap from "@/components/ui/BoxLocationMap";
@@ -105,7 +105,10 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
                 <button
                   type="button"
                   onClick={() => setSheet("contact")}
-                  className={`${interactiveRowClass} w-full text-left`}
+                  className={getButtonClassName({
+                    variant: "secondary",
+                    className: "w-full justify-start gap-3 text-left",
+                  })}
                 >
                   <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
                   <span className="flex-1">{t("contactOptions")}</span>
