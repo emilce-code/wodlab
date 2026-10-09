@@ -7,6 +7,27 @@
 **Scope:** [#162](https://github.com/emilce-code/wodlab/issues/162), [#163](https://github.com/emilce-code/wodlab/issues/163), [#164](https://github.com/emilce-code/wodlab/issues/164), [#165](https://github.com/emilce-code/wodlab/issues/165), [#166](https://github.com/emilce-code/wodlab/issues/166), [#167](https://github.com/emilce-code/wodlab/issues/167), [#168](https://github.com/emilce-code/wodlab/issues/168)
 **Base branch for future implementation:** `develop`
 
+## Approved Visual Reference
+
+The following image represents the approved Box Details v4
+UI/UX design and must be used by Codex during implementation.
+
+![Approved Box Details v4](./wodly-box-details-v4-approved-reference.png)
+
+**Reference file:** `docs/design/box-details-v4/approved-reference.png`
+
+### Implementation Rules
+
+- Inspect the approved image before modifying the UI.
+- Match the approved layout, spacing, colors, and visual hierarchy.
+- Follow the functional requirements defined in this specification.
+- Do not introduce UI elements that were not approved.
+- If the mockup contains elements explicitly excluded by the specification,
+  the written specification takes precedence.
+- Capture screenshots of the implemented UI and compare them
+  against this reference.
+- Document and correct significant visual differences.
+
 ## Source of truth and fidelity
 
 The owner explicitly approved Box Details **design v4** in ChatGPT. The original approved presentation image is **not yet committed as a binary asset in GitHub**. Do not mistake new schematic drawings, conceptual mockups or earlier iterations for that approved image. Obtain/check in the approved reference before claiming image-to-code parity. This document records the approved structure/behavior and overrides unapproved illustrative extras appearing in image-generation boards.
