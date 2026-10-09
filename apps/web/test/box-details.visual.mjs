@@ -23,7 +23,8 @@ const phase = process.argv[2] || "after";
 if (!/^[a-zA-Z0-9_-]+$/.test(phase))
   throw Error("Use a simple evidence directory name");
 const root = path.resolve(
-  process.env.WODLY_VISUAL_OUTPUT || path.join(tmpdir(), `wodly-box-details-${phase}`),
+  process.env.WODLY_VISUAL_OUTPUT ||
+    path.join(tmpdir(), `wodly-box-details-${phase}`),
 );
 await mkdir(root, { recursive: true });
 const secret = randomBytes(32).toString("hex");
@@ -217,19 +218,45 @@ try {
     ]);
     const page = await context.newPage();
     page.setDefaultTimeout(20000);
+    page.setDefaultNavigationTimeout(60000);
     page.on("pageerror", (e) => errors.push(e.message));
     // Maps are intentionally blocked: directions must remain usable and no fake map is substituted.
     await page.route("https://www.google.com/**", (route) => route.abort());
     return { context, page };
   }
   async function capture(page, label, viewport) {
-    await page.addStyleTag({ content: "nextjs-portal{display:none !important}" });
+    await page.addStyleTag({
+      content: "nextjs-portal{display:none !important}",
+    });
     await page.evaluate(async () => {
       await document.fonts.ready;
       await new Promise((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(resolve)),
       );
     });
+    if (
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      )
+    )
+      throw Error(`Horizontal overflow: ${label} at ${viewport.width}px`);
+    const dialog = page.locator("dialog[open]");
+    if (await dialog.count()) {
+      const rect = await dialog.boundingBox();
+      if (
+        !rect ||
+        rect.x < 0 ||
+        rect.y < 0 ||
+        rect.x + rect.width > viewport.width + 1 ||
+        rect.y + rect.height > viewport.height + 1
+      )
+        throw Error(`Clipped dialog: ${label} at ${viewport.width}px`);
+      if (
+        viewport.width >= 768 &&
+        Math.abs(rect.y + rect.height / 2 - viewport.height / 2) > 2
+      )
+        throw Error(`Desktop dialog is not centered: ${label}`);
+    }
     await page.screenshot({
       path: `${root}/${viewport.width}x${viewport.height}-${label}.png`,
       fullPage: label === "owner",
@@ -241,11 +268,14 @@ try {
     { width: 390, height: 844 },
     { width: 430, height: 932 },
     { width: 768, height: 1024 },
-    { width: 1280, height: 800 },
+    { width: 1024, height: 800 },
+    { width: 1440, height: 900 },
   ]) {
     box = { ...fixture };
     const { page, context } = await pageFor("athlete", "en", viewport);
-    await page.goto(origin + "/en/boxes/visual-box");
+    await page.goto(origin + "/en/boxes/visual-box", {
+      waitUntil: "domcontentloaded",
+    });
     await page.addStyleTag({
       content: "nextjs-portal{display:none !important}",
     });
@@ -268,12 +298,24 @@ try {
     await context.close();
     const owner = await pageFor("owner", "en", viewport);
     const editor = owner.page;
-    await editor.goto(origin + "/en/boxes/visual-box/edit");
+    await editor.goto(origin + "/en/boxes/visual-box/edit", {
+      waitUntil: "domcontentloaded",
+    });
     await editor.addStyleTag({
       content: "nextjs-portal{display:none !important}",
     });
     await editor.locator("#box-name").waitFor();
     await editor.getByText(t.mapUnavailable, { exact: true }).waitFor();
+    const nameRect = await editor.locator("#box-name").boundingBox();
+    const addressRect = await editor.locator("#box-address").boundingBox();
+    const latitudeRect = await editor.locator("#box-latitude").boundingBox();
+    const longitudeRect = await editor.locator("#box-longitude").boundingBox();
+    if (!nameRect || !addressRect || !latitudeRect || !longitudeRect)
+      throw Error("Missing editor fields");
+    if (viewport.width >= 768 && addressRect.x <= nameRect.x)
+      throw Error("Desktop editor sections did not adapt into columns");
+    if (viewport.width < 640 && latitudeRect.x !== longitudeRect.x)
+      throw Error("Mobile fields are not single column");
     await capture(editor, "owner", viewport);
     await editor.locator("#box-name").fill("");
     await editor.getByRole("button", { name: t.save, exact: true }).click();
@@ -315,10 +357,13 @@ try {
       width: 375,
       height: 812,
     });
-    await page.goto(origin + `/${locale}/boxes/visual-box`);
+    await page.goto(origin + `/${locale}/boxes/visual-box`, {
+      waitUntil: "domcontentloaded",
+    });
     await page
       .getByRole("heading", { name: fixture.name, exact: true })
       .waitFor();
+    await page.getByText(t.mapUnavailable, { exact: true }).waitFor();
     if (
       !(await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -349,8 +394,11 @@ try {
       .click();
     await context.close();
     const owner = await pageFor("owner", locale, { width: 375, height: 812 });
-    await owner.page.goto(origin + `/${locale}/boxes/visual-box/edit`);
+    await owner.page.goto(origin + `/${locale}/boxes/visual-box/edit`, {
+      waitUntil: "domcontentloaded",
+    });
     await owner.page.locator("#box-name").waitFor();
+    await owner.page.getByText(t.mapUnavailable, { exact: true }).waitFor();
     await owner.page.locator("#box-name").fill("Edited name");
     fail = true;
     await owner.page.getByRole("button", { name: t.save, exact: true }).click();
@@ -387,7 +435,9 @@ try {
       width: 390,
       height: 844,
     });
-    await page.goto(origin + "/en/boxes/visual-box");
+    await page.goto(origin + "/en/boxes/visual-box", {
+      waitUntil: "domcontentloaded",
+    });
     await page
       .getByRole("heading", { name: fixture.name, exact: true })
       .waitFor();
@@ -401,7 +451,9 @@ try {
       ) !== authorized
     )
       throw Error(`Incorrect edit action: ${actor}`);
-    await page.goto(origin + "/en/boxes/visual-box/edit");
+    await page.goto(origin + "/en/boxes/visual-box/edit", {
+      waitUntil: "domcontentloaded",
+    });
     if (authorized) await page.locator("#box-name").waitFor();
     else {
       await page.waitForURL(origin + "/en/boxes/visual-box");

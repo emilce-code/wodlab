@@ -65,11 +65,11 @@ export default function BottomSheet({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border/60 bg-surface p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md"
+      className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-border/60 bg-surface p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground backdrop:bg-black/60 sm:mx-auto sm:max-w-md md:inset-0 md:m-auto md:h-fit md:max-w-lg md:rounded-2xl md:pb-4"
     >
       <div
         aria-hidden="true"
-        className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted/40"
+        className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted/40 md:hidden"
       />
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2
