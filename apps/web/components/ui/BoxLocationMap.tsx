@@ -7,10 +7,12 @@ export default function BoxLocationMap({
   destination,
   name,
   thumbnail = false,
+  responsive = false,
 }: {
   destination: string;
   name: string;
   thumbnail?: boolean;
+  responsive?: boolean;
 }) {
   const t = useTranslations("boxDetailsV4");
   const [failedDestination, setFailedDestination] = useState<string | null>(
@@ -30,7 +32,11 @@ export default function BoxLocationMap({
     });
     return () => controller.abort();
   }, [destination, mapUrl]);
-  const height = thumbnail ? "h-24" : "h-[120px]";
+  const height = thumbnail
+    ? "h-24"
+    : responsive
+      ? "h-[120px] md:h-48"
+      : "h-[120px]";
   return (
     <div
       className={`${height} overflow-hidden rounded-xl border border-border bg-surface-elevated`}

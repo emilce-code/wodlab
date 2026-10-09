@@ -130,6 +130,7 @@ const report = (label) => {
 async function pageFor(locale, box = fixture, view = "/", width = 320) {
   const page = await browser.newPage({ viewport: { width, height: 720 } });
   page.setDefaultTimeout(10000);
+  page.setDefaultNavigationTimeout(60000);
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript(
@@ -141,7 +142,7 @@ async function pageFor(locale, box = fixture, view = "/", width = 320) {
   );
   await page.route("https://www.google.com/**", (route) => route.abort());
   await page.route("https://storage.example/**", (route) => route.abort());
-  await page.goto(origin + view);
+  await page.goto(origin + view, { waitUntil: "domcontentloaded" });
   await page
     .getByRole("heading", {
       name: view === "/edit" ? messages[locale].boxDetailsV4.edit : box.name,
@@ -151,6 +152,30 @@ async function pageFor(locale, box = fixture, view = "/", width = 320) {
   return { page, errors, t: messages[locale].boxDetailsV4 };
 }
 try {
+  for (const width of [375, 390, 430, 768, 1024, 1440]) {
+    const { page } = await pageFor(
+      "en",
+      {
+        ...fixture,
+        name: "N".repeat(80),
+        organization: { id: "org-1", name: "O".repeat(80) },
+        description: "D".repeat(240),
+        address: "A".repeat(240),
+        latitude: null,
+        longitude: null,
+      },
+      "/",
+      width,
+    );
+    assert.ok(
+      await page
+        .locator("main")
+        .evaluate((element) => element.scrollWidth <= element.clientWidth),
+      `Long box text overflows at ${width}px`,
+    );
+    await page.close();
+  }
+  report("Long box information fits all six responsive viewports");
   for (const locale of ["en", "es", "pt"]) {
     const { page, errors, t } = await pageFor(locale);
     assert.equal(
@@ -176,16 +201,21 @@ try {
     );
     await page.getByRole("button", { name: t.contactOptions }).click();
     assert.equal(
-      await page.getByRole("heading", {
-        name: t.contactSheetTitle.replace("{name}", fixture.name),
-        exact: true,
-      }).count(),
+      await page
+        .getByRole("heading", {
+          name: t.contactSheetTitle.replace("{name}", fixture.name),
+          exact: true,
+        })
+        .count(),
       1,
     );
-    await page.getByRole("button", { name: t.dismissMaps, exact: true }).click();
+    await page
+      .getByRole("button", { name: t.dismissMaps, exact: true })
+      .click();
     assert.equal(await page.locator("dialog[open]").count(), 0);
     assert.ok(
-      await page.getByRole("button", { name: t.contactOptions })
+      await page
+        .getByRole("button", { name: t.contactOptions })
         .evaluate((element) => element === document.activeElement),
     );
     await page.getByRole("button", { name: t.contactOptions }).click();

@@ -267,7 +267,7 @@ export default function BoxDetailsEditor({
     );
   }
   return (
-    <div className="mx-auto max-w-xl pb-6">
+    <div className="mx-auto max-w-5xl pb-6">
       <header className="sticky top-0 z-20 -mx-4 mb-4 border-b border-border bg-background/95 px-4 py-2 backdrop-blur">
         <div className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-2">
           <button
@@ -308,127 +308,156 @@ export default function BoxDetailsEditor({
         ref={form}
         noValidate
         onSubmit={save}
-        className="space-y-5"
+        className="space-y-5 md:grid md:grid-cols-2 md:items-start md:gap-6 md:space-y-0"
       >
-        <section aria-labelledby="logo-title" className="space-y-3">
-          <h2 id="logo-title" className="text-sm font-semibold tracking-tight">
-            {t("logo")}
-          </h2>
-          <div className="flex items-center gap-3">
-            <BoxLogo
-              name={values.name || box.name}
-              path={box.logoPath}
-            />
-            <input
-              ref={fileInput}
-              id="box-logo"
-              type="file"
-              accept="image/*"
-              aria-label={t(box.logoPath ? "changeLogo" : "uploadLogo")}
-              disabled={busy !== null}
-              className="sr-only"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void logo(file);
-                event.currentTarget.value = "";
-              }}
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={busy !== null}
-              className="flex-1 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
-              onClick={() => fileInput.current?.click()}
+        <div className="min-w-0 space-y-5">
+          <section aria-labelledby="logo-title" className="space-y-3">
+            <h2
+              id="logo-title"
+              className="text-sm font-semibold tracking-tight"
             >
-              {t(box.logoPath ? "changeLogo" : "uploadLogo")}
-            </Button>
-            {box.logoPath ? (
-              <Button
-                type="button"
-                variant="secondary"
-                aria-label={t("removeLogo")}
+              {t("logo")}
+            </h2>
+            <div className="flex items-center gap-3">
+              <BoxLogo name={values.name || box.name} path={box.logoPath} />
+              <input
+                ref={fileInput}
+                id="box-logo"
+                type="file"
+                accept="image/*"
+                aria-label={t(box.logoPath ? "changeLogo" : "uploadLogo")}
                 disabled={busy !== null}
-                className="shrink-0 rounded-xl border-border/60 px-3 text-red-400 duration-200 hover:bg-red-500/10 active:bg-red-500/10 motion-reduce:transition-none"
-                onClick={() => void logo(null)}
-              >
-                <BoxDetailsIcon name="trash" />
-              </Button>
-            ) : null}
-          </div>
-          {busy === "logo" ? (
-            <p role="status" className="text-sm">
-              {t("working")}
-            </p>
-          ) : null}
-          <p className="text-xs text-muted">{t("logoImmediate")}</p>
-        </section>
-        <section aria-labelledby="basic-title" className="space-y-3">
-          <h2 id="basic-title" className="text-sm font-semibold tracking-tight">
-            {t("basic")}
-          </h2>
-          {field("name", { maxLength: 80 })}
-          {box.organization ? (
-            <div className="space-y-1">
-              <p className="text-sm text-muted">{t("organization")}</p>
-              <p className="rounded-xl border border-border/60 bg-surface px-3 py-2 text-sm">
-                {box.organization.name}
-              </p>
-              <p className="flex items-start gap-2 text-xs text-muted">
-                <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
-                {t("organizationReadOnly")}
-              </p>
-            </div>
-          ) : null}
-          {field("description", { maxLength: 500, multiline: true })}
-        </section>
-        <section aria-labelledby="location-title" className="space-y-3">
-          <h2 id="location-title" className="text-sm font-semibold tracking-tight">
-            {t("locationTitle")}
-          </h2>
-          {location.coordinates ? (
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <BoxLocationMap
-                name={values.name || box.name}
-                destination={location.destination!}
-                thumbnail
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void logo(file);
+                  event.currentTarget.value = "";
+                }}
               />
               <Button
                 type="button"
                 variant="secondary"
-                className="rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
                 disabled={busy !== null}
-                onClick={() => document.getElementById("box-address")?.focus()}
+                className="flex-1 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
+                onClick={() => fileInput.current?.click()}
               >
-                {t("changeLocation")}
+                {t(box.logoPath ? "changeLogo" : "uploadLogo")}
               </Button>
+              {box.logoPath ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  aria-label={t("removeLogo")}
+                  disabled={busy !== null}
+                  className="shrink-0 rounded-xl border-border/60 px-3 text-red-400 duration-200 hover:bg-red-500/10 active:bg-red-500/10 motion-reduce:transition-none"
+                  onClick={() => void logo(null)}
+                >
+                  <BoxDetailsIcon name="trash" />
+                </Button>
+              ) : null}
             </div>
-          ) : null}
-          {field("location", { maxLength: 120 })}
-          {field("address", { maxLength: 240, multiline: true })}
-          <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2">
-            {field("latitude")}
-            {field("longitude")}
-          </div>
-          {field("timezone", { maxLength: 80 })}
-        </section>
-        <section aria-labelledby="contact-title" className="space-y-3">
-          <h2 id="contact-title" className="text-sm font-semibold tracking-tight">
+            {busy === "logo" ? (
+              <p role="status" className="text-sm">
+                {t("working")}
+              </p>
+            ) : null}
+            <p className="text-xs text-muted">{t("logoImmediate")}</p>
+          </section>
+          <section aria-labelledby="basic-title" className="space-y-3">
+            <h2
+              id="basic-title"
+              className="text-sm font-semibold tracking-tight"
+            >
+              {t("basic")}
+            </h2>
+            {field("name", { maxLength: 80 })}
+            {box.organization ? (
+              <div className="space-y-1">
+                <p className="text-sm text-muted">{t("organization")}</p>
+                <p className="break-words rounded-xl border border-border/60 bg-surface px-3 py-2 text-sm">
+                  {box.organization.name}
+                </p>
+                <p className="flex items-start gap-2 text-xs text-muted">
+                  <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
+                  {t("organizationReadOnly")}
+                </p>
+              </div>
+            ) : null}
+            {field("description", { maxLength: 500, multiline: true })}
+          </section>
+        </div>
+        <div className="min-w-0 space-y-5">
+          <section aria-labelledby="location-title" className="space-y-3">
+            <h2
+              id="location-title"
+              className="text-sm font-semibold tracking-tight"
+            >
+              {t("locationTitle")}
+            </h2>
+            {location.coordinates ? (
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                <BoxLocationMap
+                  name={values.name || box.name}
+                  destination={location.destination!}
+                  thumbnail
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
+                  disabled={busy !== null}
+                  onClick={() =>
+                    document.getElementById("box-address")?.focus()
+                  }
+                >
+                  {t("changeLocation")}
+                </Button>
+              </div>
+            ) : null}
+            {field("location", { maxLength: 120 })}
+            {field("address", { maxLength: 240, multiline: true })}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {field("latitude")}
+              {field("longitude")}
+            </div>
+            {field("timezone", { maxLength: 80 })}
+          </section>
+        </div>
+        <section
+          aria-labelledby="contact-title"
+          className="space-y-3 md:col-span-2"
+        >
+          <h2
+            id="contact-title"
+            className="text-sm font-semibold tracking-tight"
+          >
             {t("contactTitle")}
           </h2>
           <p className="text-sm text-muted">{t("contactHelp")}</p>
-          {contactChannels.map((channel) =>
-            field(channel, {
-              type:
-                channel === "email"
-                  ? "email"
-                  : channel === "website"
-                    ? "url"
-                    : channel === "phone" || channel === "whatsapp"
-                      ? "tel"
-                      : "text",
-              maxLength: 254,
-            }),
-          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {contactChannels.map((channel) => (
+              <div
+                key={channel}
+                className={
+                  channel === "website"
+                    ? "sm:col-span-2 sm:max-w-xl"
+                    : undefined
+                }
+              >
+                {field(channel, {
+                  type:
+                    channel === "email"
+                      ? "email"
+                      : channel === "website"
+                        ? "url"
+                        : channel === "phone" || channel === "whatsapp"
+                          ? "tel"
+                          : "text",
+                  maxLength: 254,
+                })}
+              </div>
+            ))}
+          </div>
           {box.supportContact ? (
             <div className="text-sm text-muted">
               <p className="font-semibold">{t("legacyContact")}</p>

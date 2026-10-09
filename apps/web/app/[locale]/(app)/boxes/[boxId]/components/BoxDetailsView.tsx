@@ -38,135 +38,152 @@ export default function BoxDetailsView({ box }: { box: ManagedBox }) {
         </Link>
         <p className="text-center text-sm font-semibold">{t("title")}</p>
       </nav>
-      <header className="flex flex-col items-center gap-2 text-center">
-        <BoxLogo name={box.name} path={box.logoPath} />
-        <h1 className="max-w-full break-words text-xl font-bold leading-7 tracking-tight">
-          {box.name}
-        </h1>
-        {box.organization?.name ? (
-          <p className="max-w-full break-words text-sm font-medium text-muted">
-            {box.organization.name}
-          </p>
-        ) : null}
-        {box.location ? (
-          <p className="flex max-w-full items-start justify-center gap-2 text-sm text-muted">
-            <BoxDetailsIcon
-              name="location"
-              className="mt-0.5 h-4 w-4 shrink-0 text-accent"
-            />
-            <span className="min-w-0 break-words">{box.location}</span>
-          </p>
-        ) : null}
-      </header>
-      {box.description ? (
-        <p className="whitespace-pre-line text-sm leading-5 text-foreground/90">
-          {box.description}
-        </p>
-      ) : null}
-      {actions.length || notes ? (
-        <section aria-label={t("contactTitle")} className="space-y-3">
-          {actions.length ? (
-            <div
-              className={`grid gap-3 ${actions.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
-            >
-              {actions.slice(0, 2).map((action) => (
-                <a
-                  key={action.channel + action.href}
-                  aria-label={t(`channels.${action.channel}`)}
-                  href={action.href}
-                  target={action.href.startsWith("http") ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  className={`${interactiveRowClass.replace("border-border/60", "border-accent")} justify-center`}
-                >
-                  <BoxDetailsIcon
-                    name={action.channel}
-                    className="h-6 w-6 shrink-0 text-accent"
-                  />
-                  <span>
-                    {action.channel === "phone"
-                      ? t("call")
-                      : t(`channels.${action.channel}`)}
-                  </span>
-                </a>
-              ))}
-            </div>
-          ) : null}
-          {showContactOptions ? (
-            <button
-              type="button"
-              onClick={() => setSheet("contact")}
-              className={`${interactiveRowClass} w-full text-left`}
-            >
-              <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
-              <span className="flex-1">{t("contactOptions")}</span>
-              <BoxDetailsIcon
-                name="chevron"
-                className="h-4 w-4 shrink-0 text-muted"
-              />
-            </button>
-          ) : null}
-        </section>
-      ) : null}
-      {location.destination ? (
-        <section
-          aria-label={t("locationTitle")}
-          className="space-y-2 border-t border-border pt-3"
-        >
-          <h2 className="text-sm font-semibold">{t("locationTitle")}</h2>
-          {location.coordinates ? (
-            <BoxLocationMap
-              name={box.name}
-              destination={location.destination!}
-            />
-          ) : null}
-          {box.address || box.location ? (
-            <p className="flex items-start gap-2 whitespace-pre-line break-words text-sm leading-5">
-              <BoxDetailsIcon
-                name="location"
-                className="mt-0.5 h-4 w-4 shrink-0 text-accent"
-              />
-              {box.address || box.location}
+      <div
+        className={
+          location.destination
+            ? "grid gap-4 md:grid-cols-2 md:items-start md:gap-6"
+            : "mx-auto max-w-xl space-y-4"
+        }
+      >
+        <div className="min-w-0 space-y-4">
+          <header className="flex flex-col items-center gap-2 text-center">
+            <BoxLogo name={box.name} path={box.logoPath} />
+            <h1 className="max-w-full break-words text-xl font-bold leading-7 tracking-tight">
+              {box.name}
+            </h1>
+            {box.organization?.name ? (
+              <p className="max-w-full break-words text-sm font-medium text-muted">
+                {box.organization.name}
+              </p>
+            ) : null}
+            {box.location ? (
+              <p className="flex max-w-full items-start justify-center gap-2 text-sm text-muted">
+                <BoxDetailsIcon
+                  name="location"
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                />
+                <span className="min-w-0 break-words">{box.location}</span>
+              </p>
+            ) : null}
+          </header>
+          {box.description ? (
+            <p className="whitespace-pre-line break-words text-sm leading-5 text-foreground/90">
+              {box.description}
             </p>
+          ) : null}
+          {actions.length || notes ? (
+            <section aria-label={t("contactTitle")} className="space-y-3">
+              {actions.length ? (
+                <div
+                  className={`grid gap-3 ${actions.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+                >
+                  {actions.slice(0, 2).map((action) => (
+                    <a
+                      key={action.channel + action.href}
+                      aria-label={t(`channels.${action.channel}`)}
+                      href={action.href}
+                      target={
+                        action.href.startsWith("http") ? "_blank" : undefined
+                      }
+                      rel="noopener noreferrer"
+                      className={`${interactiveRowClass.replace("border-border/60", "border-accent")} justify-center`}
+                    >
+                      <BoxDetailsIcon
+                        name={action.channel}
+                        className="h-6 w-6 shrink-0 text-accent"
+                      />
+                      <span>
+                        {action.channel === "phone"
+                          ? t("call")
+                          : t(`channels.${action.channel}`)}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+              {showContactOptions ? (
+                <button
+                  type="button"
+                  onClick={() => setSheet("contact")}
+                  className={`${interactiveRowClass} w-full text-left`}
+                >
+                  <BoxDetailsIcon name="info" className="h-4 w-4 shrink-0" />
+                  <span className="flex-1">{t("contactOptions")}</span>
+                  <BoxDetailsIcon
+                    name="chevron"
+                    className="h-4 w-4 shrink-0 text-muted"
+                  />
+                </button>
+              ) : null}
+            </section>
+          ) : null}
+        </div>
+        <div className="min-w-0 space-y-4">
+          {location.destination ? (
+            <section
+              aria-label={t("locationTitle")}
+              className="space-y-2 border-t border-border pt-3 md:border-t-0 md:pt-0"
+            >
+              <h2 className="text-sm font-semibold">{t("locationTitle")}</h2>
+              {location.coordinates ? (
+                <BoxLocationMap
+                  name={box.name}
+                  destination={location.destination!}
+                  responsive
+                />
+              ) : null}
+              {box.address || box.location ? (
+                <p className="flex items-start gap-2 whitespace-pre-line break-words text-sm leading-5">
+                  <BoxDetailsIcon
+                    name="location"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                  />
+                  <span className="min-w-0 break-words">
+                    {box.address || box.location}
+                  </span>
+                </p>
+              ) : null}
+              <Button
+                type="button"
+                className="w-full rounded-xl md:w-auto duration-200 active:bg-accent-strong motion-reduce:transition-none"
+                onClick={() => setSheet("maps")}
+              >
+                <BoxDetailsIcon name="directions" />
+                {t("directions")}
+              </Button>
+            </section>
           ) : null}
           <Button
             type="button"
-            className="w-full rounded-xl duration-200 active:bg-accent-strong motion-reduce:transition-none"
-            onClick={() => setSheet("maps")}
+            variant="secondary"
+            disabled={saving}
+            className="w-full justify-start gap-3 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
+            onClick={async () => {
+              if (await selectBox(box.id)) router.push("/classes");
+              else setNavigationError(true);
+            }}
           >
-            <BoxDetailsIcon name="directions" />
-            {t("directions")}
+            <BoxDetailsIcon name="classes" className="h-6 w-6 text-accent" />
+            <span className="flex-1 text-left">
+              {saving ? t("working") : t("classes")}
+            </span>
+            <BoxDetailsIcon name="chevron" className="h-4 w-4 text-muted" />
           </Button>
-        </section>
-      ) : null}
-      <Button
-        type="button"
-        variant="secondary"
-        disabled={saving}
-        className="w-full justify-start gap-3 rounded-xl border-border/60 duration-200 active:bg-surface-elevated motion-reduce:transition-none"
-        onClick={async () => {
-          if (await selectBox(box.id)) router.push("/classes");
-          else setNavigationError(true);
-        }}
-      >
-        <BoxDetailsIcon name="classes" className="h-6 w-6 text-accent" />
-        <span className="flex-1 text-left">
-          {saving ? t("working") : t("classes")}
-        </span>
-        <BoxDetailsIcon name="chevron" className="h-4 w-4 text-muted" />
-      </Button>
-      {navigationError ? (
-        <p role="alert" className="text-sm text-red-300">
-          {t("navigationError")}
-        </p>
-      ) : null}
-      {box.canEditDetails ? (
-        <Link
-          href={`/boxes/${box.id}/edit`}
-          className={`${interactiveRowClass} justify-center text-accent`}
-        >
-          {t("edit")}
-        </Link>
-      ) : null}
+          {navigationError ? (
+            <p role="alert" className="text-sm text-red-300">
+              {t("navigationError")}
+            </p>
+          ) : null}
+          {box.canEditDetails ? (
+            <Link
+              href={`/boxes/${box.id}/edit`}
+              className={`${interactiveRowClass} justify-center text-accent md:w-fit`}
+            >
+              {t("edit")}
+            </Link>
+          ) : null}
+        </div>
+      </div>
       {sheet === "contact" ? (
         <BottomSheet
           title={t("contactSheetTitle", { name: box.name })}

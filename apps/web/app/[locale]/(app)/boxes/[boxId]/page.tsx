@@ -24,7 +24,7 @@ export default async function BoxDetailsPage({
     );
   const box = (await response.json()) as ManagedBox;
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto max-w-4xl">
       <BoxDetailsView key={box.id} box={box} />
     </div>
   );
